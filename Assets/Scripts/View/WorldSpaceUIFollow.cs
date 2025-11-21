@@ -1,3 +1,4 @@
+using System.Collections;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -15,15 +16,22 @@ namespace View
         {
             
         }
-
+        
+        
         private void LateUpdate()
         {
-            if (target == null) return;
+            StartCoroutine(UpdateUIPosition());
+        }
 
-            // 直接使用世界坐标
-            transform.position = target.position + offset;
+        private IEnumerator UpdateUIPosition()
+        {
+            yield return new WaitForEndOfFrame(); // 等摄像机完全更新完
+
+            Vector3 screenPos = Camera.main.WorldToScreenPoint(target.position + offset);
+            transform.position = screenPos;
             SetLayer();
         }
+        
         public void SetLayer()
         {
             int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);

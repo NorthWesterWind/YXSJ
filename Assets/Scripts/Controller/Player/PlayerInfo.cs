@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -10,6 +12,7 @@ namespace Controller.Player
         public Transform target; // 角色头顶挂点
         public Vector3 offset;   // 屏幕偏移（比如往上抬一点）
         public Image fillImage;
+        public Image fillBg;
         public Canvas  canvas;
         public TextMeshProUGUI text;
         public CharacterController  player;
@@ -21,26 +24,41 @@ namespace Controller.Player
                  target =  player.infoTransform;
                  player.playerInfo = this;
             }
+            HideHpInfo();
         }
 
         public void HideHpInfo()
         {
-            fillImage.gameObject.SetActive(false);
+            fillBg.gameObject.SetActive(false);
         }
 
         public void ShowHpInfo()
         {
-            fillImage.gameObject.SetActive(true);
+            fillBg.gameObject.SetActive(true);
         }
 
-        private void LateUpdate()
+      
+
+       private void LateUpdate()
+       {
+           StartCoroutine(UpdateUIPosition());
+       }
+
+       private IEnumerator UpdateUIPosition()
+       {
+           yield return new WaitForEndOfFrame(); // 等摄像机完全更新完
+
+           Vector3 screenPos = Camera.main.WorldToScreenPoint(target.position + offset);
+           transform.position = screenPos;
+
+           SetLayer();
+       }
+
+        private void Update()
         {
-            if (target == null) return;
-
-            // 直接使用世界坐标
-            transform.position = target.position + offset;
-            SetLayer();
+            
         }
+
         public void SetLayer()
         {
             int newOrder = 3000 - Mathf.FloorToInt(player.transform.localPosition.y);
@@ -56,7 +74,14 @@ namespace Controller.Player
         
         public void UpdateTxt()
         {
-            text.text = $"{player.currentCarryNum}/{player.maxCarryNum}";
+            if (player.currentCarryNum >= player.maxCarryNum)
+            {
+                text.text = "储物袋已满";
+            }
+            else
+            {
+                text.text = $"{player.currentCarryNum}/{player.maxCarryNum}";
+            }
         }
     }
 }

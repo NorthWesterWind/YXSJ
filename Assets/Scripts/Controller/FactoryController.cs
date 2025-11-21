@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Controller.Pickups;
 using Module.Data;
 using UnityEngine;
@@ -20,10 +21,10 @@ namespace Controller
         public MonsterType normalType; // 普通怪
         public MonsterType goldenType; // 金色怪
         public MonsterType giantType;  // 巨型怪（可选）
-        private int maxMonsterCount = 50;
+        public int maxMonsterCount = 50;
         private float spawnInterval = 3f;
 
-        private float scatterRadius = 6f;
+        public float scatterRadius = 6f;
         public AnimationCurve scatterCurve;
         private float scatterDuration = 0.5f;
         
@@ -32,6 +33,7 @@ namespace Controller
         private int giantCounter = 0;
         // 黄金怪周期
         private int goldenCounter = 0;
+        public int factorID ;
         private void Awake()
         {
             _assetHandle = GetComponent<AssetHandle>();
@@ -48,7 +50,7 @@ namespace Controller
             {
                 ObjectPoolManager.Instance.WarmPool(Extensions.GetMonsterResNameByType(normalType) , _assetHandle.Get<GameObject>(Extensions.GetMonsterResNameByType(normalType)) ,40);
                 ObjectPoolManager.Instance.WarmPool(Extensions.GetMonsterResNameByType(giantType) , _assetHandle.Get<GameObject>(Extensions.GetMonsterResNameByType(giantType)) ,10);
-                ObjectPoolManager.Instance.WarmPool(Extensions.GetMonsterResNameByType(goldenType) , _assetHandle.Get<GameObject>(Extensions.GetMonsterResNameByType(giantType)) ,5);
+                ObjectPoolManager.Instance.WarmPool(Extensions.GetMonsterResNameByType(goldenType) , _assetHandle.Get<GameObject>(Extensions.GetMonsterResNameByType(goldenType)) ,5);
 
             }
         }
@@ -106,7 +108,7 @@ namespace Controller
             monster.GetComponent<MonsterController>().Init(
                 data,
                 transform.position,
-                behavior);
+                behavior , factorID);
 
             monsterList.Add(monster);
             
@@ -124,7 +126,7 @@ namespace Controller
             if (giantType != MonsterType.None &&  giantCounter >= 30)
             {
 
-                giantType = 0;
+                giantCounter = 0;
                 return giantType;
             }
             
@@ -162,7 +164,7 @@ namespace Controller
 
         IEnumerator ScatterDrops(Vector3 bornPos)
         {
-            foreach (var value in dropDict)
+            foreach (var value in dropDict.ToList()) // 复制一个列表，安全遍历
             {
                 int dropCount = value.Value;
                 for (int i = 0; i < dropCount; i++)
@@ -170,7 +172,6 @@ namespace Controller
                     GameObject drop = ObjectPoolManager.Instance.GetObject("DropObj");
                     drop.GetComponent<DropController>().Init(value.Key);
                     drop.transform.position = bornPos;
-                    // 随机目标点（四周散开）
                     Vector2 target = (Vector2)bornPos + Random.insideUnitCircle.normalized * scatterRadius;
                     Vector2 start = bornPos;
                     Vector2 control = Vector2.Lerp(start, target, 0.5f) + Vector2.up * 1.5f;
@@ -185,7 +186,7 @@ namespace Controller
                         yield return null;
                     }
                     drop.transform.position = target;
-                    drop.GetComponent<DropController>().isAttracted=false;
+                    drop.GetComponent<DropController>().isAttracted = false;
                 }
             }
             

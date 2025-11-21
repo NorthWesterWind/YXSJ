@@ -57,7 +57,7 @@ namespace Controller.Pickups
             // 让具体物品去执行拾取逻辑
             GetComponent<IPickable>().OnPicked(picker.gameObject);
 
-            ObjectPoolManager.Instance.ReturnObject(itemName ,gameObject);
+            ObjectPoolManager.Instance.ReturnObject("DropObj" ,gameObject);
         }
     }
 

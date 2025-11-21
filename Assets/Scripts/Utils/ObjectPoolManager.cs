@@ -12,7 +12,7 @@ namespace Utils
         // 对象池配置：初始大小和最大大小
         public int defaultPoolSize = 10;
 
-        public int maxPoolSize = 50;
+        public int maxPoolSize = 70;
 
         // 存储所有对象池的字典，键为预制体，值为对象池
         private readonly Dictionary<string, ObjectPool> poolDictionary = new();
@@ -87,7 +87,7 @@ namespace Utils
         public void WarmPool(string name, GameObject prefab, int count)
         {
             if (prefab == null) return;
-
+        
             // 如果不存在该预制体的池子，先创建
             if (!poolDictionary.ContainsKey(name)) CreateNewPool(name, prefab);
 

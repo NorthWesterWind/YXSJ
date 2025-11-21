@@ -51,6 +51,7 @@
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Scenes\3rdPersonWithAimMode\ActivateOnKeypress.cs" />
     <Compile Include="Assets\Scripts\Utils\GameInitializer.cs" />
     <Compile Include="Assets\Scripts\Module\Data\BuildingData.cs" />
+    <Compile Include="Assets\Scripts\Controller\Structure\CashierCounter.cs" />
     <Compile Include="Assets\Scripts\Controller\GameController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextEventHandler.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Shared\Scripts\PlayerMove.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Shared\Scripts\SimpleElevator.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeB.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Scenes\BossCamera\CustomLockCameraY.cs" />
+    <Compile Include="Assets\Scripts\View\3D\Production.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\DropdownSample.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Scenes\DualTarget\MoveAimTarget.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexColorCycler.cs" />
@@ -94,6 +96,7 @@
     <Compile Include="Assets\Scripts\Controller\Pickups\DropController.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Scenes\Scripting\ScriptingExample.cs" />
     <Compile Include="Assets\Scripts\Controller\CustomerController.cs" />
+    <Compile Include="Assets\Scripts\Controller\Structure\StructureBase.cs" />
     <Compile Include="Assets\Scripts\Controller\CustomerFactory.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ChatController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ObjectSpin.cs" />
@@ -114,6 +117,7 @@
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Shared\Scripts\SpawnInCircle.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TeleType.cs" />
     <Compile Include="Assets\Scripts\Utils\UIController.cs" />
+    <Compile Include="Assets\Scripts\Controller\Structure\ProductionStation.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextEventCheck.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_UiFrameRateCounter.cs" />
     <Compile Include="Assets\Scripts\Utils\InitializationMgr.cs" />
@@ -131,7 +135,6 @@
     <Compile Include="Assets\Scripts\Utils\SingletonBase.cs" />
     <Compile Include="Assets\Scripts\Utils\StaminaUtil.cs" />
     <Compile Include="Assets\Scripts\Controller\DataController.cs" />
-    <Compile Include="Assets\Scripts\Controller\StructureController.cs" />
     <Compile Include="Assets\Scripts\Utils\BaseModule.cs" />
     <Compile Include="Assets\Scripts\Controller\Pickups\IPickable.cs" />
     <Compile Include="Assets\Scripts\Utils\Extensions.cs" />
@@ -162,7 +165,9 @@
     <Compile Include="Assets\Scripts\View\ControlView.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Scenes\2D\MouseScrollZoom2D.cs" />
     <Compile Include="Assets\Scripts\Utils\Initializable.cs" />
+    <Compile Include="Assets\Scripts\View\ProductionInfo.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Shared\Scripts\InputSystemHelper.cs" />
+    <Compile Include="Assets\Scripts\Controller\Structure\SalesStall.cs" />
     <Compile Include="Assets\Scripts\Controller\MonsterController.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Shared\Scripts\PlayerMoveOnSphere.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Scenes\2D\LoseSightWhenTargetsFallsOffThePlatform.cs" />
@@ -453,6 +458,9 @@
     <Reference Include="Sirenix.Reflection.Editor">
       <HintPath>D:\DAGame\MyFruit\Assets\Plugins\Sirenix\Assemblies\Sirenix.Reflection.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.Collections.LowLevel.ILSupport">
+      <HintPath>D:\DAGame\MyFruit\Library\PackageCache\com.unity.collections@1.2.4\Unity.Collections.LowLevel.ILSupport\Unity.Collections.LowLevel.ILSupport.dll</HintPath>
+    </Reference>
     <Reference Include="ReportGeneratorMerged">
       <HintPath>D:\DAGame\MyFruit\Library\PackageCache\com.unity.testtools.codecoverage@1.2.6\lib\ReportGenerator\ReportGeneratorMerged.dll</HintPath>
     </Reference>
@@ -479,9 +487,6 @@
     </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>D:\DAGame\MyFruit\Library\PackageCache\com.unity.nuget.newtonsoft-json@3.2.2\Runtime\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.Collections.LowLevel.ILSupport">
-      <HintPath>D:\DAGame\MyFruit\Library\PackageCache\com.unity.collections@1.2.4\Unity.Collections.LowLevel.ILSupport\Unity.Collections.LowLevel.ILSupport.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Android.Types">
       <HintPath>D:\Unity\2022.3.62f1\Editor\Data\PlaybackEngines\AndroidPlayer\Unity.Android.Types.dll</HintPath>
@@ -918,11 +923,11 @@
     <Reference Include="Unity.2D.SpriteShape.Runtime">
       <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\Unity.2D.SpriteShape.Runtime.dll</HintPath>
     </Reference>
-    <Reference Include="Unity.Settings.Editor">
-      <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\Unity.Settings.Editor.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.2D.PixelPerfect">
       <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\Unity.2D.PixelPerfect.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Settings.Editor">
+      <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\Unity.Settings.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
       <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\Unity.TextMeshPro.dll</HintPath>
@@ -960,6 +965,9 @@
     <Reference Include="Unity.VisualScripting.Core">
       <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\Unity.VisualScripting.Core.dll</HintPath>
     </Reference>
+    <Reference Include="Unity.2D.Animation.Runtime">
+      <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\Unity.2D.Animation.Runtime.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.2D.Tilemap.Extras">
       <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\Unity.2D.Tilemap.Extras.dll</HintPath>
     </Reference>
@@ -968,9 +976,6 @@
     </Reference>
     <Reference Include="UnityEngine.UI">
       <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="Unity.2D.Animation.Runtime">
-      <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\Unity.2D.Animation.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="Unity.VisualScripting.Flow.Editor">
       <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\Unity.VisualScripting.Flow.Editor.dll</HintPath>

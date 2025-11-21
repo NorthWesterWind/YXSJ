@@ -17,7 +17,7 @@ namespace Controller.Monster
             if ( monster.state != MonsterState.Flee)
                 monster.ChangeState(MonsterState.Flee);
             // 广播逃跑
-            EventCenter.Instance.TriggerEvent(EventMessages.NotifyToFlee,  monster.monsterType);
+            EventCenter.Instance.TriggerEvent(EventMessages.NotifyToFlee,  monster.factorID);
         }
 
         public bool ShouldFlee(MonsterController monster)

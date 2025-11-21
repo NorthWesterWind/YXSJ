@@ -1,6 +1,7 @@
 using Module.Data;
 using PolyNav;
 using UnityEngine;
+using View._3D;
 
 namespace Controller
 {
@@ -43,9 +44,34 @@ namespace Controller
                 animator.SetBool("idle",true);
             }
             SetLayer();
-          
+            CheckProduction();
         }
 
+        void TryPick(Production p)
+        {
+            if (p.CanCustomerPick)
+            {
+                p.SetState(ItemState.HeldByCustomer);
+            }
+        }
+       
+        public LayerMask productLayer;
+        public void CheckProduction()
+        {
+            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 3,productLayer);
+            if (hits.Length > 0)
+            {
+                foreach (Collider2D item in hits)
+                {
+                    if (item.GetComponent<Production>() != null)
+                    {
+                        TryPick(item.GetComponent<Production>());
+                    }
+                }
+            }
+        }
+        
+        
         private void FixedUpdate()
         {
            

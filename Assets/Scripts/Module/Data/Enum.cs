@@ -76,6 +76,7 @@ namespace Module.Data
         {
                 None = 0,
                 //灵茶
+                ShuangYunZhiCha = 1,
                 YunZhiCha,
                 YueLuCha,
                 ZhiXinCha,
@@ -128,7 +129,8 @@ namespace Module.Data
                 None,
                 Idle,
                 Patrol,
-                Flee
+                Flee,
+                Attack
         }
 
         public enum CustomerType
@@ -156,5 +158,29 @@ namespace Module.Data
         public enum ShowUIType
         {
                 TestView
+        }
+
+        public enum StructureType
+        {
+                YuShaHu_1,
+                LingChaJia_1,
+                YuShaHu_2,
+                LingChaJia_2,
+                YuShaHu_3,
+                LingChaJia_3,
+                YuShaHu_4,
+                LingChaJia_4,
+                LianQiLu_1,
+                LingQiJia_1,
+                LianQiLu_2,
+                LingQiJia_2,
+                LianQiLu_3,
+                LingQiJia_3,
+                LingZhangTai,
+                LingChuGe_1,
+                LingChuGe_2,
+                YuDiGe,
+                YuanBaoKuangDong
+             
         }
 }

@@ -8,8 +8,9 @@ namespace Controller
 {
     public class DataController : MonoSingleton<DataController>
     {
-        public Dictionary<MonsterType, MonsterData> monsterDataDic = new ();
-        public Dictionary<CustomerType, CustomerData> customerDataDic = new ();
+        public Dictionary<MonsterType, MonsterData> monsterDataDic = new();
+        public Dictionary<CustomerType, CustomerData> customerDataDic = new();
+
         void Start()
         {
             PrepareData();
@@ -27,7 +28,7 @@ namespace Controller
             monsterDataDic.Clear();
             monsterDataDic = JsonConvert.DeserializeObject<Dictionary<MonsterType, MonsterData>>(monstetStr);
             EventCenter.Instance.TriggerEvent(EventMessages.MonsterBeginCreate);
-            
+
             string customerStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("CustomerData")).text;
             customerDataDic.Clear();
             customerDataDic = JsonConvert.DeserializeObject<Dictionary<CustomerType, CustomerData>>(customerStr);
