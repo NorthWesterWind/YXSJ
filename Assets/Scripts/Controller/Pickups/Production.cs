@@ -1,10 +1,16 @@
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using Controller.Structure;
+using Module.Data;
 using UnityEngine;
+using CharacterController = Controller.Player.CharacterController;
 
-namespace View._3D
+namespace Controller.Pickups
 {
     public enum ItemState
     {
+        None = 0,
         Flying,
         OnWorkbench,
         OnShelf,
@@ -12,7 +18,7 @@ namespace View._3D
         HeldByAssistant,
         HeldByCustomer
     }
-    public class Production : MonoBehaviour
+    public class Production : BasePickup,IPickable
     {
        public SpriteRenderer spriteRenderer;
        public float duration = 0.6f; // 飞行时间
@@ -27,18 +33,33 @@ namespace View._3D
        public bool CanCustomerPick => state == ItemState.OnShelf;
        
        public ItemState state;
+       public GoodsType  goodsType;
+       public List<Production> productions;
+       public StructureBase station;
        public void SetState(ItemState newState)
        {
            state = newState;
        }
 
-       public void FlyTo(Vector3 target)
+       public void SetStation(StructureBase _station)
        {
-           StartCoroutine(FlyRoutine(target));
+           station = _station;
+       }
+       public void Init(GoodsType type)
+       {
+           goodsType = type;
+           canPickup = false;
+           ScenePickupController.Instance.products.Add(this);
+           itemName = "Production";
+       }
+
+       public void FlyTo(Vector3 target , Action callback = null)
+       {
+           StartCoroutine(FlyRoutine(target , callback));
        }
 
 
-       IEnumerator FlyRoutine(Vector3 target)
+       IEnumerator FlyRoutine(Vector3 target , Action callback = null)
        {
            SetState(ItemState.Flying);
 
@@ -64,6 +85,13 @@ namespace View._3D
 
            // 落地直立
            transform.rotation = Quaternion.identity;
+           callback?.Invoke();
+       }
+
+       public void OnPicked(GameObject picker)
+       {
+           
+           picker.GetComponent<CharacterController>().AddGoods(goodsType);
        }
     }
 }

@@ -6,7 +6,7 @@ namespace Controller.Structure
 {
     public class StructureBase : MonoBehaviour
     {
-        public StructureType structureType;
+        public BuildingType structureType;
         public SpriteRenderer sprite;
         protected AssetHandle _assetHandle;
         protected virtual void Start()

@@ -60,9 +60,26 @@ namespace Module.Data
         }
         public enum BuildingType
         {
-                LingZhangTai,
-                LingChuGe,
-                YunDiGe,
+                None = 0,
+                LingZhangTai = 1,
+                LingChuGe_1 = 2,
+                YunDiGe = 3,
+                LingChaJia_1 =4,
+                YuShaHu_1 = 5,
+                LingChaJia_2 = 6,
+                YuShaHu_2 = 7,
+                LingChaJia_3 = 8,
+                YuShaHu_3 = 9,
+                LingChaJia_4 = 10,
+                YuShaHu_4 = 11,
+                LianQiLu_1 = 12,
+                LingQiJia_1 = 13,
+                LianQiLu_2 = 14,
+                LingQiJia_2 = 15,
+                LianQiLu_3 = 16,
+                LingQiJia_3 = 17,
+                YuanBaoKuangDong = 18,
+                LingChuGe_2 = 19,
         }
 
         public enum EmployeeType
@@ -71,56 +88,55 @@ namespace Module.Data
                XunCaiTu,
                YunDiZhe,
                
-        }
+        }   
         public enum GoodsType
         {
                 None = 0,
                 //灵茶
-                ShuangYunZhiCha = 1,
-                YunZhiCha,
-                YueLuCha,
-                ZhiXinCha,
-                YuHeCha,
-                XingWenCha,
-                WuRongCha,
-                LingXuCha,
-                XueBanCha,
-                MuLingCha,
-                JingRuiCha,
+                YunZhiCha = 1,
+                YueLuCha = 2,
+                ZhiXinCha = 3,
+                YuHeCha = 4,
+                XingWenCha = 5,
+                WuRongCha = 6,
+                LingXuCha = 7,
+                XueBanCha = 8,
+                MuLingCha = 9,
+                JingRuiCha = 10,
                 
                 //灵器
-                QingYanJian,
-                YinSiDao,
-                TongWenDao,
-                ZiWuJian,
-                YueXinJing
+                QingYanJian = 11,
+                YinSiDao = 12,
+                TongWenDao = 13,
+                ZiWuJian = 14,
+                YueXinJing = 15,
+                
+                
+                JingYunBao = 16,
+                YingQian = 17,
         }
 
         public enum DropItemType
         {
                 None = 0,
-                ShuangYunZhiFragment,
-                YueLuCaoFragment,
-                ZiXinHuaFragment,
-                YuHuiHeFragment,
-                XingWenGuoFragment,
-                WuRongJunFragment,
-                LingXuShengFragment,
-                XueBanHuaFragment,
-                MuLingYaFragment,
-                JingRuiCaoFragment,
+                ShuangYunZhiFragment = 1,
+                YueLuCaoFragment = 2,
+                ZiXinHuaFragment = 3,
+                YuHuiHeFragment = 4,
+                XingWenGuoFragment = 5,
+                WuRongJunFragment = 6,
+                LingXuShengFragment = 7,
+                XueBanHuaFragment = 8,
+                MuLingYaFragment = 9,
+                JingRuiCaoFragment = 10,
                 
                 //灵器
-                TieKuangShiFragment,
-                YinKuangShiFragment,
-                TongKuangShiFragment,
-                ZiJingShiFragment,
-                YueJingShiFragment,
-                
-                
-                JingYunBao,
+                TieKuangShiFragment = 11,
+                YinKuangShiFragment = 12,
+                TongKuangShiFragment = 13,
+                ZiJingShiFragment = 14,
+                YueJingShiFragment = 15,
                 YingQian,
-                
         }
         
 
@@ -131,6 +147,16 @@ namespace Module.Data
                 Patrol,
                 Flee,
                 Attack
+        }
+
+        public enum MapType
+        {
+                None = 0 , 
+                ChunHuiGu = 1,
+                BiLanGu = 2,
+                JinLuGu = 3,
+                YunDingGu = 4,
+                WangShuGu = 5
         }
 
         public enum CustomerType
@@ -160,27 +186,42 @@ namespace Module.Data
                 TestView
         }
 
-        public enum StructureType
+        // public enum StructureType
+        // {
+        //         None = 0 ,
+        //         YuShaHu_1 = 1,
+        //         LingChaJia_1 = 2,
+        //         YuShaHu_2 = 3,
+        //         LingChaJia_2 = 4,
+        //         YuShaHu_3 = 5,
+        //         LingChaJia_3 = 6,
+        //         YuShaHu_4 = 7,
+        //         LingChaJia_4 = 8,
+        //         LianQiLu_1 = 9,
+        //         LingQiJia_1 = 10,
+        //         LianQiLu_2 = 11,
+        //         LingQiJia_2 = 12,
+        //         LianQiLu_3 = 13,
+        //         LingQiJia_3 = 14,
+        //         LingZhangTai = 15,
+        //       
+        //      
+        // }
+
+        public enum TaskType
         {
-                YuShaHu_1,
-                LingChaJia_1,
-                YuShaHu_2,
-                LingChaJia_2,
-                YuShaHu_3,
-                LingChaJia_3,
-                YuShaHu_4,
-                LingChaJia_4,
-                LianQiLu_1,
-                LingQiJia_1,
-                LianQiLu_2,
-                LingQiJia_2,
-                LianQiLu_3,
-                LingQiJia_3,
-                LingZhangTai,
-                LingChuGe_1,
-                LingChuGe_2,
-                YuDiGe,
-                YuanBaoKuangDong
-             
+                None = 0,
+                Produce = 1,
+                Upgrade = 2,
+                Construct = 3,
+                Sell = 4,
+                Harvest = 5,  
+                Makemoney = 6,
+                Unlock = 7,
+        }
+
+        public enum AreaType
+        {
+                
         }
 }

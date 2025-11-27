@@ -5,13 +5,14 @@ using Controller.Pickups;
 using Controller.Structure;
 using Module;
 using Module.Data;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using Utils;
-using View._3D;
+
 
 namespace Controller.Player
 {
-    public class CharacterController : MonoBehaviour
+    public class CharacterController : SerializedMonoBehaviour
     {
         private Animator _animator;
         private Vector2 _dirValue;
@@ -21,32 +22,34 @@ namespace Controller.Player
         public SpriteRenderer shadowRenderer;
         public SpriteRenderer weaponRenderer;
         public CinemachineVirtualCamera camera;
+        public CinemachineVirtualCamera focusCamera;
         private Rigidbody2D _rigidbody;
         public GameObject weapon;
 
         public float detectRadius = 10f; // 怪物检测半径
         public LayerMask monsterLayer;   // 只检测怪物层
-        public LayerMask productLayer;  
-        public LayerMask productStationLayer;  
-       
+        public LayerMask productLayer;
+        public LayerMask productStationLayer;
+
 
         public List<InteractionController> overlappingTrigger = new();
         public Transform receiveTransform;
         public Transform infoTransform;
         public PlayerInfo playerInfo;
-        
-        public Dictionary<GoodsType , int> goodsDic = new ();
-        public Dictionary<DropItemType, int> dropDic = new ();
-        
+
+        public Dictionary<GoodsType, int> goodsDic = new();
+        public Dictionary<DropItemType, int> dropDic = new();
+
         public int currentCarryNum = 0;
         public float currentHp;
         public float maxHp;
         public int maxCarryNum;
         public float currentPinkUpRange;
         float velocity = 0f;
-        public  bool isDead = false;
+        public bool isDead = false;
 
         private AssetHandle _assetHandle;
+
         private void Awake()
         {
             if (_animator == null)
@@ -60,6 +63,7 @@ namespace Controller.Player
             }
 
             camera = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
+            focusCamera = GameObject.Find("FocusVirtualCamera").GetComponent<CinemachineVirtualCamera>();
             _rigidbody = GetComponent<Rigidbody2D>();
             _assetHandle = GetComponent<AssetHandle>();
         }
@@ -76,17 +80,17 @@ namespace Controller.Player
             EventCenter.Instance.AddListener(EventMessages.TriggerDetection, HandleTrigger);
             EventCenter.Instance.AddListener(EventMessages.FocusView, HandleFocusView);
             EventCenter.Instance.AddListener(EventMessages.RestoreFocusView, RestoreFocusView);
-            EventCenter.Instance.AddListener(EventMessages.PlayerTakeDamage,HandleTakeDamage);
+            EventCenter.Instance.AddListener(EventMessages.PlayerTakeDamage, HandleTakeDamage);
+            EventCenter.Instance.AddListener(EventMessages.FocusNewPosition ,HandleFocusNew);
         }
 
         public void Init()
         {
             currentCarryNum = 0;
             currentHp = dataModule.data.hp;
-            maxCarryNum =  dataModule.data.bagCapacity;
+            maxCarryNum = dataModule.data.bagCapacity;
             currentPinkUpRange = dataModule.data.pickUpRange;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
-            ObjectPoolManager.Instance.WarmPool("DropObj",_assetHandle.Get<GameObject>("DropObj") , 30);
         }
 
         public void SetLayer()
@@ -102,7 +106,11 @@ namespace Controller.Player
         void Update()
         {
             if (isShowUI)
+            {
+                _animator.SetBool("move", false);
+                _animator.SetBool("idle", true);
                 return;
+            }
             if (_dirValue != Vector2.zero)
             {
                 isMoving = true;
@@ -140,8 +148,9 @@ namespace Controller.Player
 
             CheckMonster();
             CheckDrop();
-            CheckProduction();
             CheckProductStation();
+            CheckProduct();
+            CheckSaleStall();
         }
 
         private void FixedUpdate()
@@ -149,14 +158,13 @@ namespace Controller.Player
             if (isMoving)
             {
                 _rigidbody.MovePosition(_rigidbody.position +
-                                        new Vector2(_dirValue.x, _dirValue.y) * 10 * Time.fixedDeltaTime);
+                                        new Vector2(_dirValue.x, _dirValue.y) * (10 * Time.fixedDeltaTime));
             }
         }
 
         private void HandleFocusView(params object[] args)
         {
             isShowUI = true;
-            Debug.Log("yj ==>  Focus View");
             if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 13))
             {
                 camera.m_Lens.OrthographicSize =
@@ -166,12 +174,10 @@ namespace Controller.Player
 
         private void RestoreFocusView(params object[] args)
         {
-            Debug.Log("yj ==> Restore Focus View");
             isShowUI = false;
         }
 
-        
-        
+
         public void SetDir(Vector2 direction)
         {
             _dirValue = direction;
@@ -181,7 +187,8 @@ namespace Controller.Player
         private float lastDamageTime = -999f; // 上次受伤时间
         private bool isRegenerating = false;
         private Coroutine regenCoroutine;
-        private float regenDelay = 3f; 
+        private float regenDelay = 3f;
+
         private IEnumerator RegenerateHealth()
         {
             isRegenerating = true;
@@ -189,7 +196,7 @@ namespace Controller.Player
             while (currentHp < dataModule.data.hp)
             {
                 currentHp += dataModule.data.hpRecover * Time.deltaTime;
-                currentHp = Mathf.Min(currentHp,dataModule.data.hp);
+                currentHp = Mathf.Min(currentHp, dataModule.data.hp);
                 playerInfo.UpdateFill(currentHp / dataModule.data.hp);
                 yield return null;
 
@@ -207,26 +214,46 @@ namespace Controller.Player
 
         public void CheckDrop()
         {
-            foreach (var item in ScenePickupController.Instance.pickups)
+            var list = ScenePickupController.Instance.materials.ToArray();
+
+            foreach (var item in list)
             {
+                if (item == null) continue;                       // 回收后 item 可能被销毁
+                if (!item.gameObject.activeInHierarchy) continue; // 避免 inactive
+
                 float dist = Vector2.Distance(transform.position, item.transform.position);
-                if (dist <= currentPinkUpRange && currentCarryNum < maxCarryNum )
+                if (dist <= currentPinkUpRange && currentCarryNum < maxCarryNum)
                 {
                     item.StartAttract(this.transform, receiveTransform);
                 }
             }
         }
-        
-        public bool TryPick(Production p)
+
+        public void CheckProduct()
         {
-            if (p.CanPlayerPick)
+            var list = ScenePickupController.Instance.products.ToArray();
+            foreach (var item in list)
             {
-                p.SetState(ItemState.HeldByPlayer);
-                return true;
+                if (item == null) continue;
+                if (!item.gameObject.activeInHierarchy) continue;
+
+                float dist = Vector2.Distance(transform.position, item.transform.position);
+                if (dist <= currentPinkUpRange && item.GetComponent<Production>().station is CashierCounter)
+                {
+                    ((CashierCounter)(item.GetComponent<Production>().station)).grid.ReleaseOne();
+                    item.StartAttract(this.transform, receiveTransform);
+                }
+                else if (dist <= currentPinkUpRange && currentCarryNum < maxCarryNum)
+                {
+                    if (item.GetComponent<Production>().state != ItemState.OnWorkbench)
+                        continue;
+                    ((ProductionStation)(item.GetComponent<Production>().station)).grid.ReleaseOne();
+                    item.StartAttract(this.transform, receiveTransform);
+                }
+                
             }
-            return false;
         }
-        
+
         //怪物检测函数
         public void CheckMonster()
         {
@@ -249,47 +276,75 @@ namespace Controller.Player
                 }
             }
         }
-        
-        
+
+
         public AnimationCurve scatterCurve;
         private float scatterDuration = 0.1f;
-        private Coroutine deliverCoroutine;
+        private Dictionary<string, Coroutine> deliverCoroutines = new();
 
         public void CheckProductStation()
         {
             if (isMoving) return;
-
-            Collider2D hit = Physics2D.OverlapCircle(transform.position, 5, productStationLayer);
-            if (hit == null) return;
-
-            var station = hit.GetComponent<ProductionStation>();
-            if (station == null) return;
-
-            if (!dropDic.ContainsKey(station.dropItemType)) return;
-            if (dropDic[station.dropItemType] <= 0) return;
-
-            // 确保协程不会并发重复启动
-            if (deliverCoroutine == null)
+            foreach (var data in GameController.Instance.buildings)
             {
-                deliverCoroutine = StartCoroutine(DeliverMaterial(station));
+                if (data.Key == BuildingType.YuShaHu_1 || data.Key == BuildingType.LianQiLu_1 ||
+                    data.Key == BuildingType.YuShaHu_2 || data.Key == BuildingType.YuShaHu_3 ||
+                    data.Key == BuildingType.YuShaHu_4 || data.Key == BuildingType.LianQiLu_2 ||
+                    data.Key == BuildingType.LianQiLu_3)
+                {
+                    if ((data.Value.gameObject.transform.position - transform.position).sqrMagnitude < 8)
+                    {
+                        var station = data.Value as ProductionStation;
+                        if (station == null) continue;
+
+                        if (!dropDic.ContainsKey(station.dropItemType)) continue;
+                        if (dropDic[station.dropItemType] <= 0) continue;
+
+                        if (!deliverCoroutines.ContainsKey("ProductStation"))
+                        {
+                            deliverCoroutines["ProductStation"] = StartCoroutine(DeliverMaterial(station));
+                        }
+                    }
+                }
             }
         }
+
+        public void CheckSaleStall()
+        {
+            if (isMoving) return;
+            foreach (var data in GameController.Instance.goodBuild)
+            {
+                if ((data.Value.gameObject.transform.position - transform.position).sqrMagnitude < 8)
+                {
+                    var station = data.Value as SalesStall;
+                    if (station == null) continue;
+
+                    if (!goodsDic.ContainsKey(station.currentGoodsType)) continue;
+                    if (goodsDic[station.currentGoodsType] <= 0) continue;
+
+                    // 确保协程不会并发重复启动
+                    if (!deliverCoroutines.ContainsKey("SaleStall"))
+                    {
+                        deliverCoroutines["SaleStall"] = StartCoroutine(DeliverProduct(station));
+                    }
+                }
+            }
+        }
+
         private IEnumerator DeliverMaterial(ProductionStation station)
         {
             int count = dropDic[station.dropItemType];
-
             for (int i = 0; i < count; i++)
             {
                 if (isMoving)
                 {
-                    deliverCoroutine = null;
+                    deliverCoroutines["ProductStation"] = null;
                     break;
-                } 
+                }
 
                 GameObject drop = ObjectPoolManager.Instance.GetObject("DropObj");
                 var dropCtrl = drop.GetComponent<DropController>();
-
-                dropCtrl.isAttracted = false;
+                dropCtrl.canPickup = false;
                 dropCtrl.Init(station.dropItemType);
 
                 Vector2 start = receiveTransform.position;
@@ -325,26 +380,60 @@ namespace Controller.Player
                 yield return new WaitForSeconds(0.05f); // 多个材料间隔
             }
 
-            deliverCoroutine = null;
+            deliverCoroutines["ProductStation"] = null;
+            deliverCoroutines.Remove("ProductStation");
         }
 
-        
-        public void CheckProduction()
+        private IEnumerator DeliverProduct(SalesStall station)
         {
-           
-            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, 5, productLayer);
-            if (hits.Length > 0)
+            int count = goodsDic[station.currentGoodsType];
+            for (int i = 0; i < count; i++)
             {
-                foreach (Collider2D item in hits)
+                if (isMoving)
                 {
-                    if (item.GetComponent<Production>() != null)
-                    {
-                        TryPick(item.GetComponent<Production>());
-                    }
+                    deliverCoroutines["SaleStall"] = null;
+                    break;
                 }
+
+                GameObject drop = ObjectPoolManager.Instance.GetObject("Production");
+                var dropCtrl = drop.GetComponent<Production>();
+                dropCtrl.canPickup = false;
+                dropCtrl.Init(station.currentGoodsType);
+                dropCtrl.SetStation(station);
+                Vector2 start = receiveTransform.position;
+                dropCtrl.spriteRenderer.sortingOrder = station.grid.currentIndex + 4000;
+                Vector2 target = station.grid.GetNextPosition();
+                Vector2 control = Vector2.Lerp(start, target, 0.5f) + Vector2.up * 1.5f;
+
+                float timer = 0f;
+
+                while (timer < scatterDuration)
+                {
+                    if (isMoving) break;
+
+                    float t = scatterCurve.Evaluate(timer / scatterDuration);
+                    Vector2 pos = (1 - t) * (1 - t) * start +
+                                  2 * (1 - t) * t * control +
+                                  t * t * target;
+
+                    drop.transform.position = pos;
+                    timer += Time.deltaTime;
+                    yield return null;
+                }
+
+                drop.transform.position = target;
+
+                station.AddGoods(dropCtrl);
+                // 递减材料计数
+                goodsDic[station.currentGoodsType]--;
+                currentCarryNum--;
+                playerInfo.UpdateTxt();
+                yield return new WaitForSeconds(0.05f);
             }
+
+            deliverCoroutines["SaleStall"] = null;
+            deliverCoroutines.Remove("SaleStall");
         }
-        
 
 
         private void HandleTrigger(params object[] args)
@@ -418,6 +507,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
+
                     break;
                 case DropItemType.ZiXinHuaFragment:
                     currentCarryNum += 1;
@@ -425,6 +515,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
+
                     break;
                 case DropItemType.YuHuiHeFragment:
                     currentCarryNum += 1;
@@ -432,6 +523,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
+
                     break;
                 case DropItemType.XingWenGuoFragment:
                     currentCarryNum += 1;
@@ -439,6 +531,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
+
                     break;
                 case DropItemType.WuRongJunFragment:
                     currentCarryNum += 1;
@@ -446,6 +539,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
+
                     break;
                 case DropItemType.LingXuShengFragment:
                     currentCarryNum += 1;
@@ -453,6 +547,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
+
                     break;
                 case DropItemType.XueBanHuaFragment:
                     currentCarryNum += 1;
@@ -460,6 +555,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
+
                     break;
                 case DropItemType.MuLingYaFragment:
                     currentCarryNum += 1;
@@ -467,6 +563,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
+
                     break;
                 case DropItemType.JingRuiCaoFragment:
                     currentCarryNum += 1;
@@ -474,14 +571,16 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
+
                     break;
-                
+
                 case DropItemType.TieKuangShiFragment:
                     currentCarryNum += 1;
                     if (!dropDic.TryAdd(itemType, 1))
                     {
                         dropDic[itemType]++;
                     }
+
                     break;
                 case DropItemType.YinKuangShiFragment:
                     currentCarryNum += 1;
@@ -489,6 +588,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
+
                     break;
                 case DropItemType.TongKuangShiFragment:
                     currentCarryNum += 1;
@@ -496,6 +596,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
+
                     break;
                 case DropItemType.ZiJingShiFragment:
                     currentCarryNum += 1;
@@ -503,6 +604,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
+
                     break;
                 case DropItemType.YueJingShiFragment:
                     currentCarryNum += 1;
@@ -511,27 +613,58 @@ namespace Controller.Player
                         dropDic[itemType]++;
                     }
                     break;
-                case DropItemType.JingYunBao:
-                    dataModule.AddJinYuanBao(10);
-                    break;
-                case DropItemType.YingQian:
-                    dataModule.AddYinQian(100);
-                    break;
-                
+                // case DropItemType.JingYunBao:
+                //     dataModule.AddJinYuanBao(10);
+                //     break;
+                // case DropItemType.YingQian:
+                //     dataModule.AddYinQian(100);
+                //     break;
             }
+
             playerInfo.UpdateTxt();
-                 
         }
-        
-        
-        
+
+        public void AddGoods(GoodsType goodsType)
+        {
+            if (goodsType == GoodsType.YingQian )
+            {
+                dataModule.AddYinQian(100);
+            }else if (goodsType == GoodsType.JingYunBao)
+            {
+                dataModule.AddJinYuanBao(10);
+            }
+            else
+            {
+                currentCarryNum++;
+                goodsDic.TryAdd(goodsType, 0);
+                goodsDic[goodsType]++;
+                playerInfo.UpdateTxt();
+            }
+        }
+
 
         public void HandleTakeDamage(params object[] args)
         {
             float value = (float)args[0];
             TakeDamage(value);
         }
-        
+
+        public void HandleFocusNew(params object[] args)
+        {
+            Transform t = (Transform)args[0];
+            EventCenter.Instance.TriggerEvent(EventMessages.FocusView); // 禁止输入
+            focusCamera.LookAt = t;
+            focusCamera.Priority = 20; // > PlayerCam 的 10
+            StartCoroutine(ReturnAfterDelay(3f));
+        }
+        IEnumerator ReturnAfterDelay(float seconds)
+        {
+            yield return new WaitForSeconds(seconds);
+            focusCamera.LookAt = transform;
+            focusCamera.Priority = 5;                                             // 恢复为低
+            EventCenter.Instance.TriggerEvent(EventMessages.RestoreFocusView); // 恢复输入
+        }
+
         private bool invincible = false;
         private float invincibleTime = 0.2f;
 
@@ -551,8 +684,8 @@ namespace Controller.Player
 
         public void DoDie()
         {
-            
         }
+
         private IEnumerator InvincibleFrame()
         {
             invincible = true;
@@ -565,7 +698,7 @@ namespace Controller.Player
             EventCenter.Instance.RemoveListener(EventMessages.TriggerDetection, HandleTrigger);
             EventCenter.Instance.RemoveListener(EventMessages.FocusView, HandleFocusView);
             EventCenter.Instance.RemoveListener(EventMessages.RestoreFocusView, RestoreFocusView);
-            EventCenter.Instance.RemoveListener(EventMessages.PlayerTakeDamage,HandleTakeDamage);
+            EventCenter.Instance.RemoveListener(EventMessages.PlayerTakeDamage, HandleTakeDamage);
         }
     }
 }

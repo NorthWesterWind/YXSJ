@@ -20,7 +20,7 @@ namespace Controller
         private bool isTouching = false;
         private int activeFingerId = -1;
         private AssetHandle _assetHandle;
-        private bool canInput = true;
+        public bool canInput = true;
         private void Awake()
         {
             _assetHandle = gameObject.GetComponent<AssetHandle>();

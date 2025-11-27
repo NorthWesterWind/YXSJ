@@ -116,7 +116,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5183203316372013044}
   - component: {fileID: 1671368966924664933}
-  - component: {fileID: 7930088095193043569}
   m_Layer: 0
   m_Name: shadow
   m_TagString: Untagged
@@ -191,27 +190,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!95 &7930088095193043569
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1412531634070676376}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 22100000, guid: 19a5b6a68a778184384f3ff1e50119a7, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1420076749889552020
 GameObject:
   m_ObjectHideFlags: 0
@@ -246,6 +224,7 @@ Transform:
   m_Children:
   - {fileID: 640563090159844487}
   - {fileID: 5183203316372013044}
+  - {fileID: 1630326645130359850}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1283985384682761431
@@ -266,8 +245,8 @@ MonoBehaviour:
   stoppingDistance: 0.1
   slowingDistance: 1
   lookAheadDistance: 1
-  avoidRadius: 0.7
-  avoidanceConsiderStuckedTime: 3
+  avoidRadius: 1
+  avoidanceConsiderStuckedTime: 1.5
   avoidanceConsiderReachedDistance: 1
   rotateTransform: 0
   rotateSpeed: 350
@@ -299,9 +278,11 @@ MonoBehaviour:
   nextPosition: {x: 0, y: 0}
   goodsType: 0
   spriteRenderer: {fileID: 7765538983967446070}
-  positions: []
   currentIndex: 0
   animator: {fileID: 7007759677717235943}
+  salesStall: {fileID: 0}
+  receiveTransform: {fileID: 1630326645130359850}
+  purchaseList: []
 --- !u!61 &7444321363211434876
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -347,3 +328,34 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.82061267, y: 1.1418325}
   m_EdgeRadius: 0
+--- !u!1 &6201495511144131038
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1630326645130359850}
+  m_Layer: 0
+  m_Name: receiveTransfrom
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1630326645130359850
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6201495511144131038}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.446, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4674698216646384595}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

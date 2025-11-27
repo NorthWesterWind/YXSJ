@@ -60,6 +60,7 @@ namespace Controller
         private IMonsterBehaviorStrategy _behaviorStrategy;
 
         public SpriteRenderer indicator;
+        public GameObject indicatorParent;
         private Transform playerTransform;
 
         private bool isFleeing = false;
@@ -102,7 +103,7 @@ namespace Controller
             _hpInfo.SetActive(false);
 
             SetLayer();
-            ObjectPoolManager.Instance.WarmPool("DropObj", _assetHandle.Get<GameObject>("DropObj"), 30);
+           
 
             switch (behavior)
             {
@@ -252,15 +253,14 @@ namespace Controller
                 clamped += Random.insideUnitCircle.normalized * 1f;
 
             agent.SetDestination(clamped);
-
-            transform.localScale = (behaviorType == MonsterBehavior.Giant)
-                ? new Vector3(fleeDir.x < 0 ? -1.4f : 1.4f, 1.4f, 1)
-                : new Vector3(fleeDir.x < 0 ? -1 : 1, 1, 1);
+            spriteRenderer.flipX = fleeDir.x < 0;
         }
-
+        
+        private bool isDead = false;
+        
         public void TakeDamage(int damage, Transform attacker)
         {
-            if (currentHp <= 0) return;
+            if (isDead) return;
             if (Time.time - _lastHitTime < _damageInterval) return;
 
             _lastHitTime = Time.time;
@@ -283,7 +283,11 @@ namespace Controller
             _hpInfo.SetActive(true);
             _worldSpaceUIFollow.UpdateFill(currentHp / data.hp);
 
-            if (currentHp <= 0) DoDie();
+            if (currentHp <= 0)
+            {
+                isDead = true;
+                DoDie();
+            }
         }
 
         // ---------------- 巨型怪物逻辑 ----------------
@@ -315,34 +319,28 @@ namespace Controller
             state = MonsterState.ChargeWait;
             agent.Stop();
 
-            indicator.gameObject.SetActive(true);
             indicator.sortingOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
             indicator.color = Color.white;
             indicator.transform.localScale = Vector3.zero;
 
-            Vector2 dir = targetPos - (Vector2)transform.position;
+            Vector2 dir = targetPos - (Vector2)indicatorParent.transform.position;
             float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-            indicator.transform.rotation = Quaternion.Euler(0, 0, angle);
-
-            indicator.DOColor(Color.red, 1f).SetLoops(2, LoopType.Yoyo);
-            indicator.transform.DOScale(Vector3.one, 0.3f).SetEase(Ease.OutBack);
-
-            yield return new WaitForSeconds(1.5f);
-            indicator.gameObject.SetActive(false);
+            indicatorParent.transform.rotation = Quaternion.Euler(0, 0, angle);
 
             // 冲撞阶段
             // --- 冲撞准备阶段 ---
             state = MonsterState.ChargeWait;
             agent.Stop();
-            indicator.gameObject.SetActive(true); // 指示器显示
+            indicatorParent.gameObject.SetActive(true); // 指示器显示
             indicator.transform.localScale = Vector3.zero;
+            indicator.DOColor(Color.red, 1f).SetLoops(2, LoopType.Yoyo);
             indicator.transform.DOScale(Vector3.one, 0.3f).SetEase(Ease.OutBack);
-            yield return new WaitForSeconds(1.5f); // 准备时间
-            indicator.gameObject.SetActive(false); // 准备完成隐藏
+            yield return new WaitForSeconds(1.5f);       // 准备时间
+            indicatorParent.gameObject.SetActive(false); // 准备完成隐藏
 
             // --- 冲撞移动阶段 ---
             state = MonsterState.ChargeMove;
-            agent.maxSpeed = 6f;
+            agent.maxSpeed = 8f;
             agent.SetDestination(targetPos);
 
             float startTime = Time.time;
@@ -390,9 +388,11 @@ namespace Controller
         public void DoDie()
         {
             EventCenter.Instance.TriggerEvent(EventMessages.CameraBeginShaking);
-            EventCenter.Instance.TriggerEvent(EventMessages.MonsterDead, monsterType, gameObject);
+            EventCenter.Instance.TriggerEvent(EventMessages.MonsterDead, monsterType, gameObject , factorID);
             Destroy(_hpInfo);
             EventCenter.Instance.RemoveListener(EventMessages.NotifyToFlee, HandleNotifyToFlee);
+            isDead = false;
+            Debug.Log("yj == > 执行 DoDie");
         }
 
         private void OnDestroy()
@@ -413,14 +413,7 @@ namespace Controller
             Vector2 randomDir = Random.insideUnitCircle * patrolRadius;
             randomDir += patrolCenter;
 
-            if (behaviorType == MonsterBehavior.Giant)
-            {
-                transform.localScale = new Vector3(randomDir.x < transform.position.x ? -1.4f : 1.4f, 1.4f, 1);
-            }
-            else
-            {
-                transform.localScale = new Vector3(randomDir.x < transform.position.x ? -1 : 1, 1, 1);
-            }
+            spriteRenderer.flipX = randomDir.x < transform.position.x;
 
             return randomDir;
         }

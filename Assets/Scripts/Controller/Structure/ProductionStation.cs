@@ -1,9 +1,8 @@
-using System;
+using Controller.Pickups;
 using Module.Data;
 using UnityEngine;
 using Utils;
 using View;
-using View._3D;
 
 namespace Controller.Structure
 {
@@ -23,7 +22,7 @@ namespace Controller.Structure
         public ProductionInfo productionInfo;
         public DropItemType dropItemType;
         public GoodsType goodsType;
-        
+        public BuildingType buildingType;
         public GameObject _productObj;
         private AssetHandle _assetHandle;
         public PlacementGrid grid = new PlacementGrid();
@@ -32,10 +31,11 @@ namespace Controller.Structure
         {
             base.Start();
             EventCenter.Instance.AddListener(EventMessages.ProductionComplete , HandleProductionComplete);
-           // ObjectPoolManager.Instance.WarmPool("Production" , _productObj , 40 );
             _assetHandle = GetComponent<AssetHandle>();
             productionInfo.Init(baseProductionTime , productionSpeed , currentMaterialCount ,this );
             grid.basePosition = productPosition.position;
+            GameController.Instance.buildings.Add(buildingType , this);
+            ObjectPoolManager.Instance.WarmPool("Production" , _productObj , 50);
         }
 
         private void Update()
@@ -65,17 +65,23 @@ namespace Controller.Structure
         }
         private void HandleProductionComplete(params object[] args)
         {
-            StructureType t = (StructureType)args[0];
+            BuildingType t = (BuildingType)args[0];
             if (t != structureType)
             {
                 return;
-            }
-         //   GameObject  productObj = ObjectPoolManager.Instance.GetObject("Production");
-            GameObject  productObj = Instantiate(_productObj);
+            } 
+            GameObject  productObj = ObjectPoolManager.Instance.GetObject("Production");
             productObj.transform.position = recivePosition.position;
             Production product =  productObj.GetComponent<Production>();
-            product.FlyTo(grid.GetNextPosition());
-            product.SetState(ItemState.OnWorkbench);
+            product.Init(goodsType);
+            product.SetStation(this);
+            product.spriteRenderer.sortingOrder = grid.currentIndex + 4000;
+            product.FlyTo(grid.GetNextPosition() , (() =>
+            {
+                product.canPickup = true;
+                product.SetState(ItemState.OnWorkbench);
+            }));
+          
             if (currentMaterialCount == 0)
             {
                 OnProductionFinished();
@@ -88,43 +94,62 @@ namespace Controller.Structure
         private void OnDestroy()
         {
             Destroy(productionInfo.gameObject);
+            EventCenter.Instance.RemoveListener(EventMessages.ProductionComplete , HandleProductionComplete);
         }
     }
-   
-     
 
-   
+
+
+
     [System.Serializable]
     public class PlacementGrid
     {
-        private int columns = 3;     // 每层的列数
-        private int rows = 3;        // 每层的行数（可以理解为X方向）
-        public float xSpacing = 1f; // X方向间距
-        public float ySpacing = 1f; // Y方向间距（层高）
+        public int columns = 3;
+        public int rows = 3;
+        public int layers = 3;
 
-        private int currentIndex = 0;
-        public Vector2 basePosition; // 2D 起点
+        public float xSpacing = 1f;
+        public float ySpacing = 0.5f;
+
+        public Vector2 basePosition;
+
+        public int currentIndex = 0;
+        private float layerSpacing = 0.5f;
 
         public Vector2 GetNextPosition()
         {
+            int layerSize = columns * rows;
+            int maxIndex = layerSize * layers;
+
+            if (currentIndex >= maxIndex)
+                currentIndex = 0;  // 循环
+
             int index = currentIndex++;
 
-            int layer = index / (rows * columns);      // 第几层
-            int layerIndex = index % (rows * columns); // 在当前层内的索引
-            int row = layerIndex / columns;            // 当前层的行
-            int col = layerIndex % columns;            // 当前层的列
-            float x = basePosition.x + col * xSpacing ;
-            float y = basePosition.y + layer * ySpacing + row * 0.5f; // 行方向可以加0，如果你想竖直放置可以用行乘间距
+            int layer = index / layerSize;
+            int layerIndex = index % layerSize;
+
+            int row = layerIndex / columns;
+            int col = layerIndex % columns;
+
+            float x = basePosition.x + col * xSpacing;
+            float y = basePosition.y + layer * layerSpacing + row * ySpacing;
 
             return new Vector2(x, y);
         }
 
+        public void ReleaseOne()
+        {
+            if (currentIndex > 0)
+                currentIndex--;
+        }
 
-        public void ResetGrid()
+        public void Reset()
         {
             currentIndex = 0;
         }
     }
+
 
 
 }

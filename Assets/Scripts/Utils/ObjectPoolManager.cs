@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Controller.Pickups;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -10,9 +11,9 @@ namespace Utils
     public class ObjectPoolManager : MonoSingleton<ObjectPoolManager>
     {
         // 对象池配置：初始大小和最大大小
-        public int defaultPoolSize = 10;
+        private int defaultPoolSize = 10;
 
-        public int maxPoolSize = 70;
+        private int maxPoolSize = 300;
 
         // 存储所有对象池的字典，键为预制体，值为对象池
         private readonly Dictionary<string, ObjectPool> poolDictionary = new();
@@ -67,6 +68,10 @@ namespace Utils
         public void ReturnObject(string name, GameObject obj)
         {
             if (obj == null) return;
+            if (obj.GetComponent<BasePickup>() != null)
+            {
+                obj.GetComponent<BasePickup>().StopAllCoroutines();
+            }
             if (instanceToPrefab.TryGetValue(obj, out var prefab))
             {
                 poolDictionary[name].ReturnObject(obj);
@@ -168,43 +173,44 @@ namespace Utils
             {
                 GameObject obj;
 
+                // 有可用对象 → 直接取
                 if (availableObjects.Count > 0)
                 {
-                    // 优先使用未被使用的对象
                     obj = availableObjects.Dequeue();
                 }
                 else
                 {
+                    // 无可用对象 → 自动扩容
                     if (allObjects.Count < maxSize)
                     {
                         obj = CreateNewObject();
                     }
                     else
                     {
-                        // 达到最大容量且没有可用对象 → 返回 null 或者选择策略扩容
-                        Debug.LogWarning($"对象池 {prefab.name} 已达到最大容量，没有可用对象");
+                        Debug.LogWarning($"对象池 {prefab.name} 已满，无法创建更多对象");
                         return null;
                     }
                 }
 
-                if (obj == null)
-                    obj = CreateNewObject();
                 obj.SetActive(true);
                 return obj;
             }
+
 
 
             public void ReturnObject(GameObject obj)
             {
                 if (obj == null) return;
 
-                // 重置对象状态（可选）
+                // 已经在池中就不要重复加入（避免重复回收）
+                if (availableObjects.Contains(obj))
+                    return;
+
                 obj.transform.SetParent(container);
                 obj.SetActive(false);
-
-                // 将对象返回池中
                 availableObjects.Enqueue(obj);
             }
+
 
             public void Warm(int count)
             {

@@ -34,7 +34,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.019999601, y: 2.23}
+  m_AnchoredPosition: {x: -0.121, y: 1.008}
   m_SizeDelta: {x: 1.6408, y: 1.3022}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &4899887474866690709
@@ -311,6 +311,7 @@ Transform:
   m_Children:
   - {fileID: 7154653626648935079}
   - {fileID: 906286926342131146}
+  - {fileID: 3249096845687340713}
   - {fileID: 3060295086007649703}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -332,8 +333,8 @@ MonoBehaviour:
   stoppingDistance: 0.1
   slowingDistance: 1
   lookAheadDistance: 1
-  avoidRadius: 0.7
-  avoidanceConsiderStuckedTime: 3
+  avoidRadius: 1
+  avoidanceConsiderStuckedTime: 1.5
   avoidanceConsiderReachedDistance: 1
   rotateTransform: 0
   rotateSpeed: 350
@@ -365,9 +366,11 @@ MonoBehaviour:
   nextPosition: {x: 0, y: 0}
   goodsType: 0
   spriteRenderer: {fileID: 6068751098663778272}
-  positions: []
   currentIndex: 0
   animator: {fileID: 5376006944767506851}
+  salesStall: {fileID: 0}
+  receiveTransform: {fileID: 3249096845687340713}
+  purchaseList: []
 --- !u!61 &7097605380315753826
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -413,6 +416,37 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.82061267, y: 1.1418325}
   m_EdgeRadius: 0
+--- !u!1 &4975754394845054298
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3249096845687340713}
+  m_Layer: 0
+  m_Name: recive
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3249096845687340713
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4975754394845054298}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.09, y: 1.814, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4690960631581805919}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5941354587017172799
 GameObject:
   m_ObjectHideFlags: 0
@@ -423,7 +457,6 @@ GameObject:
   m_Component:
   - component: {fileID: 906286926342131146}
   - component: {fileID: 2917989677841092665}
-  - component: {fileID: 5711028497688737878}
   m_Layer: 0
   m_Name: shadow
   m_TagString: Untagged
@@ -498,24 +531,3 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!95 &5711028497688737878
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5941354587017172799}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 22100000, guid: 19a5b6a68a778184384f3ff1e50119a7, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0

@@ -80,23 +80,7 @@ namespace World.View.UI
             {
                 _canvasGroup = gameObject.AddComponent<CanvasGroup>();
             }
-        
-            // // 初始化背景点击事件
-            // if (_closeBackground != null )
-            // {
-            //     var trigger = _closeBackground.gameObject.GetComponent<UIButton>();
-            //     if (trigger == null)
-            //     {
-            //         trigger = _closeBackground.gameObject.AddComponent<UIButton>();
-            //     }
-            //     trigger.onClick.RemoveAllListeners();
-            //     trigger.onClick.AddListener((() =>
-            //     {
-            //         Hide();
-            //     }));
-            //   
-            // }
-        
+            
             if (_hideOnAwake)
             {
                 HideImmediate();
@@ -143,6 +127,7 @@ namespace World.View.UI
         /// </summary>
         public virtual void ShowImmediate()
         {
+            if (IsVisible || IsHiding) return;
             gameObject.SetActive(true);
             IsVisible = true;
         
@@ -157,7 +142,7 @@ namespace World.View.UI
             onShowComplete?.Invoke();
             OnShow();
         }
-    
+        public bool IsHiding { get; private set; } = false;
         /// <summary>
         /// 隐藏面板（带动画）
         /// </summary>
@@ -372,7 +357,7 @@ namespace World.View.UI
         /// <summary>
         /// 当面板开始隐藏时调用（Hide / HideImmediate）
         /// </summary>
-        protected virtual void OnHide() { }
+        protected virtual void OnHide() {   IsHiding = true;}
 
         /// <summary>
         /// 当显示动画播放完毕时调用
@@ -382,6 +367,6 @@ namespace World.View.UI
         /// <summary>
         /// 当隐藏动画播放完毕时调用
         /// </summary>
-        protected virtual void OnHideComplete() { }
+        protected virtual void OnHideComplete() { IsHiding = false;}
     }
 }

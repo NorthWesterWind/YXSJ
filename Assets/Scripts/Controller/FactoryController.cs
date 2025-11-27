@@ -26,14 +26,17 @@ namespace Controller
 
         public float scatterRadius = 6f;
         public AnimationCurve scatterCurve;
-        private float scatterDuration = 0.5f;
-        
+        private float scatterDuration = 0.1f;
+
         private int spawnCounter = 0;
+
         // 巨人怪周期
         private int giantCounter = 0;
+
         // 黄金怪周期
         private int goldenCounter = 0;
-        public int factorID ;
+        public int factorID;
+
         private void Awake()
         {
             _assetHandle = GetComponent<AssetHandle>();
@@ -41,18 +44,32 @@ namespace Controller
 
         void Start()
         {
-            AddEvent();
             if (isSpecial)
             {
-                ObjectPoolManager.Instance.WarmPool(Extensions.GetMonsterResNameByType(giantType) , _assetHandle.Get<GameObject>(Extensions.GetMonsterResNameByType(giantType)) ,10);
+                ObjectPoolManager.Instance.WarmPool(Extensions.GetMonsterResNameByType(giantType),
+                    _assetHandle.Get<GameObject>(Extensions.GetMonsterResNameByType(giantType)), 10);
             }
             else
             {
-                ObjectPoolManager.Instance.WarmPool(Extensions.GetMonsterResNameByType(normalType) , _assetHandle.Get<GameObject>(Extensions.GetMonsterResNameByType(normalType)) ,40);
-                ObjectPoolManager.Instance.WarmPool(Extensions.GetMonsterResNameByType(giantType) , _assetHandle.Get<GameObject>(Extensions.GetMonsterResNameByType(giantType)) ,10);
-                ObjectPoolManager.Instance.WarmPool(Extensions.GetMonsterResNameByType(goldenType) , _assetHandle.Get<GameObject>(Extensions.GetMonsterResNameByType(goldenType)) ,5);
-
+                ObjectPoolManager.Instance.WarmPool(Extensions.GetMonsterResNameByType(normalType),
+                    _assetHandle.Get<GameObject>(Extensions.GetMonsterResNameByType(normalType)), 40);
+                ObjectPoolManager.Instance.WarmPool(Extensions.GetMonsterResNameByType(giantType),
+                    _assetHandle.Get<GameObject>(Extensions.GetMonsterResNameByType(giantType)), 10);
+                ObjectPoolManager.Instance.WarmPool(Extensions.GetMonsterResNameByType(goldenType),
+                    _assetHandle.Get<GameObject>(Extensions.GetMonsterResNameByType(goldenType)), 3);
             }
+            ObjectPoolManager.Instance.WarmPool("DropObj", _assetHandle.Get<GameObject>("DropObj"), 30);
+        }
+
+        private void OnEnable()
+        {
+            AddEvent();
+        }
+
+        private void OnDisable()
+        {
+            EventCenter.Instance.RemoveListener(EventMessages.MonsterDead, HandleMonsterDead);
+            EventCenter.Instance.RemoveListener(EventMessages.MonsterBeginCreate, HandleMonsterCreate);
         }
 
         void Update()
@@ -89,29 +106,29 @@ namespace Controller
                 }
             }
         }
-        
+
         private void SpawnMonster()
         {
-            MonsterType toSpawnType = DecideSpawnType();  
+            MonsterType toSpawnType = DecideSpawnType();
             GameObject monster = ObjectPoolManager.Instance.GetObject(Extensions.GetMonsterResNameByType(toSpawnType));
             MonsterData data = DataController.Instance.monsterDataDic[toSpawnType];
             monster.transform.position = GetRandomSpawnPos();
-           MonsterBehavior behavior = MonsterBehavior.Normal;
+            MonsterBehavior behavior = MonsterBehavior.Normal;
             if (toSpawnType == giantType)
             {
                 behavior = MonsterBehavior.Giant;
             }
             else if (toSpawnType == goldenType)
             {
-                behavior =  MonsterBehavior.Golden;
+                behavior = MonsterBehavior.Golden;
             }
+
             monster.GetComponent<MonsterController>().Init(
                 data,
                 transform.position,
-                behavior , factorID);
+                behavior, factorID);
 
             monsterList.Add(monster);
-            
         }
 
         // 决定下一只怪物品质 
@@ -121,24 +138,24 @@ namespace Controller
             {
                 return giantType;
             }
+
             giantCounter++;
             goldenCounter++;
-            if (giantType != MonsterType.None &&  giantCounter >= 30)
+            if (giantType != MonsterType.None && giantCounter >= 30)
             {
-
                 giantCounter = 0;
                 return giantType;
             }
-            
+
             if (goldenCounter >= 60)
             {
                 goldenCounter = 0;
                 return goldenType;
             }
-            
+
             return normalType;
         }
-        
+
         Vector3 GetRandomSpawnPos()
         {
             // 可根据需求换成地图内随机点
@@ -158,48 +175,70 @@ namespace Controller
             GetDropType(monster.GetComponent<MonsterController>().monsterType);
             Vector3 bornPos = new Vector3(monster.transform.position.x, monster.transform.position.y,
                 monster.transform.position.z);
-            ObjectPoolManager.Instance.ReturnObject(Extensions.GetMonsterResNameByType(monster.GetComponent<MonsterController>().monsterType), monster);
+            ObjectPoolManager.Instance.ReturnObject(
+                Extensions.GetMonsterResNameByType(monster.GetComponent<MonsterController>().monsterType), monster);
             StartCoroutine(ScatterDrops(bornPos));
         }
 
+
         IEnumerator ScatterDrops(Vector3 bornPos)
         {
-            foreach (var value in dropDict.ToList()) // 复制一个列表，安全遍历
+            foreach (var kv in dropDict.ToList())
             {
-                int dropCount = value.Value;
+                int dropCount = kv.Value;
+                DropItemType dropType = kv.Key;
+
                 for (int i = 0; i < dropCount; i++)
                 {
                     GameObject drop = ObjectPoolManager.Instance.GetObject("DropObj");
-                    drop.GetComponent<DropController>().Init(value.Key);
+                    drop.GetComponent<DropController>().Init(dropType);
                     drop.transform.position = bornPos;
-                    Vector2 target = (Vector2)bornPos + Random.insideUnitCircle.normalized * scatterRadius;
-                    Vector2 start = bornPos;
-                    Vector2 control = Vector2.Lerp(start, target, 0.5f) + Vector2.up * 1.5f;
-
-                    float timer = 0;
-                    while (timer < scatterDuration)
-                    {
-                        float t = scatterCurve.Evaluate(timer / scatterDuration);
-                        Vector2 pos = (1 - t) * (1 - t) * start + 2 * (1 - t) * t * control + t * t * target;
-                        drop.transform.position = pos;
-                        timer += Time.deltaTime;
-                        yield return null;
-                    }
-                    drop.transform.position = target;
-                    drop.GetComponent<DropController>().isAttracted = false;
+                    StartCoroutine(FlyDrop(drop, bornPos));
                 }
             }
             
+            yield break;
         }
+
+        IEnumerator FlyDrop(GameObject drop, Vector3 bornPos)
+        {
+            Vector2 target = (Vector2)bornPos + Random.insideUnitCircle.normalized * scatterRadius;
+            Vector2 start = bornPos;
+            Vector2 control = Vector2.Lerp(start, target, 0.5f) + Vector2.up * 1.5f;
+
+            float timer = 0f;
+
+            while (timer < 0.3f)
+            {
+                float t = scatterCurve.Evaluate(timer/0.3f);
+                Vector2 pos = (1 - t) * (1 - t) * start + 
+                              2 * (1 - t) * t * control + 
+                              t * t * target;
+
+                drop.transform.position = pos;
+                timer += Time.deltaTime;
+
+                yield return null;
+            }
+
+            drop.transform.position = target;
+            drop.GetComponent<DropController>().canPickup = true;
+        }
+
 
         private void HandleMonsterDead(params object[] args)
         {
             var type = (MonsterType)args[0];
             var target = (GameObject)args[1];
+            var id = (int)args[2];
+            if (id != factorID)
+                return;
             if (type != normalType && type != giantType && type != goldenType)
             {
                 return;
             }
+
+            Debug.Log("yj ==> 处理怪物死亡逻辑");
             RemoveMonster(target);
         }
 
@@ -207,165 +246,165 @@ namespace Controller
         {
             StartCoroutine(SpawnLoop());
         }
-        
-        Dictionary<DropItemType,int> dropDict = new ();
+
+        Dictionary<DropItemType, int> dropDict = new();
+
         private void GetDropType(MonsterType monsterType)
         {
             dropDict.Clear();
-                switch (monsterType)
-                {
-                     case MonsterType.ShuangYunZhi: 
-                         dropDict[DropItemType.ShuangYunZhiFragment] = 1;
-                        break;
-                    case MonsterType.ShuangYunZhiGolden:
-                        dropDict[DropItemType.ShuangYunZhiFragment] = 10;
-                        dropDict[DropItemType.YingQian] = 10;
-                        break;
-                    case MonsterType.ShuangYunZhiBig:
-                        dropDict[DropItemType.ShuangYunZhiFragment] = 4;
-                        break;
-                    case MonsterType.YueLuCao:
-                        dropDict[DropItemType.YueLuCaoFragment] = 1;
-                        break;
-                    case MonsterType.YueLuCaoGolden:
-                        dropDict[DropItemType.YueLuCaoFragment] = 10;
-                        dropDict[DropItemType.YingQian] = 10;
-                        break;
-                    case MonsterType.YueLuCaoBig:
-                        dropDict[DropItemType.YueLuCaoFragment] = 4;
-                        break;
-                    case MonsterType.ZiXinHua:
-                        dropDict[DropItemType.ZiXinHuaFragment] = 1;
-                        break;
-                    case MonsterType.ZiXinHuaGolden:
-                        dropDict[DropItemType.ZiXinHuaFragment] = 10;
-                        dropDict[DropItemType.YingQian] = 10;
-                        break;
-                    case MonsterType.ZiXinHuaBig:
-                        dropDict[DropItemType.ZiXinHuaFragment] = 4;
-                        break;
-                    case MonsterType.YuHuiHe:
-                        dropDict[DropItemType.YuHuiHeFragment] = 1;
-                        break;
-                    case MonsterType.YuHuiHeGolden:
-                        dropDict[DropItemType.YuHuiHeFragment] = 10;
-                        dropDict[DropItemType.YingQian] = 10;
-                        break;
-                    case MonsterType.YuHuiHeBig:
-                        dropDict[DropItemType.YuHuiHeFragment] = 4;
-                        break;
-                    case MonsterType.XingWenGuo:
-                        dropDict[DropItemType.XingWenGuoFragment] = 1;
-                        break;
-                    case MonsterType.XingWenGuoGolden:
-                        dropDict[DropItemType.XingWenGuoFragment] = 10;
-                        dropDict[DropItemType.YingQian] = 10;
-                        break;
-                    case MonsterType.XingWenGuoBig:
-                        dropDict[DropItemType.XingWenGuoFragment] = 4;
-                        break;
-                    case MonsterType.WuRongJun:
-                        dropDict[DropItemType.WuRongJunFragment] = 1;
-                        break;
-                    case MonsterType.WuRongJunBig:
-                        dropDict[DropItemType.WuRongJunFragment] = 4;
-                        break;
-                    case MonsterType.WuRongJunGolden:
-                        dropDict[DropItemType.WuRongJunFragment] = 10;
-                        dropDict[DropItemType.YingQian] = 10;
-                        break;
-                    case MonsterType.LingXuSheng:
-                        dropDict[DropItemType.LingXuShengFragment] = 1;
-                        break;
-                    case MonsterType.LingXuShengGolden:
-                        dropDict[DropItemType.LingXuShengFragment] = 10;
-                        dropDict[DropItemType.YingQian] = 10;
-                        break;
-                    case MonsterType.LingXuShengBig:
-                        dropDict[DropItemType.LingXuShengFragment] = 4;
-                        break;
-                    case MonsterType.XueBanHua:
-                        dropDict[DropItemType.XueBanHuaFragment] = 1;
-                        break;
-                    case MonsterType.XueBanHuaGolden:
-                        dropDict[DropItemType.XueBanHuaFragment] = 10;
-                        dropDict[DropItemType.YingQian] = 10;
-                        break;
-                    case MonsterType.XueBanHuaBig:
-                        dropDict[DropItemType.XueBanHuaFragment] = 4;
-                        break;
-                    case MonsterType.MuLingYa:
-                        dropDict[DropItemType.MuLingYaFragment] = 1;
-                        break;
-                    case MonsterType.MuLingYaGolden:
-                        dropDict[DropItemType.MuLingYaFragment] = 10;
-                        dropDict[DropItemType.YingQian] = 10;
-                        break;
-                    case MonsterType.MuLingYaBig:
-                        dropDict[DropItemType.MuLingYaFragment] = 4;
-                        break;
-                    case MonsterType.JingRuiCao:
-                        dropDict[DropItemType.JingRuiCaoFragment] = 1;
-                        break;
-                    case MonsterType.JingRuiCaoGolden:
-                        dropDict[DropItemType.JingRuiCaoFragment] = 10;
-                        dropDict[DropItemType.YingQian] = 10;
-                        break;
-                    case MonsterType.JingRuiCaoBig:
-                        dropDict[DropItemType.JingRuiCaoFragment] = 4;
-                        break;
-                    case MonsterType.TieKuangShi:
-                        dropDict[DropItemType.TieKuangShiFragment] = 1;
-                        break;
-                    case MonsterType.TieKuangShiGolden:
-                        dropDict[DropItemType.TieKuangShiFragment] = 10;
-                        dropDict[DropItemType.YingQian] = 10;
-                        break;
-                    case MonsterType.TieKuangShiBig:
-                        dropDict[DropItemType.TieKuangShiFragment] = 4;
-                        break;
-                    case MonsterType.YinKuangShi:
-                        dropDict[DropItemType.YinKuangShiFragment] = 1;
-                        break;
-                    case MonsterType.YinKuangShiGolden:
-                        dropDict[DropItemType.YinKuangShiFragment] = 10;
-                        dropDict[DropItemType.YingQian] = 10;
-                        break;
-                    case MonsterType.YinKuangShiBig:
-                        dropDict[DropItemType.YinKuangShiFragment] = 4;
-                        break;
-                    case MonsterType.TongKuangShi:
-                        dropDict[DropItemType.TongKuangShiFragment] = 1;
-                        break;
-                    case MonsterType.TongKuangShiGolden:
-                        dropDict[DropItemType.TongKuangShiFragment] = 10;
-                        dropDict[DropItemType.YingQian] = 10;
-                        break;
-                    case MonsterType.TongKuangShiBig:
-                        dropDict[DropItemType.TongKuangShiFragment] = 4;
-                        break;
-                    case MonsterType.ZiJingShi:
-                        dropDict[DropItemType.ZiJingShiFragment] = 1;
-                        break;
-                    case MonsterType.ZiJingShiGolden:
-                        dropDict[DropItemType.ZiJingShiFragment] = 10;
-                        dropDict[DropItemType.YingQian] = 10;
-                        break;
-                    case MonsterType.ZiJingShiBig:
-                        dropDict[DropItemType.ZiJingShiFragment] = 4;
-                        break;
-                    case MonsterType.YueJingShi:
-                        dropDict[DropItemType.YueJingShiFragment] = 1;
-                        break;
-                    case MonsterType.YueJingShiGolden:
-                        dropDict[DropItemType.YueJingShiFragment] = 10;
-                        dropDict[DropItemType.YingQian] = 10;
-                        break;
-                    case MonsterType.YueJingShiBig:
-                        dropDict[DropItemType.YueJingShiFragment] = 4;
-                        break;
-                }
-            
+            switch (monsterType)
+            {
+                case MonsterType.ShuangYunZhi:
+                    dropDict[DropItemType.ShuangYunZhiFragment] = 1;
+                    break;
+                case MonsterType.ShuangYunZhiGolden:
+                    dropDict[DropItemType.ShuangYunZhiFragment] = 10;
+                    dropDict[DropItemType.YingQian] = 10;
+                    break;
+                case MonsterType.ShuangYunZhiBig:
+                    dropDict[DropItemType.ShuangYunZhiFragment] = 4;
+                    break;
+                case MonsterType.YueLuCao:
+                    dropDict[DropItemType.YueLuCaoFragment] = 1;
+                    break;
+                case MonsterType.YueLuCaoGolden:
+                    dropDict[DropItemType.YueLuCaoFragment] = 10;
+                    dropDict[DropItemType.YingQian] = 10;
+                    break;
+                case MonsterType.YueLuCaoBig:
+                    dropDict[DropItemType.YueLuCaoFragment] = 4;
+                    break;
+                case MonsterType.ZiXinHua:
+                    dropDict[DropItemType.ZiXinHuaFragment] = 1;
+                    break;
+                case MonsterType.ZiXinHuaGolden:
+                    dropDict[DropItemType.ZiXinHuaFragment] = 10;
+                    dropDict[DropItemType.YingQian] = 10;
+                    break;
+                case MonsterType.ZiXinHuaBig:
+                    dropDict[DropItemType.ZiXinHuaFragment] = 4;
+                    break;
+                case MonsterType.YuHuiHe:
+                    dropDict[DropItemType.YuHuiHeFragment] = 1;
+                    break;
+                case MonsterType.YuHuiHeGolden:
+                    dropDict[DropItemType.YuHuiHeFragment] = 10;
+                    dropDict[DropItemType.YingQian] = 10;
+                    break;
+                case MonsterType.YuHuiHeBig:
+                    dropDict[DropItemType.YuHuiHeFragment] = 4;
+                    break;
+                case MonsterType.XingWenGuo:
+                    dropDict[DropItemType.XingWenGuoFragment] = 1;
+                    break;
+                case MonsterType.XingWenGuoGolden:
+                    dropDict[DropItemType.XingWenGuoFragment] = 10;
+                    dropDict[DropItemType.YingQian] = 10;
+                    break;
+                case MonsterType.XingWenGuoBig:
+                    dropDict[DropItemType.XingWenGuoFragment] = 4;
+                    break;
+                case MonsterType.WuRongJun:
+                    dropDict[DropItemType.WuRongJunFragment] = 1;
+                    break;
+                case MonsterType.WuRongJunBig:
+                    dropDict[DropItemType.WuRongJunFragment] = 4;
+                    break;
+                case MonsterType.WuRongJunGolden:
+                    dropDict[DropItemType.WuRongJunFragment] = 10;
+                    dropDict[DropItemType.YingQian] = 10;
+                    break;
+                case MonsterType.LingXuSheng:
+                    dropDict[DropItemType.LingXuShengFragment] = 1;
+                    break;
+                case MonsterType.LingXuShengGolden:
+                    dropDict[DropItemType.LingXuShengFragment] = 10;
+                    dropDict[DropItemType.YingQian] = 10;
+                    break;
+                case MonsterType.LingXuShengBig:
+                    dropDict[DropItemType.LingXuShengFragment] = 4;
+                    break;
+                case MonsterType.XueBanHua:
+                    dropDict[DropItemType.XueBanHuaFragment] = 1;
+                    break;
+                case MonsterType.XueBanHuaGolden:
+                    dropDict[DropItemType.XueBanHuaFragment] = 10;
+                    dropDict[DropItemType.YingQian] = 10;
+                    break;
+                case MonsterType.XueBanHuaBig:
+                    dropDict[DropItemType.XueBanHuaFragment] = 4;
+                    break;
+                case MonsterType.MuLingYa:
+                    dropDict[DropItemType.MuLingYaFragment] = 1;
+                    break;
+                case MonsterType.MuLingYaGolden:
+                    dropDict[DropItemType.MuLingYaFragment] = 10;
+                    dropDict[DropItemType.YingQian] = 10;
+                    break;
+                case MonsterType.MuLingYaBig:
+                    dropDict[DropItemType.MuLingYaFragment] = 4;
+                    break;
+                case MonsterType.JingRuiCao:
+                    dropDict[DropItemType.JingRuiCaoFragment] = 1;
+                    break;
+                case MonsterType.JingRuiCaoGolden:
+                    dropDict[DropItemType.JingRuiCaoFragment] = 10;
+                    dropDict[DropItemType.YingQian] = 10;
+                    break;
+                case MonsterType.JingRuiCaoBig:
+                    dropDict[DropItemType.JingRuiCaoFragment] = 4;
+                    break;
+                case MonsterType.TieKuangShi:
+                    dropDict[DropItemType.TieKuangShiFragment] = 1;
+                    break;
+                case MonsterType.TieKuangShiGolden:
+                    dropDict[DropItemType.TieKuangShiFragment] = 10;
+                    dropDict[DropItemType.YingQian] = 10;
+                    break;
+                case MonsterType.TieKuangShiBig:
+                    dropDict[DropItemType.TieKuangShiFragment] = 4;
+                    break;
+                case MonsterType.YinKuangShi:
+                    dropDict[DropItemType.YinKuangShiFragment] = 1;
+                    break;
+                case MonsterType.YinKuangShiGolden:
+                    dropDict[DropItemType.YinKuangShiFragment] = 10;
+                    dropDict[DropItemType.YingQian] = 10;
+                    break;
+                case MonsterType.YinKuangShiBig:
+                    dropDict[DropItemType.YinKuangShiFragment] = 4;
+                    break;
+                case MonsterType.TongKuangShi:
+                    dropDict[DropItemType.TongKuangShiFragment] = 1;
+                    break;
+                case MonsterType.TongKuangShiGolden:
+                    dropDict[DropItemType.TongKuangShiFragment] = 10;
+                    dropDict[DropItemType.YingQian] = 10;
+                    break;
+                case MonsterType.TongKuangShiBig:
+                    dropDict[DropItemType.TongKuangShiFragment] = 4;
+                    break;
+                case MonsterType.ZiJingShi:
+                    dropDict[DropItemType.ZiJingShiFragment] = 1;
+                    break;
+                case MonsterType.ZiJingShiGolden:
+                    dropDict[DropItemType.ZiJingShiFragment] = 10;
+                    dropDict[DropItemType.YingQian] = 10;
+                    break;
+                case MonsterType.ZiJingShiBig:
+                    dropDict[DropItemType.ZiJingShiFragment] = 4;
+                    break;
+                case MonsterType.YueJingShi:
+                    dropDict[DropItemType.YueJingShiFragment] = 1;
+                    break;
+                case MonsterType.YueJingShiGolden:
+                    dropDict[DropItemType.YueJingShiFragment] = 10;
+                    dropDict[DropItemType.YingQian] = 10;
+                    break;
+                case MonsterType.YueJingShiBig:
+                    dropDict[DropItemType.YueJingShiFragment] = 4;
+                    break;
+            }
         }
     }
 }

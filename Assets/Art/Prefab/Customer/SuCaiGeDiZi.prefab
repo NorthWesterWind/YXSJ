@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 862360038770471776}
   - component: {fileID: 2718604379421021028}
-  - component: {fileID: 3911635930404418941}
   m_Layer: 0
   m_Name: shadow
   m_TagString: Untagged
@@ -85,27 +84,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!95 &3911635930404418941
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 763782710051959382}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 22100000, guid: 19a5b6a68a778184384f3ff1e50119a7, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1474242462261255852
 GameObject:
   m_ObjectHideFlags: 0
@@ -140,6 +118,7 @@ Transform:
   m_Children:
   - {fileID: 998794310111212889}
   - {fileID: 862360038770471776}
+  - {fileID: 4544592672557045143}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8163581027281123658
@@ -160,8 +139,8 @@ MonoBehaviour:
   stoppingDistance: 0.1
   slowingDistance: 1
   lookAheadDistance: 1
-  avoidRadius: 0.7
-  avoidanceConsiderStuckedTime: 3
+  avoidRadius: 1
+  avoidanceConsiderStuckedTime: 1.5
   avoidanceConsiderReachedDistance: 1
   rotateTransform: 0
   rotateSpeed: 350
@@ -193,9 +172,11 @@ MonoBehaviour:
   nextPosition: {x: 0, y: 0}
   goodsType: 0
   spriteRenderer: {fileID: 4942825755186277033}
-  positions: []
   currentIndex: 0
   animator: {fileID: 7116945686780374937}
+  salesStall: {fileID: 0}
+  receiveTransform: {fileID: 4544592672557045143}
+  purchaseList: []
 --- !u!61 &2497312479837699726
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -347,3 +328,34 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &6044508458763422116
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4544592672557045143}
+  m_Layer: 0
+  m_Name: recive
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4544592672557045143
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6044508458763422116}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.677, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3266673986091281180}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

@@ -27,6 +27,7 @@ namespace Utils
             }
             else
                 eventHandlers[eventType] = handler;
+            Debug.Log("yj == > 添加监听逻辑 "+ eventType);
         }
 
         #endregion
@@ -57,11 +58,15 @@ namespace Utils
         public void TriggerEvent(string eventType, params object[] data)
         {
             if (string.IsNullOrEmpty(eventType)) return;
-
+            
+          
             if (eventHandlers.TryGetValue(eventType, out var handler))
             {
                 if (handler is EventHandler eventHandler)
+                {
                     eventHandler.Invoke(data);
+                    Debug.Log("yj == > 触发事件 " + eventType);
+                }
                 else
                     Debug.LogWarning($"[EventCenter] 事件 {eventType} 的委托类型不匹配");
             }

@@ -45,7 +45,7 @@ namespace View
        }
        
        public void StartProductionLoop(ProductionStation container,
-           StructureType type,
+           BuildingType type,
            float baseTime,
            float speed)
        {
@@ -63,7 +63,7 @@ namespace View
            speed = newSpeed;
        }
 
-       private IEnumerator ProductionLoop(ProductionStation container, StructureType type)
+       private IEnumerator ProductionLoop(ProductionStation container,BuildingType type)
        {
            while (container.currentMaterialCount > 0)
            {
@@ -78,7 +78,7 @@ namespace View
            container.OnProductionFinished();
        }
 
-       private IEnumerator PlayProgressBar(StructureType type)
+       private IEnumerator PlayProgressBar(BuildingType type)
        {
            float t = 0f;
            float productionTime = baseTime / speed; 

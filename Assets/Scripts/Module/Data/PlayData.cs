@@ -38,6 +38,12 @@ namespace Module.Data
         public int silverCoin;
         public int goldIngot;
 
+        public int recentMapID = 1;
+        public int currentMapID = 1;
+
+
+        public int accountLevel = 1;
+
         #endregion
 
     }

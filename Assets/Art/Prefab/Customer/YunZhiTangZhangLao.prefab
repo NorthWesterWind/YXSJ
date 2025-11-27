@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3452833822642005635}
   - component: {fileID: 2692092138340344791}
-  - component: {fileID: 2343864861191101889}
   m_Layer: 0
   m_Name: shadow
   m_TagString: Untagged
@@ -85,27 +84,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!95 &2343864861191101889
-Animator:
-  serializedVersion: 5
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4033320470723424365}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 22100000, guid: 19a5b6a68a778184384f3ff1e50119a7, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &4976153198757103152
 GameObject:
   m_ObjectHideFlags: 0
@@ -140,7 +118,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.526, y: 1.691}
+  m_AnchoredPosition: {x: -0.526, y: 0.315}
   m_SizeDelta: {x: 1.6408, y: 1.3022}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &30251153679210936
@@ -384,6 +362,37 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &6941049642992766605
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1718685139410049926}
+  m_Layer: 0
+  m_Name: recive
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1718685139410049926
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6941049642992766605}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.104, y: 1.784, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5028050232998506797}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9093421099254233882
 GameObject:
   m_ObjectHideFlags: 0
@@ -418,6 +427,7 @@ Transform:
   m_Children:
   - {fileID: 4255694126539300868}
   - {fileID: 3452833822642005635}
+  - {fileID: 1718685139410049926}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &9150955034736230960
@@ -438,8 +448,8 @@ MonoBehaviour:
   stoppingDistance: 0.1
   slowingDistance: 1
   lookAheadDistance: 1
-  avoidRadius: 0.7
-  avoidanceConsiderStuckedTime: 3
+  avoidRadius: 1
+  avoidanceConsiderStuckedTime: 1.5
   avoidanceConsiderReachedDistance: 1
   rotateTransform: 0
   rotateSpeed: 350
@@ -471,9 +481,11 @@ MonoBehaviour:
   nextPosition: {x: 0, y: 0}
   goodsType: 0
   spriteRenderer: {fileID: 226915941124490572}
-  positions: []
   currentIndex: 0
   animator: {fileID: 7047314619836947507}
+  salesStall: {fileID: 0}
+  receiveTransform: {fileID: 1718685139410049926}
+  purchaseList: []
 --- !u!61 &4427249614036058765
 BoxCollider2D:
   m_ObjectHideFlags: 0

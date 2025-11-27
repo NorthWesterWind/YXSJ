@@ -377,12 +377,41 @@ namespace Utils
 					resName = "YueJingShiBig";
                         break;
 			}
-
-
-
-
-
 			return resName;
+		}
+
+		public static string GetCustomerResNameByType(CustomerType type)
+		{
+			string resName = "";
+			switch (type)
+			{
+				case CustomerType.YunZhiTangDiZi: 
+					resName = "YunZhiTangDiZi";
+					break;
+				case CustomerType.YunZhiTangZhangLao:
+					resName = "YunZhiTangZhangLao";
+					break;
+				case CustomerType.CangYunGeDiZi:
+					resName = "CangYunGeDiZi";
+					break;
+				case CustomerType.CangYunGeZhangLao:
+					resName = "CangYunGeZhangLao";
+					break;
+				case CustomerType.QingLanGuDiZi:
+					resName = "QingLanGuDiZi";
+					break;
+				case CustomerType.QingLanGuZhangLao:
+					resName = "CangYunGeZhangLao";
+					break;
+				case CustomerType.SuCaiGeDiZi:
+					resName = "SuCaiGeDiZi";
+					break;
+				case CustomerType.SuCaiGeZhangLao:
+					resName = "SuCaiGeZhangLao";
+					break;
+			}
+			return resName;
+			
 		}
 	}
 }

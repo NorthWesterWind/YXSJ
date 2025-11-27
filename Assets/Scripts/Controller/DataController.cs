@@ -10,7 +10,7 @@ namespace Controller
     {
         public Dictionary<MonsterType, MonsterData> monsterDataDic = new();
         public Dictionary<CustomerType, CustomerData> customerDataDic = new();
-
+        public Dictionary< MapType,MapData>  mapDataDic = new();
         void Start()
         {
             PrepareData();
@@ -33,6 +33,12 @@ namespace Controller
             customerDataDic.Clear();
             customerDataDic = JsonConvert.DeserializeObject<Dictionary<CustomerType, CustomerData>>(customerStr);
             EventCenter.Instance.TriggerEvent(EventMessages.CustomerBeginCreate);
+            
+            
+            string mapStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("MapData")).text;
+            mapDataDic.Clear();
+            mapDataDic = JsonConvert.DeserializeObject<Dictionary<MapType, MapData>>(mapStr);
+            EventCenter.Instance.TriggerEvent(EventMessages.MapDataPrepared);
         }
     }
 }

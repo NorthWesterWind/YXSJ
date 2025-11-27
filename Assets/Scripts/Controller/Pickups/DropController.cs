@@ -18,9 +18,9 @@ namespace Controller.Pickups
         {
             itemType = type;
             //可以用于加载图片
-            
-            isAttracted = true;
-            ScenePickupController.Instance.pickups.Add(this);
+            canPickup = false;
+            ScenePickupController.Instance.materials.Add(this);
+            itemName = "DropObj";
         }
         
         public void OnPicked(GameObject picker)

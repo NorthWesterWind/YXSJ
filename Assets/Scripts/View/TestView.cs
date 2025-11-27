@@ -10,7 +10,7 @@ namespace View
         protected override void AddEventListener()
         {
             base.AddEventListener();
-            closeButton.onClick.AddListener((() => { Hide(); }));
+            closeButton.onClick.AddListener((() => { Hide();  }));
         }
 
         public override void UpdateViewWithArgs(params object[] args)
@@ -19,10 +19,23 @@ namespace View
             EventCenter.Instance.TriggerEvent(EventMessages.FocusView);
         }
 
+        protected override void OnShow()
+        {
+            base.OnShow();
+           
+        }
+
         protected override void OnHide()
         {
+            base.OnHide();
+           
+         
+        }
+
+        protected override void OnHideComplete()
+        {
+            base.OnHideComplete();
             EventCenter.Instance.TriggerEvent(EventMessages.RestoreFocusView);
-           // base.OnHide();
         }
     }
 }

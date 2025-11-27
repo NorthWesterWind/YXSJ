@@ -7,7 +7,7 @@ namespace Controller.Pickups
 {
     public abstract class BasePickup : MonoBehaviour
     {
-        public bool isAttracted = false;
+        public bool canPickup = false;
         public float flyHeight = 2f;      
         public float flyDuration = 0.5f;  
         public AnimationCurve flyCurve;
@@ -24,9 +24,7 @@ namespace Controller.Pickups
 
         public void StartAttract(Transform picker, Transform receivePoint)
         {
-            if (isAttracted) return;
-
-            isAttracted = true;
+            if (!canPickup) return;
             this.picker = picker;
             this.pickerReceivePoint = receivePoint;
 
@@ -51,13 +49,23 @@ namespace Controller.Pickups
                 timer += Time.deltaTime;
                 yield return null;
             }
-
+            // 再检查一次，保证池子没提前回收
+            if (picker == null || pickerReceivePoint == null || !gameObject.activeInHierarchy)
+                yield break;
             transform.position = pickerReceivePoint.position;
 
             // 让具体物品去执行拾取逻辑
             GetComponent<IPickable>().OnPicked(picker.gameObject);
-
-            ObjectPoolManager.Instance.ReturnObject("DropObj" ,gameObject);
+            ObjectPoolManager.Instance.ReturnObject(itemName , gameObject);
+            if (ScenePickupController.Instance.materials.Contains(this))
+            {
+                ScenePickupController.Instance.materials.Remove(this);
+            }
+            else
+            {
+                ScenePickupController.Instance.products.Remove(this);
+            }
+           
         }
     }
 
