@@ -58,30 +58,37 @@ namespace Module.Data
                 Giant,
                 Golden
         }
+        
+        /// <summary>
+        /// 建筑物枚举类
+        /// </summary>
         public enum BuildingType
         {
                 None = 0,
-                LingZhangTai = 1,
-                LingChuGe_1 = 2,
-                YunDiGe = 3,
-                LingChaJia_1 =4,
-                YuShaHu_1 = 5,
-                LingChaJia_2 = 6,
-                YuShaHu_2 = 7,
-                LingChaJia_3 = 8,
-                YuShaHu_3 = 9,
-                LingChaJia_4 = 10,
-                YuShaHu_4 = 11,
-                LianQiLu_1 = 12,
-                LingQiJia_1 = 13,
-                LianQiLu_2 = 14,
-                LingQiJia_2 = 15,
-                LianQiLu_3 = 16,
-                LingQiJia_3 = 17,
-                YuanBaoKuangDong = 18,
-                LingChuGe_2 = 19,
+                LingZhangTai = 1, //灵账台
+                LingChuGe_1 = 2,  //一号灵储阁
+                YunDiGe = 3,    //云递阁
+                LingChaJia_1 =4,  //一号灵茶架
+                YuShaHu_1 = 5,     //一号玉砂壶
+                LingChaJia_2 = 6,   //二号灵茶架
+                YuShaHu_2 = 7,      //二号玉砂壶
+                LingChaJia_3 = 8,    //三号灵茶架
+                YuShaHu_3 = 9,       //三号玉砂壶
+                LingChaJia_4 = 10,   //四号灵茶架
+                YuShaHu_4 = 11,     //四号玉砂壶
+                LianQiLu_1 = 12,    //一号炼器炉
+                LingQiJia_1 = 13,   //一号灵器架
+                LianQiLu_2 = 14,    //二号炼器炉
+                LingQiJia_2 = 15,   //二号灵器架
+                LianQiLu_3 = 16,    //三号炼器炉
+                LingQiJia_3 = 17,   //三号灵器架
+                YuanBaoKuangDong = 18, //元宝矿洞
+                LingChuGe_2 = 19,   //二号灵储阁
         }
-
+        
+        /// <summary>
+        /// 助手枚举类
+        /// </summary>
         public enum EmployeeType
         {
                LingZhangShi,
@@ -89,6 +96,10 @@ namespace Module.Data
                YunDiZhe,
                
         }   
+        
+        /// <summary>
+        /// 商品枚举类
+        /// </summary>
         public enum GoodsType
         {
                 None = 0,
@@ -115,7 +126,10 @@ namespace Module.Data
                 JingYunBao = 16,
                 YingQian = 17,
         }
-
+        
+        /// <summary>
+        /// 掉落物枚举类
+        /// </summary>
         public enum DropItemType
         {
                 None = 0,
@@ -139,7 +153,8 @@ namespace Module.Data
                 YingQian,
         }
         
-
+        
+        
         public enum MonsterState
         {
                 None,
@@ -207,17 +222,20 @@ namespace Module.Data
         //       
         //      
         // }
-
+        
+        /// <summary>
+        /// 任务类型
+        /// </summary>
         public enum TaskType
         {
                 None = 0,
-                Produce = 1,
-                Upgrade = 2,
-                Construct = 3,
-                Sell = 4,
-                Harvest = 5,  
-                Makemoney = 6,
-                Unlock = 7,
+                Produce = 1, //生产类型任务
+                Upgrade = 2, //升级建筑类型任务
+                Construct = 3, //建造类型任务
+                Sell = 4,   //商品出售类型任务
+                Harvest = 5,  //玩家收货物品类型任务
+                Makemoney = 6, //玩家获得银币类型任务
+                Unlock = 7,  //解锁区域类型任务
         }
 
         public enum AreaType

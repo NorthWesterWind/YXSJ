@@ -11,6 +11,14 @@ namespace Controller
         public Dictionary<MonsterType, MonsterData> monsterDataDic = new();
         public Dictionary<CustomerType, CustomerData> customerDataDic = new();
         public Dictionary< MapType,MapData>  mapDataDic = new();
+        public Dictionary<int , RewardData> taskRewardDataDic = new();
+        public Dictionary<int , StorageBagData> storageBagDataDic = new();
+        public Dictionary<int, WeaponData> weaponDataDic = new();
+        public Dictionary<int , TaskData> mapTaskDataDic1 = new();
+        public Dictionary<int , TaskData> mapTaskDataDic2 = new();
+        public Dictionary<int , TaskData> mapTaskDataDic3 = new();
+        public Dictionary<int , TaskData> mapTaskDataDic4 = new();
+        public Dictionary<int , TaskData> mapTaskDataDic5 = new();
         void Start()
         {
             PrepareData();
@@ -39,6 +47,38 @@ namespace Controller
             mapDataDic.Clear();
             mapDataDic = JsonConvert.DeserializeObject<Dictionary<MapType, MapData>>(mapStr);
             EventCenter.Instance.TriggerEvent(EventMessages.MapDataPrepared);
+            
+            string rewardStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("RewardData")).text;
+            taskRewardDataDic.Clear();
+            taskRewardDataDic = JsonConvert.DeserializeObject<Dictionary<int, RewardData>>(rewardStr);
+            
+            string storageStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StorageBagData")).text;
+            storageBagDataDic.Clear();
+            storageBagDataDic =  JsonConvert.DeserializeObject<Dictionary<int, StorageBagData>>(storageStr);
+            
+            string weaponStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("WeaponData")).text;
+            weaponDataDic.Clear();
+            weaponDataDic = JsonConvert.DeserializeObject<Dictionary<int, WeaponData>>(weaponStr);
+            
+            string taskStr1 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("TaskData_1")).text;
+            mapTaskDataDic1.Clear();
+            mapTaskDataDic1 = JsonConvert.DeserializeObject<Dictionary<int, TaskData>>(taskStr1);
+            
+            string taskStr2 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("TaskData_2")).text;
+            mapTaskDataDic2.Clear();
+            mapTaskDataDic2 = JsonConvert.DeserializeObject<Dictionary<int, TaskData>>(taskStr2);
+            
+            string taskStr3 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("TaskData_3")).text;
+            mapTaskDataDic3.Clear();
+            mapTaskDataDic3 = JsonConvert.DeserializeObject<Dictionary<int, TaskData>>(taskStr3);
+            
+            string taskStr4 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("TaskData_4")).text;
+            mapTaskDataDic4.Clear();
+            mapTaskDataDic4 = JsonConvert.DeserializeObject<Dictionary<int, TaskData>>(taskStr4);
+            
+            string taskStr5 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("TaskData_5")).text;
+            mapTaskDataDic5.Clear();
+            mapTaskDataDic5 = JsonConvert.DeserializeObject<Dictionary<int, TaskData>>(taskStr5);
         }
     }
 }

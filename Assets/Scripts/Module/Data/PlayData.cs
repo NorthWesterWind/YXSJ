@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 using Utils;
 
 namespace Module.Data
@@ -43,8 +44,20 @@ namespace Module.Data
 
 
         public int accountLevel = 1;
-
+        public int characterFunction = 0;
+        public int cardFunction = 0;
+        public int mapFunction = 0;
+        public int employeeFunction = 0;
+        public int ordenFunction = 0;
+        public List<int> levelLockMapList = new (){2,3,4,5};
+        public List<int> realUnlockMapList = new (){1};
+        
+        
+        [Header("key = 地图编号 ， value = 当前任务进度")]
+        public Dictionary< int  , int > mapTaskRecordDic = new(){{1,1},{2,1},{3,1},{4,1},{5,1}};
+        
+        
         #endregion
-
+        
     }
 }
