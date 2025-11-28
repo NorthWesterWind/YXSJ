@@ -17,7 +17,7 @@ namespace Controller.Player
         private Animator _animator;
         private Vector2 _dirValue;
         public bool isMoving = false;
-        private PlayerDataModule dataModule;
+        public PlayerDataModule dataModule;
         public SpriteRenderer spriteRenderer;
         public SpriteRenderer shadowRenderer;
         public SpriteRenderer weaponRenderer;

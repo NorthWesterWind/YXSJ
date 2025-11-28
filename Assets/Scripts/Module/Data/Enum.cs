@@ -106,7 +106,7 @@ namespace Module.Data
                 //灵茶
                 YunZhiCha = 1,
                 YueLuCha = 2,
-                ZhiXinCha = 3,
+                ZiXinCha = 3,
                 YuHeCha = 4,
                 XingWenCha = 5,
                 WuRongCha = 6,
@@ -242,4 +242,44 @@ namespace Module.Data
         {
                 
         }
+
+        public enum InfoType
+        {
+                None,
+                JinYuanBao,
+                LingJing,
+                YinQian,
+                ShuangYunZhiFragment,
+                YueLuCaoFragment ,
+                ZiXinHuaFragment ,
+                YuHuiHeFragment ,
+                XingWenGuoFragment ,
+                WuRongJunFragment,
+                LingXuShengFragment,
+                XueBanHuaFragment ,
+                MuLingYaFragment ,
+                JingRuiCaoFragment,
+                TieKuangShiFragment,
+                YinKuangShiFragment,
+                TongKuangShiFragment,
+                ZiJingShiFragment,
+                YueJingShiFragment,
+                
+                YunZhiCha ,
+                YueLuCha ,
+                ZiXinCha,
+                YuHeCha,
+                XingWenCha,
+                WuRongCha,
+                LingXuCha,
+                XueBanCha,
+                MuLingCha,
+                JingRuiCha,
+                QingYanJian ,
+                YinSiDao ,
+                TongWenDao ,
+                ZiWuJian ,
+                YueXinJing,
+        }
+        
 }

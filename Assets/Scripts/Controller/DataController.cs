@@ -10,15 +10,15 @@ namespace Controller
     {
         public Dictionary<MonsterType, MonsterData> monsterDataDic = new();
         public Dictionary<CustomerType, CustomerData> customerDataDic = new();
-        public Dictionary< MapType,MapData>  mapDataDic = new();
+        public Dictionary<int,MapData>  mapDataDic = new();
         public Dictionary<int , RewardData> taskRewardDataDic = new();
         public Dictionary<int , StorageBagData> storageBagDataDic = new();
         public Dictionary<int, WeaponData> weaponDataDic = new();
-        public Dictionary<int , TaskData> mapTaskDataDic1 = new();
-        public Dictionary<int , TaskData> mapTaskDataDic2 = new();
-        public Dictionary<int , TaskData> mapTaskDataDic3 = new();
-        public Dictionary<int , TaskData> mapTaskDataDic4 = new();
-        public Dictionary<int , TaskData> mapTaskDataDic5 = new();
+        public Dictionary<int , TaskData> mapTaskDataDic1 = new(); // 30 
+        public Dictionary<int , TaskData> mapTaskDataDic2 = new(); // 60
+        public Dictionary<int , TaskData> mapTaskDataDic3 = new(); //90
+        public Dictionary<int , TaskData> mapTaskDataDic4 = new(); //100
+        public Dictionary<int , TaskData> mapTaskDataDic5 = new(); //110
         void Start()
         {
             PrepareData();
@@ -27,6 +27,7 @@ namespace Controller
         // Update is called once per frame
         void Update()
         {
+            
         }
 
 
@@ -45,7 +46,7 @@ namespace Controller
             
             string mapStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("MapData")).text;
             mapDataDic.Clear();
-            mapDataDic = JsonConvert.DeserializeObject<Dictionary<MapType, MapData>>(mapStr);
+            mapDataDic = JsonConvert.DeserializeObject<Dictionary<int, MapData>>(mapStr);
             EventCenter.Instance.TriggerEvent(EventMessages.MapDataPrepared);
             
             string rewardStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("RewardData")).text;
@@ -80,5 +81,47 @@ namespace Controller
             mapTaskDataDic5.Clear();
             mapTaskDataDic5 = JsonConvert.DeserializeObject<Dictionary<int, TaskData>>(taskStr5);
         }
+        
+        
+        public List<TaskData> GetTaskGroupIds(int taskId, int groupSize, int mapId)
+        {
+            if (groupSize <= 0)
+            {
+                Debug.LogError("groupSize 必须 > 0");
+                return null;
+            }
+            int groupIndex = (taskId - 1) / groupSize;
+            int start = groupIndex * groupSize + 1;
+            int end = start + groupSize - 1;
+            Dictionary<int, TaskData> dic = mapId switch
+            {
+                1 => mapTaskDataDic1,
+                2 => mapTaskDataDic2,
+                3 => mapTaskDataDic3,
+                4 => mapTaskDataDic4,
+                5 => mapTaskDataDic5,
+                _ => null
+            };
+            if (dic == null)
+            {
+                Debug.LogError($"不存在的 mapId: {mapId}");
+                return null;
+            }
+            List<TaskData> groupList = new();
+            for (int id = start; id <= end; id++)
+            {
+                if (dic.TryGetValue(id, out TaskData data))
+                {
+                    groupList.Add(data);
+                }
+                else
+                {
+                    Debug.LogWarning($"任务ID {id} 在 map {mapId} 中不存在");
+                }
+            }
+            return groupList;
+        }
+
+        
     }
 }

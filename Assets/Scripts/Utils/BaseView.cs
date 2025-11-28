@@ -1,4 +1,5 @@
 using System.Collections;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -36,7 +37,8 @@ namespace World.View.UI
         private RectTransform _rectTransform;
         private bool _isInitialized = false;
         
-        private AssetHandle _assetHandle;
+        [HideInEditorMode]
+        public AssetHandle _assetHandle;
         /// <summary>
         /// 面板是否可见
         /// </summary>

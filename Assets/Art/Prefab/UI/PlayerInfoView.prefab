@@ -2280,7 +2280,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5602960308868647074}
   - component: {fileID: 6195421735229911278}
-  - component: {fileID: 6386232569941747582}
+  - component: {fileID: 4521568802151835133}
   m_Layer: 5
   m_Name: PlayerInfoView
   m_TagString: Untagged
@@ -2319,7 +2319,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5395730233330912507}
   m_CullTransparentMesh: 1
---- !u!114 &6386232569941747582
+--- !u!114 &4521568802151835133
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2328,12 +2328,47 @@ MonoBehaviour:
   m_GameObject: {fileID: 5395730233330912507}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a5a0dc5d6e43cb4dbd1c7332b86cdde, type: 3}
+  m_Script: {fileID: 11500000, guid: 163e22c585f3478429eaef246d2453c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fillImage: {fileID: 0}
-  productionText: {fileID: 0}
-  container: {fileID: 0}
+  _hideOnAwake: 0
+  _showAnimationTime: 0
+  _hideAnimationTime: 0
+  _closeBackground: {fileID: 0}
+  _isPopup: 0
+  onShow:
+    m_PersistentCalls:
+      m_Calls: []
+  onHide:
+    m_PersistentCalls:
+      m_Calls: []
+  onShowComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  onHideComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  _assetHandle: {fileID: 0}
+  character: {fileID: 0}
+  infoItemContent: {fileID: 1932783202907251504}
+  accountLevelTxt: {fileID: 984469294375833439}
+  accountLevelProgressTxt: {fileID: 1838060261859303690}
+  fillImage: {fileID: 7180300097407829245}
+  leftSideContent: {fileID: 1084146105004051481}
+  settingBtn: {fileID: 2433811718942587036}
+  storeBtn: {fileID: 7742222696191585279}
+  sevendayBtn: {fileID: 1567931770778154054}
+  vipBtn: {fileID: 7038556636858858056}
+  characterBtn: {fileID: 1887194202997932549}
+  mask1: {fileID: 1457287102977168268}
+  cardFunctionBtn: {fileID: 4602336686520430944}
+  mask2: {fileID: 4448287590347328477}
+  mapFunctionBtn: {fileID: 1099473378217924628}
+  mask3: {fileID: 2239189910414007910}
+  employeeFunctionBtn: {fileID: 2726058713225456104}
+  mask4: {fileID: 8896282631074749762}
+  ordenFunctionBtn: {fileID: 3765596272441895823}
+  mask5: {fileID: 263175566098017219}
 --- !u!1 &5445060250720770729
 GameObject:
   m_ObjectHideFlags: 0

@@ -36,7 +36,7 @@ namespace Controller
         {
             customerTypeList.Clear();
             mapData = DataController.Instance.mapDataDic[
-                (MapType)ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID];
+                ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID];
             customerTypeList = mapData.customerTypeList;
             StartCoroutine(CreatCustomer());
         }

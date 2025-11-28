@@ -57,6 +57,7 @@
     <Compile Include="Assets\Scripts\View\PlayerInfoView.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Shared\Scripts\PlayerMove.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeA.cs" />
+    <Compile Include="Assets\Scripts\View\PlayerInfo\TaskMainView.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Scenes\FadeOutNearbyObjects\CinemachineFadeOutNearbyObjects.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Scenes\Anywhere Door\PlayerMovement.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Scenes\DualTarget\PointAtAimTarget.cs" />
@@ -110,6 +111,7 @@
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Shared\Scripts\ActivateCameraWithDistance.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Shared\Scripts\PlayerMovePhysics.cs" />
     <Compile Include="Assets\Scripts\Controller\FactoryController.cs" />
+    <Compile Include="Assets\Scripts\Module\Data\WorldData.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_DigitValidator.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_FrameRateCounter.cs" />
     <Compile Include="Assets\Scripts\Controller\Monster\GoldenMonsterStrategy.cs" />
@@ -118,12 +120,12 @@
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Shared\Scripts\SpawnInCircle.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TeleType.cs" />
     <Compile Include="Assets\Scripts\Utils\UIController.cs" />
+    <Compile Include="Assets\Scripts\View\Task\TaskViewItem.cs" />
     <Compile Include="Assets\Scripts\Controller\Structure\ProductionStation.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextEventCheck.cs" />
     <Compile Include="Assets\Scripts\Module\Data\WeaponData.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_UiFrameRateCounter.cs" />
     <Compile Include="Assets\Scripts\Utils\InitializationMgr.cs" />
-    <Compile Include="Assets\Scripts\View\PlayerInfoView\InfoItem.cs" />
     <Compile Include="Assets\Scripts\Utils\TimerUpdate.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextMeshSpawner.cs" />
@@ -138,10 +140,12 @@
     <Compile Include="Assets\Scripts\Utils\SingletonBase.cs" />
     <Compile Include="Assets\Scripts\Utils\StaminaUtil.cs" />
     <Compile Include="Assets\Scripts\Controller\DataController.cs" />
+    <Compile Include="Assets\Scripts\View\PlayerInfo\InfoItem.cs" />
     <Compile Include="Assets\Scripts\Utils\BaseModule.cs" />
     <Compile Include="Assets\Scripts\Controller\Pickups\IPickable.cs" />
     <Compile Include="Assets\Scripts\Utils\Extensions.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_B.cs" />
+    <Compile Include="Assets\Scripts\View\Task\TaskPop.cs" />
     <Compile Include="Assets\Scripts\Utils\UIButton.cs" />
     <Compile Include="Assets\Scripts\Controller\Pickups\ScenePickupController.cs" />
     <Compile Include="Assets\Scripts\Utils\RedMessages.cs" />

@@ -16,5 +16,12 @@ namespace Utils
         public const string ProductionComplete = "ProductionComplete";       //产品生产完成
         public const string CustomerArrived = "CustomerArrived";             //顾客到达收银台
         public const string FocusNewPosition = "FocusNewPosition";           //让相机平移查看指定物体
+
+        public const string UpdateInfoItem = "UpdateInfoItem"; //更新InfoItem信息
+
+        public const string ShowPlayerInfoViewCartoon = "ShowPlayerInfoViewCartoon"; //播放PlayerInfoView左侧动画
+
+        public const string UpdateLevelProgress = "UpdateLevelProgress"; //更新等级进度信息
+        public const string UpdateFunctionState = "UpdateFunctionState"; //更新当前功能状态（角色、升级录、、、）
     }
 }

@@ -36,10 +36,13 @@ namespace Module.Data
         #region 游玩数据
 
         public Dictionary<int ,List<int>> mapPlayRecordDic = new Dictionary<int ,List<int>>();
-        public int silverCoin;
-        public int goldIngot;
-
-        public int recentMapID = 1;
+        public int silverCoin;  //银钱
+        public int goldIngot;   //金元宝
+        public int lingJing;    //灵晶
+        public int jingMangZhu; //金芒珠
+        public int lingQiaoShi; //灵窍石
+        
+  
         public int currentMapID = 1;
 
 
@@ -54,7 +57,7 @@ namespace Module.Data
         
         
         [Header("key = 地图编号 ， value = 当前任务进度")]
-        public Dictionary< int  , int > mapTaskRecordDic = new(){{1,1},{2,1},{3,1},{4,1},{5,1}};
+        public Dictionary< int  , List<int>> mapTaskRecordDic = new(){{1,new List<int>()},{2,new List<int>()},{3,new List<int>()},{4,new List<int>()},{5,new List<int>()}};
         
         
         #endregion
