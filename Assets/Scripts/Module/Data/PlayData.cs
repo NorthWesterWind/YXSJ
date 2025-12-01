@@ -54,13 +54,13 @@ namespace Module.Data
         public int ordenFunction = 0;
         public List<int> levelLockMapList = new (){2,3,4,5};
         public List<int> realUnlockMapList = new (){1};
-        
-        
         [Header("key = 地图编号 ， value = 当前任务进度")]
         public Dictionary< int  , List<int>> mapTaskRecordDic = new(){{1,new List<int>()},{2,new List<int>()},{3,new List<int>()},{4,new List<int>()},{5,new List<int>()}};
-        
-        
+
+        public string FanPingBaoXiaoTime;
+        public string LingShunLingTime;
+
         #endregion
-        
+
     }
 }
