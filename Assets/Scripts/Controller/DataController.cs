@@ -45,7 +45,7 @@ namespace Controller
             
             
             string mapStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("MapData")).text;
-            mapDataDic.Clear();
+            mapDataDic?.Clear();
             mapDataDic = JsonConvert.DeserializeObject<Dictionary<int, MapData>>(mapStr);
             EventCenter.Instance.TriggerEvent(EventMessages.MapDataPrepared);
             

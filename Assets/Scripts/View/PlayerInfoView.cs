@@ -38,6 +38,10 @@ namespace View
         protected override void Start()
         {
             base.Start();
+            if (character == null)
+            {
+                character = GameObject.Find("Player").GetComponent<CharacterController>();
+            }
             InitInfoItem();
             HandleUpdateLevelProgress();
             HandleShowPlayerInfoViewCartoon();
@@ -58,8 +62,7 @@ namespace View
         {
             base.RemoveEventListener();
             EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerMoneyInfo, HandleUpdateMoneyInfo);
-            EventCenter.Instance.RemoveListener(EventMessages.ShowPlayerInfoViewCartoon,
-                HandleShowPlayerInfoViewCartoon);
+            EventCenter.Instance.RemoveListener(EventMessages.ShowPlayerInfoViewCartoon, HandleShowPlayerInfoViewCartoon);
             EventCenter.Instance.RemoveListener(EventMessages.UpdateLevelProgress, HandleUpdateLevelProgress);
             EventCenter.Instance.RemoveListener(EventMessages.UpdateFunctionState, HandleUpdateFunctionState);
         }
@@ -67,27 +70,35 @@ namespace View
         private void InitInfoItem()
         {
             Extensions.ClearChildren(infoItemContent);
-            GameObject go1 = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), transform, false);
+            GameObject go1 = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), infoItemContent, false);
             go1.GetComponent<InfoItem>().SetType(InfoType.JinYuanBao);
             go1.GetComponent<InfoItem>().Init(character);
-            GameObject go2 = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), transform, false);
+            GameObject go2 = Instantiate(_assetHandle.Get<GameObject>("InfoItem"),infoItemContent, false);
             go2.GetComponent<InfoItem>().SetType(InfoType.LingJing);
             go2.GetComponent<InfoItem>().Init(character);
-            GameObject go3 = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), transform, false);
+            GameObject go3 = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), infoItemContent, false);
             go3.GetComponent<InfoItem>().SetType(InfoType.YinQian);
             go3.GetComponent<InfoItem>().Init(character);
-            foreach (var value in character.dropDic)
+            if (character.dropDic != null && character.dropDic.Count > 0)
             {
-                GameObject go = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), transform, false);
-                go.GetComponent<InfoItem>().SetType(ExchangeType(value.Key));
-                go.GetComponent<InfoItem>().Init(character);
+                foreach (var value in character.dropDic)
+                {
+                    GameObject go = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), infoItemContent, false);
+                    go.GetComponent<InfoItem>().SetType(ExchangeType(value.Key));
+                    go.GetComponent<InfoItem>().Init(character);
+                }
             }
-            foreach (var value in character.goodsDic)
+
+            if (character.goodsDic != null && character.goodsDic.Count > 0)
             {
-                GameObject go = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), transform, false);
-                go.GetComponent<InfoItem>().SetType(ExchangeType(value.Key));
-                go.GetComponent<InfoItem>().Init(character);
+                foreach (var value in character.goodsDic)
+                {
+                    GameObject go = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), infoItemContent, false);
+                    go.GetComponent<InfoItem>().SetType(ExchangeType(value.Key));
+                    go.GetComponent<InfoItem>().Init(character);
+                }
             }
+            
         }
 
         #region 事件监听函数
@@ -99,7 +110,8 @@ namespace View
 
         public void HandleShowPlayerInfoViewCartoon(params object[] args)
         {
-            leftSideContent.transform.DOLocalMoveX(40,1.5f);
+            leftSideContent.transform.position = new Vector3(-200,  leftSideContent.transform.position.y, 0);
+            leftSideContent.transform.DOMove(new Vector3(40,  leftSideContent.transform.position.y, 0),0.3f);
         }
 
         public void HandleUpdateLevelProgress(params object[] args)
