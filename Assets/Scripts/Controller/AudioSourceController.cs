@@ -64,9 +64,9 @@ namespace World.Controller
 
         private void Start()
         {
-            bgSource.volume = musicVolume;
-            buttonSource.volume = soundVolume;
-            InitSfxPool();
+            // bgSource.volume = musicVolume;
+            // buttonSource.volume = soundVolume;
+            // InitSfxPool();
         }
 
         public void SetMusicVolume(float volume)

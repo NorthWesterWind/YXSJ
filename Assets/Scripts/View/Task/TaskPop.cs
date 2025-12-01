@@ -1,5 +1,8 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using Controller;
+using DG.Tweening;
 using Module;
 using Module.Data;
 using TMPro;
@@ -12,7 +15,6 @@ namespace View.Task
 {
     public class TaskPop : BaseView
     {
-        private Animation _animation;
         public TextMeshProUGUI mapNameTxt;
         public TextMeshProUGUI mapprogressTxt;
         public UIButton rewardBtn;
@@ -20,10 +22,18 @@ namespace View.Task
         public TextMeshProUGUI sliderText;
         private MapData _mapData;
         public Transform taskContent;
+        public UIButton closeBtn;
+        public RectTransform content;
+
+        private void OnEnable()
+        {
+            content.anchoredPosition = new Vector2(0, -910);
+        }
 
         public override void UpdateViewWithArgs(params object[] args)
         {
             base.UpdateViewWithArgs(args);
+            StopAllCoroutines();
             PlayerData tempdata = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
             _mapData = DataController.Instance.mapDataDic[tempdata.currentMapID];
             int count  = tempdata.mapTaskRecordDic[_mapData.id].Count;
@@ -34,14 +44,18 @@ namespace View.Task
             mapprogressTxt.text = tempvalue1 + "/" + _mapData.taskGroupNum;
             sliderText.text = tempvalue + "/" +  _mapData.taskGroupSize;
             sliderFill.fillAmount = tempvalue * 1f / _mapData.taskGroupSize;
+            content.DOAnchorPos(new Vector2(0, 0), 0.5f)
+                .SetEase(Ease.OutBack);  
         }
 
-        protected override void OnShowComplete()
+        protected override void AddEventListener()
         {
-            base.OnShowComplete();
-            _animation.Play(); 
+            base.AddEventListener();
+            closeBtn.onClick.AddListener(OnClickClose);
         }
 
+     
+        
         public void UpdateTaskContent()
         {
             Extensions.ClearChildren(taskContent);
@@ -57,6 +71,19 @@ namespace View.Task
         }
         void Update()
         {
+        }
+
+        private void OnClickClose()
+        {
+            StartCoroutine(ShowAnimation());
+        }
+
+        private IEnumerator ShowAnimation()
+        {
+            content.DOAnchorPos(new Vector2(0, -910), 0.4f)
+                .SetEase(Ease.InBack);
+            yield return new WaitForSeconds(0.4f);
+            Hide();
         }
     }
 }

@@ -1,18 +1,30 @@
-using System.Collections;
-using System.Collections.Generic;
+using Module;
+using Module.Data;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using Utils;
 
-public class TaskViewItem : MonoBehaviour
+namespace View.Task
 {
-    // Start is called before the first frame update
-    void Start()
+    public class TaskViewItem : MonoBehaviour
     {
-        
-    }
+        public Image iconImage;
+        public TextMeshProUGUI infotxt;
+        public TextMeshProUGUI progresstxt;
+        public UIButton btn;
+        PlayerData data;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        void Start()
+        {
+            data = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            btn.onClick.RemoveAllListeners();
+            btn.onClick.AddListener(OnClickTask);
+        }
+
+        private void OnClickTask()
+        {
+            UIController.Instance.Show<TaskPop>();
+        }
     }
 }

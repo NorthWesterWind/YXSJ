@@ -1,3 +1,4 @@
+using Module;
 using Module.Data;
 using TMPro;
 using Utils;
@@ -18,6 +19,12 @@ namespace View
             HandleUpdatePlayerInfo();
         }
 
+        protected override void OnHideComplete()
+        {
+            base.OnHideComplete();
+            EventCenter.Instance.TriggerEvent(EventMessages.ShowPlayerInfoViewCartoon);
+        }
+
         protected override void AddEventListener()
         {
             base.AddEventListener();
@@ -36,6 +43,7 @@ namespace View
 
         private void HandleUpdatePlayerInfo(params object[] args)
         {
+            playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
             LingJingtxt.text = playerData.lingJing.ToString();
             JingYuanBaotxt.text = playerData.goldIngot.ToString();
         }

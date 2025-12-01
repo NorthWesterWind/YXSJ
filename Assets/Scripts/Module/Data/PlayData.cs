@@ -60,6 +60,8 @@ namespace Module.Data
         public string FanPingBaoXiaoTime;
         public string LingShunLingTime;
 
+        public string PurchaseVipTime;
+
         #endregion
 
     }

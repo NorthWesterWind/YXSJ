@@ -56,6 +56,15 @@ namespace View
             EventCenter.Instance.AddListener(EventMessages.ShowPlayerInfoViewCartoon, HandleShowPlayerInfoViewCartoon);
             EventCenter.Instance.AddListener(EventMessages.UpdateLevelProgress, HandleUpdateLevelProgress);
             EventCenter.Instance.AddListener(EventMessages.UpdateFunctionState, HandleUpdateFunctionState);
+            
+            settingBtn.onClick.RemoveAllListeners();
+            settingBtn.onClick.AddListener(OnClickSettingBtn);
+            storeBtn.onClick.RemoveAllListeners();
+            storeBtn.onClick.AddListener(OnClickStoreBtn);
+            sevendayBtn.onClick.RemoveAllListeners();
+            sevendayBtn.onClick.AddListener(OnClickSevendayBtn);
+            vipBtn.onClick.RemoveAllListeners();
+            vipBtn.onClick.AddListener(OnClickVipBtn);
         }
 
         public override void RemoveEventListener()
@@ -102,6 +111,27 @@ namespace View
         }
 
         #region 事件监听函数
+
+        private void OnClickSettingBtn()
+        {
+            UIController.Instance.Show<SettingView>();
+        }
+
+        private void OnClickStoreBtn()
+        {
+            UIController.Instance.Show<StoreView>();
+        }
+
+        private void OnClickSevendayBtn()
+        {
+            UIController.Instance.Show<SevenDayView>();
+        }
+
+        private void OnClickVipBtn()
+        {
+            UIController.Instance.Show<VipView>();
+        }
+        
 
         public void HandleUpdateMoneyInfo(params object[] args)
         {

@@ -46,7 +46,7 @@ namespace View
                 {
                     mask?.SetActive(playerData.FanPingBaoXiaoTime == DateTime.Now.ToString("yyyy-MM-dd"));
                 }
-                else if (rewardType == RewardType.LingYunBaoXia)
+                else if (rewardType == RewardType.LingShunLing)
                 {
                     mask?.SetActive(playerData.LingShunLingTime == DateTime.Now.ToString("yyyy-MM-dd"));
                 }
@@ -144,5 +144,7 @@ namespace View
         void Update()
         {
         }
+        
+        
     }
 }

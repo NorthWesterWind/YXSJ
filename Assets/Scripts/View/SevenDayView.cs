@@ -1,18 +1,28 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+using Utils;
+using World.View.UI;
 
-public class SevenDayView : MonoBehaviour
+namespace View
 {
-    // Start is called before the first frame update
-    void Start()
+    public class SevenDayView : BaseView
     {
         
-    }
+        public UIButton closeBtn;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        protected override void AddEventListener()
+        {
+            base.AddEventListener();
+            closeBtn.onClick.RemoveAllListeners();
+            closeBtn.onClick.AddListener(OnClickCloseBtn);
+        }
+
+        private void OnClickCloseBtn()
+        {
+            Hide();
+        }
+        protected override void OnHideComplete()
+        {
+            base.OnHideComplete();
+            EventCenter.Instance.TriggerEvent(EventMessages.ShowPlayerInfoViewCartoon);
+        }
     }
 }
