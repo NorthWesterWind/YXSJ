@@ -145,6 +145,7 @@ GameObject:
   - component: {fileID: 7035290110428660833}
   - component: {fileID: 8519078483033208303}
   - component: {fileID: 8788635443141155404}
+  - component: {fileID: 1081727769393306089}
   m_Layer: 5
   m_Name: taskViewItem
   m_TagString: Untagged
@@ -214,6 +215,24 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1081727769393306089
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1349643649408604414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f6caf63e988a034798d20d03851e96a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  iconImage: {fileID: 686191377623139236}
+  infotxt: {fileID: 6626203636198403834}
+  progresstxt: {fileID: 4611117090645246552}
+  btn: {fileID: 1786351718578131585}
+  btnText: {fileID: 2200046077066052734}
+  isCompleted: 0
 --- !u!1 &2887595437497840992
 GameObject:
   m_ObjectHideFlags: 0

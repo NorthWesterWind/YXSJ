@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Module;
 using Module.Data;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -19,6 +20,10 @@ namespace Controller
         public Dictionary<int , TaskData> mapTaskDataDic3 = new(); //90
         public Dictionary<int , TaskData> mapTaskDataDic4 = new(); //100
         public Dictionary<int , TaskData> mapTaskDataDic5 = new(); //110
+        
+        public Dictionary<int , SevenDayRewardData> sevenDayRewardDataDic = new();
+        public Dictionary<int , TalentData> talentDataDic = new();
+        
         void Start()
         {
             PrepareData();
@@ -80,16 +85,23 @@ namespace Controller
             string taskStr5 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("TaskData_5")).text;
             mapTaskDataDic5.Clear();
             mapTaskDataDic5 = JsonConvert.DeserializeObject<Dictionary<int, TaskData>>(taskStr5);
+            EventCenter.Instance.TriggerEvent(EventMessages.MapTaskDataPrepared);
+            
+            string sevenDataStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("SevenDayReward")).text;
+            sevenDayRewardDataDic.Clear();
+            sevenDayRewardDataDic = JsonConvert.DeserializeObject<Dictionary<int, SevenDayRewardData>>(sevenDataStr);
+            
+            string talentDataStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("TalentData")).text;
+            talentDataDic.Clear();
+            talentDataDic = JsonConvert.DeserializeObject<Dictionary<int, TalentData>>(talentDataStr);
         }
         
         
-        public List<TaskData> GetTaskGroupIds(int taskId, int groupSize, int mapId)
+        public List<TaskData> GetTaskGroupIds( )
         {
-            if (groupSize <= 0)
-            {
-                Debug.LogError("groupSize 必须 > 0");
-                return null;
-            }
+            int groupSize = mapDataDic[ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID].taskGroupSize;
+            int mapId = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID;
+            int taskId = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.nowTaskId;
             int groupIndex = (taskId - 1) / groupSize;
             int start = groupIndex * groupSize + 1;
             int end = start + groupSize - 1;
@@ -104,7 +116,7 @@ namespace Controller
             };
             if (dic == null)
             {
-                Debug.LogError($"不存在的 mapId: {mapId}");
+                Debug.LogError($"不存在的  mapId: {mapId}");
                 return null;
             }
             List<TaskData> groupList = new();

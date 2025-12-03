@@ -4,9 +4,8 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using Utils;
 
-namespace World.View.UI
+namespace Utils
 {
     /// <summary>
     /// UI面板基类，所有UI面板都应继承此类
@@ -24,7 +23,10 @@ namespace World.View.UI
         [Header("Popup Settings")]
         [Tooltip("是否作为弹窗加入 UI 栈")]
         [SerializeField] private bool _isPopup = false;
-
+        [SerializeField] private RectTransform _content;
+        [SerializeField] private bool _enablePopupScale = true;
+        [SerializeField] private AnimationCurve _popupScaleCurve = AnimationCurve.EaseInOut(0, 0.8f, 1, 1f);
+        
         public bool IsPopup => _isPopup;
         
         // 面板状态事件
@@ -214,18 +216,39 @@ namespace World.View.UI
                 _canvasGroup.alpha = 0;
                 _canvasGroup.blocksRaycasts = true;
                 _canvasGroup.interactable = true;
-
-                float elapsedTime = 0;
-                while (elapsedTime < _showAnimationTime)
-                {
-                    _canvasGroup.alpha = Mathf.Lerp(0, 1, elapsedTime / _showAnimationTime);
-                    elapsedTime += Time.unscaledDeltaTime;
-                    yield return null;
-                }
-
-                _canvasGroup.alpha = 1;
+                
+            }
+            Vector3 defaultScale = Vector3.one;
+            Vector3 startScale = Vector3.one * 0.8f;
+            
+            if (_content != null && _isPopup)
+            {
+                _content.localScale = startScale;
             }
 
+            float elapsedTime = 0;
+
+            while (elapsedTime < _showAnimationTime)
+            {
+                float t = elapsedTime / _showAnimationTime;
+
+                if (_canvasGroup != null)
+                    _canvasGroup.alpha = Mathf.Lerp(0, 1, t);
+
+                if (_content != null && _isPopup)
+                {
+                    float scaleFactor = _popupScaleCurve.Evaluate(t);
+                    _content.localScale = Vector3.one * scaleFactor;
+                }
+
+                elapsedTime += Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            if (_content != null) _content.localScale = defaultScale;
+            if (_canvasGroup != null) _canvasGroup.alpha = 1;
+
+            
             CompleteShowImmediate();
         }
 
@@ -235,23 +258,39 @@ namespace World.View.UI
         /// </summary>
         private IEnumerator HideAnimation()
         {
-            if (_canvasGroup != null)
+            Vector3 defaultScale = Vector3.one;
+
+            float elapsedTime = 0;
+
+            while (elapsedTime < _hideAnimationTime)
             {
-                float elapsedTime = 0;
-                while (elapsedTime < _hideAnimationTime)
+                float t = elapsedTime / _hideAnimationTime;
+
+                if (_canvasGroup != null)
+                    _canvasGroup.alpha = Mathf.Lerp(1, 0, t);
+
+                if (_content != null && _enablePopupScale && _isPopup)
                 {
-                    _canvasGroup.alpha = Mathf.Lerp(1, 0, elapsedTime / _hideAnimationTime);
-                    elapsedTime += Time.unscaledDeltaTime;
-                    yield return null;
+                    _content.localScale = Vector3.Lerp(defaultScale, defaultScale * 0.85f, t);
                 }
 
+                elapsedTime += Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            if (_canvasGroup != null)
+            {
                 _canvasGroup.alpha = 0;
                 _canvasGroup.blocksRaycasts = false;
                 _canvasGroup.interactable = false;
             }
 
+            if (_content != null && _enablePopupScale && _isPopup)
+                _content.localScale = defaultScale;
+
             CompleteHideImmediate();
         }
+
     
         private void CompleteShowImmediate()
         {

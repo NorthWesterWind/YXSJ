@@ -7,6 +7,7 @@ namespace Utils
         public const string MonsterBeginCreate = "MonsterBeginCreate";       //通知工厂创建怪物
         public const string CustomerBeginCreate = "CustomerBeginCreate";     //通知顾客数据准备完成
         public const string MapDataPrepared = "MapDataPrepared";             //地图数据准备完成
+        public const string MapTaskDataPrepared = "MapTaskDataPrepared";             //地图任务数据准备完成
         public const string TriggerDetection = "TriggerDetection";           //玩家停止移动触发检测判定
         public const string NotifyToFlee = "NotifyToFlee";                   //怪物被攻击通知其它怪物
         public const string FocusView = "FocusView";                         //拉进摄像机高度
@@ -19,9 +20,16 @@ namespace Utils
 
         public const string UpdateInfoItem = "UpdateInfoItem"; //更新InfoItem信息
 
-        public const string ShowPlayerInfoViewCartoon = "ShowPlayerInfoViewCartoon"; //播放PlayerInfoView左侧动画
+        public const string ShowPlayerInfoViewCartoon = "ShowPlayerInfoViewCartoon"; //播放PlayerInfoView左侧显示动画
+        public const string HidePlayerInfoViewCartoon = "HidePlayerInfoViewCartoon"; //播放PlayerInfoView左侧隐藏动画
 
         public const string UpdateLevelProgress = "UpdateLevelProgress"; //更新等级进度信息
         public const string UpdateFunctionState = "UpdateFunctionState"; //更新当前功能状态（角色、升级录、、、）
+
+        public const string UpdateTaskMainView = "UpdateTaskMainView"; //更新主界面任务显示
+        
+        public const string UpdateTaskInfo =  "UpdateTaskInfo"; //更新TaskPop中的任务信息
+
+        public const string TriggerSearch = "Trigger Search"; //触发任务目标寻找
     }
 }

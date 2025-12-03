@@ -2,7 +2,6 @@ using Module;
 using Module.Data;
 using TMPro;
 using Utils;
-using World.View.UI;
 
 namespace View
 {

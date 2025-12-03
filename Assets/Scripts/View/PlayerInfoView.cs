@@ -4,8 +4,8 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
+using View.CharacterInfoView;
 using View.PlayerInfo;
-using World.View.UI;
 using CharacterController = Controller.Player.CharacterController;
 
 namespace View
@@ -54,6 +54,7 @@ namespace View
             base.AddEventListener();
             EventCenter.Instance.AddListener(EventMessages.UpdatePlayerMoneyInfo, HandleUpdateMoneyInfo);
             EventCenter.Instance.AddListener(EventMessages.ShowPlayerInfoViewCartoon, HandleShowPlayerInfoViewCartoon);
+            EventCenter.Instance.AddListener(EventMessages.HidePlayerInfoViewCartoon, HandleHidePlayerInfoViewCartoon);
             EventCenter.Instance.AddListener(EventMessages.UpdateLevelProgress, HandleUpdateLevelProgress);
             EventCenter.Instance.AddListener(EventMessages.UpdateFunctionState, HandleUpdateFunctionState);
             
@@ -65,6 +66,11 @@ namespace View
             sevendayBtn.onClick.AddListener(OnClickSevendayBtn);
             vipBtn.onClick.RemoveAllListeners();
             vipBtn.onClick.AddListener(OnClickVipBtn);
+            characterBtn.onClick.RemoveAllListeners();
+            characterBtn.onClick.AddListener((() =>
+            {
+                UIController.Instance.Show<CharacterView>();
+            }));
         }
 
         public override void RemoveEventListener()
@@ -142,6 +148,12 @@ namespace View
         {
             leftSideContent.transform.position = new Vector3(-200,  leftSideContent.transform.position.y, 0);
             leftSideContent.transform.DOMove(new Vector3(40,  leftSideContent.transform.position.y, 0),0.3f);
+        }
+        
+        public void HandleHidePlayerInfoViewCartoon(params object[] args)
+        {
+            leftSideContent.transform.position = new Vector3(40,  leftSideContent.transform.position.y, 0);
+            leftSideContent.transform.DOMove(new Vector3(-200,  leftSideContent.transform.position.y, 0),0.3f);
         }
 
         public void HandleUpdateLevelProgress(params object[] args)

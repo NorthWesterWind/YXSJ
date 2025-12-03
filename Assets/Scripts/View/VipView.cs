@@ -1,7 +1,6 @@
 using System;
 using Module;
 using Utils;
-using World.View.UI;
 
 namespace View
 {

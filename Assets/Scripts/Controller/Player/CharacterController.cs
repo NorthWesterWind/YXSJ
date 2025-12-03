@@ -43,7 +43,7 @@ namespace Controller.Player
         public int currentCarryNum = 0;
         public float currentHp;
         public float maxHp;
-        public int maxCarryNum;
+        public float maxCarryNum;
         public float currentPinkUpRange;
         float velocity = 0f;
         public bool isDead = false;

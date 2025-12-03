@@ -1,7 +1,12 @@
+using System.Collections.Generic;
+using Controller;
+using Module;
+using Module.Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
+using View.Task;
 
 namespace View.PlayerInfo
 {
@@ -11,26 +16,59 @@ namespace View.PlayerInfo
         public TextMeshProUGUI taskInfoTxt;
         public TextMeshProUGUI taskProgressTxt;
         public UIButton showBtn;
+        private AssetHandle _assetHandle;
         void Start()
         {
+            _assetHandle = GetComponent<AssetHandle>();
             AddEvent();
+         
+           
         }
 
         public void AddEvent()
         {
             showBtn.onClick.RemoveAllListeners();
             showBtn.onClick.AddListener(OnClickShowBtn);
+            EventCenter.Instance.AddListener(EventMessages.UpdateTaskMainView , HandleUpdateTaskMainView);
+            EventCenter.Instance.AddListener(EventMessages.MapTaskDataPrepared, HandleUpdateTaskMainView);
+        }
+
+        private void OnDestroy()
+        {
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateTaskMainView , HandleUpdateTaskMainView);
+            EventCenter.Instance.RemoveListener(EventMessages.MapTaskDataPrepared, HandleUpdateTaskMainView);
         }
 
         #region 事件监听
-        public void HandleTaskProgressUpdate(params object[] args)
+        public void HandleUpdateTaskMainView(params object[] args)
         {
-            
+            if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.listenInTaskList.Count == 0)
+            {
+                //没有监听的任务数据
+                ModuleMgr.Instance.GetModule<PlayerDataModule>().data.listenInTaskList =  DataController.Instance.GetTaskGroupIds();
+            }
+            List<TaskData> dataList = DataController.Instance.GetTaskGroupIds();
+            TaskData task = dataList.Find(x => x.taskId == ModuleMgr.Instance.GetModule<PlayerDataModule>().data.nowTaskId);
+
+            if (task != null)
+            {
+                taskInfoTxt.text = task.info;
+                if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.taskProgressDic.ContainsKey(task.taskId))
+                {
+                    //有进度
+                    taskProgressTxt.text = "(" + ModuleMgr.Instance.GetModule<PlayerDataModule>().data.taskProgressDic.ContainsKey(task.taskId) + "/" + task.keyValue + ")";
+                }
+                else
+                {
+                    taskProgressTxt.text = "(0/" + task.keyValue + ")";
+                }
+                // iconImage.sprite = _assetHandle.Get<Sprite>(Extensions.GetTaskInfoResNameByTypeWithId(task.type, task.taskId));
+            }
         }
 
         private void OnClickShowBtn()
         {
-           // UIController.Instance.Show<>();
+            UIController.Instance.Show<TaskPop>();
         }
         
 

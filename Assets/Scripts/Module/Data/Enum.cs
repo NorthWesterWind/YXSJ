@@ -198,7 +198,23 @@ namespace Module.Data
 
         public enum ShowUIType
         {
-                TestView
+                TestView,
+                LingZhangTai,
+                LingChuGe,
+                YunDiGe,
+                YuShaHu,
+                LianQiLu,
+        }
+
+        public enum TalentType
+        {
+                Atk,
+                Hp,
+                BackpackCapacity,
+                Movespeed,
+                Weaponsize,
+                Pickuprange,
+                Atkhp,
         }
 
         // public enum StructureType
@@ -281,5 +297,15 @@ namespace Module.Data
                 ZiWuJian ,
                 YueXinJing,
         }
-        
+
+        public enum UnlockType
+        {
+                None = 0,
+                accountLevel = 1,
+                talentLevel = 2,
+                XianYunZhuanPan = 3,
+                UseLingJing = 4,
+                CardLevel = 5,
+                Purchase = 6
+        }
 }

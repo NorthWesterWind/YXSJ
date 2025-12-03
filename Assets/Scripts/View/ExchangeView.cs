@@ -1,6 +1,6 @@
 using System;
 using TMPro;
-using World.View.UI;
+using Utils;
 
 namespace View
 {

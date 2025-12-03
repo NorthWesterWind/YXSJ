@@ -32,8 +32,9 @@ namespace Controller
         private void Start()
         {
             _assetHandle = GetComponent<AssetHandle>();
-      
+            
         }
+        
        
     }
 }

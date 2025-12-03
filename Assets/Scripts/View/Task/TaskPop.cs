@@ -9,7 +9,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
-using World.View.UI;
+using Object = System.Object;
 
 namespace View.Task
 {
@@ -45,7 +45,8 @@ namespace View.Task
             sliderText.text = tempvalue + "/" +  _mapData.taskGroupSize;
             sliderFill.fillAmount = tempvalue * 1f / _mapData.taskGroupSize;
             content.DOAnchorPos(new Vector2(0, 0), 0.5f)
-                .SetEase(Ease.OutBack);  
+                .SetEase(Ease.OutBack);
+            UpdateTaskContent();
         }
 
         protected override void AddEventListener()
@@ -60,13 +61,30 @@ namespace View.Task
         {
             Extensions.ClearChildren(taskContent);
             PlayerData tempdata = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
-          //  List<TaskData> dataList = DataController.Instance.GetTaskGroupIds();
-            int count  = tempdata.mapTaskRecordDic[_mapData.id].Count;
-            
-            
-            for (int i = 0; i < _mapData.taskGroupSize; i++)
+            List<TaskData> dataList = DataController.Instance.GetTaskGroupIds();
+            List<TaskData> list1 = new List<TaskData>();
+            List<TaskData> list2 = new List<TaskData>();
+            foreach (TaskData data in dataList)
             {
-                
+                if (tempdata.completedTaskIdList.Contains(data.taskId))
+                {
+                   list2.Add(data);
+                }
+                else
+                {
+                    list1.Add(data);
+                }
+            }
+            
+            for (int i = 0; i < list1.Count; i++)
+            {
+                GameObject obj = Instantiate( _assetHandle.Get<GameObject>("taskViewItem") , taskContent , false );
+                obj.GetComponent<TaskViewItem>().Init(list1[i]);
+            }
+            for (int i = 0; i < list2.Count; i++)
+            {
+                GameObject obj = Instantiate( _assetHandle.Get<GameObject>("taskViewItem") , taskContent , false );
+                obj.GetComponent<TaskViewItem>().Init(list2[i]);
             }
         }
         void Update()

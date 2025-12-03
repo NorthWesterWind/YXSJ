@@ -3,7 +3,7 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using World.View.UI;
+using Utils;
 
 namespace View
 {

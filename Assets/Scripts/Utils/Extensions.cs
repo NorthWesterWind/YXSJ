@@ -413,5 +413,212 @@ namespace Utils
 			return resName;
 			
 		}
+
+		public static string GetTaskInfoResNameByTypeWithId(TaskType type, int id)
+		{
+			string resName = "";
+			switch (type)
+			{
+				
+				case TaskType.Harvest:
+			 		GetHarvestStr(id, out resName);
+					break;
+				case TaskType.Makemoney:
+					resName = "YinQian";
+					break;
+				case TaskType.Produce:
+				case TaskType.Sell:
+					GetGoodsStr(id, out resName);
+					break;
+				case TaskType.Construct:
+				case TaskType.Upgrade:
+					GetStructStr(id, out resName);
+					break;
+				case TaskType.Unlock:
+					resName = "Lock";
+					break;
+			}
+
+			return resName;
+		}
+
+		public static void GetHarvestStr(int id , out string resName)
+		{
+			resName = "";
+			switch (id)
+			{
+				case 1:
+					resName = "ShaungYunZhi";
+					break;
+				case 2:
+					resName = "YueLuCao";
+					break;
+				case 3:
+					resName = "ZiXinHua";
+					break;
+				case 4:
+					resName = "YuHuiHe";
+					break;
+				case 5:
+					resName = "XingWenGuo";
+					break;
+				case 6:
+					resName = "WuRongJun";
+					break;
+				case 7:
+					resName = "LingXuSheng";
+					break;
+				case 8:
+					resName = "XueBanHua";
+					break;
+				case 9:
+					resName = "MuLingYa";
+					break;
+				case 10:
+					resName = "JingRuiCao";
+					break;
+				case 11:
+					resName = "TieKuangShi";
+					break;
+				case 12:
+					resName = "YinKuangShi";
+					break;
+				case 13:
+					resName = "TongKuangShi";
+					break;
+				case 14:
+					resName = "ZiJingShi";
+					break;
+				case 15:
+					resName = "YueJingShi";
+					break;
+			}
+		}
+		
+		public static void GetGoodsStr(int id , out string resName)
+		{
+			resName = "";
+			switch (id)
+			{
+				case 1:
+					resName = "YunZhiCha";
+					break;
+				case 2:
+					resName = "YueLuCha";
+					break;
+				case 3:
+					resName = "ZiXinCha";
+					break;
+				case 4:
+					resName = "YuHeCha";
+					break;
+				case 5:
+					resName = "XingWenCha";
+					break;
+				case 6:
+					resName = "WuRongCha";
+					break;
+				case 7:
+					resName = "LingXuCha";
+					break;
+				case 8:
+					resName = "XueBanCha";
+					break;
+				case 9:
+					resName = "MuLingCha";
+					break;
+				case 10:
+					resName = "JingRuiCha";
+					break;
+				case 11:
+					resName = "QingYanJian";
+					break;
+				case 12:
+					resName = "YinSiDao";
+					break;
+				case 13:
+					resName = "TongWenDao";
+					break;
+				case 14:
+					resName = "ZiWuJian";
+					break;
+				case 15:
+					resName = "YueXinJing";
+					break;
+				case 16:
+					resName = "JingYuanBao";
+					break;
+				case 17:
+					resName = "YingQian";
+					break;
+			}
+		}
+
+		public static void GetStructStr(int id, out string resName)
+		{
+			resName = "";
+			switch (id)
+			{
+				case 1:
+					resName = "LingZhangTai";
+					break;
+				case 2:
+					resName = "LingChuGe_1";
+					break;
+				case 3:
+					resName = "YunDiGe";
+					break;
+				case 4:
+					resName = "LingChaJia_1";
+					break;
+				case 5:
+					resName = "YuShaHu_1";
+					break;
+				case 6:
+					resName = "LingChaJia_2";
+					break;
+				case 7:
+					resName = "YuShaHu_2";
+					break;
+				case 8:
+					resName = "LingChaJia_3";
+					break;
+				case 9:
+					resName = "YuShaHu_3";
+					break;
+				case 10:
+					resName = "LingChaJia_4";
+					break;
+				case 11:
+					resName = "YuShaHu_4";
+					break;
+				case 12:
+					resName = "LianQiLu_1";
+					break;
+				case 13:
+					resName = "LingQiJia_1";
+					break;
+				case 14:
+					resName = "LianQiLu_2";
+					break;
+				case 15:
+					resName = "LingQiJia_2";
+					break;
+				case 16:
+					resName = "LianQiLu_3";
+					break;
+				case 17:
+					resName = "LingQiJia_3";
+					break;
+				case 18:
+					resName = "YuanBaoKuangDong";
+					break;
+				case 19:
+					resName = "LingChuGe_2";
+					break;
+			}
+		}
+		
+		
 	}
 }

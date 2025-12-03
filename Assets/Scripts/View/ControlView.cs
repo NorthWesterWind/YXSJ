@@ -1,5 +1,5 @@
 using UnityEngine;
-using World.View.UI;
+using Utils;
 
 namespace View
 {

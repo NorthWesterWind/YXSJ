@@ -18,6 +18,7 @@ namespace Controller
         public InteractionType interactionType;
         
         public ShowUIType  showUIType;
+        public BuildingType buildingType;
         public void Interact()
         {
             Debug.Log($"交互触发：{name}");

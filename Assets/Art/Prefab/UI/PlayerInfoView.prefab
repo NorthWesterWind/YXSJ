@@ -641,7 +641,7 @@ GameObject:
   - component: {fileID: 5483683705699511837}
   - component: {fileID: 1366139912927065509}
   - component: {fileID: 7260448150695276527}
-  - component: {fileID: 5598549663078638054}
+  - component: {fileID: 8994798735984993796}
   m_Layer: 5
   m_Name: taskBtn
   m_TagString: Untagged
@@ -756,7 +756,7 @@ MonoBehaviour:
   m_ClickInterval: 0.3
   m_ClickSound: {fileID: 0}
   m_SoundVolume: 1
---- !u!114 &5598549663078638054
+--- !u!114 &8994798735984993796
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -765,13 +765,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1618688450862300228}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4f6caf63e988a034798d20d03851e96a, type: 3}
+  m_Script: {fileID: 11500000, guid: dddf2a8db7ad5a64da45af1b69d34419, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   iconImage: {fileID: 3853485033640145782}
-  infotxt: {fileID: 3273138069407465510}
-  progresstxt: {fileID: 5034528334396763074}
-  btn: {fileID: 7260448150695276527}
+  taskInfoTxt: {fileID: 3273138069407465510}
+  taskProgressTxt: {fileID: 5034528334396763074}
+  showBtn: {fileID: 7260448150695276527}
 --- !u!1 &2052623138469151210
 GameObject:
   m_ObjectHideFlags: 0
@@ -2354,6 +2354,32 @@ MonoBehaviour:
   _hideAnimationTime: 0
   _closeBackground: {fileID: 0}
   _isPopup: 0
+  _content: {fileID: 0}
+  _enablePopupScale: 1
+  _popupScaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0.8
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   onShow:
     m_PersistentCalls:
       m_Calls: []
@@ -4761,7 +4787,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8793407857391591511, guid: fcc8b41b1d1554f4ea6a98b78c7e9239, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8793407857391591511, guid: fcc8b41b1d1554f4ea6a98b78c7e9239, type: 3}
       propertyPath: m_AnchorMin.x
@@ -4769,7 +4795,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8793407857391591511, guid: fcc8b41b1d1554f4ea6a98b78c7e9239, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8793407857391591511, guid: fcc8b41b1d1554f4ea6a98b78c7e9239, type: 3}
       propertyPath: m_SizeDelta.x
@@ -4809,11 +4835,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8793407857391591511, guid: fcc8b41b1d1554f4ea6a98b78c7e9239, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 137.6112
       objectReference: {fileID: 0}
     - target: {fileID: 8793407857391591511, guid: fcc8b41b1d1554f4ea6a98b78c7e9239, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -41.0255
       objectReference: {fileID: 0}
     - target: {fileID: 8793407857391591511, guid: fcc8b41b1d1554f4ea6a98b78c7e9239, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

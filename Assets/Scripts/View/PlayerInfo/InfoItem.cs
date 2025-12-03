@@ -32,7 +32,7 @@ namespace View.PlayerInfo
             if (type != infoType)
             {
                 return;
-            }
+            } 
             Init();
         }
         public void Init(CharacterController character = null)

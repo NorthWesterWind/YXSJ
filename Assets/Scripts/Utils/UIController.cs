@@ -5,7 +5,6 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
-using World.View.UI;
 
 namespace Utils
 {

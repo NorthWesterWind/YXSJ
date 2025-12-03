@@ -61,7 +61,7 @@ namespace Controller
 
         public SpriteRenderer indicator;
         public GameObject indicatorParent;
-        private Transform playerTransform;
+        public Transform playerTransform;
 
         private bool isFleeing = false;
         private float fleeCooldown = 3f;
@@ -119,7 +119,7 @@ namespace Controller
                     break;
             }
 
-            playerTransform = GameObject.FindWithTag("Player").transform;
+            playerTransform = GameObject.Find("Player").transform;
         }
 
         void OnEnable()
@@ -298,6 +298,10 @@ namespace Controller
             if (state == MonsterState.ChargeWait || state == MonsterState.Flee || state == MonsterState.ChargeCooldown)
                 return;
 
+            if (playerTransform == null)
+            {
+                playerTransform = GameObject.Find("Player").transform;
+            }
             float distance = Vector2.Distance(transform.position, playerTransform.position);
             if (distance < detectRadius)
             {

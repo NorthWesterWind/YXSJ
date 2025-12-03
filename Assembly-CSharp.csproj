@@ -72,6 +72,7 @@
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Shared\Scripts\SimpleElevator.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeB.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Scenes\BossCamera\CustomLockCameraY.cs" />
+    <Compile Include="Assets\Scripts\View\CharacterInfoView\itemInfo.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\DropdownSample.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Scenes\DualTarget\MoveAimTarget.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexColorCycler.cs" />
@@ -90,6 +91,7 @@
     <Compile Include="Assets\Scripts\Controller\Monster\GiantMonsterStrategy.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01_UGUI.cs" />
     <Compile Include="Assets\Scripts\Controller\Monster\IMonsterBehaviorStrategy.cs" />
+    <Compile Include="Assets\Scripts\Module\Data\TalentData.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\SimpleScript.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark04.cs" />
     <Compile Include="Assets\Scripts\Controller\InteractionController.cs" />
@@ -159,8 +161,11 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\SkewTextExample.cs" />
     <Compile Include="Assets\Scripts\Module\Data\MapData.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\WarpTextExample.cs" />
+    <Compile Include="Assets\Scripts\View\CharacterInfoView\CharacterView.cs" />
+    <Compile Include="Assets\Scripts\View\PopUp\CharacterDetailView.cs" />
     <Compile Include="Assets\Scripts\Utils\LoginUtil.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TextMeshProFloatingText.cs" />
+    <Compile Include="Assets\Scripts\Module\Data\SevenDayRewardData.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Shared\Scripts\MixingCameraBlend.cs" />
     <Compile Include="Assets\Scripts\Controller\Pickups\BasePickup.cs" />
     <Compile Include="Assets\Scripts\Controller\Player\PlayerInfo.cs" />
@@ -177,6 +182,7 @@
     <Compile Include="Assets\Scripts\Controller\WeaponController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark03.cs" />
     <Compile Include="Assets\Scripts\Utils\Timer.cs" />
+    <Compile Include="Assets\Scripts\View\CharacterInfoView\TalentItemView.cs" />
     <Compile Include="Assets\Scripts\Controller\CameraController.cs" />
     <Compile Include="Assets\Scripts\View\ControlView.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Scenes\2D\MouseScrollZoom2D.cs" />
@@ -185,6 +191,7 @@
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Shared\Scripts\InputSystemHelper.cs" />
     <Compile Include="Assets\Scripts\Controller\Structure\SalesStall.cs" />
     <Compile Include="Assets\Scripts\Controller\MonsterController.cs" />
+    <Compile Include="Assets\Scripts\View\PopUp\ItemInfoPop.cs" />
     <Compile Include="Assets\Scripts\View\TipView.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Shared\Scripts\PlayerMoveOnSphere.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Scenes\2D\LoseSightWhenTargetsFallsOffThePlatform.cs" />
@@ -200,6 +207,7 @@
     <None Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Scenes\FadeOutNearbyObjects\FadeOut.shader" />
     <None Include="Assets\TextMesh Pro\Shaders\TMPro_Mobile.cginc" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF SSD.shader" />
+    <None Include="Assets\Excel\JSON\SevenDayReward.json" />
     <None Include="Assets\Excel\JSON\RewardData.json" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\Excel\JSON\CustomerData.json" />
@@ -218,6 +226,7 @@
     <None Include="Assets\Excel\JSON\TaskData_2.json" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Following Characters.txt" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile Masking.shader" />
+    <None Include="Assets\Excel\JSON\TalentData.json" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF Overlay.shader" />
     <None Include="Assets\Excel\JSON\TaskData_3.json" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Bitmap-Mobile.shader" />

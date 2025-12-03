@@ -1,4 +1,5 @@
 using System;
+using Controller;
 using Module.Data;
 using Utils;
 
@@ -118,6 +119,26 @@ namespace Module
         public void UnlockEmployeeFunction()
         {
             data.employeeFunction = 1;
+        }
+
+        public void GetTaskReward(int rewardId)
+        {
+            RewardData rewardData = DataController.Instance.taskRewardDataDic[rewardId];
+            data.jingMangZhu += rewardData.Jmz;
+            data.silverCoin += rewardData.Yq;
+            data.goldIngot += rewardData.Jyb;
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
+        }
+
+        public void GetSevenDayReward(int day)
+        {
+            SevenDayRewardData _data = DataController.Instance.sevenDayRewardDataDic[day];
+            data.goldIngot += _data.Jyb;
+            data.silverCoin += _data.Jyb;
+            data.lingJing += _data.Lj;
+            data.sevenDayRecordList.Add(day);
+            data.sevenDayRecordTime = DateTime.Now.ToString("yyyy/MM/dd");
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
         }
         
     }
