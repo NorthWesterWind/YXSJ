@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Utils;
@@ -96,7 +97,22 @@ namespace Module.Data
 
         public int useZhuanPanTodayValue = 0; //今日使用转盘次数
 
+        
+        
+        public List<CardUpProgress>  cardUpProgressesList = new List<CardUpProgress>();
+        
+        
         #endregion
 
+    }
+    
+    [Serializable]
+    public  class CardUpProgress
+    {
+        public CardLevelType levelType;
+        public CardDevelopType developType;
+        public int level;
+        public int id;
+        public int currentNum;
     }
 }

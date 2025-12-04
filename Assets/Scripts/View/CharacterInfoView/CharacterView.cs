@@ -7,11 +7,14 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
+using View.PopUp;
 
 namespace View.CharacterInfoView
 {
     public class CharacterView : BaseView
     {
+        public GameObject talentRect;
+        public GameObject dressRect;
         public UIButton closeButton;
         public UIButton talentBtn;
         public UIButton dressBtn;
@@ -23,7 +26,7 @@ namespace View.CharacterInfoView
         public TextMeshProUGUI talentInfotxt;
         public UIButton uptalentBtn;
         public TextMeshProUGUI Jmztxt;
-        List<Transform> children = new List<Transform>();
+        public  List<Transform> children = new List<Transform>();
         
         public List<ItemInfo> items = new List<ItemInfo>();
         
@@ -35,13 +38,11 @@ namespace View.CharacterInfoView
         public Image weaponIcon;
         public Image bagIcon;
         public UIButton detailBtn;
+        public List<TalentData> datas = new();
         protected override void Start()
         {
             base.Start();
-            for (int i = 0; i < talentContent.childCount; i++)
-            {
-                children.Add(talentContent.GetChild(i));
-            }
+           
         }
 
         protected override void AddEventListener()
@@ -64,6 +65,13 @@ namespace View.CharacterInfoView
             bagDetailBtn.onClick.AddListener(ShowBag);
             detailBtn.onClick.RemoveAllListeners();
             detailBtn.onClick.AddListener(OnClickDetailBtn);
+        }
+
+
+        public override void UpdateViewWithArgs(params object[] args)
+        {
+            base.UpdateViewWithArgs(args);
+            ShowTalent();
         }
 
         protected override void OnHideComplete()
@@ -112,19 +120,36 @@ namespace View.CharacterInfoView
             UpdateTalentState();
             }
         }
-        
+
+     
         public void ShowTalent()
         {
+            talentRect.SetActive(true);
+            dressRect.SetActive(false);
             talentMask.SetActive(false);
             dressMask.SetActive(true);
-            List<TalentData> datas = new List<TalentData>(DataController.Instance.talentDataDic.Values);
-            int i = datas.Count - 1;
+
+            if (datas.Count == 0)
+            {
+                datas = new List<TalentData>(DataController.Instance.talentDataDic.Values);
+                datas.Sort((a, b) => a.id.CompareTo(b.id)); 
+            }
+
+            if (children.Count == 0)
+            {
+                for (int i = 0; i < talentContent.childCount; i++)
+                {
+                    children.Add(talentContent.GetChild(i));
+                }
+            }
+            int count = Mathf.Min(datas.Count, children.Count); // 避免越界
             int j = 0;
-            while (i >= 0)
+            Debug.Log($"yj => {count}");
+            Debug.Log($"yj => datas.Count ={datas.Count}");
+            for (int i = children.Count - 1; i >= children.Count - count; i--)
             {
                 children[i].GetComponent<TalentItemView>().Init(datas[j]);
-                j += 1;
-                i -= 1;
+                j++;
             }
 
             UpdateTalentState();
@@ -134,8 +159,13 @@ namespace View.CharacterInfoView
             PlayerData data = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
             Jmztxt.text = data.jingMangZhu.ToString();
             int level = data.talentLevel;
-            talentImg.sprite = _assetHandle.Get<Sprite>(DataController.Instance.talentDataDic[level].resName);
+            //talentImg.sprite = _assetHandle.Get<Sprite>(DataController.Instance.talentDataDic[level].resName);
             leveltxt.text = level.ToString();
+            level += 1;
+            if (level > 80)
+            {
+                level = 80;
+            }
             TalentData talentData = DataController.Instance.talentDataDic[level];
             switch (talentData.type)
             {
@@ -172,6 +202,8 @@ namespace View.CharacterInfoView
         
         public void ShowDress()
         {
+            talentRect.SetActive(false);
+            dressRect.SetActive(true);
             dressMask.SetActive(false);
             talentMask.SetActive(true);
             ShowWeapon();
@@ -214,7 +246,7 @@ namespace View.CharacterInfoView
 
         public void OnClickDetailBtn()
         {
-            
+            UIController.Instance.Show<CharacterDetailView>();
         }
     }
 }

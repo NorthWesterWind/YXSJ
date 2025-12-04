@@ -23,7 +23,7 @@ namespace Controller
         
         public Dictionary<int , SevenDayRewardData> sevenDayRewardDataDic = new();
         public Dictionary<int , TalentData> talentDataDic = new();
-        
+        public List<CardLevelData> cardLevelDataList = new();
         void Start()
         {
             PrepareData();
@@ -94,6 +94,11 @@ namespace Controller
             string talentDataStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("TalentData")).text;
             talentDataDic.Clear();
             talentDataDic = JsonConvert.DeserializeObject<Dictionary<int, TalentData>>(talentDataStr);
+            
+            string cardDataStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("CardLevelData")).text;
+            cardLevelDataList.Clear();
+            cardLevelDataList = JsonConvert.DeserializeObject<List<CardLevelData>>(cardDataStr);
+            
         }
         
         

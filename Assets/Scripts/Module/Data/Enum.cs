@@ -86,6 +86,8 @@ namespace Module.Data
                 LingChuGe_2 = 19,   //二号灵储阁
         }
         
+        
+        
         /// <summary>
         /// 助手枚举类
         /// </summary>
@@ -208,13 +210,13 @@ namespace Module.Data
 
         public enum TalentType
         {
-                Atk,
-                Hp,
-                BackpackCapacity,
-                Movespeed,
-                Weaponsize,
-                Pickuprange,
-                Atkhp,
+                Atk = 1,
+                Hp = 2,
+                BackpackCapacity=3,
+                Movespeed=4,
+                Weaponsize=5,
+                Pickuprange=6,
+                Atkhp=7,
         }
 
         // public enum StructureType
@@ -308,4 +310,33 @@ namespace Module.Data
                 CardLevel = 5,
                 Purchase = 6
         }
+
+        public enum CardLevelType
+        {
+                None = 0 ,
+                FanPing=1,
+                LingYun=2,
+                XianYun=3
+        }
+
+
+        public enum CardDevelopType
+        {
+                UpgradeYuShaHu_1 = 1,
+                UpgradeYuShaHu_2 = 2,
+                UpgradeYuShaHu_3 = 3,
+                UpgradeYuShaHu_4 = 4,
+                UpgradeLianQiLu_1 = 5,
+                UpgradeLianQiLu_2 = 6,
+                UpgradeLianQiLu_3 = 7,
+                UpgradeLingZhangTai = 8,
+                UpgradeLingChuGe_1 = 9,
+                UpgradeLingChuGe_2 = 10,
+                UpgradeYunDiGe = 11,
+                UpgradeCharacterWithXuanCaiTuAtk = 12,
+                UpgradeCharacterWithXuanCaiTuHp = 13,
+                UpgradeGetLingJingShu = 14
+        }
+        
+        
 }

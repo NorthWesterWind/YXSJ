@@ -1,6 +1,9 @@
 
+using System;
+
 namespace Module.Data
 {
+	[Serializable]
 	public class TalentData
 	{
 		public int id;          // 编号
