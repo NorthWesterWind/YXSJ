@@ -71,6 +71,11 @@ namespace View
             {
                 UIController.Instance.Show<CharacterView>();
             }));
+            cardFunctionBtn.onClick.RemoveAllListeners();
+            cardFunctionBtn.onClick.AddListener((() =>
+            {
+                UIController.Instance.Show<CardView.CardInfoView>();
+            }));
         }
 
         public override void RemoveEventListener()

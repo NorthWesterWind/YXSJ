@@ -1,5 +1,3 @@
-
-using System;
 using Module;
 using Module.Data;
 using TMPro;
@@ -7,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Utils;
 
-namespace View.CardInfoView
+namespace View.CardView
 {
     public class CardItem : MonoBehaviour
     {
@@ -29,7 +27,7 @@ namespace View.CardInfoView
             btn.onClick.RemoveAllListeners();
             btn.onClick.AddListener((() =>
             {
-              //  UIController.Instance.Show<CardDetailPop>(data);
+               UIController.Instance.Show<CardDetailPop>(data);
             }));
         }
         void Update()
@@ -76,10 +74,11 @@ namespace View.CardInfoView
             }
             else
             {
+                topLeftLockImage.gameObject.SetActive(true);
+                leveltxt.gameObject.SetActive(false);
                 if (data.unlockLevel > playerData.accountLevel)
                 {
                     //未到达等级解锁条件
-                    topLeftLockImage.gameObject.SetActive(false);
                     fillContent.SetActive(false);
                     progresstxt.gameObject.SetActive(false);
                     MaskImg.gameObject.SetActive(true);
@@ -88,7 +87,6 @@ namespace View.CardInfoView
                 else
                 {
                     //到达等级解锁条件，未拥有
-                    topLeftLockImage.gameObject.SetActive(true);
                     fillContent.SetActive(false);
                     progresstxt.gameObject.SetActive(false);
                     MaskImg.gameObject.SetActive(false);

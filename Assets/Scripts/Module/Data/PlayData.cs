@@ -62,7 +62,7 @@ namespace Module.Data
         
         public int accountLevel = 1;
         public int characterFunction = 1;
-        public int cardFunction = 0;
+        public int cardFunction = 1;
         public int mapFunction = 0;
         public int employeeFunction = 0;
         public int ordenFunction = 0;
