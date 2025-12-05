@@ -1,7 +1,7 @@
 
 namespace Module.Data
 {
-	public class CardLevelData
+	public  class CardLevelData
 	{
 		public int id;                      // 编号
 		public string name;                 // 名称
@@ -9,6 +9,7 @@ namespace Module.Data
 		public string resName;              // 图片资源名称
 		public CardDevelopType developType; // 养成类型
 		public string description;          // 描述
+		public int unlockLevel;             // 玩家解锁卡牌等级
 	}
 }
 
