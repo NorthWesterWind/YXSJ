@@ -52,9 +52,11 @@
     <Compile Include="Assets\Scripts\Utils\GameInitializer.cs" />
     <Compile Include="Assets\Scripts\Module\Data\BuildingData.cs" />
     <Compile Include="Assets\Scripts\Controller\Structure\CashierCounter.cs" />
+    <Compile Include="Assets\Scripts\Module\Data\GiftpackData.cs" />
     <Compile Include="Assets\Scripts\Controller\GameController.cs" />
     <Compile Include="Assets\Scripts\View\StoreView.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextEventHandler.cs" />
+    <Compile Include="Assets\Scripts\View\MapFunction\MapItem.cs" />
     <Compile Include="Assets\Scripts\View\PlayerInfoView.cs" />
     <Compile Include="Assets\Scripts\View\CardView\CardDetailPop.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Shared\Scripts\PlayerMove.cs" />
@@ -67,6 +69,7 @@
     <Compile Include="Assets\Scripts\Utils\JsonUtil.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_ExampleScript_01.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMPro_InstructionOverlay.cs" />
+    <Compile Include="Assets\Scripts\View\CardClaimInterface.cs" />
     <Compile Include="Assets\Scripts\Module\Data\RewardData.cs" />
     <Compile Include="Assets\Scripts\Module\Data\StorageBagData.cs" />
     <Compile Include="Assets\Scripts\Controller\Player\CharacterController.cs" />
@@ -163,6 +166,7 @@
     <Compile Include="Assets\Scripts\Controller\Pickups\ScenePickupController.cs" />
     <Compile Include="Assets\Scripts\Utils\RedMessages.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\SkewTextExample.cs" />
+    <Compile Include="Assets\Scripts\View\CardClaimInterfaceItem.cs" />
     <Compile Include="Assets\Scripts\Module\Data\MapData.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\WarpTextExample.cs" />
     <Compile Include="Assets\Scripts\View\CharacterInfoView\CharacterView.cs" />
@@ -185,13 +189,16 @@
     <Compile Include="Assets\Scripts\Utils\BaseView.cs" />
     <Compile Include="Assets\Scripts\Controller\WeaponController.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark03.cs" />
+    <Compile Include="Assets\Scripts\View\CurrencyCardItem.cs" />
     <Compile Include="Assets\Scripts\Utils\Timer.cs" />
     <Compile Include="Assets\Scripts\View\CharacterInfoView\TalentItemView.cs" />
     <Compile Include="Assets\Scripts\Controller\CameraController.cs" />
     <Compile Include="Assets\Scripts\View\ControlView.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Scenes\2D\MouseScrollZoom2D.cs" />
+    <Compile Include="Assets\Scripts\View\MapFunction\MapInfoItem.cs" />
     <Compile Include="Assets\Scripts\Utils\Initializable.cs" />
     <Compile Include="Assets\Scripts\View\ProductionInfo.cs" />
+    <Compile Include="Assets\Scripts\Utils\TooltipView.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Shared\Scripts\InputSystemHelper.cs" />
     <Compile Include="Assets\Scripts\Controller\Structure\SalesStall.cs" />
     <Compile Include="Assets\Scripts\Controller\MonsterController.cs" />
@@ -240,6 +247,7 @@
     <None Include="Assets\TextMesh Pro\Fonts\LiberationSans - OFL.txt" />
     <None Include="Assets\Excel\JSON\MonsterData.json" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_SDF-Mobile.shader" />
+    <None Include="Assets\Excel\JSON\GiftpackData.json" />
     <None Include="Assets\TextMesh Pro\Sprites\EmojiOne.json" />
     <None Include="Assets\TextMesh Pro\Shaders\TMP_Sprite.shader" />
     <None Include="Assets\TextMesh Pro\Examples &amp; Extras\Fonts\Bangers - OFL.txt" />

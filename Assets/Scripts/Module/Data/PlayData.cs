@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Controller;
 using UnityEngine;
 using Utils;
 
@@ -114,5 +115,20 @@ namespace Module.Data
         public int level;
         public int id;
         public int currentNum;
+
+        public CardUpProgress(int id , int num)
+        {
+            this.id = id;
+            currentNum = num-1;
+            level = 1;
+            foreach (var data in DataController.Instance.cardLevelDataList)
+            {
+                if (data.id == id)
+                {
+                    levelType =  data.levelType;
+                    developType = data.developType;
+                }
+            }
+        }
     }
 }

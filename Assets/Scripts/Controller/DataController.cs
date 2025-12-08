@@ -24,12 +24,13 @@ namespace Controller
         public Dictionary<int , SevenDayRewardData> sevenDayRewardDataDic = new();
         public Dictionary<int , TalentData> talentDataDic = new();
         public List<CardLevelData> cardLevelDataList = new();
+        public Dictionary<int ,GiftpackData> giftpackDataDic = new();
         void Start()
         {
             PrepareData();
         }
 
-        // Update is called once per frame
+       
         void Update()
         {
             
@@ -99,6 +100,9 @@ namespace Controller
             cardLevelDataList.Clear();
             cardLevelDataList = JsonConvert.DeserializeObject<List<CardLevelData>>(cardDataStr);
             
+            string giftpackDataStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("GiftpackData")).text;
+            giftpackDataDic.Clear();
+            giftpackDataDic = JsonConvert.DeserializeObject<Dictionary<int, GiftpackData>>(giftpackDataStr);
         }
         
         

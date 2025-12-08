@@ -1,4 +1,5 @@
 using System;
+using Controller;
 using Module;
 using Module.Data;
 using UnityEngine;
@@ -74,6 +75,8 @@ namespace View
                             {
                                 UIController.Instance.Show<TipView>("兑换成功！");
                                 ModuleMgr.Instance.GetModule<PlayerDataModule>().data.lingJing -= costValue;
+                               var dic =ModuleMgr.Instance.GetModule<PlayerDataModule>().LotteryCard(DataController.Instance.giftpackDataDic[3]);
+                               UIController.Instance.Show<CardClaimInterface>(dic,CurrencyType.JingYuanBao , DataController.Instance.giftpackDataDic[3].JinYuanBao);
                             };
                             UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}灵晶兑换仙韵宝匣？", _callback);
                             break;
@@ -84,6 +87,8 @@ namespace View
                                 ModuleMgr.Instance.GetModule<PlayerDataModule>().data.lingJing -= costValue;
                             };
                             UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}灵晶兑换灵韵宝匣？", _callback);
+                            var dic =ModuleMgr.Instance.GetModule<PlayerDataModule>().LotteryCard(DataController.Instance.giftpackDataDic[2]);
+                            UIController.Instance.Show<CardClaimInterface>(dic,CurrencyType.JingYuanBao , DataController.Instance.giftpackDataDic[2].JinYuanBao);
                             break;
                         case RewardType.XuanSuLing:
                             _callback = () =>
@@ -136,6 +141,8 @@ namespace View
                         playerData.FanPingBaoXiaoTime = DateTime.Now.ToString("yyyy-MM-dd");
                         mask?.SetActive(true);
                         UIController.Instance.Show<TipView>("领取成功！");
+                        var dic =ModuleMgr.Instance.GetModule<PlayerDataModule>().LotteryCard(DataController.Instance.giftpackDataDic[1]);
+                        UIController.Instance.Show<CardClaimInterface>(dic,CurrencyType.JingYuanBao , DataController.Instance.giftpackDataDic[1].JinYuanBao);
                         break;
                 }
             }

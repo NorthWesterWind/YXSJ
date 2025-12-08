@@ -313,7 +313,6 @@ namespace Module.Data
 
         public enum CardLevelType
         {
-                None = 0 ,
                 FanPing=1,
                 LingYun=2,
                 XianYun=3
@@ -338,5 +337,29 @@ namespace Module.Data
                 UpgradeGetLingJingShu = 14
         }
         
-        
+        public enum GiftpackType
+        {
+                None = 0,
+                StandardPack = 1,
+                RareGiftPack = 2,
+                LuxuryGiftPack = 3,
+                SilverGiftPack = 4,
+                GoldGiftPack = 5,
+                PlatinumGiftPack = 6 ,
+                DiamondGiftPack = 7
+        }
+
+        public enum GiftpackLevelType
+        {
+                None= 0 ,
+                Normal = 1,
+                Intermediate = 2,
+                Advanced = 3
+        }
+
+        public enum CurrencyType
+        {
+                JingYuanBao,
+                LingJing,
+        }
 }
