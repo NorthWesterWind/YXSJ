@@ -52,6 +52,7 @@ namespace Module.Data
 
         #region 游玩数据
 
+        public List<int> unlockMapList = new List<int>();
         public Dictionary<int ,List<int>> mapPlayRecordDic = new Dictionary<int ,List<int>>();
         public int silverCoin;  //银钱
         public int goldIngot;   //金元宝

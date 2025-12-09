@@ -4,7 +4,9 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
+using View.CardView;
 using View.CharacterInfoView;
+using View.MapFunction;
 using View.PlayerInfo;
 using CharacterController = Controller.Player.CharacterController;
 
@@ -74,7 +76,12 @@ namespace View
             cardFunctionBtn.onClick.RemoveAllListeners();
             cardFunctionBtn.onClick.AddListener((() =>
             {
-                UIController.Instance.Show<CardView.CardInfoView>();
+                UIController.Instance.Show<CardInfoView>();
+            }));
+            mapFunctionBtn.onClick.RemoveAllListeners();
+            mapFunctionBtn.onClick.AddListener((() =>
+            {
+                UIController.Instance.Show<MapSelectView>();
             }));
         }
 
