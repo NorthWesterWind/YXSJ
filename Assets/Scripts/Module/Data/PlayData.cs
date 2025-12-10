@@ -105,9 +105,9 @@ namespace Module.Data
         #region 云递者数据
 
         public int workingNum; //正在工作人数
-        public int totalNum;    //总人数
+        public int totalNum = 1;    //总人数
         public int currentMoveSpeed;
-        public int capacity;
+        public int capacity = 1;
         #endregion
 
 

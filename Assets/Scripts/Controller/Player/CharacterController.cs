@@ -248,6 +248,8 @@ namespace Controller.Player
                     if (item.GetComponent<Production>().state != ItemState.OnWorkbench)
                         continue;
                     ((ProductionStation)(item.GetComponent<Production>().station)).grid.ReleaseOne();
+                    ((ProductionStation)(item.GetComponent<Production>().station)).productionList.Remove(
+                        item.GetComponent<Production>());
                     item.StartAttract(this.transform, receiveTransform);
                 }
                 

@@ -53,7 +53,7 @@ namespace Controller.Pickups
             if (picker == null || pickerReceivePoint == null || !gameObject.activeInHierarchy)
                 yield break;
             transform.position = pickerReceivePoint.position;
-
+           
             // 让具体物品去执行拾取逻辑
             GetComponent<IPickable>().OnPicked(picker.gameObject);
             ObjectPoolManager.Instance.ReturnObject(itemName , gameObject);

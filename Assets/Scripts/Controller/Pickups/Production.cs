@@ -14,7 +14,6 @@ namespace Controller.Pickups
         Flying,
         OnWorkbench,
         OnShelf,
-        HeldByPlayer,
         HeldByAssistant,
         HeldByCustomer
     }
@@ -34,7 +33,6 @@ namespace Controller.Pickups
        
        public ItemState state;
        public GoodsType  goodsType;
-       public List<Production> productions;
        public StructureBase station;
        public void SetState(ItemState newState)
        {

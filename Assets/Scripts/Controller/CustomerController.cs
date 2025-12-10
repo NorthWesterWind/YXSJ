@@ -43,7 +43,7 @@ namespace Controller
         
         void Update()
         {
-            if (agent.hasPath)
+            if (agent.hasPath  && agent.remainingDistance > 1 && agent.currentSpeed < 0.1f )
             {
                 animator.SetBool("move" ,true);
                 animator.SetBool("idle",false);
@@ -57,7 +57,10 @@ namespace Controller
             SetLayer();
         }
 
-        
+        public void UpdateQueueTarget(Vector2 pos)
+        {
+            agent.SetDestination(pos);
+        }
         public void SetLayer()
         {
             int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
@@ -172,12 +175,17 @@ namespace Controller
         {
             if (state == NpcState.QianWangGouMai)
             {
-                nextPosition = salesStall.parchaseTransform.position;
+                var pos =   GameController.Instance.AddCustomerToQueue(salesStall, this);
+                nextPosition = pos;
             }else if (state == NpcState.QianWangShouYinTai)
             {
-                nextPosition = ((CashierCounter)GameController.Instance.buildings[BuildingType.LingZhangTai]).parchaseTransform.position;
+                GameController.Instance.RemoveCustomerFromQueue( salesStall, this);
+                var pos =   GameController.Instance.AddCustomerToQueue((CashierCounter)GameController.Instance.buildings[BuildingType.LingZhangTai], this);
+                nextPosition = pos;
             }else if (state is NpcState.JieZhangChengGong or NpcState.Angry)
             {
+                GameController.Instance.RemoveCustomerFromQueue( salesStall, this);
+                GameController.Instance.RemoveCustomerFromQueue( (CashierCounter)GameController.Instance.buildings[BuildingType.LingZhangTai], this);
                 nextPosition = bornPosition;
             }
         }

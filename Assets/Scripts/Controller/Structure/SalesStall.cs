@@ -17,6 +17,7 @@ namespace Controller.Structure
         public PlacementGrid grid;
         public TextMeshPro numTxt;
         public List<Production> productList = new();
+        public Transform transferPoint;
         protected override void Start()
         {
             base.Start();
@@ -73,6 +74,16 @@ namespace Controller.Structure
             var targetPos = grid.GetNextPosition();
             p.FlyTo(targetPos);
             p.SetState(ItemState.OnShelf);
+        }
+
+        public void ReceiveProduct(FreightClerkController controller)
+        {
+            List<Production> list = controller.productList;
+            for (int i = 0; i < list.Count; i++)
+            {
+                PlaceProduct(list[i]);
+            }
+            controller.productList.Clear();
         }
     }
 }

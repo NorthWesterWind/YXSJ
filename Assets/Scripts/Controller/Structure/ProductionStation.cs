@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Controller.Pickups;
 using Module.Data;
 using UnityEngine;
@@ -14,6 +15,8 @@ namespace Controller.Structure
         public Transform productPosition;
         
         public Transform recivePosition;
+        public Transform transferPoint;
+            
         
         public int currentMaterialCount;  //当前材料数量
         public float baseProductionTime = 2.5f; // 基础生产时间
@@ -27,6 +30,7 @@ namespace Controller.Structure
         private AssetHandle _assetHandle;
         public PlacementGrid grid = new PlacementGrid();
         
+        public List<Production> productionList = new List<Production>();
         protected override void Start()
         {
             base.Start();
@@ -36,10 +40,12 @@ namespace Controller.Structure
             grid.basePosition = productPosition.position;
             GameController.Instance.buildings.Add(buildingType , this);
             ObjectPoolManager.Instance.WarmPool("Production" , _productObj , 50);
+            
         }
 
         private void Update()
         {
+            
         }
 
         public void AddMaterial(int count)
@@ -76,6 +82,7 @@ namespace Controller.Structure
             product.Init(goodsType);
             product.SetStation(this);
             product.spriteRenderer.sortingOrder = grid.currentIndex + 4000;
+           productionList.Add(product);
             product.FlyTo(grid.GetNextPosition() , (() =>
             {
                 product.canPickup = true;
@@ -86,6 +93,7 @@ namespace Controller.Structure
             {
                 OnProductionFinished();
             }
+     
         }
         
       
@@ -95,6 +103,30 @@ namespace Controller.Structure
         {
             Destroy(productionInfo.gameObject);
             EventCenter.Instance.RemoveListener(EventMessages.ProductionComplete , HandleProductionComplete);
+        }
+
+
+        public List<Production> TakeProduct(FreightClerkController freightClerk)
+        {
+            int num = freightClerk.currentCapacity;
+            List<Production> list = new List<Production>();
+            if (productionList.Count < num)
+            {
+                list = productionList;
+                productionList.Clear();
+            }
+            else
+            {
+                list.AddRange(productionList.GetRange(0, num));
+                productionList.RemoveRange(0, num);
+            }
+            
+            for (int i = 0; i < list.Count; i++)
+            {
+                list[i].FlyTo(freightClerk.points[i].position);
+            }
+            
+            return list;
         }
     }
 

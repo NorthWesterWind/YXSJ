@@ -4,7 +4,6 @@ using Controller.Structure;
 using Module.Data;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using Utils;
 
 namespace View
@@ -22,7 +21,7 @@ namespace View
        
        private float baseTime;
        public ProductionStation container;
-       
+   
        public void Init(float baseTime, float speed, int currentMaterialCount , StructureBase structureBase )
        {
            this.baseTime = baseTime;
