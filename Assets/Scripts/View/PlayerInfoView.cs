@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using Utils;
 using View.CardView;
 using View.CharacterInfoView;
+using View.EmployeeFunction;
 using View.MapFunction;
 using View.PlayerInfo;
 using CharacterController = Controller.Player.CharacterController;
@@ -82,6 +83,11 @@ namespace View
             mapFunctionBtn.onClick.AddListener((() =>
             {
                 UIController.Instance.Show<MapSelectView>();
+            }));
+            employeeFunctionBtn.onClick.RemoveAllListeners();
+            employeeFunctionBtn.onClick.AddListener((() =>
+            {
+                UIController.Instance.Show<EmployeeFunctionView>();
             }));
         }
 

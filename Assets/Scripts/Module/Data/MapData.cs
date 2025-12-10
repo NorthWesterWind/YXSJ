@@ -23,6 +23,7 @@ namespace Module.Data
 		public int taskGroupNum;           // 任务组数
 		public int  price;                 // 价格倍率
 		public List<int> buildTypeList;    // 地图中的新设施
+		public List<int> monsterFamilyList; 
 	}
 }
 

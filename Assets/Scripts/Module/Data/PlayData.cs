@@ -20,7 +20,7 @@ namespace Module.Data
         public float pickUpRange = 5f;  //拾取物品距离
         public float slowDownValue = 3f; //降低速度值
         public float weaponSize = 1f;   //武器尺寸
-        public float hpRecover = 8f;       //生命值回复
+        public float hpRecover = 0f;       //生命值回复
 
         
         /// <summary>
@@ -52,7 +52,7 @@ namespace Module.Data
 
         #region 游玩数据
 
-        public List<int> unlockMapList = new List<int>();
+        public List<int> unlockMapList = new List<int>(){1};
         public Dictionary<int ,List<int>> mapPlayRecordDic = new Dictionary<int ,List<int>>();
         public int silverCoin;  //银钱
         public int goldIngot;   //金元宝
@@ -65,8 +65,8 @@ namespace Module.Data
         public int accountLevel = 1;
         public int characterFunction = 1;
         public int cardFunction = 1;
-        public int mapFunction = 0;
-        public int employeeFunction = 0;
+        public int mapFunction = 1;
+        public int employeeFunction = 1;
         public int ordenFunction = 0;
         public List<int> levelLockMapList = new (){2,3,4,5};
         public List<int> realUnlockMapList = new (){1};
@@ -98,18 +98,31 @@ namespace Module.Data
         public int useZhuanPanTotalValue = 0; //累积使用转盘次数
 
         public int useZhuanPanTodayValue = 0; //今日使用转盘次数
-
-        
         
         public List<CardUpProgress>  cardUpProgressesList = new List<CardUpProgress>();
+
+
+        #region 云递者数据
+
+        public int workingNum; //正在工作人数
+        public int totalNum;    //总人数
+        public int currentMoveSpeed;
+        public int capacity;
+        #endregion
+
+
+        #region 玄采徒数据
+        public  List<WarehouseCategory> list = new List<WarehouseCategory>();
         
-        
+        #endregion
+
         #endregion
 
     }
     
     [Serializable]
-    public  class CardUpProgress
+    
+    public  class CardUpProgress  //卡片养成数据类
     {
         public CardLevelType levelType;
         public CardDevelopType developType;
@@ -132,4 +145,46 @@ namespace Module.Data
             }
         }
     }
+
+    public class Collector
+    {
+        public int id;
+        public float hp = 30;
+        public float atk = 10;
+        public float bagCapacity = 20;
+        public float moveSpeed = 8f;     //移动速度
+        public float pickUpRange = 5f;   //拾取物品距离
+        public float slowDownValue = 3f; //降低速度值
+        public float weaponSize = 1f;    //武器尺寸
+        public MonsterFamily monsterType; //当前的目标怪物
+        public CollectorType collectorType;
+        public Collector(int id  ,  MonsterFamily monsterType)
+        {
+            this.id = id;
+            this.monsterType = monsterType;
+        }
+    }
+    
+    /// <summary>
+    /// 云储阁数据类
+    /// </summary>
+    public class WarehouseCategory
+    {
+        public int id;
+        public List<Collector> workingCollectorList = new ();
+        public int capacity ;
+        public List<Collector> unworkingCollectorList = new();
+
+        public WarehouseCategory(int id)
+        {
+            this.id = id;
+            capacity = 60;
+            unworkingCollectorList.Add(new Collector(1,MonsterFamily.None));
+        }
+        
+        
+    }
+    
+    
+    
 }

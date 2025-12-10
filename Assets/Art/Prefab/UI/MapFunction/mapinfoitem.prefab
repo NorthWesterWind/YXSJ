@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3307515594531420869}
   - component: {fileID: 2143097611924705512}
   - component: {fileID: 2791295706162793406}
+  - component: {fileID: 4289857783633380420}
   m_Layer: 5
   m_Name: mapinfoitem
   m_TagString: Untagged
@@ -136,8 +137,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b415833c6f5ac46408461a23b824c175, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  btn: {fileID: 0}
+  btn: {fileID: 2143097611924705512}
   name: 
   info: 
-  icon: {fileID: 0}
+  icon: {fileID: 3307515594531420869}
   assetHandle: {fileID: 0}
+--- !u!114 &4289857783633380420
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4422452851815170620}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f61ee4d501da133479dea48b131b5928, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  assets: []

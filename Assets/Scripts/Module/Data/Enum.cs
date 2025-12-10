@@ -58,6 +58,26 @@ namespace Module.Data
                 Giant,
                 Golden
         }
+
+        public enum MonsterFamily
+        {
+                None = 0,
+                ShuangYunZhi = 1,
+                YueLuCao = 2,
+                ZiXinHua = 3,
+                YuHuiHe = 4,
+                XingWenGuo = 5,
+                WuRongJun = 6,
+                LingXuSheng = 7,
+                XueBanHua = 8,
+                MuLingYa = 9,
+                JingRuiCao = 10,
+                TieKuangShi = 11,
+                YinKuangShi = 12,
+                TongKuangShi = 13,
+                ZiJingShi = 14,
+                YueJingShi = 15,
+        }
         
         /// <summary>
         /// 建筑物枚举类
@@ -84,6 +104,12 @@ namespace Module.Data
                 LingQiJia_3 = 17,   //三号灵器架
                 YuanBaoKuangDong = 18, //元宝矿洞
                 LingChuGe_2 = 19,   //二号灵储阁
+        }
+
+        public enum CollectorType
+        {
+                LingChuGe_1 = 1,  //一号灵储阁
+                LingChuGe_2 = 2, //二号灵储阁
         }
         
         

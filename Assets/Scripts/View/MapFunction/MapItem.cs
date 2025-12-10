@@ -31,7 +31,7 @@ namespace View.MapFunction
                 if(ModuleMgr.Instance.GetModule<PlayerDataModule>().data.accountLevel < mapData.unlockLevel)
                 {
                     UIController.Instance.Show<TipView>("等级未达到要求！");
-                  
+                    
                 }
                 else
                 {
