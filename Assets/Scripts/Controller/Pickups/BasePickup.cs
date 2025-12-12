@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using UnityEngine;
 using Utils;
@@ -17,6 +16,7 @@ namespace Controller.Pickups
         public string itemName;
         protected AssetHandle _assetHandle;
 
+        public bool isTaken = false;   // 被谁使用了
         private void Awake()
         {
             _assetHandle = GetComponent<AssetHandle>();
@@ -25,6 +25,10 @@ namespace Controller.Pickups
         public void StartAttract(Transform picker, Transform receivePoint)
         {
             if (!canPickup) return;
+            
+            if (isTaken) return;
+            isTaken = true;   
+            
             this.picker = picker;
             this.pickerReceivePoint = receivePoint;
 
@@ -56,6 +60,7 @@ namespace Controller.Pickups
            
             // 让具体物品去执行拾取逻辑
             GetComponent<IPickable>().OnPicked(picker.gameObject);
+            isTaken = false;
             ObjectPoolManager.Instance.ReturnObject(itemName , gameObject);
             if (ScenePickupController.Instance.materials.Contains(this))
             {

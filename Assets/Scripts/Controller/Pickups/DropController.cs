@@ -25,7 +25,14 @@ namespace Controller.Pickups
         
         public void OnPicked(GameObject picker)
         {
-            picker.GetComponent<CharacterController>().AddDropItem(itemType);
+            if (picker.GetComponent<CharacterController>() != null)
+            {
+                picker.GetComponent<CharacterController>().AddDropItem(itemType);
+            }else if (picker.GetComponent<CollectorController>() != null)
+            {
+                picker.GetComponent<CollectorController>().AddDropItem(itemType);
+            }
+           
         }
     }
 }

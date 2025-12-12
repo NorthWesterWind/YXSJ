@@ -220,7 +220,7 @@ namespace Controller.Player
             {
                 if (item == null) continue;                       // 回收后 item 可能被销毁
                 if (!item.gameObject.activeInHierarchy) continue; // 避免 inactive
-
+                if (item.isTaken) continue; 
                 float dist = Vector2.Distance(transform.position, item.transform.position);
                 if (dist <= currentPinkUpRange && currentCarryNum < maxCarryNum)
                 {
@@ -260,7 +260,7 @@ namespace Controller.Player
         public void CheckMonster()
         {
             Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectRadius, monsterLayer);
-            Debug.Log($" hits.Length => {hits.Length}");
+           
             if (hits.Length > 0)
             {
                 weapon.gameObject.SetActive(true);

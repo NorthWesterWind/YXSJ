@@ -109,10 +109,10 @@ namespace Module.Data
         public int currentMoveSpeed;
         public int capacity = 1;
         #endregion
-
+        
 
         #region 玄采徒数据
-        public  List<WarehouseCategory> list = new List<WarehouseCategory>();
+        public  List<WarehouseCategory> warehouselist = new List<WarehouseCategory>();
         
         #endregion
 
@@ -145,11 +145,11 @@ namespace Module.Data
             }
         }
     }
-
+    
+    [Serializable]
     public class Collector
     {
         public int id;
-        public float hp = 30;
         public float atk = 10;
         public float bagCapacity = 20;
         public float moveSpeed = 8f;     //移动速度
@@ -166,20 +166,23 @@ namespace Module.Data
     }
     
     /// <summary>
-    /// 云储阁数据类
+    /// 灵储阁数据类
     /// </summary>
+    [Serializable]
     public class WarehouseCategory
     {
         public int id;
         public List<Collector> workingCollectorList = new ();
         public int capacity ;
+        public List<MonsterType> targetTypeList = new ();
         public List<Collector> unworkingCollectorList = new();
-
+        public SerializableIntDictionary<int> ownItemList = new SerializableIntDictionary<int>();
         public WarehouseCategory(int id)
         {
             this.id = id;
             capacity = 60;
             unworkingCollectorList.Add(new Collector(1,MonsterFamily.None));
+            
         }
         
         

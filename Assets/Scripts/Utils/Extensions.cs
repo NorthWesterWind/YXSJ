@@ -619,6 +619,74 @@ namespace Utils
 			}
 		}
 		
-		
+		public static  (MonsterType,DropItemType) ExchangeFamilyType(MonsterFamily monsterFamily)
+        {
+            MonsterType type1 = MonsterType.None;
+            DropItemType type2 = DropItemType.None;
+            switch (monsterFamily)
+            {
+                case MonsterFamily.ShuangYunZhi:
+                    type1 = MonsterType.ShuangYunZhi;
+                    type2 = DropItemType.ShuangYunZhiFragment;
+                    break;
+                case MonsterFamily.YueLuCao:
+                    type1 = MonsterType.YueLuCao;
+                    type2 = DropItemType.YueLuCaoFragment;
+                    break;
+                case MonsterFamily.ZiXinHua:
+                    type1 = MonsterType.ZiXinHua;
+                    type2 = DropItemType.ZiXinHuaFragment;
+                    break;
+                case MonsterFamily.YuHuiHe:
+                    type1 = MonsterType.YuHuiHe;
+                    type2 = DropItemType.YuHuiHeFragment;
+                    break;
+                case MonsterFamily.XingWenGuo:
+                    type1 = MonsterType.XingWenGuo;
+                    type2 = DropItemType.XingWenGuoFragment;
+                    break;
+                case MonsterFamily.WuRongJun:
+                    type1 = MonsterType.WuRongJun;
+                    type2 = DropItemType.WuRongJunFragment;
+                    break;
+                case MonsterFamily.LingXuSheng:
+                    type1 = MonsterType.LingXuSheng;
+                    type2 = DropItemType.LingXuShengFragment;
+                    break;
+                case MonsterFamily.XueBanHua:
+                    type1 = MonsterType.XueBanHua;
+                    type2 = DropItemType.XueBanHuaFragment;
+                    break;
+                case MonsterFamily.MuLingYa:
+                    type1 = MonsterType.MuLingYa;
+                    type2 = DropItemType.MuLingYaFragment;
+                    break;
+                case MonsterFamily.JingRuiCao:
+                    type1 = MonsterType.JingRuiCao;
+                    type2 = DropItemType.JingRuiCaoFragment;
+                    break;
+                case MonsterFamily.TieKuangShi:
+                    type1 = MonsterType.TieKuangShi;
+                    type2 = DropItemType.TieKuangShiFragment;
+                    break;
+                case MonsterFamily.YinKuangShi:
+                    type1 = MonsterType.YinKuangShi;
+                    type2 = DropItemType.YinKuangShiFragment;
+                    break;
+                case MonsterFamily.TongKuangShi:
+                    type1 = MonsterType.TongKuangShi;
+                    type2 = DropItemType.TongKuangShiFragment;
+                    break;
+                case MonsterFamily.ZiJingShi:
+                    type1 = MonsterType.ZiJingShi;
+                    type2 = DropItemType.ZiJingShiFragment;
+                    break;
+                case MonsterFamily.YueJingShi:
+                    type1 = MonsterType.YueJingShi;
+                    type2 = DropItemType.YueJingShiFragment;
+                    break;
+            }
+            return (type1 , type2);
+        }
 	}
 }

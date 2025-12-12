@@ -9,7 +9,7 @@ namespace Controller
     public class GameController : MonoSingleton<GameController>
     {
         [Header("每个地图的出生点")]
-        public Dictionary<MonsterType, Vector2> bornPositions = new ();
+        public Dictionary<MonsterType, Transform> monsterBornPositions = new ();
 
         [Header("地图中建筑信息")]
         public Dictionary<BuildingType, StructureBase> buildings = new ();
@@ -19,6 +19,7 @@ namespace Controller
 
         [Header("每个摊位的排队系统")]
         public Dictionary<StructureBase, QueueGroup> queues = new ();
+        public Dictionary< MonsterType , FactoryController> factoryControllers = new();
 
         public int currentMapID = 1;
 
@@ -39,7 +40,7 @@ namespace Controller
         public override void Awake()
         {
             base.Awake();
-            bornPositions = new ();
+            monsterBornPositions = new ();
             buildings = new ();
             goodBuild = new ();
             queues = new ();

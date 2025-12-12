@@ -1,4 +1,3 @@
-
 using System.Collections;
 using Controller.Structure;
 using Module.Data;

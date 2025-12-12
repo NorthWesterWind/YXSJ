@@ -1,4 +1,3 @@
-using System;
 using Module.Data;
 using TMPro;
 using UnityEngine;
