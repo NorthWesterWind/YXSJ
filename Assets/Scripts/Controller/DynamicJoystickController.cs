@@ -1,8 +1,8 @@
 using System;
+using Controller.Player;
 using SimpleInputNamespace;
 using UnityEngine;
 using Utils;
-using CharacterController = Controller.Player.CharacterController;
 
 namespace Controller
 {
@@ -14,7 +14,7 @@ namespace Controller
         private Joystick currentJoystick;
 
         [Header("控制角色对象")]
-        public CharacterController player;
+        public PlayerController player;
         public float moveSpeed = 5f;
 
         private bool isTouching = false;
@@ -107,7 +107,7 @@ namespace Controller
         {
             if (player == null)
             {
-                player = GameObject.Find("Player").GetComponent<CharacterController>();
+                player = GameObject.Find("Player").GetComponent<PlayerController>();
             }
             if (!isTouching || direction.sqrMagnitude < 0.001f)
             {

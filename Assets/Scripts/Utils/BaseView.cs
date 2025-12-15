@@ -25,7 +25,7 @@ namespace Utils
 
         public bool IsPopup => _isPopup;
 
-        // Events
+   
         public UnityEvent onShow;
         public UnityEvent onHide;
         public UnityEvent onShowComplete;
@@ -76,9 +76,7 @@ namespace Utils
 
         public virtual void UpdateViewWithArgs(params object[] args) { }
 
-        // ------------------------------
-        // Show
-        // ------------------------------
+       
         public virtual void Show()
         {
             if (IsVisible || IsInAnimation) return;
@@ -98,7 +96,7 @@ namespace Utils
 
         public virtual void ShowImmediate()
         {
-            if (IsVisible) return;  // ****** FIXED：移除 IsHiding 限制 ******
+            if (IsVisible) return;  
 
             gameObject.SetActive(true);
             IsVisible = true;
@@ -114,10 +112,7 @@ namespace Utils
             onShowComplete?.Invoke();
             OnShow();
         }
-
-        // ------------------------------
-        // Hide
-        // ------------------------------
+        
         public virtual void Hide()
         {
             if (!IsVisible || IsInAnimation) return;
@@ -245,7 +240,7 @@ namespace Utils
         {
             gameObject.SetActive(false);
             IsInAnimation = false;
-            IsHiding = false;  // ****** FIXED ******
+            IsHiding = false; 
             onHideComplete?.Invoke();
             OnHideComplete();
         }

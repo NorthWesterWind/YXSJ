@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Controller.Player;
 using Controller.Structure;
 using Module.Data;
 using UnityEngine;
-using CharacterController = Controller.Player.CharacterController;
 
 namespace Controller.Pickups
 {
@@ -89,7 +89,7 @@ namespace Controller.Pickups
        public void OnPicked(GameObject picker)
        {
            
-           picker.GetComponent<CharacterController>().AddGoods(goodsType);
+           picker.GetComponent<PlayerController>().AddGoods(goodsType);
        }
     }
 }

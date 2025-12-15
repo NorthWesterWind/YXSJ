@@ -12,7 +12,7 @@ using Utils;
 
 namespace Controller.Player
 {
-    public class CharacterController : SerializedMonoBehaviour
+    public class PlayerController : SerializedMonoBehaviour
     {
         private Animator _animator;
         private Vector2 _dirValue;
@@ -49,6 +49,10 @@ namespace Controller.Player
         public bool isDead = false;
 
         private AssetHandle _assetHandle;
+
+
+        public int RemainCapacity => (int)maxCarryNum -  currentCarryNum;
+
 
         private void Awake()
         {

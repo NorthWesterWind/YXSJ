@@ -1,3 +1,4 @@
+using Controller.Player;
 using DG.Tweening;
 using Module.Data;
 using TMPro;
@@ -9,13 +10,12 @@ using View.CharacterInfoView;
 using View.EmployeeFunction;
 using View.MapFunction;
 using View.PlayerInfo;
-using CharacterController = Controller.Player.CharacterController;
 
 namespace View
 {
     public class PlayerInfoView : BaseView
     {
-        public CharacterController character;
+        public PlayerController player;
         public Transform infoItemContent;
 
         public TextMeshProUGUI accountLevelTxt;
@@ -41,9 +41,9 @@ namespace View
         protected override void Start()
         {
             base.Start();
-            if (character == null)
+            if (player == null)
             {
-                character = GameObject.Find("Player").GetComponent<CharacterController>();
+                player = GameObject.Find("Player").GetComponent<PlayerController>();
             }
             InitInfoItem();
             HandleUpdateLevelProgress();
@@ -105,30 +105,30 @@ namespace View
             Extensions.ClearChildren(infoItemContent);
             GameObject go1 = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), infoItemContent, false);
             go1.GetComponent<InfoItem>().SetType(InfoType.JinYuanBao);
-            go1.GetComponent<InfoItem>().Init(character);
+            go1.GetComponent<InfoItem>().Init(player);
             GameObject go2 = Instantiate(_assetHandle.Get<GameObject>("InfoItem"),infoItemContent, false);
             go2.GetComponent<InfoItem>().SetType(InfoType.LingJing);
-            go2.GetComponent<InfoItem>().Init(character);
+            go2.GetComponent<InfoItem>().Init(player);
             GameObject go3 = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), infoItemContent, false);
             go3.GetComponent<InfoItem>().SetType(InfoType.YinQian);
-            go3.GetComponent<InfoItem>().Init(character);
-            if (character.dropDic != null && character.dropDic.Count > 0)
+            go3.GetComponent<InfoItem>().Init(player);
+            if (player.dropDic != null && player.dropDic.Count > 0)
             {
-                foreach (var value in character.dropDic)
+                foreach (var value in player.dropDic)
                 {
                     GameObject go = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), infoItemContent, false);
                     go.GetComponent<InfoItem>().SetType(ExchangeType(value.Key));
-                    go.GetComponent<InfoItem>().Init(character);
+                    go.GetComponent<InfoItem>().Init(player);
                 }
             }
 
-            if (character.goodsDic != null && character.goodsDic.Count > 0)
+            if (player.goodsDic != null && player.goodsDic.Count > 0)
             {
-                foreach (var value in character.goodsDic)
+                foreach (var value in player.goodsDic)
                 {
                     GameObject go = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), infoItemContent, false);
                     go.GetComponent<InfoItem>().SetType(ExchangeType(value.Key));
-                    go.GetComponent<InfoItem>().Init(character);
+                    go.GetComponent<InfoItem>().Init(player);
                 }
             }
             
@@ -176,9 +176,9 @@ namespace View
 
         public void HandleUpdateLevelProgress(params object[] args)
         {
-            accountLevelTxt.text = character.dataModule.data.accountLevel.ToString();
-            accountLevelProgressTxt.text = character.dataModule.data.jingMangZhu + "/" +  WorldData.LevelRequirementDic[ character.dataModule.data.currentMapID];
-            fillImage.fillAmount = character.dataModule.data.jingMangZhu * 1f / WorldData.LevelRequirementDic[character.dataModule.data.currentMapID];
+            accountLevelTxt.text = player.dataModule.data.accountLevel.ToString();
+            accountLevelProgressTxt.text = player.dataModule.data.jingMangZhu + "/" +  WorldData.LevelRequirementDic[ player.dataModule.data.currentMapID];
+            fillImage.fillAmount = player.dataModule.data.jingMangZhu * 1f / WorldData.LevelRequirementDic[player.dataModule.data.currentMapID];
         }
 
         #endregion
@@ -187,11 +187,11 @@ namespace View
 
         public void HandleUpdateFunctionState(params object[] args)
         {
-            mask1.gameObject.SetActive(character.dataModule.data.characterFunction != 1);
-            mask2.gameObject.SetActive(character.dataModule.data.cardFunction != 1);
-            mask3.gameObject.SetActive(character.dataModule.data.mapFunction != 1);
-            mask4.gameObject.SetActive(character.dataModule.data.employeeFunction != 1);
-            mask5.gameObject.SetActive(character.dataModule.data.ordenFunction != 1);
+            mask1.gameObject.SetActive(player.dataModule.data.characterFunction != 1);
+            mask2.gameObject.SetActive(player.dataModule.data.cardFunction != 1);
+            mask3.gameObject.SetActive(player.dataModule.data.mapFunction != 1);
+            mask4.gameObject.SetActive(player.dataModule.data.employeeFunction != 1);
+            mask5.gameObject.SetActive(player.dataModule.data.ordenFunction != 1);
         }
 
 

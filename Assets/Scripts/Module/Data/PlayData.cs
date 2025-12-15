@@ -116,7 +116,12 @@ namespace Module.Data
         
         #endregion
 
-        #endregion
+        
+        public List<ProductStationData> ProductStationDataList = new List<ProductStationData>()
+        {
+            
+        };
+        #endregion      
 
     }
     
@@ -129,7 +134,8 @@ namespace Module.Data
         public int level;
         public int id;
         public int currentNum;
-
+        
+        
         public CardUpProgress(int id , int num)
         {
             this.id = id;
@@ -187,7 +193,19 @@ namespace Module.Data
         
         
     }
-    
-    
+
+
+    /// <summary>
+    /// 生产台数据类
+    /// </summary>
+    public class ProductStationData
+    {
+        public BuildingType buildingType;
+        public int price;
+        public int priceLevel;
+
+        public float workingtime;
+        public int timelevel;
+    }
     
 }

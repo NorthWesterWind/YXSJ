@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Module.Data;
 using UnityEngine;
@@ -26,6 +27,11 @@ namespace View.LingChuGe
         public void ShowInfo()
         {
             canvasGroup.alpha = 1;
+        }
+
+        private void OnDisable()
+        {
+            EventCenter.Instance.TriggerEvent(EventMessages.LingChuGeStopDelivery);
         }
 
 

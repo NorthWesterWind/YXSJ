@@ -15,12 +15,12 @@ namespace Controller.Player
         public Image fillBg;
         public Canvas  canvas;
         public TextMeshProUGUI text;
-        public CharacterController  player;
+        public PlayerController  player;
         private void Start()
         {
             if ( player == null)
             {
-                 player = GameObject.FindWithTag("Player").GetComponent<CharacterController>();
+                 player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
                  target =  player.infoTransform;
                  player.playerInfo = this;
             }

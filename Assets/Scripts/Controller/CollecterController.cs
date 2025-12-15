@@ -242,10 +242,7 @@ namespace Controller
 
         void OnReachDestination()
         {
-            if (currentState == CollectorState.ReturnToDepot)
-            {
-                Destroy(gameObject);
-            }
+           
         }
     }
 

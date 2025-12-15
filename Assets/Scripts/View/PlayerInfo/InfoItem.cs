@@ -1,9 +1,9 @@
+using Controller.Player;
 using Module.Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
-using CharacterController = Controller.Player.CharacterController;
 
 namespace View.PlayerInfo
 {
@@ -13,7 +13,7 @@ namespace View.PlayerInfo
         public Image itemIcon;
         public TextMeshProUGUI infoText;
         public InfoType infoType;
-        public CharacterController _cc;
+        public PlayerController _cc;
 
         private void Awake()
         {
@@ -35,15 +35,15 @@ namespace View.PlayerInfo
             } 
             Init();
         }
-        public void Init(CharacterController character = null)
+        public void Init(PlayerController player = null)
         {
-            if (character != null)
+            if (player != null)
             {
-                _cc = character;
+                _cc = player;
             }
             if(_cc == null)
             {
-                _cc = GameObject.Find("Player").GetComponent<CharacterController>();
+                _cc = GameObject.Find("Player").GetComponent<PlayerController>();
             }
           
             itemIcon.sprite = _assetHandle.Get<Sprite>("金币");

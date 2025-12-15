@@ -38,7 +38,12 @@ namespace Utils
         public const string StopAssignment = "StopAssignment"; //停止指派玄采徒
         public const string BeginAssignment = "BeginAssignment"; //开始派遣玄采徒
         
-        public const string LingChuGeItemDelivery =  "LingChuGeItemDelivery"; //灵储阁物品取出
+        
         public const string UpdateLingChuGeInfo =  "UpdateLingChuGeInfo"; //更新灵储阁信息
+        public const string LingChuGeBeginWorking = "LingChuGeBeginWorking"; //灵储阁开始派遣储玄采徒
+        public const string LingChuGeEndWorking = "LingChuGeEndWorking"; //清除所有玄采徒
+        public const string LingChuGeDelivery =  "LingChuGeDelivery"; //灵储阁递送物品
+        public const string LingChuGeStopDelivery =  "LingChuGeStopDelivery"; //灵储阁停止递送物品
+        
     }
 }
