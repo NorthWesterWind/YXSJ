@@ -35,10 +35,6 @@ namespace Utils
         public const string AddYunDiZhe = "AddYunDiZhe";       //增加工作中的云递者
         public const string RemoveYunDiZhe = "RemoveYunDiZhe"; //减少工作中的云递者
         
-        public const string StopAssignment = "StopAssignment"; //停止指派玄采徒
-        public const string BeginAssignment = "BeginAssignment"; //开始派遣玄采徒
-        
-        
         public const string UpdateLingChuGeInfo =  "UpdateLingChuGeInfo"; //更新灵储阁信息
         public const string LingChuGeBeginWorking = "LingChuGeBeginWorking"; //灵储阁开始派遣储玄采徒
         public const string LingChuGeEndWorking = "LingChuGeEndWorking"; //清除所有玄采徒

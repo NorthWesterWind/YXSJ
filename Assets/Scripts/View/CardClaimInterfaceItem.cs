@@ -65,6 +65,7 @@ namespace View
                 fillContent.SetActive(true);
                 fillImg.fillAmount = cardUpProgress.currentNum * 1f /
                                      WorldData.cardUpLevelArr[cardUpProgress.level + 1];
+                progresstxt.text = cardUpProgress.currentNum +"/" +  WorldData.cardUpLevelArr[cardUpProgress.level + 1];
             }
         }
     }

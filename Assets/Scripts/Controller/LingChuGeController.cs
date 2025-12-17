@@ -35,7 +35,7 @@ namespace Controller
             {
                 characterController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
             }
-
+            EventCenter.Instance.TriggerEvent(EventMessages.LingChuGeBeginWorking);
            
         }
 

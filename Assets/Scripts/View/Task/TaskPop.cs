@@ -43,8 +43,7 @@ namespace View.Task
             mapprogressTxt.text = tempvalue1 + "/" + _mapData.taskGroupNum;
             sliderText.text = tempvalue + "/" +  _mapData.taskGroupSize;
             sliderFill.fillAmount = tempvalue * 1f / _mapData.taskGroupSize;
-            content.DOAnchorPos(new Vector2(0, 0), 0.5f)
-                .SetEase(Ease.OutBack);
+            content.DOAnchorPos(new Vector2(0, 0), 0.5f).SetEase(Ease.OutBack);
             UpdateTaskContent();
         }
 

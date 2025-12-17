@@ -6,6 +6,7 @@ using Controller.Structure;
 using Module;
 using Module.Data;
 using Sirenix.OdinInspector;
+using Spine.Unity;
 using UnityEngine;
 using Utils;
 
@@ -14,11 +15,10 @@ namespace Controller.Player
 {
     public class PlayerController : SerializedMonoBehaviour
     {
-        private Animator _animator;
+        private SkeletonAnimation  _skeletonAnimation;
         private Vector2 _dirValue;
         public bool isMoving = false;
         public PlayerDataModule dataModule;
-        public SpriteRenderer spriteRenderer;
         public SpriteRenderer shadowRenderer;
         public SpriteRenderer weaponRenderer;
         public CinemachineVirtualCamera camera;
@@ -56,9 +56,9 @@ namespace Controller.Player
 
         private void Awake()
         {
-            if (_animator == null)
+            if (_skeletonAnimation == null)
             {
-                _animator = transform.Find("Character").GetComponent<Animator>();
+                _skeletonAnimation = transform.Find("Character").GetComponent<SkeletonAnimation>();
             }
 
             if (dataModule == null)
@@ -70,12 +70,15 @@ namespace Controller.Player
             focusCamera = GameObject.Find("FocusVirtualCamera").GetComponent<CinemachineVirtualCamera>();
             _rigidbody = GetComponent<Rigidbody2D>();
             _assetHandle = GetComponent<AssetHandle>();
+            
         }
 
+        private MeshRenderer renderer;
         void Start()
         {
             AddEvent();
             Init();
+            renderer = _skeletonAnimation.GetComponent<MeshRenderer>();
         }
 
 
@@ -96,11 +99,11 @@ namespace Controller.Player
             currentPinkUpRange = dataModule.data.pickUpRange;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
         }
-
+       
         public void SetLayer()
         {
             int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
-            spriteRenderer.sortingOrder = newOrder;
+            renderer.sortingOrder = 10;
             weaponRenderer.sortingOrder = newOrder;
             shadowRenderer.sortingOrder = newOrder;
         }
@@ -111,16 +114,13 @@ namespace Controller.Player
         {
             if (isShowUI)
             {
-                _animator.SetBool("move", false);
-                _animator.SetBool("idle", true);
+                _skeletonAnimation.AnimationState.SetAnimation(0, "idle", true);
                 return;
             }
             if (_dirValue != Vector2.zero)
             {
                 isMoving = true;
-
-                _animator.SetBool("move", true);
-                _animator.SetBool("idle", false);
+                _skeletonAnimation.AnimationState.SetAnimation(0, "walk", true);
                 if (_dirValue.x < 0)
                 {
                     transform.localScale = new Vector3(-1, 1, 1);
@@ -141,8 +141,7 @@ namespace Controller.Player
             else
             {
                 isMoving = false;
-                _animator.SetBool("move", false);
-                _animator.SetBool("idle", true);
+                _skeletonAnimation.AnimationState.SetAnimation(0, "idle", true);
                 if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 18))
                 {
                     camera.m_Lens.OrthographicSize =
@@ -267,11 +266,13 @@ namespace Controller.Player
            
             if (hits.Length > 0)
             {
+                _skeletonAnimation.AnimationState.SetAnimation(1, "sword", true);
                 weapon.gameObject.SetActive(true);
             }
             else
             {
                 weapon.gameObject.SetActive(false);
+                _skeletonAnimation.AnimationState.SetAnimation(1, "sword", false);
                 // 自动回血检测
                 if (currentHp < maxHp && !isRegenerating)
                 {

@@ -65,7 +65,6 @@ namespace Controller
         {
             Vector3 position = transform.position;
             position.x += Random.Range(-5f, 5f);
-            position.y += Random.Range(-5f, 5f);
             return position;
         }
     }

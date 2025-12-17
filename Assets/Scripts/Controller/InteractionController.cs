@@ -1,3 +1,4 @@
+using Controller.Structure;
 using Module.Data;
 using UnityEngine;
 using Utils;
@@ -26,6 +27,10 @@ namespace Controller
             {
                 case ShowUIType.TestView:
                     UIController.Instance.Show<TestView>();
+                    break;
+                case ShowUIType.LianQiLu:
+                case ShowUIType.YuShaHu:
+                    UIController.Instance.Show<ProductionStationPop>(buildingType , (GameController.Instance.buildings[buildingType] as ProductionStation).goodsType);
                     break;
             }
         }

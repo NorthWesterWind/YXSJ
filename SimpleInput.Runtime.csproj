@@ -46,17 +46,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\Core\ISimpleInputDraggable.cs" />
-    <Compile Include="Assets\Plugins\SimpleInput\Scripts\AxisInputs\AxisInputUIArrows.cs" />
-    <Compile Include="Assets\Plugins\SimpleInput\Scripts\KeyInputs\KeyInputSwipeGesture.cs" />
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\AxisInputs\Touchpad.cs" />
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\SimpleInputHelper.cs" />
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\AxisInputs\AxisInputUI.cs" />
-    <Compile Include="Assets\Plugins\SimpleInput\Scripts\AxisInputs\AxisInputRotateGesture.cs" />
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\AxisInputs\Dpad.cs" />
-    <Compile Include="Assets\Plugins\SimpleInput\Scripts\Core\SwipeGestureBase.cs" />
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\AxisInputs\SteeringWheel.cs" />
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\Core\BaseInput.cs" />
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\Core\SimpleInputUtils.cs" />
+    <Compile Include="Assets\Plugins\SimpleInput\Scripts\KeyInputs\KeyInputUI.cs" />
+    <Compile Include="Assets\Plugins\SimpleInput\Scripts\Core\ISimpleInputDraggableMultiTouch.cs" />
+    <Compile Include="Assets\Plugins\SimpleInput\Scripts\AxisInputs\AxisInputMoveGesture.cs" />
+    <Compile Include="Assets\Plugins\SimpleInput\Scripts\MouseButtonInputs\MouseButtonInputUI.cs" />
+    <Compile Include="Assets\Plugins\SimpleInput\Scripts\Core\NonDrawingGraphic.cs" />
+    <Compile Include="Assets\Plugins\SimpleInput\Scripts\ButtonInputs\ButtonInputUI.cs" />
+    <Compile Include="Assets\Plugins\SimpleInput\Scripts\AxisInputs\AxisInputUIArrows.cs" />
+    <Compile Include="Assets\Plugins\SimpleInput\Scripts\KeyInputs\KeyInputSwipeGesture.cs" />
+    <Compile Include="Assets\Plugins\SimpleInput\Scripts\AxisInputs\AxisInputRotateGesture.cs" />
+    <Compile Include="Assets\Plugins\SimpleInput\Scripts\Core\SwipeGestureBase.cs" />
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\AxisInputs\AxisInputSwipeGesture.cs" />
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\Core\SimpleInputDragListener.cs" />
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\AxisInputs\Joystick.cs" />
@@ -68,16 +74,10 @@
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\Core\SimpleInputMultiDragListener.cs" />
     <Compile Include="Assets\Plugins\SimpleInput\Example\ExamplePlayerController.cs" />
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\Core\UnityInputProvider.cs" />
-    <Compile Include="Assets\Plugins\SimpleInput\Scripts\KeyInputs\KeyInputUI.cs" />
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\ButtonInputs\ButtonInputKeyboard.cs" />
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\AxisInputs\AxisInputMouse.cs" />
-    <Compile Include="Assets\Plugins\SimpleInput\Scripts\Core\ISimpleInputDraggableMultiTouch.cs" />
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\AxisInputs\AxisInputKeyboard.cs" />
-    <Compile Include="Assets\Plugins\SimpleInput\Scripts\AxisInputs\AxisInputMoveGesture.cs" />
-    <Compile Include="Assets\Plugins\SimpleInput\Scripts\MouseButtonInputs\MouseButtonInputUI.cs" />
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\AxisInputs\AxisInputPinchGesture.cs" />
-    <Compile Include="Assets\Plugins\SimpleInput\Scripts\Core\NonDrawingGraphic.cs" />
-    <Compile Include="Assets\Plugins\SimpleInput\Scripts\ButtonInputs\ButtonInputUI.cs" />
     <Compile Include="Assets\Plugins\SimpleInput\Scripts\MouseButtonInputs\MouseButtonInputKeyboard.cs" />
     <None Include="Assets\Plugins\SimpleInput\Credits.txt" />
     <None Include="Assets\Plugins\SimpleInput\SimpleInput.Runtime.asmdef" />

@@ -235,6 +235,65 @@ namespace Utils
 			}
 		}
 
+		public static string GetGoodsResNameByType(GoodsType type)
+		{
+			string resName = string.Empty;
+			switch (type)
+			{
+				case GoodsType.YunZhiCha:
+					resName = "YunZhiCha";
+					break;
+				case GoodsType.YueLuCha:
+					resName = "YueLuCha";
+					break;
+				case GoodsType.ZiXinCha:
+					resName = "ZiXinCha";
+					break;
+				case GoodsType.YuHeCha:
+					resName = "YuHeCha";
+					break;
+				case GoodsType.XingWenCha:
+					resName = "XingWenCha";
+					break;
+				case GoodsType.WuRongCha:
+					resName = "WuRongCha";
+					break;
+				case GoodsType.LingXuCha:
+					resName = "LingXuCha";
+					break;
+				case GoodsType.XueBanCha:
+					resName = "XueBanCha";
+					break;
+				case GoodsType.MuLingCha:
+					resName = "MuLingCha";
+					break;
+				case GoodsType.JingRuiCha:
+					resName = "JingRuiCha";
+					break;
+				case GoodsType.QingYanJian:
+					resName = "QingYanJian";
+					break;
+				case GoodsType.YinSiDao:
+					resName = "YinSiDao";
+					break;
+				case GoodsType.TongWenDao:
+					resName = "TongWenDao";
+					break;
+				case GoodsType.ZiWuJian:
+					resName = "ZiWuJian";
+					break;
+				case GoodsType.YueXinJing:
+					resName = "YueXinJing";
+					break;
+				case GoodsType.JingYunBao:
+					resName = "JingYuanBao";
+					break;
+				case GoodsType.YingQian:
+					resName = "YingQian";
+					break;
+			}
+			return resName;
+		}
 
 		public static string GetMonsterResNameByType(MonsterType type)
 		{
@@ -618,6 +677,7 @@ namespace Utils
 					break;
 			}
 		}
+
 		
 		public static  (MonsterType,DropItemType) ExchangeFamilyType(MonsterFamily monsterFamily)
         {

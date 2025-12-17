@@ -59,7 +59,7 @@ namespace View.EmployeeFunction
                        }
                    }
                    UpdateInfo();
-                  
+                   EventCenter.Instance.TriggerEvent(EventMessages. LingChuGeStopDelivery);
                }
            }));
            
@@ -83,7 +83,7 @@ namespace View.EmployeeFunction
                    category.unworkingCollectorList.RemoveAt(0);
                    category.workingCollectorList.Add(temp);
                    UpdateInfo();
-                  EventCenter.Instance.TriggerEvent(EventMessages.BeginAssignment);
+                  EventCenter.Instance.TriggerEvent(EventMessages.LingChuGeBeginWorking);
                }
            }));
        }

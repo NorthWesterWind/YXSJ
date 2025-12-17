@@ -47,9 +47,9 @@
   <ItemGroup>
     <Compile Include="Assets\Plugins\DOTween\Modules\DOTweenModuleEPOOutline.cs" />
     <Compile Include="Assets\Plugins\DOTween\Modules\DOTweenModuleUI.cs" />
+    <Compile Include="Assets\Plugins\DOTween\Modules\DOTweenModuleUtils.cs" />
     <Compile Include="Assets\Plugins\DOTween\Modules\DOTweenModuleAudio.cs" />
     <Compile Include="Assets\Plugins\DOTween\Modules\DOTweenModuleSprite.cs" />
-    <Compile Include="Assets\Plugins\DOTween\Modules\DOTweenModuleUtils.cs" />
     <Compile Include="Assets\Plugins\DOTween\Modules\DOTweenModuleUnityVersion.cs" />
     <Compile Include="Assets\Plugins\DOTween\Modules\DOTweenModulePhysics.cs" />
     <Compile Include="Assets\Plugins\DOTween\Modules\DOTweenModulePhysics2D.cs" />
@@ -761,6 +761,9 @@
     <Reference Include="Unity.Mathematics.Editor">
       <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\Unity.Mathematics.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="spine-unity-editor">
+      <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\spine-unity-editor.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.2D.Tilemap.Extras.Editor">
       <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\Unity.2D.Tilemap.Extras.Editor.dll</HintPath>
     </Reference>
@@ -815,8 +818,14 @@
     <Reference Include="Unity.VisualScripting.Shared.Editor">
       <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\Unity.VisualScripting.Shared.Editor.dll</HintPath>
     </Reference>
+    <Reference Include="spine-unity">
+      <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\spine-unity.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.VisualStudio.Editor">
       <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\Unity.VisualStudio.Editor.dll</HintPath>
+    </Reference>
+    <Reference Include="spine-unity-examples">
+      <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\spine-unity-examples.dll</HintPath>
     </Reference>
     <Reference Include="UnityEditor.UI">
       <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\UnityEditor.UI.dll</HintPath>
@@ -836,11 +845,17 @@
     <Reference Include="UnityEngine.UI">
       <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\UnityEngine.UI.dll</HintPath>
     </Reference>
+    <Reference Include="spine-csharp">
+      <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\spine-csharp.dll</HintPath>
+    </Reference>
     <Reference Include="Unity.VisualScripting.Flow.Editor">
       <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\Unity.VisualScripting.Flow.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.InternalAPIEngineBridge.001">
       <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\Unity.InternalAPIEngineBridge.001.dll</HintPath>
+    </Reference>
+    <Reference Include="spine-unity-examples-editor">
+      <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\spine-unity-examples-editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.2D.Common.Runtime">
       <HintPath>D:\DAGame\MyFruit\Library\ScriptAssemblies\Unity.2D.Common.Runtime.dll</HintPath>

@@ -45,14 +45,14 @@
     <Analyzer Include="D:\Unity\2022.3.62f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Plugins\Sirenix\Odin Inspector\Modules\Unity.Addressables\AddressablesInspectors.cs" />
     <Compile Include="Assets\Plugins\Sirenix\Odin Inspector\Modules\Unity.Addressables\Internal\OdinAddressableReflection.cs" />
-    <Compile Include="Assets\Plugins\Sirenix\Odin Inspector\Modules\Unity.Addressables\Internal\OdinAddressableReflectionValidator.cs" />
-    <Compile Include="Assets\Plugins\Sirenix\Odin Inspector\Modules\Unity.Addressables\Validators\AssetReferenceValidator.cs" />
     <Compile Include="Assets\Plugins\Sirenix\Odin Inspector\Modules\Unity.Addressables\Validators\AssetLabelReferenceValidator.cs" />
     <Compile Include="Assets\Plugins\Sirenix\Odin Inspector\Modules\Unity.Addressables\Validators\MissingAddressableGroupReferenceValidator.cs" />
-    <Compile Include="Assets\Plugins\Sirenix\Odin Inspector\Modules\Unity.Addressables\Validators\CheckResourcesToAddressableDuplicateDependenciesValidator.cs" />
     <Compile Include="Assets\Plugins\Sirenix\Odin Inspector\Modules\Unity.Addressables\Validators\CheckDuplicateBundleDependenciesValidator.cs" />
+    <Compile Include="Assets\Plugins\Sirenix\Odin Inspector\Modules\Unity.Addressables\AddressablesInspectors.cs" />
+    <Compile Include="Assets\Plugins\Sirenix\Odin Inspector\Modules\Unity.Addressables\Internal\OdinAddressableReflectionValidator.cs" />
+    <Compile Include="Assets\Plugins\Sirenix\Odin Inspector\Modules\Unity.Addressables\Validators\AssetReferenceValidator.cs" />
+    <Compile Include="Assets\Plugins\Sirenix\Odin Inspector\Modules\Unity.Addressables\Validators\CheckResourcesToAddressableDuplicateDependenciesValidator.cs" />
     <Compile Include="Assets\Plugins\Sirenix\Odin Inspector\Modules\Unity.Addressables\Validators\DisallowAddressableSubAssetFieldAttributeValidator.cs" />
     <None Include="Assets\Plugins\Sirenix\Odin Inspector\Modules\Unity.Addressables\Sirenix.OdinInspector.Modules.Unity.Addressables.asmdef" />
     <None Include="Assets\Plugins\Sirenix\Odin Inspector\Modules\Unity.Addressables\manifest.txt" />
