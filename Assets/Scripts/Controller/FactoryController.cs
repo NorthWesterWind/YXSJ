@@ -107,6 +107,8 @@ namespace Controller
             }
         }
 
+        public float patrolRadius;
+
         private void SpawnMonster()
         {
             MonsterType toSpawnType = DecideSpawnType();
@@ -126,7 +128,7 @@ namespace Controller
             monster.GetComponent<MonsterController>().Init(
                 data,
                 transform.position,
-                behavior, factorID);
+                behavior, factorID , patrolRadius);
 
             monsterList.Add(monster);
         }
@@ -159,8 +161,8 @@ namespace Controller
         Vector3 GetRandomSpawnPos()
         {
             // 可根据需求换成地图内随机点
-            Vector3 bornPos = new Vector3(Random.Range(-5f, 5f) + transform.position.x,
-                Random.Range(-5f, 5f) + transform.position.y, -1);
+            Vector3 bornPos = new Vector3(Random.Range(-2f, 2f) + transform.position.x,
+                Random.Range(-2f, 2f) + transform.position.y, -1);
             return bornPos;
         }
 

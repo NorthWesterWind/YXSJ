@@ -40,10 +40,6 @@ namespace Controller
         public override void Awake()
         {
             base.Awake();
-            monsterBornPositions = new ();
-            buildings = new ();
-            goodBuild = new ();
-            queues = new ();
         }
 
         private void Start()

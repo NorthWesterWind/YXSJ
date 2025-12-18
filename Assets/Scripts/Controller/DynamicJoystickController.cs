@@ -107,7 +107,7 @@ namespace Controller
         {
             if (player == null)
             {
-                player = GameObject.Find("Player").GetComponent<PlayerController>();
+                player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
             }
             if (!isTouching || direction.sqrMagnitude < 0.001f)
             {

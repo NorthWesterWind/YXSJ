@@ -43,7 +43,7 @@ namespace View.PlayerInfo
             }
             if(_cc == null)
             {
-                _cc = GameObject.Find("Player").GetComponent<PlayerController>();
+                _cc = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
             }
           
             itemIcon.sprite = _assetHandle.Get<Sprite>("金币");

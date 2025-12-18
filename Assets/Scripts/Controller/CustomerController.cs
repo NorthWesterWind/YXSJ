@@ -4,6 +4,8 @@ using Controller.Pickups;
 using Controller.Structure;
 using Module.Data;
 using PolyNav;
+using Spine;
+using Spine.Unity;
 using UnityEngine;
 using Utils;
 
@@ -28,33 +30,48 @@ namespace Controller
        public Vector2 nextPosition;
        private Rigidbody2D _rigidbody2D;
        public GoodsType goodsType;
-       public SpriteRenderer spriteRenderer;
-       // public Transform[] positions;
+       public SkeletonAnimation  skeletonAnimation;
+       public SpriteRenderer shadow;
        public int currentIndex = 0;
-       public Animator animator;
        public SalesStall salesStall;
        public Transform receiveTransform;
        private List<Production> productionList = new ();
        public List<Production> purchaseList = new();
+       
+       private MeshRenderer _meshRenderer;
         void Start()
         {
-           
+            skeletonAnimation.state.Complete += HandleAnimationComplete;
+        }
+        private void HandleAnimationComplete(TrackEntry trackEntry)
+        {
+            if (trackEntry.TrackIndex == 1 && trackEntry.Animation.Name == "angry")
+            {
+                // 超时逻辑
+                OnPurchaseTimeout();
+            }
         }
         
         void Update()
         {
-            if (agent.hasPath  && agent.remainingDistance > 1 && agent.currentSpeed < 0.1f )
+            SetLayer();
+            // 检查当前动画槽是否为 null
+            var currentAnimation = skeletonAnimation.AnimationState.GetCurrent(0);
+            // 根据条件切换动画
+            if (agent.hasPath || agent.remainingDistance > 1 )
             {
-                animator.SetBool("move" ,true);
-                animator.SetBool("idle",false);
-              
+                if (currentAnimation == null || currentAnimation.Animation.Name != "walk")
+                {
+                    skeletonAnimation.AnimationState.SetAnimation(0, "walk", true);
+                }
             }
             else
             {
-                animator.SetBool("move",false);
-                animator.SetBool("idle",true);
+                if (currentAnimation == null || currentAnimation.Animation.Name != "idle")
+                {
+                    skeletonAnimation.AnimationState.SetAnimation(0, "idle", true);
+                }
             }
-            SetLayer();
         }
 
         public void UpdateQueueTarget(Vector2 pos)
@@ -64,7 +81,13 @@ namespace Controller
         public void SetLayer()
         {
             int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
-            spriteRenderer.sortingOrder = newOrder;
+            if (_meshRenderer == null)
+            {
+                _meshRenderer =skeletonAnimation.GetComponent<MeshRenderer>();
+            }
+            
+            _meshRenderer.sortingOrder = newOrder;
+            shadow.sortingOrder = newOrder;
         }
 
         public void Init(CustomerData outdata  , GoodsType type , StructureBase structureBase )
@@ -75,7 +98,7 @@ namespace Controller
             bornPosition = transform.position;
             salesStall = structureBase as SalesStall;
             SetNextPosition();
-            agent.map = GameObject.Find("Map").transform.GetComponent<PolyNavMap>();
+            agent.map = GameObject.FindWithTag("Map").transform.GetComponent<PolyNavMap>();
             agent.SetDestination(nextPosition);
             Vector2 dir = (nextPosition - (Vector2)transform.position).normalized;
             transform.localScale = new Vector3( dir.x < 0 ? -1 : 1, 1, 1);
@@ -139,8 +162,7 @@ namespace Controller
 
             if (!purchased)
             {
-                // 超时逻辑
-                OnPurchaseTimeout();
+                skeletonAnimation.AnimationState.SetAnimation(1, "angry", false);
             }
         }
         private void Purchase()
@@ -167,8 +189,6 @@ namespace Controller
             state = NpcState.Angry;
             SetNextPosition();
             agent.SetDestination(nextPosition);
-            Debug.Log($"{name} 等待超时，未能购买商品");
-           
         }
 
         public  void SetNextPosition()

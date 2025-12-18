@@ -47,10 +47,20 @@ namespace Utils
         /// <summary>
         /// 获取模块实例
         /// </summary>
-        public T GetModule<T>() where T : BaseModule
+        public T GetModule<T>() where T : BaseModule , new()
         {
-            modules.TryGetValue(typeof(T), out var module);
-            return module as T;
+            Type type = typeof(T);
+            if (modules.TryGetValue(type, out var module))
+            {
+                return (T)module;  // 如果找到了模块，直接返回
+            }
+            else
+            {
+                // 如果没有找到模块，可以选择返回一个新的实例
+                T newModule = new T();  
+                RegisterModule<T>();  // 如果你希望在找不到模块时自动注册模块
+                return newModule;
+            }
         }
 
         /// <summary>

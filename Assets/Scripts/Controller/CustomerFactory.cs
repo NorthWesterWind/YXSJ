@@ -56,7 +56,7 @@ namespace Controller
                 GameObject obj = Instantiate(_assetHandle.Get<GameObject>(Extensions.GetCustomerResNameByType(tempdata.type)));
                 obj.transform.position = GetRandomPosition();
                 obj.GetComponent<CustomerController>().Init(tempdata, key , value);
-                yield return new WaitForSeconds(10);
+                yield return new WaitForSeconds(20);
             }
         }
 

@@ -38,7 +38,6 @@ namespace Controller.Structure
         public void Init()
         {
             fillImage.size = new Vector2( 0 ,0);
-            GameController.Instance.buildings.Add(BuildingType.LingZhangTai, this);
             grid.basePosition = exportTransform.position;
         }
 

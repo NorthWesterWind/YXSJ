@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6560528722410527204}
   - component: {fileID: 2715512388170195213}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 1374186137026535928}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.005, y: 0.015, z: 0}
+  m_LocalPosition: {x: 0.005, y: -0.537, z: 0}
   m_LocalScale: {x: 4, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -93,7 +93,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 406967345747554154}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: recive
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -109,7 +109,7 @@ Transform:
   m_GameObject: {fileID: 3328352651401298933}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.086, y: 0.675, z: 0}
+  m_LocalPosition: {x: -0.086, y: 0.123000026, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -127,7 +127,7 @@ GameObject:
   - component: {fileID: 2936202037584238036}
   - component: {fileID: 4664604696385776873}
   - component: {fileID: 4780880306125093469}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: npc_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -143,7 +143,7 @@ Transform:
   m_GameObject: {fileID: 5837168777675342314}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.552, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -254,7 +254,7 @@ GameObject:
   - component: {fileID: 3734037779985769719}
   - component: {fileID: 2641266768614541584}
   - component: {fileID: 8070822608635856781}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: YunZhiTangDiZi
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -292,12 +292,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _map: {fileID: 0}
-  maxSpeed: 3.5
+  maxSpeed: 2
   maxForce: 10
   stoppingDistance: 0.1
   slowingDistance: 1
   lookAheadDistance: 1
-  avoidRadius: 1
+  avoidRadius: 0.65
   avoidanceConsiderStuckedTime: 1.5
   avoidanceConsiderReachedDistance: 1
   rotateTransform: 0
@@ -329,9 +329,9 @@ MonoBehaviour:
   bornPosition: {x: 0, y: 0}
   nextPosition: {x: 0, y: 0}
   goodsType: 0
-  spriteRenderer: {fileID: 0}
+  skeletonAnimation: {fileID: 4664604696385776873}
+  shadow: {fileID: 2715512388170195213}
   currentIndex: 0
-  animator: {fileID: 0}
   salesStall: {fileID: 0}
   receiveTransform: {fileID: 406967345747554154}
   purchaseList: []
@@ -350,7 +350,7 @@ BoxCollider2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 2048
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2
@@ -367,7 +367,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.0607239, y: 0.52875906}
+  m_Offset: {x: 0.031115979, y: 0.07262099}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -378,5 +378,5 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.82061267, y: 1.1418325}
+  m_Size: {x: 0.6369329, y: 1.1846912}
   m_EdgeRadius: 0

@@ -27,7 +27,6 @@ namespace Controller.Structure
         public GoodsType goodsType;
         public BuildingType buildingType;
         public GameObject _productObj;
-        private AssetHandle _assetHandle;
         public PlacementGrid grid = new PlacementGrid();
         
         public List<Production> productionList = new List<Production>();
@@ -38,7 +37,6 @@ namespace Controller.Structure
             _assetHandle = GetComponent<AssetHandle>();
             productionInfo.Init(baseProductionTime , productionSpeed , currentMaterialCount ,this );
             grid.basePosition = productPosition.position;
-            GameController.Instance.buildings.Add(buildingType , this);
             ObjectPoolManager.Instance.WarmPool("Production" , _productObj , 50);
             
         }

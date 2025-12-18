@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2737646348392034498}
   - component: {fileID: 2915432150224519304}
   - component: {fileID: 7948062498161666766}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: npc_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 3921575034840819249}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.47800016, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -139,7 +139,7 @@ GameObject:
   - component: {fileID: 6296705737088972840}
   - component: {fileID: 2797071471908613215}
   - component: {fileID: 7097605380315753826}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: SuCaiGeZhangLao
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -177,12 +177,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _map: {fileID: 0}
-  maxSpeed: 3.5
+  maxSpeed: 2
   maxForce: 10
   stoppingDistance: 0.1
   slowingDistance: 1
   lookAheadDistance: 1
-  avoidRadius: 1
+  avoidRadius: 0.65
   avoidanceConsiderStuckedTime: 1.5
   avoidanceConsiderReachedDistance: 1
   rotateTransform: 0
@@ -214,9 +214,9 @@ MonoBehaviour:
   bornPosition: {x: 0, y: 0}
   nextPosition: {x: 0, y: 0}
   goodsType: 0
-  spriteRenderer: {fileID: 0}
+  skeletonAnimation: {fileID: 2915432150224519304}
+  shadow: {fileID: 2917989677841092665}
   currentIndex: 0
-  animator: {fileID: 0}
   salesStall: {fileID: 0}
   receiveTransform: {fileID: 3249096845687340713}
   purchaseList: []
@@ -235,7 +235,7 @@ BoxCollider2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 2048
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2
@@ -252,7 +252,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.0607239, y: 0.52875906}
+  m_Offset: {x: 0.010416985, y: 0.22522521}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -263,7 +263,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.82061267, y: 1.1418325}
+  m_Size: {x: 0.74472904, y: 1.2082305}
   m_EdgeRadius: 0
 --- !u!1 &4975754394845054298
 GameObject:
@@ -274,7 +274,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3249096845687340713}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: recive
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -290,7 +290,7 @@ Transform:
   m_GameObject: {fileID: 4975754394845054298}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.16, y: 0.502, z: 0}
+  m_LocalPosition: {x: -0.16, y: 0.02399981, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -306,7 +306,7 @@ GameObject:
   m_Component:
   - component: {fileID: 906286926342131146}
   - component: {fileID: 2917989677841092665}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -322,7 +322,7 @@ Transform:
   m_GameObject: {fileID: 5941354587017172799}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.02, y: 0.018, z: 0}
+  m_LocalPosition: {x: -0.02, y: -0.46, z: 0}
   m_LocalScale: {x: 4.486, y: 2.243, z: 1.1215}
   m_ConstrainProportionsScale: 0
   m_Children: []

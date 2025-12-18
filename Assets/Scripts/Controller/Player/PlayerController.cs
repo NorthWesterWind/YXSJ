@@ -53,24 +53,21 @@ namespace Controller.Player
 
         public int RemainCapacity => (int)maxCarryNum -  currentCarryNum;
 
-
+        public PolygonCollider2D mapCollider;
         private void Awake()
         {
-            if (_skeletonAnimation == null)
-            {
-                _skeletonAnimation = transform.Find("Character").GetComponent<SkeletonAnimation>();
-            }
-
             if (dataModule == null)
             {
                 dataModule = ModuleMgr.Instance.GetModule<PlayerDataModule>();
             }
-
+            
             camera = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
+            camera.LookAt  = transform;
+            camera.Follow = transform;
             focusCamera = GameObject.Find("FocusVirtualCamera").GetComponent<CinemachineVirtualCamera>();
             _rigidbody = GetComponent<Rigidbody2D>();
             _assetHandle = GetComponent<AssetHandle>();
-            
+            mapCollider = GameObject.FindWithTag("Map").GetComponent<PolygonCollider2D>();
         }
 
         private MeshRenderer renderer;
@@ -78,7 +75,7 @@ namespace Controller.Player
         {
             AddEvent();
             Init();
-            renderer = _skeletonAnimation.GetComponent<MeshRenderer>();
+           renderer = transform.Find("Character").GetComponent<MeshRenderer>();
         }
 
 
@@ -93,6 +90,10 @@ namespace Controller.Player
 
         public void Init()
         {
+            if (dataModule == null)
+            {
+                dataModule = ModuleMgr.Instance.GetModule<PlayerDataModule>();
+            }
             currentCarryNum = 0;
             currentHp = dataModule.data.hp;
             maxCarryNum = dataModule.data.bagCapacity;
@@ -103,7 +104,7 @@ namespace Controller.Player
         public void SetLayer()
         {
             int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
-            renderer.sortingOrder = 10;
+            renderer.sortingOrder = newOrder;
             weaponRenderer.sortingOrder = newOrder;
             shadowRenderer.sortingOrder = newOrder;
         }
@@ -112,15 +113,24 @@ namespace Controller.Player
 
         void Update()
         {
+            
+            Vector2 targetPosition = transform.position;
+            if (!mapCollider.OverlapPoint(targetPosition))
+            {
+                // 如果超出边界，可以限制角色位置或应用其他行为
+                targetPosition = mapCollider.ClosestPoint(targetPosition);
+            }
+
+            transform.position = targetPosition;
+            
+            SetLayer();
             if (isShowUI)
             {
-                _skeletonAnimation.AnimationState.SetAnimation(0, "idle", true);
                 return;
             }
             if (_dirValue != Vector2.zero)
             {
                 isMoving = true;
-                _skeletonAnimation.AnimationState.SetAnimation(0, "walk", true);
                 if (_dirValue.x < 0)
                 {
                     transform.localScale = new Vector3(-1, 1, 1);
@@ -135,13 +145,11 @@ namespace Controller.Player
                     camera.m_Lens.OrthographicSize =
                         Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 20, ref velocity, 0.15f);
                 }
-
-                SetLayer();
             }
             else
             {
                 isMoving = false;
-                _skeletonAnimation.AnimationState.SetAnimation(0, "idle", true);
+              //  _skeletonAnimation.AnimationState.SetAnimation(0, "idle", true);
                 if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 18))
                 {
                     camera.m_Lens.OrthographicSize =
@@ -266,13 +274,11 @@ namespace Controller.Player
            
             if (hits.Length > 0)
             {
-                _skeletonAnimation.AnimationState.SetAnimation(1, "sword", true);
                 weapon.gameObject.SetActive(true);
             }
             else
             {
                 weapon.gameObject.SetActive(false);
-                _skeletonAnimation.AnimationState.SetAnimation(1, "sword", false);
                 // 自动回血检测
                 if (currentHp < maxHp && !isRegenerating)
                 {
@@ -284,7 +290,7 @@ namespace Controller.Player
             }
         }
 
-
+        
         public AnimationCurve scatterCurve;
         private float scatterDuration = 0.1f;
         private Dictionary<string, Coroutine> deliverCoroutines = new();

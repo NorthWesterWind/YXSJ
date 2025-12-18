@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 862360038770471776}
   - component: {fileID: 2718604379421021028}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 763782710051959382}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.06, y: 0.027, z: 0}
+  m_LocalPosition: {x: 0.005, y: -0.516, z: 0}
   m_LocalScale: {x: 4, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -96,7 +96,7 @@ GameObject:
   - component: {fileID: 8163581027281123658}
   - component: {fileID: 1987323684111048249}
   - component: {fileID: 2497312479837699726}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: SuCaiGeDiZi
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -134,12 +134,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _map: {fileID: 0}
-  maxSpeed: 3.5
+  maxSpeed: 2
   maxForce: 10
   stoppingDistance: 0.1
   slowingDistance: 1
   lookAheadDistance: 1
-  avoidRadius: 1
+  avoidRadius: 0.65
   avoidanceConsiderStuckedTime: 1.5
   avoidanceConsiderReachedDistance: 1
   rotateTransform: 0
@@ -171,9 +171,9 @@ MonoBehaviour:
   bornPosition: {x: 0, y: 0}
   nextPosition: {x: 0, y: 0}
   goodsType: 0
-  spriteRenderer: {fileID: 0}
+  skeletonAnimation: {fileID: 5882084670970387042}
+  shadow: {fileID: 2718604379421021028}
   currentIndex: 0
-  animator: {fileID: 0}
   salesStall: {fileID: 0}
   receiveTransform: {fileID: 4544592672557045143}
   purchaseList: []
@@ -192,7 +192,7 @@ BoxCollider2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 2048
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2
@@ -209,7 +209,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.0607239, y: 0.52875906}
+  m_Offset: {x: -0.0042545795, y: 0.15767431}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -220,7 +220,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.82061267, y: 1.1418325}
+  m_Size: {x: 0.6646495, y: 1.1633444}
   m_EdgeRadius: 0
 --- !u!1 &3273570381330695272
 GameObject:
@@ -234,7 +234,7 @@ GameObject:
   - component: {fileID: 6586316882952337388}
   - component: {fileID: 5882084670970387042}
   - component: {fileID: 6261943122901119550}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: npc_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -250,7 +250,7 @@ Transform:
   m_GameObject: {fileID: 3273570381330695272}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.06500006, y: -0.5430002, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -358,7 +358,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4544592672557045143}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: recive
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -374,7 +374,7 @@ Transform:
   m_GameObject: {fileID: 6044508458763422116}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.677, z: 0}
+  m_LocalPosition: {x: 0.06500006, y: 1.1339998, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

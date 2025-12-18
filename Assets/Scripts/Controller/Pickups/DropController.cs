@@ -12,19 +12,14 @@ namespace Controller.Pickups
         public SpriteRenderer spriteRenderer;
 
         [Header("飞行参数")]
-        public float flyDuration = 0.3f;
-        public float flyHeight = 1.5f;
-        public AnimationCurve flyCurve;
-
-        private Transform picker;
-        private Transform pickerReceivePoint;
-        private System.Action onArrive;
+        
+        private System.Action _onArrive;
         public void Init(DropItemType type)
         {
             itemType = type;
             canPickup = false;
             itemName = "DropObj";
-            onArrive = null;
+            _onArrive = null;
             ScenePickupController.Instance.materials.Add(this);
         }
 
@@ -37,7 +32,7 @@ namespace Controller.Pickups
 
             this.picker = picker;
             this.pickerReceivePoint = receivePoint;
-            this.onArrive = onArrive;
+            this._onArrive = onArrive;
             StopAllCoroutines();
             StartCoroutine(FlyCoroutine(true , picker.gameObject));
         }
@@ -73,7 +68,7 @@ namespace Controller.Pickups
                 yield return null;
             }
             transform.position = end;
-            onArrive?.Invoke();
+            _onArrive?.Invoke();
             if (isPlayer)
             {
                 OnPicked(player);

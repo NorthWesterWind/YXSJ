@@ -3,6 +3,7 @@ using Controller.Monster;
 using DG.Tweening;
 using Module.Data;
 using PolyNav;
+using Spine.Unity;
 using UnityEngine;
 using Utils;
 using View;
@@ -26,9 +27,9 @@ namespace Controller
         public float currentHp = 100;
         private int currentSpeed;
         public MonsterData data;
-
+        public SkeletonAnimation  skeletonAnimation;
         [Header("巡逻范围设置")] public Vector2 patrolCenter;
-        public float patrolRadius = 5f;
+        private float patrolRadius;
 
         [Header("行为参数")] public float idleTimeMin = 1.5f;
         public float idleTimeMax = 3f;
@@ -42,7 +43,6 @@ namespace Controller
         public MonsterState state;
         public MonsterType monsterType;
         public int factorID = -1;
-        public SpriteRenderer spriteRenderer;
 
         public Transform uiAnchor;
         private AssetHandle _assetHandle;
@@ -73,15 +73,17 @@ namespace Controller
         private float detectRadius = 8;
         private float lastHitTime;
         private float hitInterval = 3;
-
+    
+        public MeshRenderer _meshRenderer;
         void Awake()
         {
             agent = GetComponent<PolyNavAgent>();
             agent.map = GameObject.Find("Map").transform.GetComponent<PolyNavMap>();
             _assetHandle = GetComponent<AssetHandle>();
+            
         }
 
-        public void Init(MonsterData data, Vector2 center, MonsterBehavior behavior, int Id)
+        public void Init(MonsterData data, Vector2 center, MonsterBehavior behavior, int Id , float patrolRadius)
         {
             this.data = data;
             currentHp = data.hp;
@@ -90,6 +92,8 @@ namespace Controller
             monsterType = data.type;
             behaviorType = behavior;
             factorID = Id;
+            this.patrolRadius =  patrolRadius;
+            
 
             if (_hpInfo == null)
             {
@@ -101,7 +105,7 @@ namespace Controller
 
             _worldSpaceUIFollow.UpdateFill(currentHp / data.hp);
             _hpInfo.SetActive(false);
-
+            
             SetLayer();
            
 
@@ -111,7 +115,6 @@ namespace Controller
                     _behaviorStrategy = new NormalMonsterStrategy();
                     break;
                 case MonsterBehavior.Giant:
-                    transform.localScale = new Vector3(1.4f, 1.4f, 1.4f);
                     _behaviorStrategy = new GiantMonsterStrategy();
                     break;
                 case MonsterBehavior.Golden:
@@ -119,7 +122,7 @@ namespace Controller
                     break;
             }
 
-            playerTransform = GameObject.Find("Player").transform;
+            playerTransform = GameObject.FindWithTag("Player").transform;
         }
 
         void OnEnable()
@@ -141,14 +144,12 @@ namespace Controller
         void Update()
         {
             SetLayer();
-
             // 自动回血
             if (currentHp < data.hp && !isRegenerating)
             {
                 if (Time.time - lastDamageTime >= regenDelay)
                     regenCoroutine = StartCoroutine(RegenerateHealth());
             }
-
             // 巨型怪物检测玩家
             if (behaviorType == MonsterBehavior.Giant)
             {
@@ -160,12 +161,30 @@ namespace Controller
                     CheckPlayer();
                 }
             }
+            
+            // 检查当前动画槽是否为 null
+            var currentAnimation = skeletonAnimation.AnimationState.GetCurrent(0);
+            // 根据条件切换动画
+            if (agent.hasPath || agent.remainingDistance > 1 )
+            {
+                if (currentAnimation == null || currentAnimation.Animation.Name != "walk")
+                {
+                    skeletonAnimation.AnimationState.SetAnimation(0, "walk", true);
+                }
+            }
+            else
+            {
+                if (currentAnimation == null || currentAnimation.Animation.Name != "idle")
+                {
+                    skeletonAnimation.AnimationState.SetAnimation(0, "idle", true);
+                }
+            }
         }
-
+        
         public void SetLayer()
         {
             int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
-            spriteRenderer.sortingOrder = newOrder;
+            _meshRenderer.sortingOrder = newOrder;
         }
 
         public void ChangeState(MonsterState newState)
@@ -253,7 +272,7 @@ namespace Controller
                 clamped += Random.insideUnitCircle.normalized * 1f;
 
             agent.SetDestination(clamped);
-            spriteRenderer.flipX = fleeDir.x < 0;
+            skeletonAnimation.skeleton.ScaleX = fleeDir.x < 0 ? -1 : 1;
         }
         
         private bool isDead = false;
@@ -396,7 +415,6 @@ namespace Controller
             Destroy(_hpInfo);
             EventCenter.Instance.RemoveListener(EventMessages.NotifyToFlee, HandleNotifyToFlee);
             isDead = false;
-            Debug.Log("yj == > 执行 DoDie");
         }
 
         private void OnDestroy()
@@ -416,9 +434,7 @@ namespace Controller
         {
             Vector2 randomDir = Random.insideUnitCircle * patrolRadius;
             randomDir += patrolCenter;
-
-            spriteRenderer.flipX = randomDir.x < transform.position.x;
-
+            skeletonAnimation.skeleton.ScaleX = (randomDir.x < transform.position.x)  ? -1 : 1;
             return randomDir;
         }
 

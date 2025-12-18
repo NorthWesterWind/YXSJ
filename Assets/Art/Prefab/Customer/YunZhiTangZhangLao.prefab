@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3452833822642005635}
   - component: {fileID: 2692092138340344791}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 4033320470723424365}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.058, y: 0.043, z: 0}
+  m_LocalPosition: {x: -0.007, y: -0.489, z: 0}
   m_LocalScale: {x: 6.18, y: 2.52, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -97,7 +97,7 @@ GameObject:
   - component: {fileID: 4116058505398416380}
   - component: {fileID: 8019787867327319841}
   - component: {fileID: 7555913153323247101}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: npc_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -113,7 +113,7 @@ Transform:
   m_GameObject: {fileID: 6601907884110674707}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.051, y: -0.53200006, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -229,7 +229,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1718685139410049926}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: recive
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -245,7 +245,7 @@ Transform:
   m_GameObject: {fileID: 6941049642992766605}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.18, y: 0.62, z: 0}
+  m_LocalPosition: {x: -0.12900001, y: 0.08799994, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -263,7 +263,7 @@ GameObject:
   - component: {fileID: 9150955034736230960}
   - component: {fileID: 3888239552599271823}
   - component: {fileID: 4427249614036058765}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: YunZhiTangZhangLao
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -301,12 +301,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _map: {fileID: 0}
-  maxSpeed: 3.5
+  maxSpeed: 2
   maxForce: 10
   stoppingDistance: 0.1
   slowingDistance: 1
   lookAheadDistance: 1
-  avoidRadius: 1
+  avoidRadius: 0.65
   avoidanceConsiderStuckedTime: 1.5
   avoidanceConsiderReachedDistance: 1
   rotateTransform: 0
@@ -338,9 +338,9 @@ MonoBehaviour:
   bornPosition: {x: 0, y: 0}
   nextPosition: {x: 0, y: 0}
   goodsType: 0
-  spriteRenderer: {fileID: 0}
+  skeletonAnimation: {fileID: 8019787867327319841}
+  shadow: {fileID: 2692092138340344791}
   currentIndex: 0
-  animator: {fileID: 0}
   salesStall: {fileID: 0}
   receiveTransform: {fileID: 1718685139410049926}
   purchaseList: []
@@ -359,7 +359,7 @@ BoxCollider2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 2048
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2
@@ -376,7 +376,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.0607239, y: 0.52875906}
+  m_Offset: {x: 0.018486619, y: 0.12987733}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -387,5 +387,5 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.82061267, y: 1.1418325}
+  m_Size: {x: 0.8319285, y: 1.181438}
   m_EdgeRadius: 0

@@ -7,7 +7,7 @@ namespace Controller.Pickups
     public abstract class BasePickup : MonoBehaviour
     {
         public bool canPickup = false;
-        public float flyHeight = 2f;      
+        public float flyHeight = 1.5f;      
         public float flyDuration = 0.5f;  
         public AnimationCurve flyCurve;
 

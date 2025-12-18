@@ -43,7 +43,7 @@ namespace View
             base.Start();
             if (player == null)
             {
-                player = GameObject.Find("Player").GetComponent<PlayerController>();
+                player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
             }
             InitInfoItem();
             HandleUpdateLevelProgress();

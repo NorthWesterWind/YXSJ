@@ -9,8 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3327044625792395724}
-  - component: {fileID: 2166740165457498660}
-  - component: {fileID: 1478200635732320496}
   - component: {fileID: 7449196672381585757}
   m_Layer: 0
   m_Name: LingZhangShi
@@ -37,62 +35,6 @@ Transform:
   - {fileID: 5611915585597753430}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2166740165457498660
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1452222093243369525}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 93cc6a4987f7c684798156c56d545838, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _map: {fileID: 0}
-  maxSpeed: 3.5
-  maxForce: 10
-  stoppingDistance: 0.1
-  slowingDistance: 1
-  lookAheadDistance: 1
-  avoidRadius: 1
-  avoidanceConsiderStuckedTime: 1.5
-  avoidanceConsiderReachedDistance: 1
-  rotateTransform: 0
-  rotateSpeed: 350
-  centerOffset: {x: 0, y: 0}
-  repath: 1
-  restrict: 0
-  closerPointOnInvalid: 1
-  debugPath: 1
---- !u!114 &1478200635732320496
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1452222093243369525}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e97fb83043d142b47bcd654d0f56b114, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  agent: {fileID: 2166740165457498660}
-  data:
-    type: 0
-    carryNum: 0
-    waitTime: 0
-    movespeed: 0
-  state: 0
-  bornPosition: {x: 0, y: 0}
-  nextPosition: {x: 0, y: 0}
-  goodsType: 0
-  spriteRenderer: {fileID: 0}
-  currentIndex: 0
-  animator: {fileID: 0}
-  salesStall: {fileID: 0}
-  receiveTransform: {fileID: 5611915585597753430}
-  purchaseList: []
 --- !u!61 &7449196672381585757
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -125,7 +67,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.0607239, y: 0.52875906}
+  m_Offset: {x: 0.17266726, y: 0.37868667}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -136,7 +78,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.82061267, y: 1.1418325}
+  m_Size: {x: 0.5703492, y: 0.8416877}
   m_EdgeRadius: 0
 --- !u!1 &3073854150754979217
 GameObject:
@@ -197,8 +139,8 @@ Transform:
   m_GameObject: {fileID: 4248099596212911658}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.8, y: 0.8, z: 1}
+  m_LocalPosition: {x: 0.22, y: -0.04, z: 0}
+  m_LocalScale: {x: 0.7, y: 0.7, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3327044625792395724}
@@ -285,7 +227,7 @@ MonoBehaviour:
   physicsMovementRelativeTo: {fileID: 0}
   updateTiming: 1
   unscaledTime: 0
-  _animationName: walk
+  _animationName: idle
   loop: 1
   timeScale: 1
 --- !u!33 &9113882752883974024
@@ -322,7 +264,7 @@ Transform:
   m_GameObject: {fileID: 7432449724225336017}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.014, y: 0.0242, z: 0}
+  m_LocalPosition: {x: 0.208, y: 0.0242, z: 0}
   m_LocalScale: {x: 4.58, y: 2.2416, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -368,7 +310,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 31
   m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   m_Color: {r: 0.38679248, g: 0.38679248, b: 0.38679248, a: 0.49803922}
   m_FlipX: 0

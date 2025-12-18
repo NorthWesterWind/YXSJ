@@ -28,7 +28,7 @@ Transform:
   m_GameObject: {fileID: 12471273660064252}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.044999957, y: -0.388, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -198,7 +198,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.040899754, y: 0.463933}
+  m_Offset: {x: -0.0058988333, y: 0.11381054}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -209,7 +209,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.5137124, y: 0.5877371}
+  m_Size: {x: 0.48251343, y: 0.57387066}
   m_EdgeRadius: 0
 --- !u!114 &5524129670052737845
 MonoBehaviour:
@@ -224,22 +224,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentHp: 100
+  skeletonAnimation: {fileID: 5187974876234750801}
   patrolCenter: {x: 0, y: 0}
-  patrolRadius: 8
-  idleTimeMin: 3
-  idleTimeMax: 6
+  idleTimeMin: 5
+  idleTimeMax: 8
   fleeDistance: 8
   fleeDuration: 5
   state: 0
   monsterType: 0
   factorID: -1
-  spriteRenderer: {fileID: 0}
   uiAnchor: {fileID: 767759089627313156}
   dropItemType: 0
   behaviorType: 0
   indicator: {fileID: 0}
   indicatorParent: {fileID: 0}
   playerTransform: {fileID: 0}
+  _meshRenderer: {fileID: 2259426013696109995}
 --- !u!114 &949223214725840307
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -258,7 +258,7 @@ MonoBehaviour:
   stoppingDistance: 0.1
   slowingDistance: 1
   lookAheadDistance: 1
-  avoidRadius: 0.58
+  avoidRadius: 0.34
   avoidanceConsiderStuckedTime: 3
   avoidanceConsiderReachedDistance: 1
   rotateTransform: 0
@@ -337,7 +337,7 @@ Transform:
   m_GameObject: {fileID: 4443151554683564030}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.06, y: 0.046, z: 1}
+  m_LocalPosition: {x: 0.015, y: -0.342, z: 1}
   m_LocalScale: {x: 4, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -420,7 +420,7 @@ Transform:
   m_GameObject: {fileID: 6139222982691301922}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.055, y: 1.5, z: 0}
+  m_LocalPosition: {x: 0.010000043, y: 1.112, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
