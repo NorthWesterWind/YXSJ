@@ -34,12 +34,17 @@ namespace Utils
 
         public const string AddYunDiZhe = "AddYunDiZhe";       //增加工作中的云递者
         public const string RemoveYunDiZhe = "RemoveYunDiZhe"; //减少工作中的云递者
-        
-        public const string UpdateLingChuGeInfo =  "UpdateLingChuGeInfo"; //更新灵储阁信息
+
+        public const string UpdateLingChuGeInfo = "UpdateLingChuGeInfo"; //更新灵储阁信息
         public const string LingChuGeBeginWorking = "LingChuGeBeginWorking"; //灵储阁开始派遣储玄采徒
         public const string LingChuGeEndWorking = "LingChuGeEndWorking"; //清除所有玄采徒
-        public const string LingChuGeDelivery =  "LingChuGeDelivery"; //灵储阁递送物品
-        public const string LingChuGeStopDelivery =  "LingChuGeStopDelivery"; //灵储阁停止递送物品
-        
+        public const string LingChuGeDelivery = "LingChuGeDelivery"; //灵储阁递送物品
+        public const string LingChuGeStopDelivery = "LingChuGeStopDelivery"; //灵储阁停止递送物品
+
+
+        public const string StructureSpeedUp = "StructureSpeedUp"; //建筑速度加快
+        public const string StructureSpeedDown = "StructureSpeedDown"; //建筑速度恢复默认        
+
+        public const string UpdatePlayerEquimentInfo = "UpdatePlayerEquipmentInfo"; //更新玩家装备信息
     }
 }

@@ -27,9 +27,9 @@ namespace Controller
         public float currentHp = 100;
         private int currentSpeed;
         public MonsterData data;
-        public SkeletonAnimation  skeletonAnimation;
+        public SkeletonAnimation skeletonAnimation;
         [Header("巡逻范围设置")] public Vector2 patrolCenter;
-        private float patrolRadius;
+        Vector2 patrolSize;
 
         [Header("行为参数")] public float idleTimeMin = 1.5f;
         public float idleTimeMax = 3f;
@@ -65,7 +65,7 @@ namespace Controller
 
         private bool isFleeing = false;
         private float fleeCooldown = 3f;
-        private float originalSpeed;
+
 
         private float _damageInterval = 0.2f;
         private float _lastHitTime = -999f;
@@ -73,17 +73,19 @@ namespace Controller
         private float detectRadius = 8;
         private float lastHitTime;
         private float hitInterval = 3;
-    
+        private float deadtime;
         public MeshRenderer _meshRenderer;
+        public CanvasGroup canvasGroup;
+
         void Awake()
         {
             agent = GetComponent<PolyNavAgent>();
             agent.map = GameObject.Find("Map").transform.GetComponent<PolyNavMap>();
             _assetHandle = GetComponent<AssetHandle>();
-            
+
         }
 
-        public void Init(MonsterData data, Vector2 center, MonsterBehavior behavior, int Id , float patrolRadius)
+        public void Init(MonsterData data, Vector2 center, MonsterBehavior behavior, int Id, Vector2 patrolSize)
         {
             this.data = data;
             currentHp = data.hp;
@@ -92,8 +94,8 @@ namespace Controller
             monsterType = data.type;
             behaviorType = behavior;
             factorID = Id;
-            this.patrolRadius =  patrolRadius;
-            
+
+            this.patrolSize = patrolSize;
 
             if (_hpInfo == null)
             {
@@ -105,9 +107,9 @@ namespace Controller
 
             _worldSpaceUIFollow.UpdateFill(currentHp / data.hp);
             _hpInfo.SetActive(false);
-            
+
             SetLayer();
-           
+
 
             switch (behavior)
             {
@@ -123,6 +125,8 @@ namespace Controller
             }
 
             playerTransform = GameObject.FindWithTag("Player").transform;
+
+            deadtime = skeletonAnimation.Skeleton.Data.FindAnimation("dead").Duration;
         }
 
         void OnEnable()
@@ -161,11 +165,11 @@ namespace Controller
                     CheckPlayer();
                 }
             }
-            
+
             // 检查当前动画槽是否为 null
             var currentAnimation = skeletonAnimation.AnimationState.GetCurrent(0);
             // 根据条件切换动画
-            if (agent.hasPath || agent.remainingDistance > 1 )
+            if (agent.hasPath || agent.remainingDistance > 1)
             {
                 if (currentAnimation == null || currentAnimation.Animation.Name != "walk")
                 {
@@ -180,7 +184,7 @@ namespace Controller
                 }
             }
         }
-        
+
         public void SetLayer()
         {
             int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
@@ -261,22 +265,42 @@ namespace Controller
 
         private void SetNewFleeTarget()
         {
+            // 逃跑方向
             Vector2 fleeDir = (attacker != null)
                 ? ((Vector2)transform.position - (Vector2)attacker.position).normalized
                 : Random.insideUnitCircle.normalized;
 
+            // 初步目标点
             Vector2 targetPoint = (Vector2)transform.position + fleeDir * fleeDistance;
-            Vector2 clamped = patrolCenter + Vector2.ClampMagnitude(targetPoint - patrolCenter, patrolRadius);
 
+            // 矩形限制
+            float halfWidth = patrolSize.x / 2f;
+            float halfHeight = patrolSize.y / 2f;
+
+            Vector2 clamped;
+            clamped.x = Mathf.Clamp(targetPoint.x, patrolCenter.x - halfWidth, patrolCenter.x + halfWidth);
+            clamped.y = Mathf.Clamp(targetPoint.y, patrolCenter.y - halfHeight, patrolCenter.y + halfHeight);
+
+            // 避免太靠近当前位置
             if (Vector2.Distance(transform.position, clamped) < 0.5f)
+            {
                 clamped += Random.insideUnitCircle.normalized * 1f;
 
+                // 再次保证不出矩形
+                clamped.x = Mathf.Clamp(clamped.x, patrolCenter.x - halfWidth, patrolCenter.x + halfWidth);
+                clamped.y = Mathf.Clamp(clamped.y, patrolCenter.y - halfHeight, patrolCenter.y + halfHeight);
+            }
+
+            // 设置导航目标
             agent.SetDestination(clamped);
+
+            // 翻转角色
             skeletonAnimation.skeleton.ScaleX = fleeDir.x < 0 ? -1 : 1;
         }
-        
+
+
         private bool isDead = false;
-        
+
         public void TakeDamage(int damage, Transform attacker)
         {
             if (isDead) return;
@@ -305,7 +329,14 @@ namespace Controller
             if (currentHp <= 0)
             {
                 isDead = true;
-                DoDie();
+                agent.Stop();
+                var state = skeletonAnimation.AnimationState;
+                var current = state.GetCurrent(0);
+                if (current == null || current.Animation.Name != "dead")
+                {
+                    state.SetAnimation(1, "dead", false);
+                }
+                StartCoroutine(DoDie());
             }
         }
 
@@ -408,13 +439,15 @@ namespace Controller
             isRegenerating = false;
         }
 
-        public void DoDie()
+        public IEnumerator DoDie()
         {
-            EventCenter.Instance.TriggerEvent(EventMessages.CameraBeginShaking);
-            EventCenter.Instance.TriggerEvent(EventMessages.MonsterDead, monsterType, gameObject , factorID);
+
             Destroy(_hpInfo);
             EventCenter.Instance.RemoveListener(EventMessages.NotifyToFlee, HandleNotifyToFlee);
             isDead = false;
+            yield return new WaitForSeconds(deadtime);
+            EventCenter.Instance.TriggerEvent(EventMessages.CameraBeginShaking);
+            EventCenter.Instance.TriggerEvent(EventMessages.MonsterDead, monsterType, gameObject, factorID);
         }
 
         private void OnDestroy()
@@ -429,26 +462,49 @@ namespace Controller
             if (id != factorID) return;
             if (state != MonsterState.Flee) ChangeState(MonsterState.Flee);
         }
-
-        Vector2 GetRandomPointWithinPatrolArea()
-        {
-            Vector2 randomDir = Random.insideUnitCircle * patrolRadius;
-            randomDir += patrolCenter;
-            skeletonAnimation.skeleton.ScaleX = (randomDir.x < transform.position.x)  ? -1 : 1;
-            return randomDir;
-        }
-
         private void OnReachDestination()
         {
             if (state == MonsterState.Patrol)
                 ChangeState(MonsterState.Idle);
         }
+        Vector2 GetRandomPointWithinPatrolArea()
+        {
+            // 生成矩形内随机点
+            float halfWidth = patrolSize.x / 2f;
+            float halfHeight = patrolSize.y / 2f;
+
+            Vector2 center = (patrolCenter == Vector2.zero) ? (Vector2)transform.position : patrolCenter;
+
+            float randomX = Random.Range(center.x - halfWidth, center.x + halfWidth);
+            float randomY = Random.Range(center.y - halfHeight, center.y + halfHeight);
+
+            Vector2 randomPoint = new Vector2(randomX, randomY);
+
+            // 设置角色翻转
+            skeletonAnimation.skeleton.ScaleX = (randomPoint.x < transform.position.x) ? -1 : 1;
+
+            return randomPoint;
+        }
 
         private void OnDrawGizmosSelected()
         {
             Gizmos.color = Color.yellow;
-            Vector2 center = (patrolCenter == Vector2.zero) ? transform.position : patrolCenter;
-            Gizmos.DrawWireSphere(center, patrolRadius);
+            Vector2 center = (patrolCenter == Vector2.zero) ? (Vector2)transform.position : patrolCenter;
+
+            float halfWidth = patrolSize.x / 2f;
+            float halfHeight = patrolSize.y / 2f;
+
+            // 画矩形框
+            Vector3 topLeft = new Vector3(center.x - halfWidth, center.y + halfHeight, 0);
+            Vector3 topRight = new Vector3(center.x + halfWidth, center.y + halfHeight, 0);
+            Vector3 bottomRight = new Vector3(center.x + halfWidth, center.y - halfHeight, 0);
+            Vector3 bottomLeft = new Vector3(center.x - halfWidth, center.y - halfHeight, 0);
+
+            Gizmos.DrawLine(topLeft, topRight);
+            Gizmos.DrawLine(topRight, bottomRight);
+            Gizmos.DrawLine(bottomRight, bottomLeft);
+            Gizmos.DrawLine(bottomLeft, topLeft);
         }
+
     }
 }

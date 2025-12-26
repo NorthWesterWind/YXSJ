@@ -16,7 +16,7 @@ namespace View.CharacterInfoView
        public GameObject fillRect;
        public UIButton btn;
        public WeaponData weaponData;
-       public StorageBagData storageBagData;
+       public StotageBagData storageBagData;
        void Start()
         {
             btn.onClick.RemoveAllListeners();
@@ -72,7 +72,7 @@ namespace View.CharacterInfoView
             }
             else
             {
-                storageBagData =  args[0] as StorageBagData;
+                storageBagData =  args[0] as StotageBagData;
                 weaponData = null;
                 selectImg.gameObject.SetActive(playerdata.currentBag == storageBagData.id);
                 maskImg.gameObject.SetActive(!(playerdata.ownWeaponList.Contains(storageBagData.id)));

@@ -15,7 +15,6 @@ namespace Controller.Structure
         public Transform baseTransform;
         public Transform parchaseTransform;
         public PlacementGrid grid;
-        public TextMeshPro numTxt;
         public List<Production> productList = new();
         public Transform transferPoint;
         protected override void Start()
@@ -66,7 +65,6 @@ namespace Controller.Structure
         
         public void UpdateTxt()
         {
-            numTxt.text = productList.Count.ToString();
         }
 
         public void PlaceProduct(Production p)

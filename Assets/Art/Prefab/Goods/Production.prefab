@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1686064782226629853}
   - component: {fileID: 2275993225567766082}
-  m_Layer: 0
-  m_Name: yunzhicha
+  m_Layer: 7
+  m_Name: icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -27,7 +27,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.7, y: 0.7, z: 0.7}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7878816284543911481}
@@ -73,7 +73,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 4000
-  m_Sprite: {fileID: 21300000, guid: 3d390bb8c93eea24694734826902f185, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b79b67476793b3d429aedd957329215d, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 7878816284543911481}
   - component: {fileID: 7181088026804851771}
   - component: {fileID: 4534525301295639318}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Production
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -111,7 +111,7 @@ Transform:
   m_GameObject: {fileID: 6728240818630394814}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.008726558, w: 0.999962}
-  m_LocalPosition: {x: -8.24, y: 24.24, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -158,14 +158,15 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   itemName: 
+  isTaken: 0
   spriteRenderer: {fileID: 2275993225567766082}
   duration: 0.6
   arcHeight: 1
   tiltAngle: 25
   state: 0
   goodsType: 0
-  productions: []
   station: {fileID: 0}
+  assetHandle: {fileID: 4534525301295639318}
 --- !u!114 &4534525301295639318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -179,5 +180,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   assets:
-  - {fileID: 2800000, guid: 3d390bb8c93eea24694734826902f185, type: 3}
-  - {fileID: 2800000, guid: 31fcfaebba467b14d84f4fc7f9e363db, type: 3}
+  - {fileID: 2800000, guid: b79b67476793b3d429aedd957329215d, type: 3}
+  - {fileID: 2800000, guid: a00c4e339c1dc104eb4ef504de1f081d, type: 3}
+  - {fileID: 2800000, guid: 3d0c6bf4b90e17f46934bc2984d9254f, type: 3}
+  - {fileID: 2800000, guid: 37daa587cefd94f4e8046a13eb663828, type: 3}
+  - {fileID: 2800000, guid: 7b18b07c3359421489234fbb52abbbd1, type: 3}
+  - {fileID: 2800000, guid: 11c67670c47c9d247ba4eeda0fdfc4d1, type: 3}
+  - {fileID: 2800000, guid: 89d4bf6809e81924890b75fe7ab4e876, type: 3}
+  - {fileID: 2800000, guid: ecd87a171f534a64e810f5d7a0b22399, type: 3}
+  - {fileID: 2800000, guid: aab9617187e2f234cb0261b58ba93638, type: 3}
+  - {fileID: 2800000, guid: 976247b2056c7ec4d89f644bdafc6f7b, type: 3}
+  - {fileID: 2800000, guid: 5a81385ee257f7a4d844b65431930d36, type: 3}
+  - {fileID: 2800000, guid: fcd6875047462c945ae7f0f48a07c665, type: 3}
+  - {fileID: 2800000, guid: 27b3f69254dc4a84eb7ec79cb42ac042, type: 3}
+  - {fileID: 2800000, guid: e1540ee245cb0454e8f99b6626aa0e7f, type: 3}
+  - {fileID: 2800000, guid: ef94db681c8a3294b8429e8014aa3031, type: 3}

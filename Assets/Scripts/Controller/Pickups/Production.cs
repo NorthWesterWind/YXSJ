@@ -5,6 +5,7 @@ using Controller.Player;
 using Controller.Structure;
 using Module.Data;
 using UnityEngine;
+using Utils;
 
 namespace Controller.Pickups
 {
@@ -34,6 +35,7 @@ namespace Controller.Pickups
        public ItemState state;
        public GoodsType  goodsType;
        public StructureBase station;
+       public AssetHandle assetHandle;
        public void SetState(ItemState newState)
        {
            state = newState;
@@ -49,6 +51,7 @@ namespace Controller.Pickups
            canPickup = false;
            ScenePickupController.Instance.products.Add(this);
            itemName = "Production";
+           spriteRenderer.sprite = assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(type));
        }
 
        public void FlyTo(Vector3 target , Action callback = null)

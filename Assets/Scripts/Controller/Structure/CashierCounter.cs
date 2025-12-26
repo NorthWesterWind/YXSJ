@@ -19,6 +19,7 @@ namespace Controller.Structure
         public float speed = 1f;
         public SpriteRenderer fillImage;
         public Transform receiveTransform;
+        public GameObject LingZhangShi;
         protected override void Start()
         {
             base.Start();
@@ -28,11 +29,15 @@ namespace Controller.Structure
         private void OnEnable()
         {
             EventCenter.Instance.AddListener(EventMessages.CustomerArrived, HandleCustomerArrived);
+            EventCenter.Instance.AddListener(EventMessages.StructureSpeedUp, HandleStructureSpeedUp);
+            EventCenter.Instance.AddListener(EventMessages.StructureSpeedDown, HandleStructureSpeedDown);
         }
 
         private void OnDisable()
         {
             EventCenter.Instance.RemoveListener(EventMessages.CustomerArrived, HandleCustomerArrived);
+            EventCenter.Instance.RemoveListener(EventMessages.StructureSpeedUp, HandleStructureSpeedUp);
+            EventCenter.Instance.RemoveListener(EventMessages.StructureSpeedDown, HandleStructureSpeedDown);
         }
 
         public void Init()
@@ -45,7 +50,6 @@ namespace Controller.Structure
         {
             while (true)
             {
-                // 队列为空 → 跳出循环，协程停止
                 if (customerQueue.Count == 0)
                 {
                     processCoroutine = null;
@@ -110,6 +114,24 @@ namespace Controller.Structure
                 product.canPickup = true;
                 product.state = ItemState.OnWorkbench;
             }));
+        }
+        public void HandleStructureSpeedUp(params object[] args)
+        {
+            BuildingType t = (BuildingType)args[0];
+            if (t != structureType)
+            {
+                return;
+            }
+            speed = 2f;
+        }
+        public void HandleStructureSpeedDown(params object[] args)
+        {
+            BuildingType t = (BuildingType)args[0];
+            if (t != structureType)
+            {
+                return;
+            }
+            speed = 1f;
         }
     }
 }

@@ -128,8 +128,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentHp: 100
+  skeletonAnimation: {fileID: 0}
   patrolCenter: {x: 0, y: 0}
-  patrolRadius: 8
   idleTimeMin: 3
   idleTimeMax: 6
   fleeDistance: 8
@@ -137,13 +137,13 @@ MonoBehaviour:
   state: 0
   monsterType: 0
   factorID: -1
-  spriteRenderer: {fileID: 0}
   uiAnchor: {fileID: 5076582061610155641}
   dropItemType: 0
   behaviorType: 0
   indicator: {fileID: 0}
   indicatorParent: {fileID: 0}
   playerTransform: {fileID: 0}
+  _meshRenderer: {fileID: 0}
 --- !u!114 &2369887446084930768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -326,7 +326,7 @@ MonoBehaviour:
     materialsInsideMask: []
     materialsOutsideMask: []
   disableRenderingOnOverride: 1
-  physicsPositionInheritanceFactor: {x: 1, y: 1}
+  physicsPositionInheritanceFactor: {x: 0, y: 0}
   physicsRotationInheritanceFactor: 1
   physicsMovementRelativeTo: {fileID: 0}
   updateTiming: 1

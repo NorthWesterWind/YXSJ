@@ -13,7 +13,7 @@ namespace Controller
         public Dictionary<CustomerType, CustomerData> customerDataDic = new();
         public Dictionary<int,MapData>  mapDataDic = new();
         public Dictionary<int , RewardData> taskRewardDataDic = new();
-        public Dictionary<int , StorageBagData> storageBagDataDic = new();
+        public Dictionary<int , StotageBagData> storageBagDataDic = new();
         public Dictionary<int, WeaponData> weaponDataDic = new();
         public Dictionary<int , TaskData> mapTaskDataDic1 = new(); // 30 
         public Dictionary<int , TaskData> mapTaskDataDic2 = new(); // 60
@@ -61,11 +61,12 @@ namespace Controller
             
             string storageStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StorageBagData")).text;
             storageBagDataDic.Clear();
-            storageBagDataDic =  JsonConvert.DeserializeObject<Dictionary<int, StorageBagData>>(storageStr);
+            storageBagDataDic =  JsonConvert.DeserializeObject<Dictionary<int, StotageBagData>>(storageStr);
             
             string weaponStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("WeaponData")).text;
             weaponDataDic.Clear();
             weaponDataDic = JsonConvert.DeserializeObject<Dictionary<int, WeaponData>>(weaponStr);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
             
             string taskStr1 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("TaskData_1")).text;
             mapTaskDataDic1.Clear();

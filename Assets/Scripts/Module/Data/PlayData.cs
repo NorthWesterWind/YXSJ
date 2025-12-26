@@ -16,7 +16,7 @@ namespace Module.Data
         #endregion
 
         #region 天赋属性
-        public float moveSpeed = 8f;   //移动速度
+        public float moveSpeed = 5f;   //移动速度
         public float pickUpRange = 5f;  //拾取物品距离
         public float slowDownValue = 3f; //降低速度值
         public float weaponSize = 1f;   //武器尺寸

@@ -35,16 +35,12 @@ namespace Controller
 
         private void AttackMonster(GameObject monster)
         {
-            // ⚙️ 如果怪物有 HP 脚本（例如 MonsterController）
             var monsterCtrl = monster.GetComponent<MonsterController>();
-            if (monsterCtrl != null)
+            if (monsterCtrl != null && monsterCtrl.currentHp > 0)
             {
                 monsterCtrl.TakeDamage(atkValue ,transform);
             }
-            else
-            {
-                Debug.LogError($"{monster.name} 没有 MonsterController 组件");
-            }
+           
         }
     }
 }

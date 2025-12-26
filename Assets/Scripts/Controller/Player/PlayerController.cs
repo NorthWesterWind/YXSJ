@@ -15,7 +15,7 @@ namespace Controller.Player
 {
     public class PlayerController : SerializedMonoBehaviour
     {
-        private SkeletonAnimation  _skeletonAnimation;
+        private SkeletonAnimation _skeletonAnimation;
         private Vector2 _dirValue;
         public bool isMoving = false;
         public PlayerDataModule dataModule;
@@ -51,23 +51,22 @@ namespace Controller.Player
         private AssetHandle _assetHandle;
 
 
-        public int RemainCapacity => (int)maxCarryNum -  currentCarryNum;
+        public int RemainCapacity => (int)maxCarryNum - currentCarryNum;
 
-        public PolygonCollider2D mapCollider;
         private void Awake()
         {
             if (dataModule == null)
             {
                 dataModule = ModuleMgr.Instance.GetModule<PlayerDataModule>();
             }
-            
+
             camera = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
-            camera.LookAt  = transform;
+            camera.LookAt = transform;
             camera.Follow = transform;
             focusCamera = GameObject.Find("FocusVirtualCamera").GetComponent<CinemachineVirtualCamera>();
             _rigidbody = GetComponent<Rigidbody2D>();
             _assetHandle = GetComponent<AssetHandle>();
-            mapCollider = GameObject.FindWithTag("Map").GetComponent<PolygonCollider2D>();
+            _skeletonAnimation = transform.Find("Character").GetComponent<SkeletonAnimation>();
         }
 
         private MeshRenderer renderer;
@@ -75,7 +74,7 @@ namespace Controller.Player
         {
             AddEvent();
             Init();
-           renderer = transform.Find("Character").GetComponent<MeshRenderer>();
+            renderer = transform.Find("Character").GetComponent<MeshRenderer>();
         }
 
 
@@ -85,8 +84,21 @@ namespace Controller.Player
             EventCenter.Instance.AddListener(EventMessages.FocusView, HandleFocusView);
             EventCenter.Instance.AddListener(EventMessages.RestoreFocusView, RestoreFocusView);
             EventCenter.Instance.AddListener(EventMessages.PlayerTakeDamage, HandleTakeDamage);
-            EventCenter.Instance.AddListener(EventMessages.FocusNewPosition ,HandleFocusNew);
+            EventCenter.Instance.AddListener(EventMessages.FocusNewPosition, HandleFocusNew);
+            EventCenter.Instance.AddListener(EventMessages.UpdatePlayerEquimentInfo, UpdatePlayerEquimentInfo);
         }
+        private void OnDestroy()
+        {
+            EventCenter.Instance.RemoveListener(EventMessages.TriggerDetection, HandleTrigger);
+            EventCenter.Instance.RemoveListener(EventMessages.FocusView, HandleFocusView);
+            EventCenter.Instance.RemoveListener(EventMessages.RestoreFocusView, RestoreFocusView);
+            EventCenter.Instance.RemoveListener(EventMessages.PlayerTakeDamage, HandleTakeDamage);
+            EventCenter.Instance.RemoveListener(EventMessages.FocusNewPosition, HandleFocusNew);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerEquimentInfo, UpdatePlayerEquimentInfo);
+        }
+
+
+
 
         public void Init()
         {
@@ -99,8 +111,9 @@ namespace Controller.Player
             maxCarryNum = dataModule.data.bagCapacity;
             currentPinkUpRange = dataModule.data.pickUpRange;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
+
         }
-       
+
         public void SetLayer()
         {
             int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
@@ -113,16 +126,6 @@ namespace Controller.Player
 
         void Update()
         {
-            
-            Vector2 targetPosition = transform.position;
-            if (!mapCollider.OverlapPoint(targetPosition))
-            {
-                // 如果超出边界，可以限制角色位置或应用其他行为
-                targetPosition = mapCollider.ClosestPoint(targetPosition);
-            }
-
-            transform.position = targetPosition;
-            
             SetLayer();
             if (isShowUI)
             {
@@ -140,20 +143,36 @@ namespace Controller.Player
                     transform.localScale = new Vector3(1, 1, 1);
                 }
 
-                if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 20))
+                if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 15))
                 {
                     camera.m_Lens.OrthographicSize =
-                        Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 20, ref velocity, 0.15f);
+                        Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 15, ref velocity, 0.15f);
+                }
+
+
+                var state = _skeletonAnimation.AnimationState;
+                var current = state.GetCurrent(0);
+
+                if (current == null || current.Animation.Name != "walk")
+                {
+
+                    state.SetAnimation(0, "walk", true);
                 }
             }
             else
             {
                 isMoving = false;
-              //  _skeletonAnimation.AnimationState.SetAnimation(0, "idle", true);
-                if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 18))
+                var state = _skeletonAnimation.AnimationState;
+                var current = state.GetCurrent(0);
+
+                if (current == null || current.Animation.Name != "idle")
+                {
+                    state.SetAnimation(0, "idle", true);
+                }
+                if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 13))
                 {
                     camera.m_Lens.OrthographicSize =
-                        Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 18, ref velocity, 0.3f);
+                        Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 13, ref velocity, 0.3f);
                 }
             }
 
@@ -169,8 +188,17 @@ namespace Controller.Player
             if (isMoving)
             {
                 _rigidbody.MovePosition(_rigidbody.position +
-                                        new Vector2(_dirValue.x, _dirValue.y) * (10 * Time.fixedDeltaTime));
+                                        new Vector2(_dirValue.x, _dirValue.y) * (dataModule.data.moveSpeed * Time.fixedDeltaTime));
             }
+        }
+
+        private void UpdatePlayerEquimentInfo(params object[] args)
+        {
+            WeaponData weaponData = DataController.Instance.weaponDataDic[dataModule.data.currentWeapon];
+            weaponRenderer.sprite = _assetHandle.Get<Sprite>(weaponData.name);
+            _skeletonAnimation.skeleton.SetAttachment(weaponData.slotName, weaponData.attachmentName);
+            StotageBagData stotageBagData = DataController.Instance.storageBagDataDic[dataModule.data.currentBag];
+            _skeletonAnimation.skeleton.SetAttachment(stotageBagData.slotName, stotageBagData.attachmentName);
         }
 
         private void HandleFocusView(params object[] args)
@@ -231,7 +259,7 @@ namespace Controller.Player
             {
                 if (item == null) continue;                       // 回收后 item 可能被销毁
                 if (!item.gameObject.activeInHierarchy) continue; // 避免 inactive
-                if (item.isTaken) continue; 
+                if (item.isTaken) continue;
                 float dist = Vector2.Distance(transform.position, item.transform.position);
                 if (dist <= currentPinkUpRange && currentCarryNum < maxCarryNum)
                 {
@@ -263,7 +291,7 @@ namespace Controller.Player
                         item.GetComponent<Production>());
                     item.StartAttract(this.transform, receiveTransform);
                 }
-                
+
             }
         }
 
@@ -271,13 +299,23 @@ namespace Controller.Player
         public void CheckMonster()
         {
             Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectRadius, monsterLayer);
-           
+
             if (hits.Length > 0)
             {
                 weapon.gameObject.SetActive(true);
+                var state = _skeletonAnimation.AnimationState;
+                var current = state.GetCurrent(0);
+
+                if (current == null || current.Animation.Name != "attack")
+                {
+                    state.SetAnimation(1, "attack", true);
+                }
             }
             else
+
             {
+                var state = _skeletonAnimation.AnimationState;
+                state.ClearTrack(1);
                 weapon.gameObject.SetActive(false);
                 // 自动回血检测
                 if (currentHp < maxHp && !isRegenerating)
@@ -290,7 +328,7 @@ namespace Controller.Player
             }
         }
 
-        
+
         public AnimationCurve scatterCurve;
         private float scatterDuration = 0.1f;
         private Dictionary<string, Coroutine> deliverCoroutines = new();
@@ -493,6 +531,7 @@ namespace Controller.Player
             var trigger2 = other.GetComponent<InteractionTrigger>();
             if (trigger != null)
             {
+                trigger.CloseInteract();
                 overlappingTrigger.Remove(trigger);
             }
 
@@ -626,12 +665,12 @@ namespace Controller.Player
                         dropDic[itemType]++;
                     }
                     break;
-                // case DropItemType.JingYunBao:
-                //     dataModule.AddJinYuanBao(10);
-                //     break;
-                // case DropItemType.YingQian:
-                //     dataModule.AddYinQian(100);
-                //     break;
+                    // case DropItemType.JingYunBao:
+                    //     dataModule.AddJinYuanBao(10);
+                    //     break;
+                    // case DropItemType.YingQian:
+                    //     dataModule.AddYinQian(100);
+                    //     break;
             }
 
             playerInfo.UpdateTxt();
@@ -639,10 +678,11 @@ namespace Controller.Player
 
         public void AddGoods(GoodsType goodsType)
         {
-            if (goodsType == GoodsType.YingQian )
+            if (goodsType == GoodsType.YingQian)
             {
                 dataModule.AddYinQian(100);
-            }else if (goodsType == GoodsType.JingYunBao)
+            }
+            else if (goodsType == GoodsType.JingYunBao)
             {
                 dataModule.AddJinYuanBao(10);
             }
@@ -706,12 +746,5 @@ namespace Controller.Player
             invincible = false;
         }
 
-        private void OnDestroy()
-        {
-            EventCenter.Instance.RemoveListener(EventMessages.TriggerDetection, HandleTrigger);
-            EventCenter.Instance.RemoveListener(EventMessages.FocusView, HandleFocusView);
-            EventCenter.Instance.RemoveListener(EventMessages.RestoreFocusView, RestoreFocusView);
-            EventCenter.Instance.RemoveListener(EventMessages.PlayerTakeDamage, HandleTakeDamage);
-        }
     }
 }

@@ -91,9 +91,9 @@ namespace View.PopUp
                     }
                 }
             }
-            else if (args[0] is StorageBagData)
+            else if (args[0] is StotageBagData)
             {
-                StorageBagData data = args[0] as StorageBagData;
+                StotageBagData data = args[0] as StotageBagData;
                 tiptxt.text = data.name;
                 locktxt.text = data.unlockStr;
                 if (playerdata.ownBagList.Contains(data.id))

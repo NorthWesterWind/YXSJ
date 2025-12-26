@@ -6,6 +6,7 @@ using Controller.Structure;
 using Module.Data;
 using PolyNav;
 using Sirenix.OdinInspector;
+using Spine.Unity;
 using UnityEngine;
 using Utils;
 
@@ -13,13 +14,14 @@ namespace Controller
 {
     public class FreightClerkController : SerializedMonoBehaviour
     {
-        public SpriteRenderer spriteRenderer;
+        public SkeletonAnimation skeletonAnimation;
+        public MeshRenderer renderer;
         private PolyNavAgent _agent;
         public int currentCapacity;
         public int currentMove;
         public int pickUpRange;
         private AssetHandle _assetHandle;
-        public Animator animator;
+    
         
         public List<Transform> points = new List<Transform>();
         public List<ProductionStation> productionStationList = new List<ProductionStation>();
@@ -130,21 +132,33 @@ namespace Controller
         {
             if (_agent.hasPath)
             {
-                animator.SetBool("move" ,true);
-                animator.SetBool("idle",false);
+               var state = skeletonAnimation.AnimationState;
+                var current = state.GetCurrent(0);
+
+                if (current == null || current.Animation.Name != "walk")
+                {
+                    
+                    state.SetAnimation(0, "walk", true);
+                }
               
             }
             else
             {
-                animator.SetBool("move",false);
-                animator.SetBool("idle",true);
+                 var state = skeletonAnimation.AnimationState;
+                var current = state.GetCurrent(0);
+
+                if (current == null || current.Animation.Name != "idle")
+                {
+                    
+                    state.SetAnimation(0, "walk", true);
+                }
             }
             SetLayer();
         }
         public void SetLayer()
         {
             int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
-            spriteRenderer.sortingOrder = newOrder;
+           renderer.sortingOrder = newOrder;
         }
         
         void OnEnable()

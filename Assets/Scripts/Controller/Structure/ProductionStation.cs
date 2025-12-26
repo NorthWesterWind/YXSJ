@@ -13,11 +13,11 @@ namespace Controller.Structure
         // public Transform infoPosition;
         [Header("商品摆放位置")]
         public Transform productPosition;
-        
+
         public Transform recivePosition;
         public Transform transferPoint;
-            
-        
+
+
         public int currentMaterialCount;  //当前材料数量
         public float baseProductionTime = 2.5f; // 基础生产时间
         public float productionSpeed = 1f;    // 外部可修改的速度倍率
@@ -28,22 +28,24 @@ namespace Controller.Structure
         public BuildingType buildingType;
         public GameObject _productObj;
         public PlacementGrid grid = new PlacementGrid();
-        
+
         public List<Production> productionList = new List<Production>();
+        public SpriteRenderer icon;
         protected override void Start()
         {
             base.Start();
-            EventCenter.Instance.AddListener(EventMessages.ProductionComplete , HandleProductionComplete);
+            EventCenter.Instance.AddListener(EventMessages.ProductionComplete, HandleProductionComplete);
             _assetHandle = GetComponent<AssetHandle>();
-            productionInfo.Init(baseProductionTime , productionSpeed , currentMaterialCount ,this );
+            productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
             grid.basePosition = productPosition.position;
-            ObjectPoolManager.Instance.WarmPool("Production" , _productObj , 50);
-            
+            ObjectPoolManager.Instance.WarmPool("Production", _productObj, 50);
+            int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
+            icon.sortingOrder = newOrder + 2;
         }
 
         private void Update()
         {
-            
+
         }
 
         public void AddMaterial(int count)
@@ -73,34 +75,34 @@ namespace Controller.Structure
             if (t != structureType)
             {
                 return;
-            } 
-            GameObject  productObj = ObjectPoolManager.Instance.GetObject("Production");
+            }
+            GameObject productObj = ObjectPoolManager.Instance.GetObject("Production");
             productObj.transform.position = recivePosition.position;
-            Production product =  productObj.GetComponent<Production>();
+            Production product = productObj.GetComponent<Production>();
             product.Init(goodsType);
             product.SetStation(this);
             product.spriteRenderer.sortingOrder = grid.currentIndex + 4000;
-           productionList.Add(product);
-            product.FlyTo(grid.GetNextPosition() , (() =>
+            productionList.Add(product);
+            product.FlyTo(grid.GetNextPosition(), (() =>
             {
                 product.canPickup = true;
                 product.SetState(ItemState.OnWorkbench);
             }));
-          
+
             if (currentMaterialCount == 0)
             {
                 OnProductionFinished();
             }
-     
+
         }
-        
-      
-       
+
+
+
 
         private void OnDestroy()
         {
             Destroy(productionInfo.gameObject);
-            EventCenter.Instance.RemoveListener(EventMessages.ProductionComplete , HandleProductionComplete);
+            EventCenter.Instance.RemoveListener(EventMessages.ProductionComplete, HandleProductionComplete);
         }
 
 
@@ -118,12 +120,12 @@ namespace Controller.Structure
                 list.AddRange(productionList.GetRange(0, num));
                 productionList.RemoveRange(0, num);
             }
-            
+
             for (int i = 0; i < list.Count; i++)
             {
                 list[i].FlyTo(freightClerk.points[i].position);
             }
-            
+
             return list;
         }
     }

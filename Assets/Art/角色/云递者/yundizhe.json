@@ -1,6 +1,6 @@
 {
 "skeleton": {
-	"hash": "KL/oMmUZDh0",
+	"hash": "elsgIbVFW24",
 	"spine": "4.2.43",
 	"x": -113.14,
 	"y": -4.96,
@@ -135,33 +135,241 @@
 	{ "name": "0", "bone": "root", "attachment": "0" }
 ],
 "physics": [
-	{ "name": "bone6", "order": 17, "bone": "bone6", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone7", "order": 18, "bone": "bone7", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone8", "order": 19, "bone": "bone8", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone9", "order": 20, "bone": "bone9", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone10", "order": 21, "bone": "bone10", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone11", "order": 22, "bone": "bone11", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone12", "order": 23, "bone": "bone12", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone13", "order": 24, "bone": "bone13", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone14", "order": 25, "bone": "bone14", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone15", "order": 26, "bone": "bone15", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone20", "bone": "bone20", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone21", "order": 1, "bone": "bone21", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone22", "order": 2, "bone": "bone22", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone23", "order": 3, "bone": "bone23", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone24", "order": 4, "bone": "bone24", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone25", "order": 5, "bone": "bone25", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone26", "order": 6, "bone": "bone26", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone27", "order": 7, "bone": "bone27", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone28", "order": 8, "bone": "bone28", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone31", "order": 13, "bone": "bone31", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone32", "order": 14, "bone": "bone32", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone33", "order": 15, "bone": "bone33", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone34", "order": 16, "bone": "bone34", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone35", "order": 9, "bone": "bone35", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone36", "order": 10, "bone": "bone36", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone37", "order": 11, "bone": "bone37", "rotate": 1, "inertia": 0.5, "damping": 0.85 },
-	{ "name": "bone38", "order": 12, "bone": "bone38", "rotate": 1, "inertia": 0.5, "damping": 0.85 }
+	{
+		"name": "bone6",
+		"order": 17,
+		"bone": "bone6",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone7",
+		"order": 18,
+		"bone": "bone7",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone8",
+		"order": 19,
+		"bone": "bone8",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone9",
+		"order": 20,
+		"bone": "bone9",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone10",
+		"order": 21,
+		"bone": "bone10",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone11",
+		"order": 22,
+		"bone": "bone11",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone12",
+		"order": 23,
+		"bone": "bone12",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone13",
+		"order": 24,
+		"bone": "bone13",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone14",
+		"order": 25,
+		"bone": "bone14",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone15",
+		"order": 26,
+		"bone": "bone15",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{ "name": "bone20", "bone": "bone20", "rotate": 0.3592, "inertia": 0.5, "damping": 0.85, "mix": 0.4225 },
+	{
+		"name": "bone21",
+		"order": 1,
+		"bone": "bone21",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone22",
+		"order": 2,
+		"bone": "bone22",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone23",
+		"order": 3,
+		"bone": "bone23",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone24",
+		"order": 4,
+		"bone": "bone24",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone25",
+		"order": 5,
+		"bone": "bone25",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone26",
+		"order": 6,
+		"bone": "bone26",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone27",
+		"order": 7,
+		"bone": "bone27",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone28",
+		"order": 8,
+		"bone": "bone28",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone31",
+		"order": 13,
+		"bone": "bone31",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone32",
+		"order": 14,
+		"bone": "bone32",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone33",
+		"order": 15,
+		"bone": "bone33",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone34",
+		"order": 16,
+		"bone": "bone34",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone35",
+		"order": 9,
+		"bone": "bone35",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone36",
+		"order": 10,
+		"bone": "bone36",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone37",
+		"order": 11,
+		"bone": "bone37",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	},
+	{
+		"name": "bone38",
+		"order": 12,
+		"bone": "bone38",
+		"rotate": 0.3592,
+		"inertia": 0.5,
+		"damping": 0.85,
+		"mix": 0.4225
+	}
 ],
 "skins": [
 	{

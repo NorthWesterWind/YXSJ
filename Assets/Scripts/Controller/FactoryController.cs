@@ -36,6 +36,52 @@ namespace Controller
         // 黄金怪周期
         private int goldenCounter = 0;
         public int factorID;
+        [Header("巡逻矩形区域")]
+        public Vector2 patrolAreaSize = new Vector2(5f, 5f);
+
+        [Header("调试")]
+        public bool showGizmos = true;  // 是否显示矩形辅助线
+
+        public Vector3 GetRandomSpawnPos()
+        {
+            float halfWidth = patrolAreaSize.x / 2f;
+            float halfHeight = patrolAreaSize.y / 2f;
+
+            float randomX = Random.Range(-halfWidth, halfWidth);
+            float randomY = Random.Range(-halfHeight, halfHeight);
+
+            return new Vector3(transform.position.x + randomX,
+                               transform.position.y + randomY,
+                               -1f);
+        }
+
+        //  Vector3 GetRandomSpawnPos()
+        //     {
+        //         // 可根据需求换成地图内随机点
+        //         Vector3 bornPos = new Vector3(Random.Range(-2f, 2f) + transform.position.x,
+        //             Random.Range(-2f, 2f) + transform.position.y, -1);
+        //         return bornPos;
+        //     }
+
+        private void OnDrawGizmos()
+        {
+            if (!showGizmos) return;
+
+            Gizmos.color = Color.green;
+            Vector3 center = transform.position;
+            Vector3 size = new Vector3(patrolAreaSize.x, patrolAreaSize.y, 0);
+
+            // 绘制矩形边框
+            Gizmos.DrawLine(center + new Vector3(-size.x / 2, -size.y / 2, 0), center + new Vector3(size.x / 2, -size.y / 2, 0));
+            Gizmos.DrawLine(center + new Vector3(size.x / 2, -size.y / 2, 0), center + new Vector3(size.x / 2, size.y / 2, 0));
+            Gizmos.DrawLine(center + new Vector3(size.x / 2, size.y / 2, 0), center + new Vector3(-size.x / 2, size.y / 2, 0));
+            Gizmos.DrawLine(center + new Vector3(-size.x / 2, size.y / 2, 0), center + new Vector3(-size.x / 2, -size.y / 2, 0));
+        }
+
+
+
+
+
 
         private void Awake()
         {
@@ -107,7 +153,6 @@ namespace Controller
             }
         }
 
-        public float patrolRadius;
 
         private void SpawnMonster()
         {
@@ -128,7 +173,7 @@ namespace Controller
             monster.GetComponent<MonsterController>().Init(
                 data,
                 transform.position,
-                behavior, factorID , patrolRadius);
+                behavior, factorID, patrolAreaSize);
 
             monsterList.Add(monster);
         }
@@ -158,13 +203,7 @@ namespace Controller
             return normalType;
         }
 
-        Vector3 GetRandomSpawnPos()
-        {
-            // 可根据需求换成地图内随机点
-            Vector3 bornPos = new Vector3(Random.Range(-2f, 2f) + transform.position.x,
-                Random.Range(-2f, 2f) + transform.position.y, -1);
-            return bornPos;
-        }
+
 
         // 当怪物死亡时记得从列表移除
         private void RemoveMonster(GameObject monster)
@@ -198,7 +237,7 @@ namespace Controller
                     StartCoroutine(FlyDrop(drop, bornPos));
                 }
             }
-            
+
             yield break;
         }
 
@@ -212,9 +251,9 @@ namespace Controller
 
             while (timer < 0.3f)
             {
-                float t = scatterCurve.Evaluate(timer/0.3f);
-                Vector2 pos = (1 - t) * (1 - t) * start + 
-                              2 * (1 - t) * t * control + 
+                float t = scatterCurve.Evaluate(timer / 0.3f);
+                Vector2 pos = (1 - t) * (1 - t) * start +
+                              2 * (1 - t) * t * control +
                               t * t * target;
 
                 drop.transform.position = pos;
