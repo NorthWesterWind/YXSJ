@@ -17,6 +17,7 @@ namespace Controller.Structure
         public PlacementGrid grid;
         public List<Production> productList = new();
         public Transform transferPoint;
+    
         protected override void Start()
         {
             base.Start();
@@ -34,6 +35,7 @@ namespace Controller.Structure
             p.SetState(ItemState.OnShelf);
             p.canPickup = true;
             productList.Add(p);
+            currentGoodsCount++;
             UpdateTxt();
         }
         
@@ -56,6 +58,7 @@ namespace Controller.Structure
 
                 grid.ReleaseOne();
                 outList.Add(p);
+                currentGoodsCount--;
             }
 
             UpdateTxt();

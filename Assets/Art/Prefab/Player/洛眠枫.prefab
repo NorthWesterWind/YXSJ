@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1773017946531608462}
-  m_Layer: 7
+  m_Layer: 3
   m_Name: receivecontent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 97806087320321268}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.059999987, y: 1.0099999, z: 0}
+  m_LocalPosition: {x: -0.059999987, y: 1.4399997, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 6526876381077336036}
   - component: {fileID: 2843410268629754436}
   - component: {fileID: 6734170748632130135}
-  m_Layer: 7
+  m_Layer: 3
   m_Name: Character
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -60,7 +60,7 @@ Transform:
   m_GameObject: {fileID: 1066385948782282675}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.11999999, y: -1.0400002, z: 0}
+  m_LocalPosition: {x: -0.11999999, y: -0.6100004, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -189,7 +189,7 @@ GameObject:
   - component: {fileID: 9144960558503794835}
   - component: {fileID: 7210796476030582279}
   - component: {fileID: 8089981715277691418}
-  m_Layer: 7
+  m_Layer: 3
   m_Name: weapon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -205,7 +205,7 @@ Transform:
   m_GameObject: {fileID: 3487990185270361197}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: 0.4511365, w: 0.892455}
-  m_LocalPosition: {x: 1.3101, y: -0.48140013, z: 1}
+  m_LocalPosition: {x: 1.3101, y: -0.051400304, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 0.6619}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -378,7 +378,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2568623276767543935}
-  m_Layer: 7
+  m_Layer: 3
   m_Name: GameObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -394,7 +394,7 @@ Transform:
   m_GameObject: {fileID: 7582267884438376248}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.13999999, y: 1.81, z: 0}
+  m_LocalPosition: {x: -0.13999999, y: 2.2399998, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -414,7 +414,7 @@ GameObject:
   - component: {fileID: 2469381082990268484}
   - component: {fileID: 1784510397761182940}
   - component: {fileID: 9156867490994437828}
-  m_Layer: 7
+  m_Layer: 3
   m_Name: "\u6D1B\u7720\u67AB"
   m_TagString: Player
   m_Icon: {fileID: 0}
@@ -598,7 +598,7 @@ Rigidbody2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 512
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
@@ -654,7 +654,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0.014968917, y: -0.46382737}
+  m_Offset: {x: -0.03588876, y: 0.18036973}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -665,7 +665,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.5969801, y: 1.098618}
+  m_Size: {x: 0.5630749, y: 0.94039416}
   m_EdgeRadius: 0
 --- !u!1 &8699234213052349277
 GameObject:
@@ -677,7 +677,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4330722833007064310}
   - component: {fileID: 403647562830133932}
-  m_Layer: 7
+  m_Layer: 3
   m_Name: shadow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -693,7 +693,7 @@ Transform:
   m_GameObject: {fileID: 8699234213052349277}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: -0.98, z: 0}
+  m_LocalPosition: {x: -0, y: -0.55, z: 0}
   m_LocalScale: {x: 7.4319134, y: 2.433764, z: 4.171725}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -46,7 +46,7 @@ namespace View.PlayerInfo
                 _cc = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
             }
           
-            itemIcon.sprite = _assetHandle.Get<Sprite>("金币");
+            itemIcon.sprite = _assetHandle.Get<Sprite>("YinQian");
 
             switch (infoType)
             {

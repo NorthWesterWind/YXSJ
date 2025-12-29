@@ -23,22 +23,22 @@ namespace Controller
     }
     public class CustomerController : MonoBehaviour
     {
-       public PolyNavAgent  agent;
-       public CustomerData data;
-       public NpcState state;
-       public Vector2 bornPosition;
-       public Vector2 nextPosition;
-       private Rigidbody2D _rigidbody2D;
-       public GoodsType goodsType;
-       public SkeletonAnimation  skeletonAnimation;
-       public SpriteRenderer shadow;
-       public int currentIndex = 0;
-       public SalesStall salesStall;
-       public Transform receiveTransform;
-       private List<Production> productionList = new ();
-       public List<Production> purchaseList = new();
-       
-       private MeshRenderer _meshRenderer;
+        public PolyNavAgent agent;
+        public CustomerData data;
+        public NpcState state;
+        public Vector2 bornPosition;
+        public Vector2 nextPosition;
+        private Rigidbody2D _rigidbody2D;
+        public GoodsType goodsType;
+        public SkeletonAnimation skeletonAnimation;
+        public SpriteRenderer shadow;
+        public int currentIndex = 0;
+        public SalesStall salesStall;
+        public Transform receiveTransform;
+        private List<Production> productionList = new();
+        public List<Production> purchaseList = new();
+
+        private MeshRenderer _meshRenderer;
         void Start()
         {
             skeletonAnimation.state.Complete += HandleAnimationComplete;
@@ -51,14 +51,14 @@ namespace Controller
                 OnPurchaseTimeout();
             }
         }
-        
+
         void Update()
         {
             SetLayer();
             // 检查当前动画槽是否为 null
             var currentAnimation = skeletonAnimation.AnimationState.GetCurrent(0);
             // 根据条件切换动画
-            if (agent.hasPath || agent.remainingDistance > 1 )
+            if (agent.hasPath || agent.remainingDistance > 1)
             {
                 if (currentAnimation == null || currentAnimation.Animation.Name != "walk")
                 {
@@ -72,6 +72,15 @@ namespace Controller
                     skeletonAnimation.AnimationState.SetAnimation(0, "idle", true);
                 }
             }
+            Vector2 dir = agent.movingDirection;
+
+            if (dir == Vector2.zero)
+                return;
+
+            if (Mathf.Abs(dir.x) > 0.01f)
+            {
+                skeletonAnimation.skeleton.ScaleX = dir.x < 0 ? -1 : 1;
+            }
         }
 
         public void UpdateQueueTarget(Vector2 pos)
@@ -83,14 +92,16 @@ namespace Controller
             int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
             if (_meshRenderer == null)
             {
-                _meshRenderer =skeletonAnimation.GetComponent<MeshRenderer>();
+                _meshRenderer = skeletonAnimation.GetComponent<MeshRenderer>();
             }
-            
+
             _meshRenderer.sortingOrder = newOrder;
             shadow.sortingOrder = newOrder;
+
+
         }
 
-        public void Init(CustomerData outdata  , GoodsType type , StructureBase structureBase )
+        public void Init(CustomerData outdata, GoodsType type, StructureBase structureBase)
         {
             goodsType = type;
             data = outdata;
@@ -101,7 +112,7 @@ namespace Controller
             agent.map = GameObject.FindWithTag("Map").transform.GetComponent<PolyNavMap>();
             agent.SetDestination(nextPosition);
             Vector2 dir = (nextPosition - (Vector2)transform.position).normalized;
-            transform.localScale = new Vector3( dir.x < 0 ? -1 : 1, 1, 1);
+
         }
         void OnEnable()
         {
@@ -114,12 +125,13 @@ namespace Controller
         }
         void OnReachDestination()
         {
-            if (nextPosition == bornPosition)
+            if ( Vector2.Distance(new Vector2(transform.position.x, transform.position.y), bornPosition) < 0.3f )
             {
                 Destroy(gameObject);
             }
 
-            if (nextPosition == (Vector2)salesStall.parchaseTransform.position)
+            if (state == NpcState.QianWangGouMai &&
+             Vector2.Distance(transform.position, salesStall.parchaseTransform.position) < 0.3f)
             {
                 WaitPurchase();
             }
@@ -128,18 +140,18 @@ namespace Controller
                 .parchaseTransform.position && state == NpcState.QianWangShouYinTai && agent.remainingDistance <= 0.05f)
             {
                 //执行结账逻辑
-                EventCenter.Instance.TriggerEvent(EventMessages.CustomerArrived , this);
+                EventCenter.Instance.TriggerEvent(EventMessages.CustomerArrived, this);
             }
         }
 
-        
+
         public void WaitPurchase()
         {
             state = NpcState.WaitGouMaiWanCheng;
             StartCoroutine(PurchaseRoutine());
         }
-        
-        
+
+
         private IEnumerator PurchaseRoutine()
         {
             float timer = 0f;
@@ -148,15 +160,17 @@ namespace Controller
             while (timer < data.waitTime)
             {
                 // 判断摊位商品是否满足顾客需求
-                if (salesStall.TryPurchase(data.carryNum , purchaseList))
+                if (salesStall.TryPurchase(data.carryNum, purchaseList))
                 {
                     // 执行购买
                     Purchase();
                     purchased = true;
+                    EventCenter.Instance.TriggerEvent(EventMessages.CustomerLeave, salesStall);
                     break;
                 }
 
                 timer += Time.deltaTime;
+                Debug.Log($"{name} 正在等待购买商品，已等待时间: {timer:F2}s");
                 yield return null; // 等待下一帧
             }
 
@@ -171,41 +185,46 @@ namespace Controller
             for (int i = 0; i < purchaseList.Count; i++)
             {
                 var obj = purchaseList[i];
-               purchaseList[i].FlyTo(receiveTransform.position, () =>
-               {
-                   obj.transform.SetParent(transform,false);
-                   obj.transform.position = receiveTransform.position;
-               });
+                purchaseList[i].FlyTo(receiveTransform.position, () =>
+                {
+                    obj.transform.SetParent(transform, false);
+                    obj.transform.position = receiveTransform.position;
+                });
             }
             Debug.Log($"{name} 成功购买 {data.carryNum} 件商品");
             state = NpcState.QianWangShouYinTai;
             SetNextPosition();
             agent.SetDestination(nextPosition);
         }
-        
+
 
         private void OnPurchaseTimeout()
         {
             state = NpcState.Angry;
             SetNextPosition();
             agent.SetDestination(nextPosition);
+            var _state = skeletonAnimation.AnimationState;
+            _state.ClearTrack(1);
+            EventCenter.Instance.TriggerEvent(EventMessages.CustomerLeave, salesStall);
         }
 
-        public  void SetNextPosition()
+        public void SetNextPosition()
         {
             if (state == NpcState.QianWangGouMai)
             {
-                var pos =   GameController.Instance.AddCustomerToQueue(salesStall, this);
+                var pos = GameController.Instance.AddCustomerToQueue(salesStall, this);
                 nextPosition = pos;
-            }else if (state == NpcState.QianWangShouYinTai)
+            }
+            else if (state == NpcState.QianWangShouYinTai)
             {
-                GameController.Instance.RemoveCustomerFromQueue( salesStall, this);
-                var pos =   GameController.Instance.AddCustomerToQueue((CashierCounter)GameController.Instance.buildings[BuildingType.LingZhangTai], this);
+                GameController.Instance.RemoveCustomerFromQueue(salesStall, this);
+                var pos = GameController.Instance.AddCustomerToQueue((CashierCounter)GameController.Instance.buildings[BuildingType.LingZhangTai], this);
                 nextPosition = pos;
-            }else if (state is NpcState.JieZhangChengGong or NpcState.Angry)
+            }
+            else if (state is NpcState.JieZhangChengGong or NpcState.Angry)
             {
-                GameController.Instance.RemoveCustomerFromQueue( salesStall, this);
-                GameController.Instance.RemoveCustomerFromQueue( (CashierCounter)GameController.Instance.buildings[BuildingType.LingZhangTai], this);
+                GameController.Instance.RemoveCustomerFromQueue(salesStall, this);
+                GameController.Instance.RemoveCustomerFromQueue((CashierCounter)GameController.Instance.buildings[BuildingType.LingZhangTai], this);
                 nextPosition = bornPosition;
             }
         }

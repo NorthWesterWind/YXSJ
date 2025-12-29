@@ -88,8 +88,8 @@ namespace Controller
 
         private Vector2 origin; // 队伍起点（摊位前方的位置）
 
-        private float vertical = 1.2f;     // 前后距离
-        private float spreadFactor = 0.2f; // 左右扩散
+        private float vertical = 0.3f;     // 前后距离
+        private float spreadFactor = 0.3f; // 左右扩散
 
         public QueueGroup(Vector2 origin)
         {

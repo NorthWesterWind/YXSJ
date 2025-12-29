@@ -46,5 +46,7 @@ namespace Utils
         public const string StructureSpeedDown = "StructureSpeedDown"; //建筑速度恢复默认        
 
         public const string UpdatePlayerEquimentInfo = "UpdatePlayerEquipmentInfo"; //更新玩家装备信息
+
+        public const string CustomerLeave = "CustomerLeave"; //顾客离开售卖摊
     }
 }
