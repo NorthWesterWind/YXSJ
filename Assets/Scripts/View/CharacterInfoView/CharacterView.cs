@@ -3,6 +3,7 @@ using System.Linq;
 using Controller;
 using Module;
 using Module.Data;
+using Spine.Unity;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -39,6 +40,9 @@ namespace View.CharacterInfoView
         public Image bagIcon;
         public UIButton detailBtn;
         public List<TalentData> datas = new();
+        
+        public SkeletonGraphic skeletonGraphic;
+
         protected override void Start()
         {
             base.Start();
@@ -65,6 +69,13 @@ namespace View.CharacterInfoView
             bagDetailBtn.onClick.AddListener(ShowBag);
             detailBtn.onClick.RemoveAllListeners();
             detailBtn.onClick.AddListener(OnClickDetailBtn);
+
+            EventCenter.Instance.AddListener(EventMessages.UpdatePlayerEquimentInfo,UpdateSoltState);
+        }
+        public override void RemoveEventListener()
+        {
+            base.RemoveEventListener();
+            EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerEquimentInfo,UpdateSoltState);
         }
 
 
@@ -159,7 +170,7 @@ namespace View.CharacterInfoView
             PlayerData data = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
             Jmztxt.text = data.jingMangZhu.ToString();
             int level = data.talentLevel;
-            //talentImg.sprite = _assetHandle.Get<Sprite>(DataController.Instance.talentDataDic[level].resName);
+            talentImg.sprite = _assetHandle.Get<Sprite>(DataController.Instance.talentDataDic[level].resName);
             leveltxt.text = level.ToString();
             level += 1;
             if (level > 80)
@@ -211,7 +222,7 @@ namespace View.CharacterInfoView
             atktxt.text = data.addAtk +  data.atk + "";
             bagtxt.text = data.addBagCapacity +  data.bagCapacity + "";
             hptxt.text = data.addHp +  data.hp + "";
-            //TODO:卡槽更新
+            UpdateSoltState();
         }
 
         public void ShowWeapon()
@@ -242,6 +253,18 @@ namespace View.CharacterInfoView
             {
                 items[i].Init(list[i]);
             }
+        }
+
+        public void UpdateSoltState(params object[] args)
+        {
+            skeletonGraphic.AnimationState.SetAnimation(0, "idle", true);
+            WeaponData weaponData = DataController.Instance.weaponDataDic[ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentWeapon];
+            skeletonGraphic.Skeleton.SetAttachment(weaponData.attachmentName, weaponData.slotName);
+            StotageBagData bagData = DataController.Instance.storageBagDataDic[ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentBag];
+            skeletonGraphic.Skeleton.SetAttachment(bagData.attachmentName, bagData.slotName);
+            
+            weaponIcon.sprite = _assetHandle.Get<Sprite>(weaponData.name);
+            bagIcon.sprite = _assetHandle.Get<Sprite>(bagData.name);
         }
 
         public void OnClickDetailBtn()

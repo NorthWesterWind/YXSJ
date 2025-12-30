@@ -45,8 +45,8 @@ namespace View.PlayerInfo
             {
                 _cc = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
             }
-          
-            itemIcon.sprite = _assetHandle.Get<Sprite>("YinQian");
+
+            itemIcon.sprite = _assetHandle.Get<Sprite>("TongBi");
 
             switch (infoType)
             {
@@ -55,8 +55,8 @@ namespace View.PlayerInfo
                                     Extensions.FormatNumber( _cc.dataModule.data.goldIngot);
                     break;
                 case InfoType.YinQian:
-                    infoText.text = "银钱:" +
-                                    Extensions.FormatNumber( _cc.dataModule.data.silverCoin);
+                    infoText.text = "铜币:" +
+                                    Extensions.FormatNumber( _cc.dataModule.data.tongbi);
                     break;
                 case InfoType.LingJing:
                     infoText.text = "灵晶:" +

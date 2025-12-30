@@ -10,35 +10,17 @@ namespace View.CharacterInfoView
     public class TalentItemView : MonoBehaviour
     {
         public TextMeshProUGUI leveltxt;
+        public Image levelbg;
         public TextMeshProUGUI infotxt;
         public Image icon;
+        public Image mask;
+        public Image maskicon;
         public Image channelImg;
         private AssetHandle _assetHandle;
         public TalentData data;
         
         public void Init(TalentData talentData)
-        {
-            Debug.Log("yj => TalentData 数据初始化");
-            if (leveltxt == null)
-            {
-                leveltxt = transform.Find("Image/leveltxt").GetComponent<TextMeshProUGUI>();
-            }
-
-            if (infotxt == null)
-            {
-                infotxt = transform.Find("info").GetComponent<TextMeshProUGUI>();
-            }
-
-            if (icon == null)
-            {
-                icon = transform.Find("Image/Icon").GetComponent<Image>();
-            }
-
-            if (channelImg == null)
-            {
-                channelImg = transform.Find("Image").GetComponent<Image>();
-            }
-            
+        { 
             data = talentData;
             if (_assetHandle == null)
             {
@@ -46,19 +28,29 @@ namespace View.CharacterInfoView
             }
             leveltxt.text = data.id.ToString();
             infotxt.text = data.info;
-            //icon.sprite = _assetHandle.Get<Sprite>(data.resName);
+            icon.sprite = _assetHandle.Get<Sprite>(data.resName);
+            maskicon.sprite = _assetHandle.Get<Sprite>(data.resName + "灰");
             if (data.id != 1)
             {
                 if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.talentLevel >= data.id && channelImg != null)
                 {
-                    channelImg.color = Color.green;
+                    channelImg.sprite = _assetHandle.Get<Sprite>("经验条1");
                 }
                 else
                 {
-                    channelImg.color = Color.white;
+                    channelImg.sprite = _assetHandle.Get<Sprite>("经验条3");
                 }
             }
-           
+           if(ModuleMgr.Instance.GetModule<PlayerDataModule>().data.talentLevel >= data.id)
+            {
+                mask.gameObject.SetActive(false);
+                levelbg.sprite = _assetHandle.Get<Sprite>("等级框1");
+            }
+            else
+            {
+                mask.gameObject.SetActive(true);
+                 levelbg.sprite = _assetHandle.Get<Sprite>("等级框2");
+            }
         }
     }
 }

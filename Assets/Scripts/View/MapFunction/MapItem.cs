@@ -35,9 +35,9 @@ namespace View.MapFunction
                 }
                 else
                 {
-                    if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.silverCoin >= mapData.unlockCost)
+                    if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi >= mapData.unlockCost)
                     {
-                        ModuleMgr.Instance.GetModule<PlayerDataModule>().data.silverCoin -= mapData.unlockCost;
+                        ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi -= mapData.unlockCost;
                         ModuleMgr.Instance.GetModule<PlayerDataModule>().data.unlockMapList.Add(mapData.id);
                         maskImg.SetActive(false);
                         completedImg.gameObject.SetActive(true);

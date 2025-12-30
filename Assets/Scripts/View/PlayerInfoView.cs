@@ -26,7 +26,7 @@ namespace View
         public UIButton settingBtn;
         public UIButton storeBtn;
         public UIButton sevendayBtn;
-        public UIButton vipBtn;
+
         
         public UIButton characterBtn;
         public Image mask1;
@@ -38,6 +38,8 @@ namespace View
         public Image mask4;
         public UIButton ordenFunctionBtn;
         public Image mask5;
+
+        public InfoItem tongbiInfoItem;
         protected override void Start()
         {
             base.Start();
@@ -49,6 +51,7 @@ namespace View
             HandleUpdateLevelProgress();
             HandleShowPlayerInfoViewCartoon();
             HandleUpdateFunctionState();
+            tongbiInfoItem.Init(player);
         }
 
 
@@ -67,8 +70,6 @@ namespace View
             storeBtn.onClick.AddListener(OnClickStoreBtn);
             sevendayBtn.onClick.RemoveAllListeners();
             sevendayBtn.onClick.AddListener(OnClickSevendayBtn);
-            vipBtn.onClick.RemoveAllListeners();
-            vipBtn.onClick.AddListener(OnClickVipBtn);
             characterBtn.onClick.RemoveAllListeners();
             characterBtn.onClick.AddListener((() =>
             {
@@ -151,10 +152,7 @@ namespace View
             UIController.Instance.Show<SevenDayView>();
         }
 
-        private void OnClickVipBtn()
-        {
-            UIController.Instance.Show<VipView>();
-        }
+    
         
 
         public void HandleUpdateMoneyInfo(params object[] args)

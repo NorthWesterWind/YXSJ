@@ -25,6 +25,7 @@ namespace Controller
         public Dictionary<int , TalentData> talentDataDic = new();
         public List<CardLevelData> cardLevelDataList = new();
         public Dictionary<int ,GiftpackData> giftpackDataDic = new();
+        public Dictionary<int , OrderData> orderDataDic = new Dictionary<int, OrderData>();
         void Start()
         {
             PrepareData();
@@ -104,6 +105,10 @@ namespace Controller
             string giftpackDataStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("GiftpackData")).text;
             giftpackDataDic.Clear();
             giftpackDataDic = JsonConvert.DeserializeObject<Dictionary<int, GiftpackData>>(giftpackDataStr);
+
+            string orderDataStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("OrderData")).text;
+            orderDataDic.Clear();
+            orderDataDic = JsonConvert.DeserializeObject<Dictionary<int, OrderData>>(orderDataStr);
         }
         
         

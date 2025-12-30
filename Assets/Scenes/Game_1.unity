@@ -11562,10 +11562,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1632652812434823552, guid: 4af061da827ab3341865bc30de397c88, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4af061da827ab3341865bc30de397c88, type: 3}
 --- !u!1 &1394646822
 GameObject:
@@ -14921,7 +14918,7 @@ MonoBehaviour:
       Data: 
     - Name: talentDataDic
       Entry: 7
-      Data: 16|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.TalentData,
+      Data: 16|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[TalentData,
         Assembly-CSharp]], mscorlib
     - Name: comparer
       Entry: 7
@@ -14959,6 +14956,26 @@ MonoBehaviour:
     - Name: comparer
       Entry: 7
       Data: 20|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: orderDataDic
+      Entry: 7
+      Data: 21|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[OrderData,
+        Assembly-CSharp]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 22|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
         mscorlib]], mscorlib
     - Name: 
       Entry: 8
@@ -18060,10 +18077,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 1632652812434823552, guid: 4af061da827ab3341865bc30de397c88, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4af061da827ab3341865bc30de397c88, type: 3}
 --- !u!222 &4186144785968583758
 CanvasRenderer:
@@ -18113,19 +18127,19 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 726068760418732994, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 726068760418732994, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 726068760418732994, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 137.6112
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 726068760418732994, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -41.0255
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1827567894595561525, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
       propertyPath: m_AnchorMax.y
@@ -18212,6 +18226,22 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4696383210223400835, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4724118376535562588, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4724118376535562588, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4724118376535562588, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4724118376535562588, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
@@ -18337,6 +18367,22 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6363914076245915025, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
       propertyPath: m_SizeDelta.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6945070119855924017, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6945070119855924017, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6945070119855924017, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6945070119855924017, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7231500381542837413, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}

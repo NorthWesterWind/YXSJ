@@ -52,9 +52,14 @@ namespace Module.Data
 
         #region 游玩数据
 
+        #region  每日限制数据
+        public int todayUseZhuanPanNum = 0; //今日转盘使用次数
+        #endregion
+
+
         public List<int> unlockMapList = new List<int>(){1};
         public Dictionary<int ,List<int>> mapPlayRecordDic = new Dictionary<int ,List<int>>();
-        public int silverCoin;  //银钱
+        public int tongbi;  //铜币
         public int goldIngot;   //金元宝
         public int lingJing;    //灵晶
         public int jingMangZhu; //金芒珠
@@ -123,8 +128,31 @@ namespace Module.Data
         };
         #endregion      
 
+
+        #region 订单数据缓存
+        public List<OrderDataProgress> orderDataprogressList = new List<OrderDataProgress>(){
+           
+        };
+
+        #endregion
+
     }
-    
+    public class  OrderDataProgress
+    {
+        public int orderId;
+        public Dictionary< GoodsType , int> needDic = new Dictionary< GoodsType , int> ();
+        public Dictionary<MonsterType, int> monsterDic = new Dictionary<MonsterType, int>();
+
+        public OrderDataProgress(int orderId , Dictionary< GoodsType , int> needDic, Dictionary<MonsterType, int> monsterDic)
+        {
+            this.orderId = orderId;
+            this.needDic = needDic;
+            this.monsterDic = monsterDic;
+        }
+    }
+
+
+
     [Serializable]
     
     public  class CardUpProgress  //卡片养成数据类

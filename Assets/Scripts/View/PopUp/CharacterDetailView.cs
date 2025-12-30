@@ -1,6 +1,7 @@
 using Module;
 using Module.Data;
 using TMPro;
+using UnityEngine.UI;
 using Utils;
 
 namespace View.PopUp
@@ -15,6 +16,7 @@ namespace View.PopUp
        public TextMeshProUGUI weaponsizetxt;
        public TextMeshProUGUI pickrangetxt;
        public TextMeshProUGUI atkhptxt;
+    
 
 
        protected override void AddEventListener()

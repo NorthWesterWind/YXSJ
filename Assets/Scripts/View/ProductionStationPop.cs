@@ -12,7 +12,6 @@ namespace View
     public class ProductionStationPop : BaseView
     {
         public TextMeshProUGUI cardleveltxt;
-        public TextMeshProUGUI earningtxt;
         public TextMeshProUGUI cardprogresstxt;
         public TextMeshProUGUI pricetxt;
         public TextMeshProUGUI workingtimetxt;
@@ -20,14 +19,14 @@ namespace View
         public TextMeshProUGUI nametxt;
         public TextMeshProUGUI productiontxt;
         public Image cardIcon;
-        public Image priceIcon;
+        public Image productionIcon;
         public Image cardprogressfill;
         public TextMeshProUGUI bottomleveltxt1;
         public TextMeshProUGUI bottomleveltxt2;
         public TextMeshProUGUI bottompreviewtxt1;
         public TextMeshProUGUI bottompreviewtxt2;
         public Image bottomprogressfill;
-        public TextMeshProUGUI bottomprogresstxt;
+    
         public UIButton bootomBtn1;
         public TextMeshProUGUI bootomBtntxt1;
         public UIButton bootomBtn2;
@@ -41,7 +40,8 @@ namespace View
             base.UpdateViewWithArgs(args);
             type = (BuildingType)args[0];
             goodsType = (GoodsType)args[1];
-            cardIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(goodsType));
+           productionIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(goodsType));
+           cardIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(type));
             switch (goodsType)
             {
                 case GoodsType.YunZhiCha:
@@ -178,13 +178,12 @@ namespace View
                 }
 
                 workingtimetxt.text = "5";
-                bottomleveltxt1.text = "等级：1";
-                bottomleveltxt2.text = "等级：1";
+                bottomleveltxt1.text = "1级";
+                bottomleveltxt2.text = "1级";
                 bottompreviewtxt1.text = "x3   <color=green>X9</color>";
                 bottompreviewtxt2.text = "5秒   <color=green>4秒</color>";
                 bottomprogressfill.fillAmount = 0f;
-                bottomprogresstxt.text = "x10";
-                
+            
                 bootomBtntxt1.text = "1000";
                 bootomBtntxt2.text = "1000";
             }
@@ -210,8 +209,8 @@ namespace View
                 bootomBtntxt2.text = (1000*productStationdata.timelevel).ToString();
                 
                 workingtimetxt.text = WorldData.productStationWorkingTimeDic[productStationdata.priceLevel] + "秒";
-                bottomleveltxt1.text = "等级：" + productStationdata.priceLevel;
-                bottomleveltxt2.text = "等级：" + productStationdata.timelevel;
+                bottomleveltxt1.text =  productStationdata.priceLevel + "级";
+                bottomleveltxt2.text =  productStationdata.timelevel + "级";
                 bottompreviewtxt1.text = "x" + (WorldData.goodsPriceDic[goodsType] * DataController.Instance
                                                     .mapDataDic[
                                                         ModuleMgr.Instance.GetModule<PlayerDataModule>().data
@@ -232,14 +231,12 @@ namespace View
                 float tempvalue = productStationdata.priceLevel % 10 / 10;
                 bottomprogressfill.fillAmount = tempvalue;
 
-                bottomprogresstxt.text = "x" + productStationdata.priceLevel / 10 + "0";
             }
 
 
             if (cardData == null)
             {
                 cardleveltxt.text = "0";
-                earningtxt.text = "x0";
                 cardprogressfill.fillAmount = 0;
                 cardprogresstxt.text = "0";
               
@@ -247,7 +244,6 @@ namespace View
             else
             {
                 cardleveltxt.text = cardData.level.ToString();
-                earningtxt.text = Mathf.Pow(3, cardData.level).ToString();
                 if (cardData.level == 10)
                 {
                     cardprogressfill.fillAmount = 1;

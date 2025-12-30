@@ -41,15 +41,15 @@ namespace Module
 
         public void AddYinQian(int value)
         {
-            data.silverCoin += value;
+            data.tongbi += value;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
         }
 
         public bool RemoveYinQian(int value)
         {
-            if (data.silverCoin >= value)
+            if (data.tongbi >= value)
             {
-                data.silverCoin -= value;
+                data.tongbi -= value;
                 EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                 return true;
             }
@@ -127,7 +127,7 @@ namespace Module
         {
             RewardData rewardData = DataController.Instance.taskRewardDataDic[rewardId];
             data.jingMangZhu += rewardData.Jmz;
-            data.silverCoin += rewardData.Yq;
+            data.tongbi += rewardData.Yq;
             data.goldIngot += rewardData.Jyb;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
         }
@@ -136,7 +136,7 @@ namespace Module
         {
             SevenDayRewardData _data = DataController.Instance.sevenDayRewardDataDic[day];
             data.goldIngot += _data.Jyb;
-            data.silverCoin += _data.Jyb;
+            data.tongbi += _data.Jyb;
             data.lingJing += _data.Lj;
             data.sevenDayRecordList.Add(day);
             data.sevenDayRecordTime = DateTime.Now.ToString("yyyy/MM/dd");
