@@ -25,6 +25,8 @@ namespace View.CharacterInfoView
         public Image talentImg;
         public TextMeshProUGUI leveltxt;
         public TextMeshProUGUI talentInfotxt;
+        public TextMeshProUGUI talentInfotxt1;
+        public TextMeshProUGUI talentInfotxt2;
         public UIButton uptalentBtn;
         public TextMeshProUGUI Jmztxt;
         public  List<Transform> children = new List<Transform>();
@@ -42,6 +44,8 @@ namespace View.CharacterInfoView
         public List<TalentData> datas = new();
         
         public SkeletonGraphic skeletonGraphic;
+        public Image  dressMask1;
+        public Image  dressMask2;
 
         protected override void Start()
         {
@@ -169,7 +173,12 @@ namespace View.CharacterInfoView
         {
             PlayerData data = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
             Jmztxt.text = data.jingMangZhu.ToString();
-            int level = data.talentLevel;
+            int level = data.talentLevel + 1    ;
+            if (level > 80)
+            {
+                level = 80;
+                uptalentBtn.interactable = false;
+            }
             talentImg.sprite = _assetHandle.Get<Sprite>(DataController.Instance.talentDataDic[level].resName);
             leveltxt.text = level.ToString();
             level += 1;
@@ -181,32 +190,39 @@ namespace View.CharacterInfoView
             switch (talentData.type)
             {
                 case TalentType.Atk:
-                    talentInfotxt.text = "攻击力\n" + (data.addAtk + data.atk) + "  " +
-                                         $"<color=#00FF00>{(data.addAtk + data.atk + talentData.value)}</color>";
+                    talentInfotxt.text = "攻击力" ;
+                    talentInfotxt1.text = (data.addAtk + data.atk) + "" ;
+                    talentInfotxt2.text =  $"<color=#00FF00>{(data.addAtk + data.atk + talentData.value)}</color>" ;
                     break;
                 case TalentType.Atkhp:
-                    talentInfotxt.text = "健康值回复\n" + (data.addhpRecover * 100f).ToString("0") + "%  " +
-                                         $"<color=#00FF00> {((data.addhpRecover + talentData.value) * 100f).ToString("0") + "%"} </color>";
+                    talentInfotxt.text = "健康值回复";
+                      talentInfotxt1.text = (data.addhpRecover * 100f).ToString("0") + "%" ;
+                    talentInfotxt2.text =  $"<color=#00FF00>{((data.addhpRecover + talentData.value) * 100f).ToString("0") + "%"} </color>";
                     break;
                 case TalentType.Hp:
-                    talentInfotxt.text = "健康值\n" + (data.addHp + data.hp) + "  " +
-                                         $"<color=#00FF00>{(data.addHp + data.hp + talentData.value)}</color>";
+                    talentInfotxt.text = "健康值";
+                    talentInfotxt1.text = (data.addHp + data.hp) + "" ;
+                    talentInfotxt2.text =  $"<color=#00FF00>{(data.addHp + data.hp + talentData.value)}</color>" ;
                     break;
                 case TalentType.BackpackCapacity:
-                    talentInfotxt.text = "储物袋容量\n" + (data.addBagCapacity + data.bagCapacity) + "  " +
-                                         $"<color=#00FF00>{(data.addBagCapacity + data.bagCapacity + talentData.value)}</color>";
+                    talentInfotxt.text = "储物袋容量";
+                    talentInfotxt1.text = (data.addBagCapacity + data.bagCapacity) + "" ;
+                    talentInfotxt2.text =  $"<color=#00FF00>{(data.addBagCapacity + data.bagCapacity + talentData.value)}</color>" ;
                     break;
                 case TalentType.Movespeed:
-                    talentInfotxt.text = "移动速度\n" + (data.addMoveSpeed * 100f).ToString("0") + "%  " +
-                                         $"<color=#00FF00> {((data.addMoveSpeed + talentData.value) * 100f).ToString("0") + "%"} </color>";
+                    talentInfotxt.text = "移动速度" ;
+                    talentInfotxt1.text = (data.addMoveSpeed * 100f).ToString("0") + "%" ;
+                    talentInfotxt2.text =  $"<color=#00FF00>{((data.addMoveSpeed + talentData.value) * 100f).ToString("0") + "%"} </color>";
                     break;
                 case TalentType.Pickuprange:
-                    talentInfotxt.text = "拾取范围\n" + (data.addPickUpRange * 100f).ToString("0") + "%  " +
-                                         $"<color=#00FF00> {((data.addPickUpRange + talentData.value) * 100f).ToString("0") + "%"} </color>";
+                    talentInfotxt.text = "拾取范围";
+                    talentInfotxt1.text = (data.addPickUpRange * 100f).ToString("0") + "%" ;
+                    talentInfotxt2.text =  $"<color=#00FF00>{((data.addPickUpRange + talentData.value) * 100f).ToString("0") + "%"} </color>";
                     break;
                 case TalentType.Weaponsize:
-                    talentInfotxt.text = "武器尺寸\n" + (data.addweaponSize * 100f).ToString("0") + "%  " +
-                                         $"<color=#00FF00> {((data.addweaponSize + talentData.value) * 100f).ToString("0") + "%"} </color>";
+                    talentInfotxt.text = "武器尺寸" ;
+                    talentInfotxt1.text = (data.addweaponSize * 100f).ToString("0") + "%" ;
+                    talentInfotxt2.text =  $"<color=#00FF00>{((data.addweaponSize + talentData.value) * 100f).ToString("0") + "%"} </color>";
                     break;
             }
         }
@@ -238,6 +254,8 @@ namespace View.CharacterInfoView
             {
                 items[i].Init(list[i]);
             }
+            dressMask1.gameObject.SetActive(false);
+            dressMask2.gameObject.SetActive(true);
         }
 
         public void ShowBag()
@@ -253,15 +271,17 @@ namespace View.CharacterInfoView
             {
                 items[i].Init(list[i]);
             }
+             dressMask1.gameObject.SetActive(true);
+            dressMask2.gameObject.SetActive(false);
         }
 
         public void UpdateSoltState(params object[] args)
         {
             skeletonGraphic.AnimationState.SetAnimation(0, "idle", true);
             WeaponData weaponData = DataController.Instance.weaponDataDic[ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentWeapon];
-            skeletonGraphic.Skeleton.SetAttachment(weaponData.attachmentName, weaponData.slotName);
+            skeletonGraphic.Skeleton.SetAttachment( weaponData.slotName,weaponData.attachmentName);
             StotageBagData bagData = DataController.Instance.storageBagDataDic[ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentBag];
-            skeletonGraphic.Skeleton.SetAttachment(bagData.attachmentName, bagData.slotName);
+            skeletonGraphic.Skeleton.SetAttachment(bagData.slotName ,bagData.attachmentName);
             
             weaponIcon.sprite = _assetHandle.Get<Sprite>(weaponData.name);
             bagIcon.sprite = _assetHandle.Get<Sprite>(bagData.name);

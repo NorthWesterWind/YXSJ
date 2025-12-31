@@ -23,6 +23,13 @@ namespace View
         public GameObject mask_5;
         public GameObject mask_6;
         public GameObject mask_7;
+        public GameObject kuang1;
+        public GameObject kuang2;
+        public GameObject kuang3;
+        public GameObject kuang4;
+        public GameObject kuang5;
+        public GameObject kuang6;
+        public GameObject kuang7;
         protected override void AddEventListener()
         {
             base.AddEventListener();
@@ -33,11 +40,14 @@ namespace View
             {
                 if (!ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordList.Contains(1) &&
                     ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordTime !=
-                    DateTime.Now.ToString("yyyy/MM/dd"))
+                    DateTime.Now.ToString("yyyy/MM/dd")
+                    && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex==0)
                 {
                     ModuleMgr.Instance.GetModule<PlayerDataModule>().GetSevenDayReward(1);
                     mask_1.gameObject.SetActive(true);
                     UIController.Instance.Show<TipView>("领取成功！");
+                    ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex += 1;
+                    kuang1.SetActive(false);
                 }
             }));
             
@@ -46,11 +56,13 @@ namespace View
             {
                 if (!ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordList.Contains(2) &&
                     ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordTime !=
-                    DateTime.Now.ToString("yyyy/MM/dd"))
+                    DateTime.Now.ToString("yyyy/MM/dd")&& ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex == 1)
                 {
                     ModuleMgr.Instance.GetModule<PlayerDataModule>().GetSevenDayReward(2);
                     mask_2.gameObject.SetActive(true);
                     UIController.Instance.Show<TipView>("领取成功！");
+                       ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex += 1;
+                    kuang2.SetActive(false);
                 }
             }));
             btn_3.onClick.RemoveAllListeners();
@@ -58,11 +70,13 @@ namespace View
             {
                 if (!ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordList.Contains(3) &&
                     ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordTime !=
-                    DateTime.Now.ToString("yyyy/MM/dd"))
+                    DateTime.Now.ToString("yyyy/MM/dd")&& ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex == 2)
                 {
                     ModuleMgr.Instance.GetModule<PlayerDataModule>().GetSevenDayReward(3);
                     mask_3.gameObject.SetActive(true);
                     UIController.Instance.Show<TipView>("领取成功！");
+                       ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex += 1;
+                    kuang3.SetActive(false);
                 }
             }));
             
@@ -71,11 +85,13 @@ namespace View
             {
                 if (!ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordList.Contains(4) &&
                     ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordTime !=
-                    DateTime.Now.ToString("yyyy/MM/dd"))
+                    DateTime.Now.ToString("yyyy/MM/dd")
+                    && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex == 3)
                 {
                     ModuleMgr.Instance.GetModule<PlayerDataModule>().GetSevenDayReward(4);
                     mask_4.gameObject.SetActive(true);
                     UIController.Instance.Show<TipView>("领取成功！");
+                      kuang4.SetActive(false);
                 }
             }));
             
@@ -84,11 +100,13 @@ namespace View
             {
                 if (!ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordList.Contains(5) &&
                     ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordTime !=
-                    DateTime.Now.ToString("yyyy/MM/dd"))
+                    DateTime.Now.ToString("yyyy/MM/dd")  && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex == 4)
                 {
                     ModuleMgr.Instance.GetModule<PlayerDataModule>().GetSevenDayReward(5);
                     mask_5.gameObject.SetActive(true);
                     UIController.Instance.Show<TipView>("领取成功！");
+                    ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex += 1;
+                    kuang5.SetActive(false);
                 }
             }));
             
@@ -97,11 +115,13 @@ namespace View
             {
                 if (!ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordList.Contains(6) &&
                     ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordTime !=
-                    DateTime.Now.ToString("yyyy/MM/dd"))
+                    DateTime.Now.ToString("yyyy/MM/dd") && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex == 5)
                 {
                     ModuleMgr.Instance.GetModule<PlayerDataModule>().GetSevenDayReward(6);
                     mask_6.gameObject.SetActive(true);
                     UIController.Instance.Show<TipView>("领取成功！");
+                    ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex += 1;
+                    kuang6.SetActive(false);
                 }
             }));
             btn_7.onClick.RemoveAllListeners();
@@ -109,11 +129,13 @@ namespace View
             {
                 if (!ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordList.Contains(7) &&
                     ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordTime !=
-                    DateTime.Now.ToString("yyyy/MM/dd"))
+                    DateTime.Now.ToString("yyyy/MM/dd") && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex == 6)
                 {
                     ModuleMgr.Instance.GetModule<PlayerDataModule>().GetSevenDayReward(7);
                     mask_7.gameObject.SetActive(true);
                     UIController.Instance.Show<TipView>("领取成功！");
+                    ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex += 1;
+                    kuang7.SetActive(false);
                 }
             }));
         }
@@ -122,6 +144,13 @@ namespace View
         {
             base.UpdateViewWithArgs(args);
             UpdateMaskState();
+            kuang1.SetActive(!ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordList.Contains(1) && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex==0 && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordTime != DateTime.Now.ToString("yyyy/MM/dd"));
+            kuang2.SetActive(!ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordList.Contains(2) && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex==1 && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordTime != DateTime.Now.ToString("yyyy/MM/dd"));
+            kuang3.SetActive(!ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordList.Contains(3) && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex==2 && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordTime != DateTime.Now.ToString("yyyy/MM/dd"));
+            kuang4.SetActive(!ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordList.Contains(4) && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex==3 && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordTime != DateTime.Now.ToString("yyyy/MM/dd"));
+            kuang5.SetActive(!ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordList.Contains(5) && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex==4 && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordTime != DateTime.Now.ToString("yyyy/MM/dd"));
+            kuang6.SetActive(!ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordList.Contains(6) && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex==5 && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordTime != DateTime.Now.ToString("yyyy/MM/dd"));
+            kuang7.SetActive(!ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordList.Contains(7) && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.GetSevenDayRewardIndex==6 && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordTime != DateTime.Now.ToString("yyyy/MM/dd"));
         }
 
         private void OnClickCloseBtn()
@@ -145,6 +174,7 @@ namespace View
             mask_5.gameObject.SetActive(ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordList.Contains(5));
             mask_6.gameObject.SetActive(ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordList.Contains(6));
             mask_7.gameObject.SetActive(ModuleMgr.Instance.GetModule<PlayerDataModule>().data.sevenDayRecordList.Contains(7));
+
         }
     }
 }

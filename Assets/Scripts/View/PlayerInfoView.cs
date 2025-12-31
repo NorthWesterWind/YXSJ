@@ -9,6 +9,7 @@ using View.CardView;
 using View.CharacterInfoView;
 using View.EmployeeFunction;
 using View.MapFunction;
+using View.OrderFunction;
 using View.PlayerInfo;
 
 namespace View
@@ -26,6 +27,7 @@ namespace View
         public UIButton settingBtn;
         public UIButton storeBtn;
         public UIButton sevendayBtn;
+        public UIButton zhuanpanBtn;
 
         
         public UIButton characterBtn;
@@ -89,6 +91,18 @@ namespace View
             employeeFunctionBtn.onClick.AddListener((() =>
             {
                 UIController.Instance.Show<EmployeeFunctionView>();
+            }));
+
+            zhuanpanBtn.onClick.RemoveAllListeners();
+            zhuanpanBtn.onClick.AddListener((() =>
+            {
+                UIController.Instance.Show<ZhuanPanView>();
+            }));
+
+            ordenFunctionBtn.onClick.RemoveAllListeners();
+            ordenFunctionBtn.onClick.AddListener((() =>
+            {
+                UIController.Instance.Show<OrderFunctionView>();
             }));
         }
 

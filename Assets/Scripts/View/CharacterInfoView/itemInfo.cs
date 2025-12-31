@@ -47,14 +47,7 @@ namespace View.CharacterInfoView
                 storageBagData = null;
                 selectImg.gameObject.SetActive(playerdata.currentWeapon == weaponData.id);
                 maskImg.gameObject.SetActive(!(playerdata.ownWeaponList.Contains(weaponData.id)));
-                if(playerdata.ownWeaponList.Contains(weaponData.id))
-                {
-                    infoTxt.text = weaponData.name  ;
-                }
-                else
-                {
-                    infoTxt.text = weaponData.unlockStr;
-                }
+                infoTxt.text = weaponData.name;
                 switch ( weaponData.lockType)
                 {
                     case UnlockType.accountLevel:
@@ -90,15 +83,9 @@ namespace View.CharacterInfoView
                 weaponData = null;
                 selectImg.gameObject.SetActive(playerdata.currentBag == storageBagData.id);
                 maskImg.gameObject.SetActive(!(playerdata.ownWeaponList.Contains(storageBagData.id)));
-
-                 if(playerdata.ownWeaponList.Contains(storageBagData .id))
-                {
-                    infoTxt.text = storageBagData.name  ;
-                }
-                else
-                {
-                    infoTxt.text = storageBagData.unlockStr;
-                }   
+                infoTxt.text = storageBagData.name  ;
+            
+             
                 switch ( storageBagData.lockType)
                 {
                     case UnlockType.accountLevel:

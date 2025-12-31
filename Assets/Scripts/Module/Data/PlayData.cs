@@ -89,6 +89,7 @@ namespace Module.Data
         
         public List<int> sevenDayRecordList = new List<int>();
         public string sevenDayRecordTime;
+        public int GetSevenDayRewardIndex = 0   ;
 
         public int talentLevel;
         

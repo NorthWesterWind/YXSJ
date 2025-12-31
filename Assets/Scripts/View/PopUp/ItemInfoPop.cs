@@ -36,6 +36,7 @@ namespace View.PopUp
                 WeaponData data = args[0] as WeaponData;
                 tiptxt.text = data.name;
                 locktxt.text = data.unlockStr;
+                icon.sprite = _assetHandle.Get<Sprite>(data.name);
                 if (playerdata.ownWeaponList.Contains(data.id))
                 {
                     if (playerdata.currentWeapon == data.id)
@@ -96,6 +97,7 @@ namespace View.PopUp
                 StotageBagData data = args[0] as StotageBagData;
                 tiptxt.text = data.name;
                 locktxt.text = data.unlockStr;
+                 icon.sprite = _assetHandle.Get<Sprite>(data.name);
                 if (playerdata.ownBagList.Contains(data.id))
                 {
                     if (playerdata.currentBag == data.id)

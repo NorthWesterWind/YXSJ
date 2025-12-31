@@ -8,7 +8,7 @@ namespace Controller
 {
     public class GameController : MonoSingleton<GameController>
     {
-        [Header("每个地图的出生点")]
+        [Header("每种怪物的出生点")]
         public Dictionary<MonsterType, Transform> monsterBornPositions = new ();
 
         [Header("地图中建筑信息")]
@@ -20,6 +20,8 @@ namespace Controller
         [Header("每个摊位的排队系统")]
         public Dictionary<StructureBase, QueueGroup> queues = new ();
         public Dictionary< MonsterType , FactoryController> factoryControllers = new();
+
+        public Dictionary< MonsterType , MapLock> mapLocks = new ();
 
         public int currentMapID = 1;
 

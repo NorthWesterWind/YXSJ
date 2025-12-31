@@ -50,6 +50,8 @@ namespace Module.Data
                 YueJingShi = 43,
                 YueJingShiGolden = 44,
                 YueJingShiBig = 45,
+
+                JingYuanBao = 46,
         }
 
         public enum MonsterBehavior

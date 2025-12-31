@@ -16,6 +16,7 @@ namespace Controller
     public class FactoryController : MonoBehaviour
     {
         public bool isSpecial;
+        public bool isGoldenOnly;
         private AssetHandle _assetHandle;
         public List<GameObject> monsterList = new();
         public MonsterType normalType; // 普通怪
@@ -184,6 +185,10 @@ namespace Controller
             if (isSpecial)
             {
                 return giantType;
+            }
+            if( isGoldenOnly)
+            {
+                return MonsterType.JingYuanBao;
             }
 
             giantCounter++;
