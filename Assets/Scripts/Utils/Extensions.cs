@@ -288,8 +288,8 @@ namespace Utils
 				case GoodsType.JingYunBao:
 					resName = "JingYuanBao";
 					break;
-				case GoodsType.YingQian:
-					resName = "YingQian";
+				case GoodsType.TongBi:
+					resName = "TongBi";
 					break;
 			}
 			return resName;

@@ -137,7 +137,37 @@ namespace Module.Data
 
         #endregion
 
+
+        #region 地图解锁数据缓存
+        public List<MapLockDataProgress> mapLockDataProgressList = new List<MapLockDataProgress>(){
+           
+        };
+        #endregion
+
     }
+
+    public class MapLockDataProgress
+    {
+        public int mapId;
+        public int lockId;
+        public bool isUnlock;
+        public float currentOwnMoney;
+        public bool canShowBg;
+
+        public MapLockDataProgress(int mapId, int lockId, bool isUnlock, float currentOwnMoney , bool canShowBg)
+        {
+            this.mapId = mapId;
+            this.lockId = lockId;
+            this.isUnlock = isUnlock;
+            this.currentOwnMoney = currentOwnMoney;
+            this.canShowBg = canShowBg;
+        }
+    }
+
+
+
+
+
     public class  OrderDataProgress
     {
         public int orderId;
@@ -151,6 +181,9 @@ namespace Module.Data
             this.monsterDic = monsterDic;
         }
     }
+
+
+
 
 
 

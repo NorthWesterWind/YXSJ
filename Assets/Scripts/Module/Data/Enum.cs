@@ -154,7 +154,7 @@ namespace Module.Data
                 
                 
                 JingYunBao = 16,
-                YingQian = 17,
+                TongBi = 17,
         }
         
         /// <summary>

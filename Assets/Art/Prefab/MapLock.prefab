@@ -176,7 +176,6 @@ Transform:
   - {fileID: 4259983208251555590}
   - {fileID: 2213091422373909884}
   - {fileID: 5917078840217428878}
-  - {fileID: 2487853678624771967}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5283213907148044928
@@ -192,6 +191,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   monsterType: 0
+  isLocked: 1
+  lockObject: {fileID: 0}
+  bg: {fileID: 0}
+  fill: {fileID: 0}
+  needText: {fileID: 0}
 --- !u!1 &2797705650892734124
 GameObject:
   m_ObjectHideFlags: 0
@@ -310,6 +314,7 @@ Transform:
   - {fileID: 1888151872235708923}
   - {fileID: 114913000073948663}
   - {fileID: 3102250189184414215}
+  - {fileID: 2487853678624771967}
   m_Father: {fileID: 5475945061243617186}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &6292708877198028645
@@ -435,12 +440,12 @@ Transform:
   m_GameObject: {fileID: 6429124691973735550}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1.018, y: -0.015, z: 0}
-  m_LocalScale: {x: 0.7483, y: 1, z: 1}
+  m_LocalPosition: {x: 0.0659819, y: -0.056399304, z: 0}
+  m_LocalScale: {x: 2.0487745, y: 2.7379053, z: 2.7379053}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 4239357879955073973}
-  m_Father: {fileID: 5475945061243617186}
+  m_Father: {fileID: 5917078840217428878}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &5802217708574087769
 SpriteRenderer:

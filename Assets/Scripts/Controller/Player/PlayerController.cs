@@ -53,6 +53,12 @@ namespace Controller.Player
 
         public int RemainCapacity => (int)maxCarryNum - currentCarryNum;
 
+
+        /// <summary>
+        /// 角色是否处于交互范围内（解锁）
+        /// </summary>
+        public bool InteractionTriggerInRange { get; set; } = false;
+
         private void Awake()
         {
             if (dataModule == null)
@@ -181,6 +187,20 @@ namespace Controller.Player
             CheckProductStation();
             CheckProduct();
             CheckSaleStall();
+
+            if(InteractionTriggerInRange && !isMoving)
+            {
+               
+            }
+
+        }
+
+
+
+        public void ThrowOutTongBi()
+        {
+            GameObject coinObj = ObjectPoolManager.Instance.GetObject("TongBi");
+            var coinCtrl = coinObj.GetComponent<DropController>();
         }
 
         private void FixedUpdate()
@@ -678,7 +698,7 @@ namespace Controller.Player
 
         public void AddGoods(GoodsType goodsType)
         {
-            if (goodsType == GoodsType.YingQian)
+            if (goodsType == GoodsType.TongBi)
             {
                 dataModule.AddYinQian(100);
             }

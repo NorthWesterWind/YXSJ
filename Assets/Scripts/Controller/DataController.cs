@@ -26,6 +26,12 @@ namespace Controller
         public List<CardLevelData> cardLevelDataList = new();
         public Dictionary<int ,GiftpackData> giftpackDataDic = new();
         public Dictionary<int , OrderData> orderDataDic = new Dictionary<int, OrderData>();
+
+        public List<MapLock> mapLockDataList_1 = new List<MapLock>();
+        public List<MapLock> mapLockDataList_2 = new List<MapLock>();
+        public List<MapLock> mapLockDataList_3 = new List<MapLock>();
+        public List<MapLock> mapLockDataList_4 = new List<MapLock>();
+        public List<MapLock> mapLockDataList_5 = new List<MapLock>();
         void Start()
         {
             PrepareData();
@@ -109,6 +115,26 @@ namespace Controller
             string orderDataStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("OrderData")).text;
             orderDataDic.Clear();
             orderDataDic = JsonConvert.DeserializeObject<Dictionary<int, OrderData>>(orderDataStr);
+
+            string mapLockDataStr1 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("MapLock_1")).text;
+            mapLockDataList_1.Clear();
+            mapLockDataList_1 = JsonConvert.DeserializeObject<List<MapLock>>(mapLockDataStr1);
+
+            string mapLockDataStr2 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("MapLock_2")).text;
+            mapLockDataList_2.Clear();
+            mapLockDataList_2 = JsonConvert.DeserializeObject<List<MapLock>>(mapLockDataStr2);
+
+            string mapLockDataStr3 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("MapLock_3")).text;
+            mapLockDataList_3.Clear();
+            mapLockDataList_3 = JsonConvert.DeserializeObject<List<MapLock>>(mapLockDataStr3);
+
+            string mapLockDataStr4 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("MapLock_4")).text;
+            mapLockDataList_4.Clear();
+            mapLockDataList_4 = JsonConvert.DeserializeObject<List<MapLock>>(mapLockDataStr4);
+
+            string mapLockDataStr5 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("MapLock_5")).text;
+            mapLockDataList_5.Clear();
+            mapLockDataList_5 = JsonConvert.DeserializeObject<List<MapLock>>(mapLockDataStr5);
         }
         
         

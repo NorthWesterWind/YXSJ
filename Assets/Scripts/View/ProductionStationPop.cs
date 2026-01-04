@@ -92,7 +92,7 @@ namespace View
                 case GoodsType.JingYunBao:
                     productiontxt.text = "金元宝";
                     break;
-                case GoodsType.YingQian:
+                case GoodsType.TongBi:
                     productiontxt.text = "银钱";
                     break;
             }

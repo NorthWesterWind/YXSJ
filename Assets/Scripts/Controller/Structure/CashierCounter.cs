@@ -106,7 +106,7 @@ namespace Controller.Structure
             GameObject productObj = ObjectPoolManager.Instance.GetObject("Production");
             productObj.transform.position = receiveTransform.position;
             Production product =  productObj.GetComponent<Production>();
-            product.Init(GoodsType.YingQian);
+            product.Init(GoodsType.TongBi);
             product.SetStation(this);
             product.spriteRenderer.sortingOrder = 4000 + grid.currentIndex;
             product.FlyTo(grid.GetNextPosition() , (() =>
