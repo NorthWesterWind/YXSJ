@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using Controller.Pickups;
+using Module;
 using Module.Data;
-using TMPro;
 using UnityEngine;
+using Utils;
 
 
 namespace Controller.Structure
@@ -17,7 +18,10 @@ namespace Controller.Structure
         public PlacementGrid grid;
         public List<Production> productList = new();
         public Transform transferPoint;
-    
+        public BuildingType buildingType;
+        public SpriteRenderer  productIcon;
+        public SpriteRenderer  productIconbg;
+
         protected override void Start()
         {
             base.Start();
@@ -26,19 +30,57 @@ namespace Controller.Structure
 
         public void Init()
         {
-            grid.basePosition = baseTransform.position;
-            GameController.Instance.goodBuild.Add(currentGoodsType, this);
+            PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            List<StructureLockData> structureLocks = new();
+            switch (playerData.currentMapID)
+            {
+                case 1:
+                    structureLocks = DataController.Instance.structureLockDataList_1;
+                    break;
+                case 2:
+                    structureLocks = DataController.Instance.structureLockDataList_2;
+                    break;
+                case 3:
+                    structureLocks = DataController.Instance.structureLockDataList_3;
+                    break;
+                case 4:
+                    structureLocks = DataController.Instance.structureLockDataList_4;
+                    break;
+                case 5:
+                    structureLocks = DataController.Instance.structureLockDataList_5;
+                    break;
+            }
+            var lockData = structureLocks.Find(s => s.buildingType == buildingType);
+            if (lockData != null)
+            {
+                var progressData = playerData.structureLockDataList.Find(s => s.buildType == buildingType && s.lockId == lockData.lockId && s.mapId == playerData.currentMapID);
+                if (progressData != null && progressData.isUnlock)
+                {
+                    content.SetActive(true);
+                    structureLock.gameObject.SetActive(false);
+                    grid.basePosition = baseTransform.position;
+                    GameController.Instance.goodBuild.Add(currentGoodsType, this);
+                }
+                else
+                {
+                    content.SetActive(false);
+                    structureLock.gameObject.SetActive(true);
+                    structureLock.InitInfo(lockData);
+                }
+            }
+            productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(currentGoodsType));
+            productIcon.sortingOrder = sprite.sortingOrder+2;
+            productIconbg.sortingOrder = sprite.sortingOrder+1;
         }
 
-        public void AddGoods( Production p)
-        {   
+        public void AddGoods(Production p)
+        {
             p.SetState(ItemState.OnShelf);
             p.canPickup = true;
             productList.Add(p);
             currentGoodsCount++;
-            UpdateTxt();
         }
-        
+
         /// <summary>
         /// 尝试购买指定数量商品，成功返回实际商品列表，失败返回空列表
         /// </summary>
@@ -60,16 +102,8 @@ namespace Controller.Structure
                 outList.Add(p);
                 currentGoodsCount--;
             }
-
-            UpdateTxt();
             return true;
         }
-
-        
-        public void UpdateTxt()
-        {
-        }
-
         public void PlaceProduct(Production p)
         {
             var targetPos = grid.GetNextPosition();

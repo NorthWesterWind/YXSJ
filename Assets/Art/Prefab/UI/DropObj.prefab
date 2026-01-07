@@ -28,8 +28,8 @@ Transform:
   m_GameObject: {fileID: 845777481163941341}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -12.24, y: 12.909679, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -75,12 +75,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 4000
-  m_Sprite: {fileID: 21300000, guid: d30bdc8efc991a646a881c6cda7e5df4, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 207ee0cba986b974496e5b3149690498, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.92, y: 0.88}
+  m_Size: {x: 1.2, y: 1.2}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -98,6 +98,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe04cc3dc3d793d4aa3fb4375c9c4f97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  canPickup: 0
+  flyHeight: 1.5
+  flyDuration: 0.5
   flyCurve:
     serializedVersion: 2
     m_Curve:
@@ -122,7 +125,8 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  isAttracted: 0
+  itemName: 
+  isTaken: 0
   itemType: 0
   spriteRenderer: {fileID: 6071874072270767572}
 --- !u!114 &5636565708264039489
@@ -138,5 +142,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   assets:
-  - {fileID: 2800000, guid: e175761151cf76e4c825830745f38404, type: 3}
-  - {fileID: 2800000, guid: d30bdc8efc991a646a881c6cda7e5df4, type: 3}
+  - {fileID: 2800000, guid: 207ee0cba986b974496e5b3149690498, type: 3}
+  - {fileID: 2800000, guid: 514c1580cfd13b548883454a43757673, type: 3}
+  - {fileID: 2800000, guid: 79603e4e3a593424eb369eb488fc3966, type: 3}
+  - {fileID: 2800000, guid: 66c5bb3659f1aee468d24e0577bd2caf, type: 3}
+  - {fileID: 2800000, guid: a066635149dcfe1419185469b0930bed, type: 3}
+  - {fileID: 2800000, guid: cd1437ea1764a2b40b65def0dbd2ac2f, type: 3}
+  - {fileID: 2800000, guid: ec46849b875d45f45be7d60faf394bcb, type: 3}
+  - {fileID: 2800000, guid: f6ce9b7964a601148b90d452f1f8d1a1, type: 3}
+  - {fileID: 2800000, guid: c552c8d68b5e3ac43ba6c97cee9fb29d, type: 3}
+  - {fileID: 2800000, guid: 3d58cafd3f088dc429d8e7443f7e0146, type: 3}
+  - {fileID: 2800000, guid: e3487ef9495c5ab41bc7b64273d3aca2, type: 3}
+  - {fileID: 2800000, guid: 27487b48abb747e46a055af1f2bc70ef, type: 3}
+  - {fileID: 2800000, guid: b9eb963b94cc61f4ab443e3a52bbcccb, type: 3}
+  - {fileID: 2800000, guid: 57fd532ada5e6b74b85638f784cdb899, type: 3}
+  - {fileID: 2800000, guid: 79db7992ecee51141b4651eeb2274c53, type: 3}

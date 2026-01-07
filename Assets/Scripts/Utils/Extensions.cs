@@ -79,7 +79,7 @@ namespace Utils
 			return values[Random.Range(0, values.Length)];
 		}
 
-		public static T RandomOne<T>( List<T> list)
+		public static T RandomOne<T>(List<T> list)
 		{
 			return list[Random.Range(0, list.Count)];
 		}
@@ -115,7 +115,7 @@ namespace Utils
 
 			return children;
 		}
-		
+
 		public static Vector2 ConvertUIPosition(RectTransform source, RectTransform target)
 		{
 			// 1. 源位置转屏幕坐标
@@ -126,7 +126,7 @@ namespace Utils
 			RectTransformUtility.ScreenPointToLocalPointInRectangle(target, screenPoint, Camera.main, out localPoint);
 			return localPoint;
 		}
-		
+
 		#endregion
 
 		#region Vector 3
@@ -165,7 +165,7 @@ namespace Utils
 		{
 			return num.ToString(Format, CultureInfo.InvariantCulture);
 		}
-		
+
 		/// <summary>
 		/// 获取当前日期属于当年的第几周
 		/// </summary>
@@ -185,8 +185,8 @@ namespace Utils
 
 			return weekNum;
 		}
-		
-	   public static List<int> GetRandomNumbers(int min, int max, int count)
+
+		public static List<int> GetRandomNumbers(int min, int max, int count)
 		{
 			List<int> numbers = new List<int>();
 			for (int i = min; i <= max; i++)
@@ -204,7 +204,7 @@ namespace Utils
 			// 取前 count 个
 			return numbers.GetRange(0, count);
 		}
-		public  static bool IsAllChinese(string input)
+		public static bool IsAllChinese(string input)
 		{
 			if (string.IsNullOrEmpty(input))
 				return false;
@@ -295,146 +295,274 @@ namespace Utils
 			return resName;
 		}
 
+		public static string GetDropItemResNameByType(DropItemType type)
+		{
+			string resName = string.Empty;
+			switch (type)
+			{
+				case DropItemType.ShuangYunZhiFragment:
+					resName = "ShuangYunZhi";
+					break;
+				case DropItemType.YueLuCaoFragment:
+					resName = "YueLuCao";
+					break;
+				case DropItemType.ZiXinHuaFragment:
+					resName = "ZiXinHua";
+					break;
+				case DropItemType.YuHuiHeFragment:
+					resName = "YuHuiHe";
+					break;
+				case DropItemType.XingWenGuoFragment:
+					resName = "XingWenGuo";
+					break;
+				case DropItemType.WuRongJunFragment:
+					resName = "WuRongJun";
+					break;
+				case DropItemType.LingXuShengFragment:
+					resName = "LingXuSheng";
+					break;
+				case DropItemType.XueBanHuaFragment:
+					resName = "XueBanHua";
+					break;
+				case DropItemType.MuLingYaFragment:
+					resName = "MuLingYa";
+					break;
+				case DropItemType.JingRuiCaoFragment:
+					resName = "JingRuiCao";
+					break;
+				case DropItemType.TieKuangShiFragment:
+					resName = "TieKuangShi";
+					break;
+				case DropItemType.YinKuangShiFragment:
+					resName = "YinKuangShi";
+					break;
+				case DropItemType.TongKuangShiFragment:
+					resName = "TongKuangShi";
+					break;
+				case DropItemType.ZiJingShiFragment:
+					resName = "ZiJingShi";
+					break;
+				case DropItemType.YueJingShiFragment:
+					resName = "YueJingShi";
+					break;
+			}
+			return resName;
+		}
+
+		public static string GetMonsterPictureNameByType(MonsterType type)
+		{
+			string resName = string.Empty;
+			switch (type)
+			{
+				case MonsterType.ShuangYunZhi:
+					resName = "ShuangYunZhi";
+					break;
+				case MonsterType.YueLuCao:
+					resName = "YueLuCao";
+					break;
+
+				case MonsterType.ZiXinHua:
+					resName = "ZiXinHua";
+					break;
+
+				case MonsterType.YuHuiHe:
+					resName = "YuHuiHe";
+					break;
+
+				case MonsterType.XingWenGuo:
+					resName = "XingWenGuo";
+					break;
+
+				case MonsterType.WuRongJun:
+					resName = "WuRongJun";
+					break;
+
+				case MonsterType.LingXuSheng:
+					resName = "LingXuSheng";
+					break;
+
+				case MonsterType.XueBanHua:
+					resName = "XueBanHua";
+					break;
+
+				case MonsterType.MuLingYa:
+					resName = "MuLingYa";
+					break;
+
+				case MonsterType.JingRuiCao:
+					resName = "JingRuiCao";
+					break;
+
+				case MonsterType.TieKuangShi:
+					resName = "TieKuangShi";
+					break;
+
+				case MonsterType.YinKuangShi:
+					resName = "YinKuangShi";
+					break;
+
+				case MonsterType.TongKuangShi:
+					resName = "TongKuangShi";
+					break;
+
+				case MonsterType.ZiJingShi:
+					resName = "ZiJingShi";
+					break;
+
+				case MonsterType.YueJingShi:
+					resName = "YueJingShi";
+					break;
+				case MonsterType.JingYuanBao:
+					resName = "JingYuanBao";
+					break;
+
+			}
+			return resName;
+		}
+
 		public static string GetMonsterResNameByType(MonsterType type)
 		{
 			string resName = "";
 			switch (type)
 			{
-				case MonsterType.ShuangYunZhi: 
-                     resName = "ShuangYunZhi";
-                        break;
-                    case MonsterType.ShuangYunZhiGolden:
+				case MonsterType.ShuangYunZhi:
+					resName = "ShuangYunZhi";
+					break;
+				case MonsterType.ShuangYunZhiGolden:
 					resName = "ShuangYunZhiGolden";
-                        break;
-                    case MonsterType.ShuangYunZhiBig:
+					break;
+				case MonsterType.ShuangYunZhiBig:
 					resName = "ShuangYunZhiBig";
-                        break;
-                    case MonsterType.YueLuCao:
+					break;
+				case MonsterType.YueLuCao:
 					resName = "YueLuCao";
-                        break;
-                    case MonsterType.YueLuCaoGolden:
+					break;
+				case MonsterType.YueLuCaoGolden:
 					resName = "YueLuCaoGolden";
-                        break;
-                    case MonsterType.YueLuCaoBig:
+					break;
+				case MonsterType.YueLuCaoBig:
 					resName = "YueLuCaoBig";
-                        break;
-                    case MonsterType.ZiXinHua:
+					break;
+				case MonsterType.ZiXinHua:
 					resName = "ZiXinHua";
-                        break;
-                    case MonsterType.ZiXinHuaGolden:
+					break;
+				case MonsterType.ZiXinHuaGolden:
 					resName = "ZiXinHuaGolden";
-                        break;
-                    case MonsterType.ZiXinHuaBig:
+					break;
+				case MonsterType.ZiXinHuaBig:
 					resName = "ZiXinHuaBig";
-                        break;
-                    case MonsterType.YuHuiHe:
+					break;
+				case MonsterType.YuHuiHe:
 					resName = "YuHuiHe";
-                        break;
-                    case MonsterType.YuHuiHeGolden:
+					break;
+				case MonsterType.YuHuiHeGolden:
 					resName = "YuHuiHeGolden";
-                        break;
-                    case MonsterType.YuHuiHeBig:
+					break;
+				case MonsterType.YuHuiHeBig:
 					resName = "YuHuiHeBig";
-                        break;
-                    case MonsterType.XingWenGuo:
+					break;
+				case MonsterType.XingWenGuo:
 					resName = "XingWenGuo";
-                        break;
-                    case MonsterType.XingWenGuoGolden:
+					break;
+				case MonsterType.XingWenGuoGolden:
 					resName = "XingWenGuoGolden";
-                        break;
-                    case MonsterType.XingWenGuoBig:
+					break;
+				case MonsterType.XingWenGuoBig:
 					resName = "XingWenGuoBig";
-                        break;
-                    case MonsterType.WuRongJun:
+					break;
+				case MonsterType.WuRongJun:
 					resName = "WuRongJun";
-                        break;
-                    case MonsterType.WuRongJunBig:
+					break;
+				case MonsterType.WuRongJunBig:
 					resName = "WuRongJunBig";
-                        break;
-                    case MonsterType.WuRongJunGolden:
+					break;
+				case MonsterType.WuRongJunGolden:
 					resName = "WuRongJunGolden";
-                        break;
-                    case MonsterType.LingXuSheng:
+					break;
+				case MonsterType.LingXuSheng:
 					resName = "LingXuSheng";
-                        break;
-                    case MonsterType.LingXuShengGolden:
+					break;
+				case MonsterType.LingXuShengGolden:
 					resName = "LingXuShengGolden";
-                        break;
-                    case MonsterType.LingXuShengBig:
+					break;
+				case MonsterType.LingXuShengBig:
 					resName = "LingXuShengBig";
-                        break;
-                    case MonsterType.XueBanHua:
+					break;
+				case MonsterType.XueBanHua:
 					resName = "XueBanHua";
-                        break;
-                    case MonsterType.XueBanHuaGolden:
+					break;
+				case MonsterType.XueBanHuaGolden:
 					resName = "XueBanHuaGolden";
-                        break;
-                    case MonsterType.XueBanHuaBig:
+					break;
+				case MonsterType.XueBanHuaBig:
 					resName = "XueBanHuaBig";
-                        break;
-                    case MonsterType.MuLingYa:
+					break;
+				case MonsterType.MuLingYa:
 					resName = "MuLingYa";
-                        break;
-                    case MonsterType.MuLingYaGolden:
+					break;
+				case MonsterType.MuLingYaGolden:
 					resName = "MuLingYaGolden";
-                        break;
-                    case MonsterType.MuLingYaBig:
+					break;
+				case MonsterType.MuLingYaBig:
 					resName = "MuLingYaBig";
-                        break;
-                    case MonsterType.JingRuiCao:
+					break;
+				case MonsterType.JingRuiCao:
 					resName = "JingRuiCao";
-                        break;
-                    case MonsterType.JingRuiCaoGolden:
+					break;
+				case MonsterType.JingRuiCaoGolden:
 					resName = "JingRuiCaoGolden";
-                        break;
-                    case MonsterType.JingRuiCaoBig:
+					break;
+				case MonsterType.JingRuiCaoBig:
 					resName = "JingRuiCaoBig";
-                        break;
-                    case MonsterType.TieKuangShi:
+					break;
+				case MonsterType.TieKuangShi:
 					resName = "TieKuangShi";
-                        break;
-                    case MonsterType.TieKuangShiGolden:
+					break;
+				case MonsterType.TieKuangShiGolden:
 					resName = "TieKuangShiGolden";
-                        break;
-                    case MonsterType.TieKuangShiBig:
+					break;
+				case MonsterType.TieKuangShiBig:
 					resName = "TieKuangShiBig";
-                        break;
-                    case MonsterType.YinKuangShi:
+					break;
+				case MonsterType.YinKuangShi:
 					resName = "YinKuangShi";
-                        break;
-                    case MonsterType.YinKuangShiGolden:
+					break;
+				case MonsterType.YinKuangShiGolden:
 					resName = "YinKuangShiGolden";
-                        break;
-                    case MonsterType.YinKuangShiBig:
+					break;
+				case MonsterType.YinKuangShiBig:
 					resName = "YinKuangShiBig";
-                        break;
-                    case MonsterType.TongKuangShi:
+					break;
+				case MonsterType.TongKuangShi:
 					resName = "TongKuangShi";
-                        break;
-                    case MonsterType.TongKuangShiGolden:
+					break;
+				case MonsterType.TongKuangShiGolden:
 					resName = "TongKuangShiGolden";
-                        break;
-                    case MonsterType.TongKuangShiBig:
+					break;
+				case MonsterType.TongKuangShiBig:
 					resName = "TongKuangShiBig";
-                        break;
-                    case MonsterType.ZiJingShi:
+					break;
+				case MonsterType.ZiJingShi:
 					resName = "ZiJingShi";
-                        break;
-                    case MonsterType.ZiJingShiGolden:
+					break;
+				case MonsterType.ZiJingShiGolden:
 					resName = "ZiJingShiGolden";
-                        break;
-                    case MonsterType.ZiJingShiBig:
+					break;
+				case MonsterType.ZiJingShiBig:
 					resName = "ZiJingShiBig";
-                        break;
-                    case MonsterType.YueJingShi:
+					break;
+				case MonsterType.YueJingShi:
 					resName = "YueJingShi";
-                        break;
-                    case MonsterType.YueJingShiGolden:
+					break;
+				case MonsterType.YueJingShiGolden:
 					resName = "YueJingShiGolden";
-                        break;
-                    case MonsterType.YueJingShiBig:
+					break;
+				case MonsterType.YueJingShiBig:
 					resName = "YueJingShiBig";
-                        break;
+					break;
+					case MonsterType.JingYuanBao:
+					resName = "JingYuanBao";
+					break;
 			}
 			return resName;
 		}
@@ -444,7 +572,7 @@ namespace Utils
 			string resName = "";
 			switch (type)
 			{
-				case CustomerType.YunZhiTangDiZi: 
+				case CustomerType.YunZhiTangDiZi:
 					resName = "YunZhiTangDiZi";
 					break;
 				case CustomerType.YunZhiTangZhangLao:
@@ -470,7 +598,7 @@ namespace Utils
 					break;
 			}
 			return resName;
-			
+
 		}
 
 		public static string GetTaskInfoResNameByTypeWithId(TaskType type, int id)
@@ -478,9 +606,9 @@ namespace Utils
 			string resName = "";
 			switch (type)
 			{
-				
+
 				case TaskType.Harvest:
-			 		GetHarvestStr(id, out resName);
+					GetHarvestStr(id, out resName);
 					break;
 				case TaskType.Makemoney:
 					resName = "YinQian";
@@ -501,7 +629,7 @@ namespace Utils
 			return resName;
 		}
 
-		public static void GetHarvestStr(int id , out string resName)
+		public static void GetHarvestStr(int id, out string resName)
 		{
 			resName = "";
 			switch (id)
@@ -553,8 +681,8 @@ namespace Utils
 					break;
 			}
 		}
-		
-		public static void GetGoodsStr(int id , out string resName)
+
+		public static void GetGoodsStr(int id, out string resName)
 		{
 			resName = "";
 			switch (id)
@@ -678,135 +806,135 @@ namespace Utils
 			}
 		}
 
-		
-		public static  (MonsterType,DropItemType) ExchangeFamilyType(MonsterFamily monsterFamily)
-        {
-            MonsterType type1 = MonsterType.None;
-            DropItemType type2 = DropItemType.None;
-            switch (monsterFamily)
-            {
-                case MonsterFamily.ShuangYunZhi:
-                    type1 = MonsterType.ShuangYunZhi;
-                    type2 = DropItemType.ShuangYunZhiFragment;
-                    break;
-                case MonsterFamily.YueLuCao:
-                    type1 = MonsterType.YueLuCao;
-                    type2 = DropItemType.YueLuCaoFragment;
-                    break;
-                case MonsterFamily.ZiXinHua:
-                    type1 = MonsterType.ZiXinHua;
-                    type2 = DropItemType.ZiXinHuaFragment;
-                    break;
-                case MonsterFamily.YuHuiHe:
-                    type1 = MonsterType.YuHuiHe;
-                    type2 = DropItemType.YuHuiHeFragment;
-                    break;
-                case MonsterFamily.XingWenGuo:
-                    type1 = MonsterType.XingWenGuo;
-                    type2 = DropItemType.XingWenGuoFragment;
-                    break;
-                case MonsterFamily.WuRongJun:
-                    type1 = MonsterType.WuRongJun;
-                    type2 = DropItemType.WuRongJunFragment;
-                    break;
-                case MonsterFamily.LingXuSheng:
-                    type1 = MonsterType.LingXuSheng;
-                    type2 = DropItemType.LingXuShengFragment;
-                    break;
-                case MonsterFamily.XueBanHua:
-                    type1 = MonsterType.XueBanHua;
-                    type2 = DropItemType.XueBanHuaFragment;
-                    break;
-                case MonsterFamily.MuLingYa:
-                    type1 = MonsterType.MuLingYa;
-                    type2 = DropItemType.MuLingYaFragment;
-                    break;
-                case MonsterFamily.JingRuiCao:
-                    type1 = MonsterType.JingRuiCao;
-                    type2 = DropItemType.JingRuiCaoFragment;
-                    break;
-                case MonsterFamily.TieKuangShi:
-                    type1 = MonsterType.TieKuangShi;
-                    type2 = DropItemType.TieKuangShiFragment;
-                    break;
-                case MonsterFamily.YinKuangShi:
-                    type1 = MonsterType.YinKuangShi;
-                    type2 = DropItemType.YinKuangShiFragment;
-                    break;
-                case MonsterFamily.TongKuangShi:
-                    type1 = MonsterType.TongKuangShi;
-                    type2 = DropItemType.TongKuangShiFragment;
-                    break;
-                case MonsterFamily.ZiJingShi:
-                    type1 = MonsterType.ZiJingShi;
-                    type2 = DropItemType.ZiJingShiFragment;
-                    break;
-                case MonsterFamily.YueJingShi:
-                    type1 = MonsterType.YueJingShi;
-                    type2 = DropItemType.YueJingShiFragment;
-                    break;
-            }
-            return (type1 , type2);
-        }
+
+		public static (MonsterType, DropItemType) ExchangeFamilyType(MonsterFamily monsterFamily)
+		{
+			MonsterType type1 = MonsterType.None;
+			DropItemType type2 = DropItemType.None;
+			switch (monsterFamily)
+			{
+				case MonsterFamily.ShuangYunZhi:
+					type1 = MonsterType.ShuangYunZhi;
+					type2 = DropItemType.ShuangYunZhiFragment;
+					break;
+				case MonsterFamily.YueLuCao:
+					type1 = MonsterType.YueLuCao;
+					type2 = DropItemType.YueLuCaoFragment;
+					break;
+				case MonsterFamily.ZiXinHua:
+					type1 = MonsterType.ZiXinHua;
+					type2 = DropItemType.ZiXinHuaFragment;
+					break;
+				case MonsterFamily.YuHuiHe:
+					type1 = MonsterType.YuHuiHe;
+					type2 = DropItemType.YuHuiHeFragment;
+					break;
+				case MonsterFamily.XingWenGuo:
+					type1 = MonsterType.XingWenGuo;
+					type2 = DropItemType.XingWenGuoFragment;
+					break;
+				case MonsterFamily.WuRongJun:
+					type1 = MonsterType.WuRongJun;
+					type2 = DropItemType.WuRongJunFragment;
+					break;
+				case MonsterFamily.LingXuSheng:
+					type1 = MonsterType.LingXuSheng;
+					type2 = DropItemType.LingXuShengFragment;
+					break;
+				case MonsterFamily.XueBanHua:
+					type1 = MonsterType.XueBanHua;
+					type2 = DropItemType.XueBanHuaFragment;
+					break;
+				case MonsterFamily.MuLingYa:
+					type1 = MonsterType.MuLingYa;
+					type2 = DropItemType.MuLingYaFragment;
+					break;
+				case MonsterFamily.JingRuiCao:
+					type1 = MonsterType.JingRuiCao;
+					type2 = DropItemType.JingRuiCaoFragment;
+					break;
+				case MonsterFamily.TieKuangShi:
+					type1 = MonsterType.TieKuangShi;
+					type2 = DropItemType.TieKuangShiFragment;
+					break;
+				case MonsterFamily.YinKuangShi:
+					type1 = MonsterType.YinKuangShi;
+					type2 = DropItemType.YinKuangShiFragment;
+					break;
+				case MonsterFamily.TongKuangShi:
+					type1 = MonsterType.TongKuangShi;
+					type2 = DropItemType.TongKuangShiFragment;
+					break;
+				case MonsterFamily.ZiJingShi:
+					type1 = MonsterType.ZiJingShi;
+					type2 = DropItemType.ZiJingShiFragment;
+					break;
+				case MonsterFamily.YueJingShi:
+					type1 = MonsterType.YueJingShi;
+					type2 = DropItemType.YueJingShiFragment;
+					break;
+			}
+			return (type1, type2);
+		}
 
 
 
-		public static string  GetStructureResNameByType(BuildingType type)
-        {
-            string resName = "";
-            switch (type)
-            {
-                case BuildingType.LingChaJia_1:
-                    resName = "LingChaJia_1";
-                    break;
-                case BuildingType.YuShaHu_1:
-                    resName = "YuShaHu_1";
-                    break;
-                case BuildingType.LingChaJia_2:
-                    resName = "LingChaJia_2";
-                    break;
-                case BuildingType.YuShaHu_2:
-                    resName = "YuShaHu_2";
-                    break;
-                case BuildingType.LingChaJia_3:
-                    resName = "LingChaJia_3";
-                    break;
-                case BuildingType.YuShaHu_3:
-                    resName = "YuShaHu_3";
-                    break;
-                case BuildingType.LingChaJia_4:
-                    resName = "LingChaJia_4";
-                    break;
-                case BuildingType.YuShaHu_4:
-                    resName = "YuShaHu_4";
-                    break;
-                case BuildingType.LianQiLu_1:
-                    resName = "LianQiLu_1";
-                    break;
-                case BuildingType.LingQiJia_1:
-                    resName = "LingQiJia_1";
-                    break;
-                case BuildingType.LianQiLu_2:
-                    resName = "LianQiLu_2";
-                    break;
-                case BuildingType.LingQiJia_2:
-                    resName = "LingQiJia_2";
-                    break;
-                case BuildingType.LianQiLu_3:
-                    resName = "LianQiLu_3";
-                    break;
-                case BuildingType.LingQiJia_3:
-                    resName = "LingQiJia_3";
-                    break;
-                case BuildingType.YuanBaoKuangDong:
-                    resName = "YuanBaoKuangDong";
-                    break;
-                case BuildingType.LingChuGe_2:
+		public static string GetStructureResNameByType(BuildingType type)
+		{
+			string resName = "";
+			switch (type)
+			{
+				case BuildingType.LingChaJia_1:
+					resName = "LingChaJia_1";
+					break;
+				case BuildingType.YuShaHu_1:
+					resName = "YuShaHu_1";
+					break;
+				case BuildingType.LingChaJia_2:
+					resName = "LingChaJia_2";
+					break;
+				case BuildingType.YuShaHu_2:
+					resName = "YuShaHu_2";
+					break;
+				case BuildingType.LingChaJia_3:
+					resName = "LingChaJia_3";
+					break;
+				case BuildingType.YuShaHu_3:
+					resName = "YuShaHu_3";
+					break;
+				case BuildingType.LingChaJia_4:
+					resName = "LingChaJia_4";
+					break;
+				case BuildingType.YuShaHu_4:
+					resName = "YuShaHu_4";
+					break;
+				case BuildingType.LianQiLu_1:
+					resName = "LianQiLu_1";
+					break;
+				case BuildingType.LingQiJia_1:
+					resName = "LingQiJia_1";
+					break;
+				case BuildingType.LianQiLu_2:
+					resName = "LianQiLu_2";
+					break;
+				case BuildingType.LingQiJia_2:
+					resName = "LingQiJia_2";
+					break;
+				case BuildingType.LianQiLu_3:
+					resName = "LianQiLu_3";
+					break;
+				case BuildingType.LingQiJia_3:
+					resName = "LingQiJia_3";
+					break;
+				case BuildingType.YuanBaoKuangDong:
+					resName = "YuanBaoKuangDong";
+					break;
+				case BuildingType.LingChuGe_2:
 					resName = "LingChuGe_2";
 					break;
 
-            }
-            return resName;
-        }
+			}
+			return resName;
+		}
 	}
 }

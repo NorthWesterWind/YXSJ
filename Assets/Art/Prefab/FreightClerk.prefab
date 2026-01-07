@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 4171278509655849730}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.2, y: 2.109, z: 0}
+  m_LocalPosition: {x: -0.2, y: 0.958, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -60,7 +60,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.204, y: -0.9559994, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.6, y: 0.6, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3289546807864496830}
@@ -171,7 +171,7 @@ GameObject:
   - component: {fileID: 7340181914682041320}
   - component: {fileID: 3514432175838879189}
   - component: {fileID: 2145118806052921219}
-  - component: {fileID: 2346381439191467335}
+  - component: {fileID: 3765862584483110626}
   m_Layer: 7
   m_Name: FreightClerk
   m_TagString: Player
@@ -277,8 +277,8 @@ MonoBehaviour:
   salesStallList: []
   normalPos: {fileID: 0}
   productList: []
---- !u!61 &2346381439191467335
-BoxCollider2D:
+--- !u!60 &3765862584483110626
+PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -309,7 +309,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.030578136, y: -0.099378586}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -319,9 +319,22 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.70950794, y: 1.3210716}
-  m_EdgeRadius: 0
+  m_Points:
+    m_Paths:
+    - - {x: 0.26284933, y: 0.8363781}
+      - {x: 0.2279563, y: 0.98773193}
+      - {x: 0.063568115, y: 0.9861069}
+      - {x: -0.55495787, y: 1.0137043}
+      - {x: -0.69070584, y: 0.55566573}
+      - {x: -0.5562391, y: 0.1422329}
+      - {x: -0.8869376, y: -0.30573082}
+      - {x: -0.45676136, y: -0.48399544}
+      - {x: -0.5877852, y: -0.80901706}
+      - {x: 0.45761025, y: -0.8569772}
+      - {x: 0.0028152466, y: -0.36236382}
+      - {x: 0.07741451, y: 0.07369232}
+      - {x: 0.25907135, y: 0.5830688}
+  m_UseDelaunayMesh: 0
 --- !u!1 &8562748280766060291
 GameObject:
   m_ObjectHideFlags: 0
@@ -349,8 +362,8 @@ Transform:
   m_GameObject: {fileID: 8562748280766060291}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.049, y: -0.896, z: 0}
-  m_LocalScale: {x: 6.549535, y: 2.433764, z: 4.171725}
+  m_LocalPosition: {x: -0.151, y: -0.896, z: 0}
+  m_LocalScale: {x: 5.3850274, y: 2.433764, z: 4.171725}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3289546807864496830}

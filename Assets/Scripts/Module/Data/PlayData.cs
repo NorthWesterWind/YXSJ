@@ -64,7 +64,7 @@ namespace Module.Data
         public int lingJing;    //灵晶
         public int jingMangZhu; //金芒珠
         public int lingQiaoShi; //灵窍石
-        public int currentMapID = 1;
+        public int currentMapID = 3;
 
         
         public int accountLevel = 1;
@@ -139,12 +139,58 @@ namespace Module.Data
 
 
         #region 地图解锁数据缓存
+        /// <summary>
+        /// 区域解锁数据
+        /// </summary>
         public List<MapLockDataProgress> mapLockDataProgressList = new List<MapLockDataProgress>(){
+           
+        };
+
+
+        /// <summary>
+        /// 建筑解锁数据
+        /// </summary>
+        public List<StructureLockProgressData> structureLockDataList = new List<StructureLockProgressData>(){
            
         };
         #endregion
 
+
+        #region 元宝矿洞数据
+        public int remainCount = 0;
+        public string lastRefrashTime;
+
+
+        #endregion
+
+
     }
+
+    public class StructureLockProgressData
+    {
+        public BuildingType buildType;
+        public int needMoney;
+
+        public int lockId;
+        public bool isUnlock;
+        public float currentOwnMoney;
+        public bool canShowBg;
+        public int mapId;
+        public StructureLockProgressData(BuildingType type, int money , int lockId, int mapId)
+        {
+            this.buildType = type;
+            this.needMoney = money;
+            this.lockId = lockId;
+            this.mapId = mapId;
+            isUnlock = false;
+            currentOwnMoney = 0f;
+            canShowBg = false;
+        }
+    }
+
+
+
+
 
     public class MapLockDataProgress
     {

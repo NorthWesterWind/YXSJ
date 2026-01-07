@@ -38,7 +38,7 @@ namespace Controller
         private List<Production> productionList = new();
         public List<Production> purchaseList = new();
 
-        private MeshRenderer _meshRenderer;
+        public MeshRenderer _meshRenderer;
         void Start()
         {
             skeletonAnimation.state.Complete += HandleAnimationComplete;
@@ -96,7 +96,7 @@ namespace Controller
             }
 
             _meshRenderer.sortingOrder = newOrder;
-            shadow.sortingOrder = newOrder;
+            shadow.sortingOrder = newOrder-5;
 
 
         }

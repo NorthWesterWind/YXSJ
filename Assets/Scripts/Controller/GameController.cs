@@ -26,8 +26,7 @@ namespace Controller
         public int currentMapID = 1;
 
         private AssetHandle _assetHandle;
-        public GameObject obj;
-        public MonsterData monsterData;
+
         
         /// <summary>
         /// 场景中的所有生产设施

@@ -93,7 +93,7 @@ namespace View
                     productiontxt.text = "金元宝";
                     break;
                 case GoodsType.TongBi:
-                    productiontxt.text = "银钱";
+                    productiontxt.text = "铜币";
                     break;
             }
 

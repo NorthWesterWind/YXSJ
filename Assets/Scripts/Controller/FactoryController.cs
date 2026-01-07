@@ -43,6 +43,8 @@ namespace Controller
         [Header("调试")]
         public bool showGizmos = true;  // 是否显示矩形辅助线
 
+        public YuanBaoKuangDongCtr dongCtr;
+
         public Vector3 GetRandomSpawnPos()
         {
             float halfWidth = patrolAreaSize.x / 2f;
@@ -96,6 +98,11 @@ namespace Controller
                 ObjectPoolManager.Instance.WarmPool(Extensions.GetMonsterResNameByType(giantType),
                     _assetHandle.Get<GameObject>(Extensions.GetMonsterResNameByType(giantType)), 10);
             }
+            else if (isGoldenOnly)
+            {
+                ObjectPoolManager.Instance.WarmPool(Extensions.GetMonsterResNameByType(MonsterType.JingYuanBao),
+                    _assetHandle.Get<GameObject>(Extensions.GetMonsterResNameByType(MonsterType.JingYuanBao)), 20);
+            }
             else
             {
                 ObjectPoolManager.Instance.WarmPool(Extensions.GetMonsterResNameByType(normalType),
@@ -145,7 +152,15 @@ namespace Controller
                 // 检查数量
                 if (monsterList.Count < maxMonsterCount)
                 {
-                    SpawnMonster();
+                    if (isGoldenOnly)
+                    {
+                        SpawnMonster(dongCtr);
+                    }
+                    else
+                    {
+                         SpawnMonster();
+                    }
+                   
                 }
                 else
                 {
@@ -179,6 +194,45 @@ namespace Controller
             monsterList.Add(monster);
         }
 
+
+        private void SpawnMonster(YuanBaoKuangDongCtr limitCtr)
+        {
+            if (limitCtr != null && !limitCtr.CanProduce())
+                return;
+
+            InternalSpawnMonster();
+
+            limitCtr?.ConsumeOne();
+        }
+
+        private void InternalSpawnMonster()
+        {
+            MonsterType toSpawnType = DecideSpawnType();
+
+            GameObject monster = ObjectPoolManager.Instance.GetObject(
+                Extensions.GetMonsterResNameByType(toSpawnType));
+
+            MonsterData data = DataController.Instance.monsterDataDic[toSpawnType];
+            monster.transform.position = GetRandomSpawnPos();
+
+            MonsterBehavior behavior = MonsterBehavior.Normal;
+            if (toSpawnType == giantType)
+                behavior = MonsterBehavior.Giant;
+            else if (toSpawnType == goldenType)
+                behavior = MonsterBehavior.Golden;
+
+            monster.GetComponent<MonsterController>().Init(
+                data,
+                transform.position,
+                behavior, factorID, patrolAreaSize);
+
+            monsterList.Add(monster);
+        }
+
+
+
+
+
         // 决定下一只怪物品质 
         private MonsterType DecideSpawnType()
         {
@@ -186,7 +240,7 @@ namespace Controller
             {
                 return giantType;
             }
-            if( isGoldenOnly)
+            if (isGoldenOnly)
             {
                 return MonsterType.JingYuanBao;
             }

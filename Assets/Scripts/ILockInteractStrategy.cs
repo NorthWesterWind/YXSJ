@@ -1,9 +1,10 @@
 using System;
 using Controller.Player;
+using UnityEngine;
 
 public interface ILockInteractStrategy
 {
-    void OnEnter(Object lockView, PlayerController player);
+    void OnEnter(object lockView, PlayerController player, Transform transform);
     void OnExit();
 
     bool IsFinished { get; }

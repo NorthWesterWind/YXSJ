@@ -343,6 +343,7 @@ namespace Controller
         // ---------------- 巨型怪物逻辑 ----------------
         public void CheckPlayer()
         {
+            return;
             if (behaviorType != MonsterBehavior.Giant) return;
 
             if (state == MonsterState.ChargeWait || state == MonsterState.Flee || state == MonsterState.ChargeCooldown)
@@ -444,6 +445,10 @@ namespace Controller
 
             Destroy(_hpInfo);
             EventCenter.Instance.RemoveListener(EventMessages.NotifyToFlee, HandleNotifyToFlee);
+            if(monsterType == MonsterType.JingYuanBao)
+            {
+                EventCenter.Instance.TriggerEvent(EventMessages.JingYuanBaoDead);
+            }
             isDead = false;
             yield return new WaitForSeconds(deadtime);
             EventCenter.Instance.TriggerEvent(EventMessages.CameraBeginShaking);

@@ -1,5 +1,6 @@
 namespace Module.Data
 {
+	[System.Serializable]
 	public class MonsterData
 	{
 		public MonsterType type; // 怪物类型枚举值

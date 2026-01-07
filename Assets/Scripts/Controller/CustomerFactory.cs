@@ -19,9 +19,11 @@ namespace Controller
 
         private Dictionary<StructureBase, int> placeCustomerCount = new();
         private const int MaxCustomerPerPlace = 5;
+        private Coroutine createCustomerCoroutine;
 
         private void OnEnable()
         {
+            Debug.Log($"CustomerFactory OnEnable: {GetInstanceID()}");
             EventCenter.Instance.AddListener(EventMessages.MapDataPrepared, HandleCustomerCreat);
             EventCenter.Instance.AddListener(EventMessages.CustomerLeave, OnCustomerLeft);
         }
@@ -30,6 +32,12 @@ namespace Controller
         {
             EventCenter.Instance.RemoveListener(EventMessages.MapDataPrepared, HandleCustomerCreat);
             EventCenter.Instance.RemoveListener(EventMessages.CustomerLeave, OnCustomerLeft);
+
+            if (createCustomerCoroutine != null)
+            {
+                StopCoroutine(createCustomerCoroutine);
+                createCustomerCoroutine = null;
+            }
         }
 
         private void Start()
@@ -43,8 +51,17 @@ namespace Controller
             customerTypeList.Clear();
             mapData = DataController.Instance.mapDataDic[
                 ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID];
+
             customerTypeList = mapData.customerTypeList;
-            StartCoroutine(CreatCustomer());
+
+            // ✅ 关键：防止重复启动
+            if (createCustomerCoroutine != null)
+            {
+                StopCoroutine(createCustomerCoroutine);
+                createCustomerCoroutine = null;
+            }
+
+            createCustomerCoroutine = StartCoroutine(CreatCustomer());
         }
 
         public IEnumerator CreatCustomer()

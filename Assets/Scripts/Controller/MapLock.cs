@@ -13,7 +13,7 @@ public class MapLock : MonoBehaviour
 
     public GameObject bg;
     public GameObject fill;
-    public TextMeshProUGUI needText;
+    public TextMeshPro needText;
 
     public MapLockData mapLockData;
 
@@ -24,16 +24,29 @@ public class MapLock : MonoBehaviour
 
     public Transform receiveTransform;
 
+    void OnEnable()
+    {
+        EventCenter.Instance.AddListener(EventMessages.ThrowOutTongBi, OnPlayerThrowTongBi);
+    }
+    void OnDisable()
+    {
+        EventCenter.Instance.RemoveListener(EventMessages.ThrowOutTongBi, OnPlayerThrowTongBi);
+    }
+
+    private void OnPlayerThrowTongBi(params object[] args)
+    {
+        Transform t = (Transform) args[0];
+        if (t != receiveTransform)
+            return;
+       var progress = GetProgressData();
+        progress.currentOwnMoney += 100;
+        UpdateProgress(progress.currentOwnMoney);
+    }
 
     void Update()
     {
         if (!playerInRange || interactStrategy == null || !isLocked)
             return;
-
-        if (interactStrategy.IsFinished)
-        {
-            Unlock();
-        }
     }
 
     public void Init(MapLockData data)
@@ -88,7 +101,11 @@ public class MapLock : MonoBehaviour
     {
         float percent = value / mapLockData.needMoney;
         fill.transform.localScale = new Vector3(percent, 1, 1);
-        needText.text = $"{Mathf.CeilToInt(value)}/{mapLockData.needMoney}";
+        needText.text = $"{mapLockData.needMoney - Mathf.CeilToInt(value)}";
+        if(percent >= 1f && isLocked)
+        {
+            Unlock();
+        }
     }
 
     private MapLockDataProgress GetProgressData()
@@ -111,7 +128,7 @@ public class MapLock : MonoBehaviour
 
         playerInRange = true;
         player = other.GetComponent<PlayerController>();
-        interactStrategy?.OnEnter(this, player);
+        interactStrategy?.OnEnter(this, player, receiveTransform);
        
     }
 
@@ -139,5 +156,11 @@ public class MapLock : MonoBehaviour
             data.isUnlock = true;
             data.currentOwnMoney = mapLockData.needMoney;
         }
+        if(player.InteractionTriggerTransform == receiveTransform)
+        {
+            player.InteractionTriggerInRange = false;
+            player.InteractionTriggerTransform = null;
+        }
+        EventCenter.Instance.TriggerEvent(EventMessages.MapLockUnlocked, mapLockData);
     }
 }

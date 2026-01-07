@@ -12,6 +12,7 @@ namespace Controller.Pickups
         public SpriteRenderer spriteRenderer;
 
         [Header("飞行参数")]
+
         
         private System.Action _onArrive;
         public void Init(DropItemType type)
@@ -21,6 +22,7 @@ namespace Controller.Pickups
             itemName = "DropObj";
             _onArrive = null;
             ScenePickupController.Instance.materials.Add(this);
+            spriteRenderer.sprite = _assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType(type));
         }
 
         /// <summary>

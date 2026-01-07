@@ -4,6 +4,7 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Utils;
 
 namespace Controller.Player
 {
@@ -13,18 +14,34 @@ namespace Controller.Player
         public Vector3 offset;   // 屏幕偏移（比如往上抬一点）
         public Image fillImage;
         public Image fillBg;
-        public Canvas  canvas;
+        public Canvas canvas;
         public TextMeshProUGUI text;
-        public PlayerController  player;
+        public PlayerController player;
+        public Image bagIcon;
+        public AssetHandle _assetHandle;
         private void Start()
         {
-            if ( player == null)
+            if (player == null)
             {
-                 player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
-                 target =  player.infoTransform;
-                 player.playerInfo = this;
+                player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
+                target = player.infoTransform;
+                player.playerInfo = this;
             }
+            _assetHandle = GetComponent<AssetHandle>();
             HideHpInfo();
+
+            EventCenter.Instance.AddListener(EventMessages.UpdatePlayerEquimentInfo, UpdateBagInfo);
+        }
+        void OnDestroy()
+        {
+            EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerEquimentInfo, UpdateBagInfo);
+        }
+
+
+        public void UpdateBagInfo(params object[] args)
+        {
+            StotageBagData stotageBagData = DataController.Instance.storageBagDataDic[player.dataModule.data.currentBag];
+            bagIcon.sprite = _assetHandle.Get<Sprite>(stotageBagData.name);
         }
 
         public void HideHpInfo()
@@ -37,26 +54,26 @@ namespace Controller.Player
             fillBg.gameObject.SetActive(true);
         }
 
-      
 
-       private void LateUpdate()
-       {
-           StartCoroutine(UpdateUIPosition());
-       }
 
-       private IEnumerator UpdateUIPosition()
-       {
-           yield return new WaitForEndOfFrame(); // 等摄像机完全更新完
+        private void LateUpdate()
+        {
+            StartCoroutine(UpdateUIPosition());
+        }
 
-           Vector3 screenPos = Camera.main.WorldToScreenPoint(target.position + offset);
-           transform.position = screenPos;
+        private IEnumerator UpdateUIPosition()
+        {
+            yield return new WaitForEndOfFrame(); // 等摄像机完全更新完
 
-           SetLayer();
-       }
+            Vector3 screenPos = Camera.main.WorldToScreenPoint(target.position + offset);
+            transform.position = screenPos;
+
+            SetLayer();
+        }
 
         private void Update()
         {
-            
+
         }
 
         public void SetLayer()
@@ -70,8 +87,8 @@ namespace Controller.Player
             ShowHpInfo();
             fillImage.DOFillAmount(Mathf.Min(value, 1), 0.3f);
         }
-        
-        
+
+
         public void UpdateTxt()
         {
             if (player.currentCarryNum >= player.maxCarryNum)

@@ -32,6 +32,14 @@ namespace Controller
         public List<MapLock> mapLockDataList_3 = new List<MapLock>();
         public List<MapLock> mapLockDataList_4 = new List<MapLock>();
         public List<MapLock> mapLockDataList_5 = new List<MapLock>();
+
+    
+        public List<StructureLockData> structureLockDataList_1 = new List<StructureLockData>();
+        public List<StructureLockData> structureLockDataList_2 = new List<StructureLockData>();
+        public List<StructureLockData> structureLockDataList_3 = new List<StructureLockData>();
+        public List<StructureLockData> structureLockDataList_4 = new List<StructureLockData>();
+        public List<StructureLockData> structureLockDataList_5 = new List<StructureLockData>();
+
         void Start()
         {
             PrepareData();
@@ -135,6 +143,26 @@ namespace Controller
             string mapLockDataStr5 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("MapLock_5")).text;
             mapLockDataList_5.Clear();
             mapLockDataList_5 = JsonConvert.DeserializeObject<List<MapLock>>(mapLockDataStr5);
+
+            string structureLockDataStr1 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_1")).text;
+            structureLockDataList_1.Clear();
+            structureLockDataList_1 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr1);
+
+            string structureLockDataStr2 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_2")).text;
+            structureLockDataList_2.Clear();
+            structureLockDataList_2 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr2);
+
+            string structureLockDataStr3 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_3")).text;
+            structureLockDataList_3.Clear();
+            structureLockDataList_3 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr3);
+
+            string structureLockDataStr4 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_4")).text;
+            structureLockDataList_4.Clear();
+            structureLockDataList_4 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr4);
+
+            string structureLockDataStr5 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_5")).text;
+            structureLockDataList_5.Clear();
+            structureLockDataList_5 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr5);
         }
         
         

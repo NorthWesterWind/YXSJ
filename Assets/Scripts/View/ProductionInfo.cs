@@ -3,14 +3,15 @@ using Controller.Structure;
 using Module.Data;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Utils;
 
 namespace View
 {
     public class ProductionInfo : MonoBehaviour
     {
-       public SpriteRenderer fillImage;
-       public TextMeshPro productionText;
+       public Image fillImage;
+       public TextMeshProUGUI productionText;
        private float _productionTime;
       
 
@@ -25,8 +26,6 @@ namespace View
        {
            this.baseTime = baseTime;
            this.speed = speed;
-
-           fillImage.size = new Vector2( 0 ,0);
            productionText.text = currentMaterialCount.ToString();
            // 生产循环不在 Init 自动开始（由 StartProductionLoop 控制）
            if (loopRoutine != null)
@@ -37,7 +36,11 @@ namespace View
            container = structureBase as ProductionStation;
        }
 
-       public void UpdateText()
+        void LateUpdate()
+        {
+            transform.position = container.infoTransform.position;
+        }
+        public void UpdateText()
        {
            productionText.text = container.currentMaterialCount.ToString();
        }
@@ -81,17 +84,17 @@ namespace View
            float t = 0f;
            float productionTime = baseTime / speed; 
 
-           fillImage.size= new Vector2(0,0.08f);
+           fillImage.fillAmount= 0;
 
            while (t < productionTime)
            {
                t += Time.deltaTime;
                float value = t / productionTime;
-               fillImage.size =  new Vector2( 2.9f*value ,0.08f )  ;
+               fillImage.fillAmount =  2.9f*value  ;
                yield return null;
            }
 
-           fillImage.size= new Vector2(2.9f,0.08f);
+           fillImage.fillAmount = 2.9f;
            EventCenter.Instance.TriggerEvent(EventMessages.ProductionComplete ,type );
        }
     }

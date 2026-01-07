@@ -26,7 +26,7 @@ namespace Controller.Player
         private Rigidbody2D _rigidbody;
         public GameObject weapon;
 
-        public float detectRadius = 10f; // 怪物检测半径
+        public float detectRadius =6f ; // 怪物检测半径
         public LayerMask monsterLayer;   // 只检测怪物层
         public LayerMask productLayer;
         public LayerMask productStationLayer;
@@ -58,6 +58,7 @@ namespace Controller.Player
         /// 角色是否处于交互范围内（解锁）
         /// </summary>
         public bool InteractionTriggerInRange { get; set; } = false;
+        public Transform InteractionTriggerTransform;
 
         private void Awake()
         {
@@ -149,10 +150,10 @@ namespace Controller.Player
                     transform.localScale = new Vector3(1, 1, 1);
                 }
 
-                if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 15))
+                if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 12))
                 {
                     camera.m_Lens.OrthographicSize =
-                        Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 15, ref velocity, 0.15f);
+                        Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 12, ref velocity, 0.15f);
                 }
 
 
@@ -175,10 +176,10 @@ namespace Controller.Player
                 {
                     state.SetAnimation(0, "idle", true);
                 }
-                if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 13))
+                if (!Mathf.Approximately(camera.m_Lens.OrthographicSize,10))
                 {
                     camera.m_Lens.OrthographicSize =
-                        Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 13, ref velocity, 0.3f);
+                        Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 10, ref velocity, 0.3f);
                 }
             }
 
@@ -188,20 +189,55 @@ namespace Controller.Player
             CheckProduct();
             CheckSaleStall();
 
-            if(InteractionTriggerInRange && !isMoving)
+            if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi < 100)
             {
-               
+                if (InteractionTriggerInRange && !isMoving)
+                {
+                    if (coroutine == null)
+                    {
+                        coroutine = StartCoroutine(ThrowOutTongBi());
+                    }
+                }
+                else
+                {
+                    if (coroutine != null)
+                    {
+                        StopCoroutine(coroutine);
+                        coroutine = null;
+                    }
+                }
             }
 
+
         }
 
-
-
-        public void ThrowOutTongBi()
+        private Coroutine coroutine;
+        private IEnumerator ThrowOutTongBi()
         {
-            GameObject coinObj = ObjectPoolManager.Instance.GetObject("TongBi");
-            var coinCtrl = coinObj.GetComponent<DropController>();
+
+            GameObject coinObj = _assetHandle.Get<GameObject>("Production");
+            coinObj.transform.position = receiveTransform.position;
+            var coinCtrl = coinObj.GetComponent<Production>();
+            coinCtrl.Init(GoodsType.TongBi);
+            ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi -= 100;
+            coinCtrl.FlyTo(
+               InteractionTriggerTransform.position,
+                () =>
+                {
+                    EventCenter.Instance.TriggerEvent(EventMessages.ThrowOutTongBi, InteractionTriggerTransform);
+                    Destroy(coinObj);
+                }
+            );
+            yield return new WaitForSeconds(0.5f);
         }
+
+
+
+        // public void ThrowOutTongBi()
+        // {
+        //     GameObject coinObj = ObjectPoolManager.Instance.GetObject("TongBi");
+        //     var coinCtrl = coinObj.GetComponent<DropController>();
+        // }
 
         private void FixedUpdate()
         {
@@ -224,10 +260,10 @@ namespace Controller.Player
         private void HandleFocusView(params object[] args)
         {
             isShowUI = true;
-            if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 13))
+            if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 10))
             {
                 camera.m_Lens.OrthographicSize =
-                    Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 13, ref velocity, 0.3f);
+                    Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 10, ref velocity, 0.3f);
             }
         }
 

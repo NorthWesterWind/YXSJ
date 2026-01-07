@@ -46,6 +46,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isSpecial: 0
+  isGoldenOnly: 0
   monsterList: []
   normalType: 1
   goldenType: 2
@@ -77,7 +78,9 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   factorID: 1
-  patrolRadius: 4
+  patrolAreaSize: {x: 5, y: 5}
+  showGizmos: 1
+  dongCtr: {fileID: 0}
 --- !u!114 &6332708969706056593
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -138,3 +141,4 @@ MonoBehaviour:
   - {fileID: 1697343704821088272, guid: f42a427c262d95841be689ba921b5f5e, type: 3}
   - {fileID: 6795311141052406192, guid: 3cd7fc5f7b25bc94090ff430bac767b6, type: 3}
   - {fileID: 3923294966001250976, guid: f3989573f41e9d743bc263f5b2455890, type: 3}
+  - {fileID: 1499510621839436624, guid: a4d3d7666088a074b90803a09c139bd2, type: 3}

@@ -23,20 +23,11 @@ public class StayProgressStrategy : ILockInteractStrategy
     {
         interacting = false;
         lockView.SaveProgress(currentProgress);
-         player.InteractionTriggerInRange = false;
+        player.InteractionTriggerInRange = false;
+        player.InteractionTriggerTransform = null;
     }
 
-  
-
-    private bool IsPlayerStanding()
-    {
-        UnityEngine.Vector2 currentPos = player.transform.position;
-        bool moving = UnityEngine.Vector2.Distance(currentPos, lastPlayerPos) > 0.01f;
-        lastPlayerPos = currentPos;
-        return !moving;
-    }
-
-    public void OnEnter(object lockView, PlayerController player)
+    public void OnEnter(object lockView, PlayerController player , Transform transform)
     {
          if(lockView is MapLock)
         {
@@ -45,6 +36,7 @@ public class StayProgressStrategy : ILockInteractStrategy
         currentProgress = this.lockView.LoadProgress();
         lastPlayerPos = player.transform.position;   
          player.InteractionTriggerInRange = true;
+         player.InteractionTriggerTransform = transform;
         }
     }
 }

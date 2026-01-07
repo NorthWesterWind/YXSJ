@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Controller.Pickups;
+using Module;
 using Module.Data;
 using UnityEngine;
 using Utils;
@@ -31,16 +32,82 @@ namespace Controller.Structure
 
         public List<Production> productionList = new List<Production>();
         public SpriteRenderer icon;
+
+        public SpriteRenderer productIcon;
+        public SpriteRenderer materialIcon;
+        public Transform infoTransform;
+
         protected override void Start()
         {
             base.Start();
             EventCenter.Instance.AddListener(EventMessages.ProductionComplete, HandleProductionComplete);
-            _assetHandle = GetComponent<AssetHandle>();
-            productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
-            grid.basePosition = productPosition.position;
-            ObjectPoolManager.Instance.WarmPool("Production", _productObj, 50);
-            int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
-            icon.sortingOrder = newOrder + 2;
+         
+            if(productionInfo == null)
+            {
+                GameObject obj = GameObject.Instantiate(_assetHandle.Get<GameObject>("ProductionInfo") , GameObject.Find("Canvas").transform, false);
+                productionInfo = obj.GetComponent<ProductionInfo>();
+                productionInfo.Init(baseProductionTime, productionSpeed ,currentMaterialCount, this);
+            }
+            Init();
+        }
+
+        public void Init()
+        {
+
+            PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            List<StructureLockData> structureLocks = new();
+            switch (playerData.currentMapID)
+            {
+                case 1:
+                    structureLocks = DataController.Instance.structureLockDataList_1;
+                    break;
+                case 2:
+                    structureLocks = DataController.Instance.structureLockDataList_2;
+                    break;
+                case 3:
+                    structureLocks = DataController.Instance.structureLockDataList_3;
+                    break;
+                case 4:
+                    structureLocks = DataController.Instance.structureLockDataList_4;
+                    break;
+                case 5:
+                    structureLocks = DataController.Instance.structureLockDataList_5;
+                    break;
+            }
+            var lockData = structureLocks.Find(s => s.buildingType == buildingType);
+            if (lockData != null)
+            {
+                var progressData = playerData.structureLockDataList.Find(s => s.buildType == buildingType && s.lockId == lockData.lockId && s.mapId == playerData.currentMapID);
+                if (progressData != null && progressData.isUnlock)
+                {
+                    content.SetActive(true);
+                    structureLock.gameObject.SetActive(false);
+                    productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
+                    grid.basePosition = productPosition.position;
+                    ObjectPoolManager.Instance.WarmPool("Production", _productObj, 50);
+                    productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(goodsType));
+                    materialIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType(dropItemType));
+                }
+                else
+                {
+                    content.SetActive(false);
+                    structureLock.gameObject.SetActive(true);
+                    structureLock.InitInfo(lockData);
+                }
+            }
+            else
+            {
+                content.SetActive(true);
+                structureLock.gameObject.SetActive(false);
+                productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
+                grid.basePosition = productPosition.position;
+                ObjectPoolManager.Instance.WarmPool("Production", _productObj, 50);
+                productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(goodsType));
+                materialIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType(dropItemType));
+            }
+            icon.sortingOrder = sprite.sortingOrder + 2;
+            productIcon.sortingOrder = sprite.sortingOrder + 2;
+            materialIcon.sortingOrder = sprite.sortingOrder + 2;
         }
 
         private void Update()
@@ -55,7 +122,6 @@ namespace Controller.Structure
             // 强制激活 UI
             if (!productionInfo.gameObject.activeSelf)
                 productionInfo.gameObject.SetActive(true);
-
             productionInfo.StartProductionLoop(this, structureType, baseProductionTime, productionSpeed);
         }
 

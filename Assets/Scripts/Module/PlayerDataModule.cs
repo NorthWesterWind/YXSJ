@@ -127,7 +127,7 @@ namespace Module
         {
             RewardData rewardData = DataController.Instance.taskRewardDataDic[rewardId];
             data.jingMangZhu += rewardData.Jmz;
-            data.tongbi += rewardData.Yq;
+            data.tongbi += rewardData.Tq;
             data.goldIngot += rewardData.Jyb;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
         }

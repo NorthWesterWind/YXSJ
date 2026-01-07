@@ -50,6 +50,10 @@ namespace Utils
         public const string CustomerLeave = "CustomerLeave"; //顾客离开售卖摊
 
 
-        
+        public const string  ThrowOutTongBi = "ThrowOutTongBi"; //玩家抛出铜币
+
+        public const string MapLockUnlocked = "MapLockUnlocked"; //地图区域锁解锁
+        public const string StructureLockUnlocked = "StructureLockUnlocked"; //建筑区域锁解锁
+        public const string JingYuanBaoDead = "JingYuanBaoDead"; //金元宝死亡
     }
 }

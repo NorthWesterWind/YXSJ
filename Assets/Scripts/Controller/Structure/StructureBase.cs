@@ -9,6 +9,8 @@ namespace Controller.Structure
         public BuildingType structureType;
         public SpriteRenderer sprite;
         protected AssetHandle _assetHandle;
+        public StructureLock structureLock;
+        public GameObject content;
         protected virtual void Start()
         {
             int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
