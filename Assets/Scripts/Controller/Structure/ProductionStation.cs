@@ -41,12 +41,12 @@ namespace Controller.Structure
         {
             base.Start();
             EventCenter.Instance.AddListener(EventMessages.ProductionComplete, HandleProductionComplete);
-         
-            if(productionInfo == null)
+
+            if (productionInfo == null)
             {
-                GameObject obj = GameObject.Instantiate(_assetHandle.Get<GameObject>("ProductionInfo") , GameObject.Find("Canvas").transform, false);
+                GameObject obj = GameObject.Instantiate(_assetHandle.Get<GameObject>("ProductionInfo"), GameObject.Find("Canvas").transform, false);
                 productionInfo = obj.GetComponent<ProductionInfo>();
-                productionInfo.Init(baseProductionTime, productionSpeed ,currentMaterialCount, this);
+                productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
             }
             Init();
         }
@@ -108,6 +108,31 @@ namespace Controller.Structure
             icon.sortingOrder = sprite.sortingOrder + 2;
             productIcon.sortingOrder = sprite.sortingOrder + 2;
             materialIcon.sortingOrder = sprite.sortingOrder + 2;
+            switch (buildingType)
+            {
+                case BuildingType.YuShaHu_1:
+                    icon.sprite = _assetHandle.Get<Sprite>("1");
+                    break;
+                case BuildingType.YuShaHu_2:
+                    icon.sprite = _assetHandle.Get<Sprite>("2");
+                    break;
+                case BuildingType.YuShaHu_3:
+                    icon.sprite = _assetHandle.Get<Sprite>("3");
+                    break;
+                case BuildingType.YuShaHu_4:
+                    icon.sprite = _assetHandle.Get<Sprite>("4");
+                    break;
+                case BuildingType.LianQiLu_1:
+                    icon.sprite = _assetHandle.Get<Sprite>("5");
+                    break;
+                case BuildingType.LianQiLu_2:
+                    icon.sprite = _assetHandle.Get<Sprite>("6");
+                    break;
+                case BuildingType.LianQiLu_3:
+                    icon.sprite = _assetHandle.Get<Sprite>("7");
+                    break;
+
+            }
         }
 
         private void Update()
@@ -167,7 +192,8 @@ namespace Controller.Structure
 
         private void OnDestroy()
         {
-            Destroy(productionInfo.gameObject);
+            if(productionInfo != null)
+                Destroy(productionInfo.gameObject);
             EventCenter.Instance.RemoveListener(EventMessages.ProductionComplete, HandleProductionComplete);
         }
 

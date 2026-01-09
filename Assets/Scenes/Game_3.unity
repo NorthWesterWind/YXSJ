@@ -24717,6 +24717,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5353087114798791979, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: assets.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5353087114798791979, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: assets.Array.data[1]
+      value: 
+      objectReference: {fileID: 3201060806074211674, guid: fcc8b41b1d1554f4ea6a98b78c7e9239, type: 3}
     - target: {fileID: 5395730233330912507, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
       propertyPath: m_Name
       value: PlayerInfoView
@@ -24844,7 +24852,7 @@ PrefabInstance:
     - target: {fileID: 7717124810810002043, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 2610ccf1a8e2aa64181f4380eb08fd9e, type: 3}
+      objectReference: {fileID: 21300000, guid: 98dd33fbf350ef04b91774b5e30343a1, type: 3}
     - target: {fileID: 8028323285612071956, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -25547,7 +25555,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 3000
+  m_SortingOrder: 3100
   m_TargetDisplay: 0
 --- !u!224 &1102488076
 RectTransform:
@@ -28545,7 +28553,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2956722690473947273, guid: 8d01b1939676fc1499863ff05a140e1d, type: 3}
       propertyPath: assets.Array.size
-      value: 32
+      value: 39
       objectReference: {fileID: 0}
     - target: {fileID: 2956722690473947273, guid: 8d01b1939676fc1499863ff05a140e1d, type: 3}
       propertyPath: assets.Array.data[2]
@@ -28641,11 +28649,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8942042284059102006, guid: 8d01b1939676fc1499863ff05a140e1d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -5.2
+      value: -4.8
       objectReference: {fileID: 0}
     - target: {fileID: 8942042284059102006, guid: 8d01b1939676fc1499863ff05a140e1d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.17
+      value: 2.27
       objectReference: {fileID: 0}
     - target: {fileID: 8942042284059102006, guid: 8d01b1939676fc1499863ff05a140e1d, type: 3}
       propertyPath: m_LocalPosition.z
@@ -38618,14 +38626,14 @@ MonoBehaviour:
     - {fileID: 1608486151}
     - {fileID: 1268117767}
     - {fileID: 284098920}
-    - {fileID: 1494196020}
     - {fileID: 1511599675}
-    - {fileID: 2133860726}
-    - {fileID: 1987709737}
     - {fileID: 1760761824}
     - {fileID: 1618668982}
     - {fileID: 1976923559}
     - {fileID: 1866747191}
+    - {fileID: 1494196020}
+    - {fileID: 1987709737}
+    - {fileID: 2133860726}
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -39226,7 +39234,7 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: mapLocks
+    - Name: mapLockDic
       Entry: 7
       Data: 9|System.Collections.Generic.Dictionary`2[[Module.Data.MonsterType, Assembly-CSharp],[MapLock,
         Assembly-CSharp]], mscorlib
@@ -39251,7 +39259,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 3
-      Data: 12
+      Data: 13
     - Name: $v
       Entry: 10
       Data: 35
@@ -39263,7 +39271,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 3
-      Data: 13
+      Data: 18
     - Name: $v
       Entry: 10
       Data: 36
@@ -39275,7 +39283,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 3
-      Data: 15
+      Data: 19
     - Name: $v
       Entry: 10
       Data: 37
@@ -39287,7 +39295,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 3
-      Data: 16
+      Data: 21
     - Name: $v
       Entry: 10
       Data: 38
@@ -39299,7 +39307,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 3
-      Data: 18
+      Data: 31
     - Name: $v
       Entry: 10
       Data: 39
@@ -39311,7 +39319,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 3
-      Data: 19
+      Data: 12
     - Name: $v
       Entry: 10
       Data: 40
@@ -39323,7 +39331,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 3
-      Data: 21
+      Data: 16
     - Name: $v
       Entry: 10
       Data: 41
@@ -39335,7 +39343,7 @@ MonoBehaviour:
       Data: 
     - Name: $k
       Entry: 3
-      Data: 31
+      Data: 15
     - Name: $v
       Entry: 10
       Data: 42
@@ -39348,7 +39356,7 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-  currentMapID: 1
+  currentMapID: 3
   productionStationList: []
   salesStallList: []
 --- !u!4 &1618143724

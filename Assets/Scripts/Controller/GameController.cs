@@ -21,7 +21,7 @@ namespace Controller
         public Dictionary<StructureBase, QueueGroup> queues = new ();
         public Dictionary< MonsterType , FactoryController> factoryControllers = new();
 
-        public Dictionary< MonsterType , MapLock> mapLocks = new ();
+        public Dictionary< MonsterType , MapLock> mapLockDic = new ();
 
         public int currentMapID = 1;
 

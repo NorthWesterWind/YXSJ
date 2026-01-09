@@ -611,7 +611,7 @@ namespace Utils
 					GetHarvestStr(id, out resName);
 					break;
 				case TaskType.Makemoney:
-					resName = "YinQian";
+					resName = "TongBi";
 					break;
 				case TaskType.Produce:
 				case TaskType.Sell:
@@ -622,7 +622,7 @@ namespace Utils
 					GetStructStr(id, out resName);
 					break;
 				case TaskType.Unlock:
-					resName = "Lock";
+					resName = "MapLock";
 					break;
 			}
 
@@ -635,7 +635,7 @@ namespace Utils
 			switch (id)
 			{
 				case 1:
-					resName = "ShaungYunZhi";
+					resName = "ShuangYunZhi";
 					break;
 				case 2:
 					resName = "YueLuCao";
@@ -750,31 +750,31 @@ namespace Utils
 					resName = "LingZhangTai";
 					break;
 				case 2:
-					resName = "LingChuGe_1";
+					resName = "LingChuGe";
 					break;
 				case 3:
 					resName = "YunDiGe";
 					break;
 				case 4:
-					resName = "LingChaJia_1";
+					resName = "LingChaJia";
 					break;
 				case 5:
 					resName = "YuShaHu_1";
 					break;
 				case 6:
-					resName = "LingChaJia_2";
+					resName = "LingChaJia";
 					break;
 				case 7:
 					resName = "YuShaHu_2";
 					break;
 				case 8:
-					resName = "LingChaJia_3";
+					resName = "LingChaJia";
 					break;
 				case 9:
 					resName = "YuShaHu_3";
 					break;
 				case 10:
-					resName = "LingChaJia_4";
+					resName = "LingChaJia";
 					break;
 				case 11:
 					resName = "YuShaHu_4";
@@ -783,25 +783,25 @@ namespace Utils
 					resName = "LianQiLu_1";
 					break;
 				case 13:
-					resName = "LingQiJia_1";
+					resName = "LingQiJia";
 					break;
 				case 14:
 					resName = "LianQiLu_2";
 					break;
 				case 15:
-					resName = "LingQiJia_2";
+					resName = "LingQiJia";
 					break;
 				case 16:
 					resName = "LianQiLu_3";
 					break;
 				case 17:
-					resName = "LingQiJia_3";
+					resName = "LingQiJia";
 					break;
 				case 18:
 					resName = "YuanBaoKuangDong";
 					break;
 				case 19:
-					resName = "LingChuGe_2";
+					resName = "LingChuGe";
 					break;
 			}
 		}

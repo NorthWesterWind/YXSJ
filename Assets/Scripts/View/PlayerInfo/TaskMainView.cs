@@ -21,21 +21,21 @@ namespace View.PlayerInfo
         {
             _assetHandle = GetComponent<AssetHandle>();
             AddEvent();
-         
-           
+
+
         }
 
         public void AddEvent()
         {
             showBtn.onClick.RemoveAllListeners();
             showBtn.onClick.AddListener(OnClickShowBtn);
-            EventCenter.Instance.AddListener(EventMessages.UpdateTaskMainView , HandleUpdateTaskMainView);
+            EventCenter.Instance.AddListener(EventMessages.UpdateTaskMainView, HandleUpdateTaskMainView);
             EventCenter.Instance.AddListener(EventMessages.MapTaskDataPrepared, HandleUpdateTaskMainView);
         }
 
         private void OnDestroy()
         {
-            EventCenter.Instance.RemoveListener(EventMessages.UpdateTaskMainView , HandleUpdateTaskMainView);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateTaskMainView, HandleUpdateTaskMainView);
             EventCenter.Instance.RemoveListener(EventMessages.MapTaskDataPrepared, HandleUpdateTaskMainView);
         }
 
@@ -45,7 +45,7 @@ namespace View.PlayerInfo
             if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.listenInTaskList.Count == 0)
             {
                 //没有监听的任务数据
-                ModuleMgr.Instance.GetModule<PlayerDataModule>().data.listenInTaskList =  DataController.Instance.GetTaskGroupIds();
+                ModuleMgr.Instance.GetModule<PlayerDataModule>().data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
             }
             List<TaskData> dataList = DataController.Instance.GetTaskGroupIds();
             TaskData task = dataList.Find(x => x.taskId == ModuleMgr.Instance.GetModule<PlayerDataModule>().data.nowTaskId);
@@ -62,7 +62,17 @@ namespace View.PlayerInfo
                 {
                     taskProgressTxt.text = "(0/" + task.keyValue + ")";
                 }
-                // iconImage.sprite = _assetHandle.Get<Sprite>(Extensions.GetTaskInfoResNameByTypeWithId(task.type, task.taskId));
+                iconImage.sprite = _assetHandle.Get<Sprite>(Extensions.GetTaskInfoResNameByTypeWithId(task.type, task.aimId));
+                if (task.type == TaskType.Upgrade || task.type == TaskType.Construct)
+                {
+                    iconImage.rectTransform.sizeDelta = new Vector2(160, 160);
+                    //iconImage.rectTransform.position = new Vector3(23, 0, 0);
+                }
+                else
+                {
+                    iconImage.rectTransform.sizeDelta = new Vector2(130, 130);
+                    //iconImage.rectTransform.position = new Vector3(32, 0, 0);
+                }
             }
         }
 
@@ -70,15 +80,15 @@ namespace View.PlayerInfo
         {
             UIController.Instance.Show<TaskPop>();
         }
-        
+
 
         #endregion
-        
-        
-       
+
+
+
         void Update()
         {
-        
+
         }
     }
 }

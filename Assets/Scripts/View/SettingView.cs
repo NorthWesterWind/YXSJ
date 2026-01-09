@@ -10,7 +10,7 @@ namespace View
     public class SettingView : BaseView
     {
         public Slider musicSlider;
-         public Slider soundSlider;
+        public Slider soundSlider;
         public UIButton returnBtn;
         public UIButton logoutBtn;
         public UIButton quitBtn;
@@ -41,17 +41,17 @@ namespace View
             {
                 AudioSourceController.Instance.SetMusicVolume(musicSlider.value);
             });
-             soundSlider.onValueChanged.RemoveAllListeners();
-             soundSlider.onValueChanged.AddListener((value) =>
-             {
-                 AudioSourceController.Instance.SetSoundVolume(soundSlider.value);
-             });
+            soundSlider.onValueChanged.RemoveAllListeners();
+            soundSlider.onValueChanged.AddListener((value) =>
+            {
+                AudioSourceController.Instance.SetSoundVolume(soundSlider.value);
+            });
         }
 
         protected override void Start()
         {
             base.Start();
-           
+
         }
 
         private void Logout()
@@ -75,11 +75,16 @@ namespace View
             if (scene.name == "Login")
             {
                 // 显示UI
-               // UIController.Instance.Show<LoginView>();
+                // UIController.Instance.Show<LoginView>();
             }
 
             // 用完就移除，防止多次注册
             SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+        protected override void OnHideComplete()
+        {
+            base.OnHideComplete();
+            EventCenter.Instance.TriggerEvent(EventMessages.ShowPlayerInfoViewCartoon);
         }
     }
 }

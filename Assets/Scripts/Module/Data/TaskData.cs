@@ -1,5 +1,6 @@
 namespace Module.Data
 {
+	[System.Serializable]
 	public class TaskData
 	{
 		public int taskId;    // 编号

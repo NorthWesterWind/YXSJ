@@ -52,7 +52,6 @@ namespace View.Task
         {
             isCompleted = false;
             data = taskData;
-            //iconImage.sprite = _assetHandle.Get<Sprite>(Extensions.GetTaskInfoResNameByTypeWithId(data.type, data.taskId));
             infotxt.text = data.info;
             if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.completedTaskIdList.Contains(data.taskId))
             {
@@ -68,6 +67,21 @@ namespace View.Task
             {
                 btnText.text = "寻找";
                 progresstxt.text = "(0/" + data.keyValue + ")";
+            }
+            if(_assetHandle == null)
+            {
+                _assetHandle = GetComponent<AssetHandle>();
+            }
+           iconImage.sprite = _assetHandle.Get<Sprite>(Extensions.GetTaskInfoResNameByTypeWithId(data.type, data.aimId));
+           if(data.type == TaskType.Upgrade || data.type == TaskType.Construct)
+            {
+                iconImage.rectTransform.sizeDelta = new Vector2(160, 160);
+                //iconImage.rectTransform.position = new Vector3(23, 0, 0);
+            }
+            else
+            {
+                iconImage.rectTransform.sizeDelta = new Vector2(130, 130);
+               // iconImage.rectTransform.position = new Vector3(32, 0, 0);
             }
         }
         public void HandleUpdateTaskInfo(params object[] objs)

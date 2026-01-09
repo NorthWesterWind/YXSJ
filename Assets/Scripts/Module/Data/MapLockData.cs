@@ -1,6 +1,7 @@
 
 namespace Module.Data
 {
+	[System.Serializable]
 	public class MapLockData
 	{
 		public int lockId; // 编号

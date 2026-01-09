@@ -1,3 +1,5 @@
+using System.Linq.Expressions;
+
 namespace Utils
 {
     public static class EventMessages
@@ -55,5 +57,7 @@ namespace Utils
         public const string MapLockUnlocked = "MapLockUnlocked"; //地图区域锁解锁
         public const string StructureLockUnlocked = "StructureLockUnlocked"; //建筑区域锁解锁
         public const string JingYuanBaoDead = "JingYuanBaoDead"; //金元宝死亡
+
+        public const string MapLockDataPrepareded = "MapLockDataPrepareded"; //地图区域锁数据准备完成
     }
 }

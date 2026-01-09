@@ -27,6 +27,7 @@ public class MapLock : MonoBehaviour
     void OnEnable()
     {
         EventCenter.Instance.AddListener(EventMessages.ThrowOutTongBi, OnPlayerThrowTongBi);
+    
     }
     void OnDisable()
     {

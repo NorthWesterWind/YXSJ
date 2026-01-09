@@ -59,11 +59,10 @@ namespace Module.Data
 
         public List<int> unlockMapList = new List<int>(){1};
         public Dictionary<int ,List<int>> mapPlayRecordDic = new Dictionary<int ,List<int>>();
-        public int tongbi;  //铜币
-        public int goldIngot;   //金元宝
-        public int lingJing;    //灵晶
-        public int jingMangZhu; //金芒珠
-        public int lingQiaoShi; //灵窍石
+        public int tongbi = 5000000;  //铜币
+        public int goldIngot = 5000000;   //金元宝
+        public int lingJing = 500000;    //灵晶
+        public int jingMangZhu = 10000; //金芒珠
         public int currentMapID = 3;
 
         

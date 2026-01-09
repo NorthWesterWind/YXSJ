@@ -118,15 +118,6 @@ namespace View
         private void InitInfoItem()
         {
             Extensions.ClearChildren(infoItemContent);
-            GameObject go1 = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), infoItemContent, false);
-            go1.GetComponent<InfoItem>().SetType(InfoType.JinYuanBao);
-            go1.GetComponent<InfoItem>().Init(player);
-            GameObject go2 = Instantiate(_assetHandle.Get<GameObject>("InfoItem"),infoItemContent, false);
-            go2.GetComponent<InfoItem>().SetType(InfoType.LingJing);
-            go2.GetComponent<InfoItem>().Init(player);
-            GameObject go3 = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), infoItemContent, false);
-            go3.GetComponent<InfoItem>().SetType(InfoType.YinQian);
-            go3.GetComponent<InfoItem>().Init(player);
             if (player.dropDic != null && player.dropDic.Count > 0)
             {
                 foreach (var value in player.dropDic)

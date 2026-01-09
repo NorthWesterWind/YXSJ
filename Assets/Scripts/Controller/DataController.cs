@@ -11,29 +11,29 @@ namespace Controller
     {
         public Dictionary<MonsterType, MonsterData> monsterDataDic = new();
         public Dictionary<CustomerType, CustomerData> customerDataDic = new();
-        public Dictionary<int,MapData>  mapDataDic = new();
-        public Dictionary<int , RewardData> taskRewardDataDic = new();
-        public Dictionary<int , StotageBagData> storageBagDataDic = new();
+        public Dictionary<int, MapData> mapDataDic = new();
+        public Dictionary<int, RewardData> taskRewardDataDic = new();
+        public Dictionary<int, StotageBagData> storageBagDataDic = new();
         public Dictionary<int, WeaponData> weaponDataDic = new();
-        public Dictionary<int , TaskData> mapTaskDataDic1 = new(); // 30 
-        public Dictionary<int , TaskData> mapTaskDataDic2 = new(); // 60
-        public Dictionary<int , TaskData> mapTaskDataDic3 = new(); //90
-        public Dictionary<int , TaskData> mapTaskDataDic4 = new(); //100
-        public Dictionary<int , TaskData> mapTaskDataDic5 = new(); //110
-        
-        public Dictionary<int , SevenDayRewardData> sevenDayRewardDataDic = new();
-        public Dictionary<int , TalentData> talentDataDic = new();
+        public Dictionary<int, TaskData> mapTaskDataDic1 = new(); // 30 
+        public Dictionary<int, TaskData> mapTaskDataDic2 = new(); // 60
+        public Dictionary<int, TaskData> mapTaskDataDic3 = new(); //90
+        public Dictionary<int, TaskData> mapTaskDataDic4 = new(); //100
+        public Dictionary<int, TaskData> mapTaskDataDic5 = new(); //110
+
+        public Dictionary<int, SevenDayRewardData> sevenDayRewardDataDic = new();
+        public Dictionary<int, TalentData> talentDataDic = new();
         public List<CardLevelData> cardLevelDataList = new();
-        public Dictionary<int ,GiftpackData> giftpackDataDic = new();
-        public Dictionary<int , OrderData> orderDataDic = new Dictionary<int, OrderData>();
+        public Dictionary<int, GiftpackData> giftpackDataDic = new();
+        public Dictionary<int, OrderData> orderDataDic = new Dictionary<int, OrderData>();
 
-        public List<MapLock> mapLockDataList_1 = new List<MapLock>();
-        public List<MapLock> mapLockDataList_2 = new List<MapLock>();
-        public List<MapLock> mapLockDataList_3 = new List<MapLock>();
-        public List<MapLock> mapLockDataList_4 = new List<MapLock>();
-        public List<MapLock> mapLockDataList_5 = new List<MapLock>();
+        public List<MapLockData> mapLockDataList_1 = new List<MapLockData>();
+        public List<MapLockData> mapLockDataList_2 = new List<MapLockData>();
+        public List<MapLockData> mapLockDataList_3 = new List<MapLockData>();
+        public List<MapLockData> mapLockDataList_4 = new List<MapLockData>();
+        public List<MapLockData> mapLockDataList_5 = new List<MapLockData>();
 
-    
+
         public List<StructureLockData> structureLockDataList_1 = new List<StructureLockData>();
         public List<StructureLockData> structureLockDataList_2 = new List<StructureLockData>();
         public List<StructureLockData> structureLockDataList_3 = new List<StructureLockData>();
@@ -45,10 +45,10 @@ namespace Controller
             PrepareData();
         }
 
-       
+
         void Update()
         {
-            
+
         }
 
 
@@ -63,59 +63,59 @@ namespace Controller
             customerDataDic.Clear();
             customerDataDic = JsonConvert.DeserializeObject<Dictionary<CustomerType, CustomerData>>(customerStr);
             EventCenter.Instance.TriggerEvent(EventMessages.CustomerBeginCreate);
-            
-            
+
+
             string mapStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("MapData")).text;
             mapDataDic?.Clear();
             mapDataDic = JsonConvert.DeserializeObject<Dictionary<int, MapData>>(mapStr);
             EventCenter.Instance.TriggerEvent(EventMessages.MapDataPrepared);
-            
+
             string rewardStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("RewardData")).text;
             taskRewardDataDic.Clear();
             taskRewardDataDic = JsonConvert.DeserializeObject<Dictionary<int, RewardData>>(rewardStr);
-            
+
             string storageStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StorageBagData")).text;
             storageBagDataDic.Clear();
-            storageBagDataDic =  JsonConvert.DeserializeObject<Dictionary<int, StotageBagData>>(storageStr);
-            
+            storageBagDataDic = JsonConvert.DeserializeObject<Dictionary<int, StotageBagData>>(storageStr);
+
             string weaponStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("WeaponData")).text;
             weaponDataDic.Clear();
             weaponDataDic = JsonConvert.DeserializeObject<Dictionary<int, WeaponData>>(weaponStr);
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
-            
+
             string taskStr1 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("TaskData_1")).text;
             mapTaskDataDic1.Clear();
             mapTaskDataDic1 = JsonConvert.DeserializeObject<Dictionary<int, TaskData>>(taskStr1);
-            
+
             string taskStr2 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("TaskData_2")).text;
             mapTaskDataDic2.Clear();
             mapTaskDataDic2 = JsonConvert.DeserializeObject<Dictionary<int, TaskData>>(taskStr2);
-            
+
             string taskStr3 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("TaskData_3")).text;
             mapTaskDataDic3.Clear();
             mapTaskDataDic3 = JsonConvert.DeserializeObject<Dictionary<int, TaskData>>(taskStr3);
-            
+
             string taskStr4 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("TaskData_4")).text;
             mapTaskDataDic4.Clear();
             mapTaskDataDic4 = JsonConvert.DeserializeObject<Dictionary<int, TaskData>>(taskStr4);
-            
+
             string taskStr5 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("TaskData_5")).text;
             mapTaskDataDic5.Clear();
             mapTaskDataDic5 = JsonConvert.DeserializeObject<Dictionary<int, TaskData>>(taskStr5);
             EventCenter.Instance.TriggerEvent(EventMessages.MapTaskDataPrepared);
-            
+
             string sevenDataStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("SevenDayReward")).text;
             sevenDayRewardDataDic.Clear();
             sevenDayRewardDataDic = JsonConvert.DeserializeObject<Dictionary<int, SevenDayRewardData>>(sevenDataStr);
-            
+
             string talentDataStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("TalentData")).text;
             talentDataDic.Clear();
             talentDataDic = JsonConvert.DeserializeObject<Dictionary<int, TalentData>>(talentDataStr);
-            
+
             string cardDataStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("CardLevelData")).text;
             cardLevelDataList.Clear();
             cardLevelDataList = JsonConvert.DeserializeObject<List<CardLevelData>>(cardDataStr);
-            
+
             string giftpackDataStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("GiftpackData")).text;
             giftpackDataDic.Clear();
             giftpackDataDic = JsonConvert.DeserializeObject<Dictionary<int, GiftpackData>>(giftpackDataStr);
@@ -126,23 +126,25 @@ namespace Controller
 
             string mapLockDataStr1 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("MapLock_1")).text;
             mapLockDataList_1.Clear();
-            mapLockDataList_1 = JsonConvert.DeserializeObject<List<MapLock>>(mapLockDataStr1);
+            mapLockDataList_1 = JsonConvert.DeserializeObject<List<MapLockData>>(mapLockDataStr1);
 
             string mapLockDataStr2 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("MapLock_2")).text;
             mapLockDataList_2.Clear();
-            mapLockDataList_2 = JsonConvert.DeserializeObject<List<MapLock>>(mapLockDataStr2);
+            mapLockDataList_2 = JsonConvert.DeserializeObject<List<MapLockData>>(mapLockDataStr2);
 
             string mapLockDataStr3 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("MapLock_3")).text;
             mapLockDataList_3.Clear();
-            mapLockDataList_3 = JsonConvert.DeserializeObject<List<MapLock>>(mapLockDataStr3);
+            mapLockDataList_3 = JsonConvert.DeserializeObject<List<MapLockData>>(mapLockDataStr3);
 
             string mapLockDataStr4 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("MapLock_4")).text;
             mapLockDataList_4.Clear();
-            mapLockDataList_4 = JsonConvert.DeserializeObject<List<MapLock>>(mapLockDataStr4);
+            mapLockDataList_4 = JsonConvert.DeserializeObject<List<MapLockData>>(mapLockDataStr4);
 
             string mapLockDataStr5 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("MapLock_5")).text;
             mapLockDataList_5.Clear();
-            mapLockDataList_5 = JsonConvert.DeserializeObject<List<MapLock>>(mapLockDataStr5);
+            mapLockDataList_5 = JsonConvert.DeserializeObject<List<MapLockData>>(mapLockDataStr5);
+
+           InitMapLock();
 
             string structureLockDataStr1 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_1")).text;
             structureLockDataList_1.Clear();
@@ -164,9 +166,9 @@ namespace Controller
             structureLockDataList_5.Clear();
             structureLockDataList_5 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr5);
         }
-        
-        
-        public List<TaskData> GetTaskGroupIds( )
+
+
+        public List<TaskData> GetTaskGroupIds()
         {
             int groupSize = mapDataDic[ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID].taskGroupSize;
             int mapId = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID;
@@ -203,6 +205,38 @@ namespace Controller
             return groupList;
         }
 
-        
+
+        public void InitMapLock()
+        {
+            List<MapLockData> mapLockDatas = new();
+            switch (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID)
+            {
+                case 1:
+                    mapLockDatas = mapLockDataList_1;
+                    break;
+                case 2:
+                    mapLockDatas = mapLockDataList_2;
+                    break;
+                case 3:
+                    mapLockDatas = mapLockDataList_3;
+                    break;
+                case 4:
+                    mapLockDatas = mapLockDataList_4;
+                    break;
+                case 5:
+                    mapLockDatas = mapLockDataList_5;
+                    break;
+                default:
+                    break;
+
+            }
+            for (int i = 0; i < mapLockDatas.Count; i++)
+            {
+                if (GameController.Instance.mapLockDic.ContainsKey(mapLockDatas[i].monsterType))
+                {
+                    GameController.Instance.mapLockDic[mapLockDatas[i].monsterType].Init(mapLockDatas[i]);
+                }
+            }
+        }
     }
 }

@@ -26,6 +26,11 @@ public class ZhuanPanView : BaseView
 
     }
 
+    protected override void OnHideComplete()
+    {
+        base.OnHideComplete();
+        EventCenter.Instance.TriggerEvent(EventMessages.ShowPlayerInfoViewCartoon);
+    }
     override public void UpdateViewWithArgs(params object[] args)
     {
         base.UpdateViewWithArgs(args);
@@ -113,4 +118,6 @@ public class ZhuanPanView : BaseView
         }
         EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
     }
+    
+
 }

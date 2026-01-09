@@ -294,7 +294,7 @@ namespace Module.Data
                 None,
                 JinYuanBao,
                 LingJing,
-                YinQian,
+                TongBi,
                 ShuangYunZhiFragment,
                 YueLuCaoFragment ,
                 ZiXinHuaFragment ,
