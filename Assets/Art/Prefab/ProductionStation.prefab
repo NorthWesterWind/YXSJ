@@ -650,7 +650,7 @@ GameObject:
   - component: {fileID: 8987830945155416122}
   - component: {fileID: 1112182908865037553}
   - component: {fileID: 2956722690473947273}
-  - component: {fileID: 3755277894250950419}
+  - component: {fileID: 7231238702187275105}
   m_Layer: 8
   m_Name: ProductionStation
   m_TagString: Untagged
@@ -782,8 +782,8 @@ MonoBehaviour:
   - {fileID: 2800000, guid: eddc982c93925894ea208a7d01953480, type: 3}
   - {fileID: 2800000, guid: 81a19548fee228041b4304952941a726, type: 3}
   - {fileID: 2800000, guid: 4c8afe671eb45d64caa423e861da2ccd, type: 3}
---- !u!61 &3755277894250950419
-BoxCollider2D:
+--- !u!60 &7231238702187275105
+PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -814,19 +814,35 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.019883871, y: -0.61421967}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 3.88, y: 3.68}
-    newSize: {x: 2, y: 2}
-    adaptiveTilingThreshold: 0.5
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 2.8858275, y: 1.8543434}
-  m_EdgeRadius: 0
+  m_Points:
+    m_Paths:
+    - - {x: 1.4028559, y: 1.2352304}
+      - {x: 0.2708683, y: 1.2708683}
+      - {x: -1.3504839, y: 1.2881722}
+      - {x: -1.9823837, y: 0.6903479}
+      - {x: -1.3146849, y: 0.16176271}
+      - {x: -1.3679237, y: -0.24197006}
+      - {x: -1.4939957, y: -0.39563942}
+      - {x: -1.4044123, y: -0.88570464}
+      - {x: -0.6751127, y: -0.91354966}
+      - {x: -0.012639046, y: -0.9443722}
+      - {x: 1.1787134, y: -0.96066093}
+      - {x: 1.4404049, y: -0.838284}
+      - {x: 1.4351549, y: -0.3800769}
+      - {x: 1.2566633, y: -0.34134912}
+      - {x: 1.264143, y: 0.32458878}
+      - {x: 1.9442406, y: 0.6814613}
+  m_UseDelaunayMesh: 0
 --- !u!1001 &3785572488940670908
 PrefabInstance:
   m_ObjectHideFlags: 0

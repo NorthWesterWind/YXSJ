@@ -44,9 +44,13 @@ namespace Controller.Structure
 
             if (productionInfo == null)
             {
-                GameObject obj = GameObject.Instantiate(_assetHandle.Get<GameObject>("ProductionInfo"), GameObject.Find("Canvas").transform, false);
+                GameObject obj = GameObject.Instantiate(_assetHandle.Get<GameObject>("ProductionInfo"), GameObject.Find("HpCanvas").transform, false);
                 productionInfo = obj.GetComponent<ProductionInfo>();
                 productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
+                if(currentMaterialCount == 0)
+                {
+                    productionInfo.gameObject.SetActive(false);
+                }
             }
             Init();
         }
@@ -133,6 +137,7 @@ namespace Controller.Structure
                     break;
 
             }
+            grid.basePosition = productPosition.position;
         }
 
         private void Update()
@@ -233,7 +238,7 @@ namespace Controller.Structure
         public int layers = 3;
 
         public float xSpacing = 1f;
-        public float ySpacing = 0.5f;
+        public float ySpacing = 0.2f;
 
         public Vector2 basePosition;
 

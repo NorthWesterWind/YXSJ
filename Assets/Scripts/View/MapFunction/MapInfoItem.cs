@@ -13,14 +13,12 @@ namespace View.MapFunction
         public Image icon;
         public AssetHandle assetHandle;
 
-        public void Init( string str , string info , string resname)
+        public void Init(  string resname)
         {
             if (assetHandle == null)
             {
                 assetHandle = GetComponent<AssetHandle>();
             }
-            name = str;
-            this.info = info;
             icon.sprite = assetHandle.Get<Sprite>(resname);
                                 
         }

@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 763782710051959382}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.005, y: -0.516, z: 0}
+  m_LocalPosition: {x: -0.018, y: 0.001, z: 0}
   m_LocalScale: {x: 4, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -95,7 +95,6 @@ GameObject:
   - component: {fileID: 3266673986091281180}
   - component: {fileID: 8163581027281123658}
   - component: {fileID: 1987323684111048249}
-  - component: {fileID: 2497312479837699726}
   m_Layer: 9
   m_Name: SuCaiGeDiZi
   m_TagString: Untagged
@@ -139,7 +138,7 @@ MonoBehaviour:
   stoppingDistance: 0.1
   slowingDistance: 1
   lookAheadDistance: 1
-  avoidRadius: 0
+  avoidRadius: 0.5
   avoidanceConsiderStuckedTime: 3
   avoidanceConsiderReachedDistance: 1
   rotateTransform: 0
@@ -177,51 +176,7 @@ MonoBehaviour:
   salesStall: {fileID: 0}
   receiveTransform: {fileID: 4544592672557045143}
   purchaseList: []
---- !u!61 &2497312479837699726
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1474242462261255852}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 2560
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: -0.0042545795, y: 0.15767431}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.6646495, y: 1.1633444}
-  m_EdgeRadius: 0
+  _meshRenderer: {fileID: 0}
 --- !u!1 &3273570381330695272
 GameObject:
   m_ObjectHideFlags: 0
@@ -250,7 +205,7 @@ Transform:
   m_GameObject: {fileID: 3273570381330695272}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.06500006, y: -0.5430002, z: 0}
+  m_LocalPosition: {x: 0.041999817, y: -0.026000023, z: 0}
   m_LocalScale: {x: 0.6, y: 0.6, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -374,7 +329,7 @@ Transform:
   m_GameObject: {fileID: 6044508458763422116}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.06500006, y: 1.1339998, z: 0}
+  m_LocalPosition: {x: 0.041999817, y: 1.651, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

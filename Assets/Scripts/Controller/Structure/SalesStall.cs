@@ -71,6 +71,7 @@ namespace Controller.Structure
             productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(currentGoodsType));
             productIcon.sortingOrder = sprite.sortingOrder+2;
             productIconbg.sortingOrder = sprite.sortingOrder+1;
+               grid.basePosition = baseTransform.position;
         }
 
         public void AddGoods(Production p)

@@ -345,6 +345,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isSpecial: 1
+  isGoldenOnly: 0
   monsterList: []
   normalType: 0
   goldenType: 0
@@ -376,7 +377,9 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   factorID: 3
-  patrolRadius: 0
+  patrolAreaSize: {x: 5, y: 5}
+  showGizmos: 1
+  dongCtr: {fileID: 0}
 --- !u!212 &55245054
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -426,7 +429,7 @@ SpriteRenderer:
   m_Size: {x: 0.8, y: 0.8}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &55245055
@@ -542,7 +545,7 @@ SpriteRenderer:
   m_Size: {x: 1.2, y: 0.4}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &130762689
@@ -627,7 +630,7 @@ SpriteRenderer:
   m_Size: {x: 1.2, y: 0.4}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &150266634
@@ -711,7 +714,7 @@ SpriteRenderer:
   m_Size: {x: 0.86, y: 1.03}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &153137991
@@ -763,6 +766,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isSpecial: 0
+  isGoldenOnly: 0
   monsterList: []
   normalType: 4
   goldenType: 5
@@ -794,7 +798,9 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   factorID: 2
-  patrolRadius: 0
+  patrolAreaSize: {x: 5, y: 5}
+  showGizmos: 1
+  dongCtr: {fileID: 0}
 --- !u!212 &153137994
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -844,7 +850,7 @@ SpriteRenderer:
   m_Size: {x: 0.8, y: 0.8}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &153137995
@@ -1150,7 +1156,7 @@ SpriteRenderer:
   m_Size: {x: 2, y: 2}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &201410288
@@ -1167,6 +1173,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   structureType: 4
   sprite: {fileID: 201410287}
+  structureLock: {fileID: 0}
+  content: {fileID: 0}
   receiveTransform: {fileID: 850921098}
   currentGoodsType: 1
   currentGoodsCount: 0
@@ -1180,9 +1188,11 @@ MonoBehaviour:
     ySpacing: 1
     basePosition: {x: 0, y: 0}
     currentIndex: 0
-  numTxt: {fileID: 306926130}
   productList: []
   transferPoint: {fileID: 0}
+  buildingType: 0
+  productIcon: {fileID: 0}
+  productIconbg: {fileID: 0}
 --- !u!1 &236361800
 GameObject:
   m_ObjectHideFlags: 0
@@ -1284,7 +1294,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fillImage: {fileID: 523876996}
-  productionText: {fileID: 468823884}
+  productionText: {fileID: 0}
   container: {fileID: 0}
 --- !u!212 &281997643
 SpriteRenderer:
@@ -1335,7 +1345,7 @@ SpriteRenderer:
   m_Size: {x: 3, y: 0.1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
 --- !u!1 &285551523
@@ -2369,7 +2379,7 @@ SpriteRenderer:
   m_Size: {x: 3, y: 0.1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
 --- !u!1 &523876994
@@ -2453,7 +2463,7 @@ SpriteRenderer:
   m_Size: {x: 2.9, y: 0.08}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
 --- !u!1 &540718312
@@ -2708,7 +2718,7 @@ SpriteRenderer:
   m_Size: {x: 2.9, y: 0.08}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
 --- !u!1 &623028507
@@ -2792,7 +2802,7 @@ SpriteRenderer:
   m_Size: {x: 2.9, y: 0.08}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
 --- !u!1 &648389497
@@ -3073,7 +3083,7 @@ SpriteRenderer:
   m_Size: {x: 2, y: 2}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &672660490
@@ -3090,6 +3100,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   structureType: 7
   sprite: {fileID: 672660489}
+  structureLock: {fileID: 0}
+  content: {fileID: 0}
   productPosition: {fileID: 1884546747}
   recivePosition: {fileID: 1169299443}
   transferPoint: {fileID: 0}
@@ -3110,6 +3122,10 @@ MonoBehaviour:
     basePosition: {x: 0, y: 0}
     currentIndex: 0
   productionList: []
+  icon: {fileID: 0}
+  productIcon: {fileID: 0}
+  materialIcon: {fileID: 0}
+  infoTransform: {fileID: 0}
 --- !u!114 &672660491
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3193,7 +3209,7 @@ SpriteRenderer:
   m_Size: {x: 0.8, y: 0.8}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &701624042
@@ -3224,6 +3240,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isSpecial: 0
+  isGoldenOnly: 0
   monsterList: []
   normalType: 1
   goldenType: 2
@@ -3255,7 +3272,9 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   factorID: 1
-  patrolRadius: 0
+  patrolAreaSize: {x: 5, y: 5}
+  showGizmos: 1
+  dongCtr: {fileID: 0}
 --- !u!114 &701624044
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3351,6 +3370,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isSpecial: 1
+  isGoldenOnly: 0
   monsterList: []
   normalType: 0
   goldenType: 0
@@ -3382,7 +3402,9 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   factorID: 4
-  patrolRadius: 0
+  patrolAreaSize: {x: 5, y: 5}
+  showGizmos: 1
+  dongCtr: {fileID: 0}
 --- !u!212 &748107592
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3432,7 +3454,7 @@ SpriteRenderer:
   m_Size: {x: 0.8, y: 0.8}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &748107593
@@ -4252,7 +4274,7 @@ SpriteRenderer:
   m_Size: {x: 0.92, y: 0.88}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &911084927
@@ -4304,6 +4326,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   customerTypeList: 
+  spawnTime: 0
 --- !u!114 &930200676
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4374,7 +4397,7 @@ SpriteRenderer:
   m_Size: {x: 0.8, y: 0.8}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &930200678
@@ -4906,6 +4929,7 @@ MonoBehaviour:
   interactionType: 1
   showUIType: 4
   buildingType: 7
+  SpeedUp: 0
 --- !u!114 &982952072
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5156,6 +5180,7 @@ MonoBehaviour:
   interactionType: 1
   showUIType: 4
   buildingType: 5
+  SpeedUp: 0
 --- !u!61 &1038613682
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -5320,7 +5345,7 @@ SpriteRenderer:
   m_Size: {x: 1, y: 0.98}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!50 &1058228374
@@ -5663,7 +5688,7 @@ SpriteRenderer:
   m_Size: {x: 2, y: 2}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &1151213204
@@ -5796,6 +5821,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   structureType: 5
   sprite: {fileID: 1151213202}
+  structureLock: {fileID: 0}
+  content: {fileID: 0}
   productPosition: {fileID: 1883196399}
   recivePosition: {fileID: 1344753557}
   transferPoint: {fileID: 0}
@@ -5816,6 +5843,10 @@ MonoBehaviour:
     basePosition: {x: 0, y: 0}
     currentIndex: 0
   productionList: []
+  icon: {fileID: 0}
+  productIcon: {fileID: 0}
+  materialIcon: {fileID: 0}
+  infoTransform: {fileID: 0}
 --- !u!114 &1151213209
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6048,7 +6079,7 @@ SpriteRenderer:
   m_Size: {x: 2, y: 2}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &1184683347
@@ -6065,6 +6096,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   structureType: 6
   sprite: {fileID: 1184683346}
+  structureLock: {fileID: 0}
+  content: {fileID: 0}
   receiveTransform: {fileID: 1202084305}
   currentGoodsType: 3
   currentGoodsCount: 0
@@ -6078,9 +6111,11 @@ MonoBehaviour:
     ySpacing: 1
     basePosition: {x: 0, y: 0}
     currentIndex: 0
-  numTxt: {fileID: 934948523}
   productList: []
   transferPoint: {fileID: 0}
+  buildingType: 0
+  productIcon: {fileID: 0}
+  productIconbg: {fileID: 0}
 --- !u!1 &1202084304
 GameObject:
   m_ObjectHideFlags: 0
@@ -6907,11 +6942,34 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: monsterData
-      Entry: 6
+    - Name: mapLockDic
+      Entry: 7
+      Data: 7|System.Collections.Generic.Dictionary`2[[Module.Data.MonsterType, Assembly-CSharp],[MapLock,
+        Assembly-CSharp]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 8|System.Collections.Generic.EnumEqualityComparer`1[[Module.Data.MonsterType,
+        Assembly-CSharp]], mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
       Data: 
   currentMapID: 1
-  obj: {fileID: 4761193313847912394, guid: 70febd70a9db298489b9641e067bb040, type: 3}
+  RespawnPoint: {fileID: 0}
   productionStationList: []
   salesStallList: []
 --- !u!4 &1618143724
@@ -7073,7 +7131,7 @@ MonoBehaviour:
       Data: 
     - Name: taskRewardDataDic
       Entry: 7
-      Data: 4|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.RewardData,
+      Data: 4|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[RewardData,
         Assembly-CSharp]], mscorlib
     - Name: comparer
       Entry: 7
@@ -7093,7 +7151,7 @@ MonoBehaviour:
       Data: 
     - Name: storageBagDataDic
       Entry: 7
-      Data: 6|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.StorageBagData,
+      Data: 6|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[StotageBagData,
         Assembly-CSharp]], mscorlib
     - Name: comparer
       Entry: 9
@@ -7109,7 +7167,7 @@ MonoBehaviour:
       Data: 
     - Name: weaponDataDic
       Entry: 7
-      Data: 7|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.WeaponData,
+      Data: 7|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[WeaponData,
         Assembly-CSharp]], mscorlib
     - Name: comparer
       Entry: 9
@@ -7229,7 +7287,7 @@ MonoBehaviour:
       Data: 
     - Name: talentDataDic
       Entry: 7
-      Data: 16|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.TalentData,
+      Data: 16|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[TalentData,
         Assembly-CSharp]], mscorlib
     - Name: comparer
       Entry: 7
@@ -7280,6 +7338,96 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+    - Name: orderDataDic
+      Entry: 7
+      Data: 21|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[OrderData,
+        Assembly-CSharp]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 22|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: structureLockDataList_1
+      Entry: 7
+      Data: 23|System.Collections.Generic.List`1[[StructureLockData, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: structureLockDataList_2
+      Entry: 7
+      Data: 24|System.Collections.Generic.List`1[[StructureLockData, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: structureLockDataList_3
+      Entry: 7
+      Data: 25|System.Collections.Generic.List`1[[StructureLockData, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: structureLockDataList_4
+      Entry: 7
+      Data: 26|System.Collections.Generic.List`1[[StructureLockData, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: structureLockDataList_5
+      Entry: 7
+      Data: 27|System.Collections.Generic.List`1[[StructureLockData, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+  mapLockDataList_1: []
+  mapLockDataList_2: []
+  mapLockDataList_3: []
+  mapLockDataList_4: []
+  mapLockDataList_5: []
 --- !u!114 &1699985943
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7440,7 +7588,7 @@ SpriteRenderer:
   m_Size: {x: 73, y: 143.79254}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &1791901966
@@ -7602,7 +7750,7 @@ SpriteRenderer:
   m_Size: {x: 3.07, y: 2.78}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!4 &1796473378
@@ -7884,7 +8032,7 @@ SpriteRenderer:
   m_Size: {x: 1.2, y: 0.4}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &1883196398
@@ -8137,7 +8285,7 @@ SpriteRenderer:
   m_Size: {x: 2, y: 2}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!114 &1949226330
@@ -8154,6 +8302,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   structureType: 1
   sprite: {fileID: 1949226329}
+  structureLock: {fileID: 0}
+  content: {fileID: 0}
   parchaseTransform: {fileID: 493789195}
   grid:
     columns: 3
@@ -8168,6 +8318,8 @@ MonoBehaviour:
   speed: 1
   fillImage: {fileID: 565297551}
   receiveTransform: {fileID: 1812917657}
+  LingZhangShi: {fileID: 0}
+  renderer: {fileID: 0}
 --- !u!1 &1998449303
 GameObject:
   m_ObjectHideFlags: 0
@@ -8216,7 +8368,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fillImage: {fileID: 623028509}
-  productionText: {fileID: 859818955}
+  productionText: {fileID: 0}
   container: {fileID: 0}
 --- !u!212 &1998449306
 SpriteRenderer:
@@ -8267,7 +8419,7 @@ SpriteRenderer:
   m_Size: {x: 3, y: 0.1}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 1
 --- !u!1 &2145848925
@@ -8401,6 +8553,7 @@ MonoBehaviour:
   maxCarryNum: 0
   currentPinkUpRange: 0
   isDead: 0
+  InteractionTriggerTransform: {fileID: 0}
   isShowUI: 0
   scatterCurve:
     serializedVersion: 2
@@ -8979,6 +9132,22 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4724118376535562588, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4724118376535562588, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4724118376535562588, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4724118376535562588, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5395730233330912507, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
       propertyPath: m_Name
       value: PlayerInfoView
@@ -9369,6 +9538,8 @@ MonoBehaviour:
   canvas: {fileID: 1952903743954528662}
   text: {fileID: 1514006347}
   player: {fileID: 0}
+  bagIcon: {fileID: 0}
+  _assetHandle: {fileID: 0}
 --- !u!114 &7899888046119707866
 MonoBehaviour:
   m_ObjectHideFlags: 0

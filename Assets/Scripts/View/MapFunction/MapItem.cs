@@ -84,20 +84,31 @@ namespace View.MapFunction
             pricetxt.text = "价格: x"+ mapData.price;
             if (mapData.monsterTypeList.Count > 0)
             {
-                // content_1.gameObject.SetActive(true);
-                // for (int i = 0; i < mapData.monsterTypeList.Count; i++)
-                // {
-                //     GameObject obj = GameObject.Instantiate(assetHandle.Get<GameObject>("mapinfoitem"), content_1.transform,false);
-                //     obj.GetComponent<MapInfoItem>().Init();
-                // }
+                content_1.gameObject.SetActive(true);
+                for (int i = 0; i < mapData.monsterTypeList.Count; i++)
+                {
+                    GameObject obj = GameObject.Instantiate(assetHandle.Get<GameObject>("mapinfoitem"), content_1.transform,false);
+                    obj.GetComponent<MapInfoItem>().Init(Extensions.GetMonsterPictureNameByType((MonsterType)mapData.monsterTypeList[i]));
+                  
+                }
             }
             else
             {
                 content_1.gameObject.SetActive(false);
             }
-            content_2.gameObject.SetActive(false);
-         
-            
+             if (mapData.buildTypeList.Count > 0)
+            {
+                content_1.gameObject.SetActive(true);
+                for (int i = 0; i < mapData.monsterTypeList.Count; i++)
+                {
+                    GameObject obj = GameObject.Instantiate(assetHandle.Get<GameObject>("mapinfoitem"), content_1.transform,false);
+                    obj.GetComponent<MapInfoItem>().Init(Extensions.GetMonsterPictureNameByType((MonsterType)mapData.monsterTypeList[i]));
+                }
+            }
+            else
+            {
+                content_1.gameObject.SetActive(false);
+            }
            
         }
     }

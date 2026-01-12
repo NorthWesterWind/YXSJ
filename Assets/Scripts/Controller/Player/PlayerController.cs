@@ -150,11 +150,11 @@ namespace Controller.Player
                     transform.localScale = new Vector3(1, 1, 1);
                 }
 
-                if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 12))
-                {
-                    camera.m_Lens.OrthographicSize =
-                        Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 12, ref velocity, 0.15f);
-                }
+                // if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 12))
+                // {
+                //     camera.m_Lens.OrthographicSize =
+                //         Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 12, ref velocity, 0.15f);
+                // }
 
 
                 var state = _skeletonAnimation.AnimationState;
@@ -176,11 +176,11 @@ namespace Controller.Player
                 {
                     state.SetAnimation(0, "idle", true);
                 }
-                if (!Mathf.Approximately(camera.m_Lens.OrthographicSize,10))
-                {
-                    camera.m_Lens.OrthographicSize =
-                        Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 10, ref velocity, 0.3f);
-                }
+                // if (!Mathf.Approximately(camera.m_Lens.OrthographicSize,10))
+                // {
+                //     camera.m_Lens.OrthographicSize =
+                //         Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 10, ref velocity, 0.3f);
+                // }
             }
 
             CheckMonster();
@@ -260,11 +260,11 @@ namespace Controller.Player
         private void HandleFocusView(params object[] args)
         {
             isShowUI = true;
-            if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 10))
-            {
-                camera.m_Lens.OrthographicSize =
-                    Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 10, ref velocity, 0.3f);
-            }
+            // if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 10))
+            // {
+            //     camera.m_Lens.OrthographicSize =
+            //         Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 10, ref velocity, 0.3f);
+            // }
         }
 
         private void RestoreFocusView(params object[] args)

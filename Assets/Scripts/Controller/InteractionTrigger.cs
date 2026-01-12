@@ -6,6 +6,10 @@ namespace Controller
     public class InteractionTrigger : MonoBehaviour
     {
         public SpriteRenderer sprite;
+        void Awake()
+        {
+            sprite.transform.DOScale(new Vector3(0.6f, 0.3f, 1), 0.3f);
+        }
 
         public void TriggerEnter()
         {
@@ -14,7 +18,7 @@ namespace Controller
 
         public void TriggerExit()
         {
-            sprite.transform.DOScale(new Vector3(0.5f, 0.25f, 1), 0.3f);
+            sprite.transform.DOScale(new Vector3(0.6f, 0.3f, 1), 0.3f);
         }
     }
 }

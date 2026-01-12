@@ -171,7 +171,7 @@ Transform:
   m_GameObject: {fileID: 1532929077726233129}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.029999971, y: -1.6100001, z: 0}
+  m_LocalPosition: {x: -0.029999971, y: -2.07, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -387,6 +387,7 @@ GameObject:
   - component: {fileID: 257381614802699013}
   - component: {fileID: 6799880837023062262}
   - component: {fileID: 2075059287197475552}
+  - component: {fileID: 7562390374159613006}
   m_Layer: 0
   m_Name: SallesStall
   m_TagString: Untagged
@@ -473,6 +474,63 @@ MonoBehaviour:
   - {fileID: 2800000, guid: b79b67476793b3d429aedd957329215d, type: 3}
   - {fileID: 2800000, guid: e1540ee245cb0454e8f99b6626aa0e7f, type: 3}
   - {fileID: 2800000, guid: 3d0c6bf4b90e17f46934bc2984d9254f, type: 3}
+--- !u!60 &7562390374159613006
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7219183874916311500}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: 1.6886024, y: 1.2485342}
+      - {x: 0.893404, y: 1.1072087}
+      - {x: -1.7625957, y: 1.2180493}
+      - {x: -1.796813, y: 0.7616751}
+      - {x: -1.8174357, y: 0.12034178}
+      - {x: -1.4101233, y: -0.28321028}
+      - {x: -1.3382449, y: -1.0591706}
+      - {x: -1.0090957, y: -1.1491432}
+      - {x: 1.3144208, y: -1.0949061}
+      - {x: 1.3369541, y: -0.2503507}
+      - {x: 1.7625113, y: 0.028053045}
+      - {x: 1.6896043, y: 0.7140271}
+  m_UseDelaunayMesh: 0
 --- !u!1 &8544849729571911181
 GameObject:
   m_ObjectHideFlags: 0
@@ -608,7 +666,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1383778926247635649, guid: 4082246de4f07f5479aa38784937f4ef, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7222605320566722230, guid: 4082246de4f07f5479aa38784937f4ef, type: 3}
       propertyPath: m_LocalPosition.x

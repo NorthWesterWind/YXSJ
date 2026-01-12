@@ -10822,6 +10822,37 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.87140846, y: 3.32}
   m_EdgeRadius: 0
+--- !u!1 &447042300
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 447042301}
+  m_Layer: 0
+  m_Name: Respawn Point
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &447042301
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 447042300}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -13.68, y: 2.33, z: -0.10946049}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &447524528
 GameObject:
   m_ObjectHideFlags: 0
@@ -39357,6 +39388,7 @@ MonoBehaviour:
       Entry: 8
       Data: 
   currentMapID: 3
+  RespawnPoint: {fileID: 447042301}
   productionStationList: []
   salesStallList: []
 --- !u!4 &1618143724
@@ -51782,3 +51814,4 @@ SceneRoots:
   - {fileID: 238088884}
   - {fileID: 1451030492}
   - {fileID: 1256955724}
+  - {fileID: 447042301}

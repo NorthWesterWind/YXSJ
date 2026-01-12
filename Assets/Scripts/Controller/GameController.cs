@@ -26,7 +26,8 @@ namespace Controller
         public int currentMapID = 1;
 
         private AssetHandle _assetHandle;
-
+    
+        public Transform RespawnPoint;
         
         /// <summary>
         /// 场景中的所有生产设施
@@ -84,7 +85,7 @@ namespace Controller
     
     public class QueueGroup
     {
-        private List<CustomerController> customers = new();
+        public List<CustomerController> customers = new();
         private List<Vector2> queuePoints = new();
 
         private Vector2 origin; // 队伍起点（摊位前方的位置）

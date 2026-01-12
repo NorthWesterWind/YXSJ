@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 2100633063125399423}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.008000039, y: -0.5110001, z: 0}
+  m_LocalPosition: {x: 0.008000039, y: -0.016, z: 0}
   m_LocalScale: {x: 4.9988, y: 2.4994, z: 1.2497}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -112,7 +112,7 @@ Transform:
   m_GameObject: {fileID: 2343165803382994808}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.068, y: -0.591, z: 0}
+  m_LocalPosition: {x: -0.068, y: -0.0959999, z: 0}
   m_LocalScale: {x: 0.6, y: 0.6, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -236,7 +236,7 @@ Transform:
   m_GameObject: {fileID: 5775344454070343038}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.20599996, y: 0.19899994, z: 0}
+  m_LocalPosition: {x: -0.20599996, y: 0.69400007, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -253,7 +253,6 @@ GameObject:
   - component: {fileID: 2864911449250019396}
   - component: {fileID: 3772896802120134947}
   - component: {fileID: 6217769643007826713}
-  - component: {fileID: 5049975391007078100}
   m_Layer: 9
   m_Name: CangYunGeZhangLao
   m_TagString: Untagged
@@ -297,7 +296,7 @@ MonoBehaviour:
   stoppingDistance: 0.1
   slowingDistance: 1
   lookAheadDistance: 1
-  avoidRadius: 0
+  avoidRadius: 0.5
   avoidanceConsiderStuckedTime: 3
   avoidanceConsiderReachedDistance: 1
   rotateTransform: 0
@@ -335,48 +334,4 @@ MonoBehaviour:
   salesStall: {fileID: 0}
   receiveTransform: {fileID: 4718842408443096177}
   purchaseList: []
---- !u!61 &5049975391007078100
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7993019407764083175}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 2560
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: -0.010970712, y: 0.1991443}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.7211063, y: 1.4403514}
-  m_EdgeRadius: 0
+  _meshRenderer: {fileID: 0}
