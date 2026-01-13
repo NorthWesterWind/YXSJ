@@ -13,7 +13,7 @@ namespace Controller.Pickups
 
         [Header("飞行参数")]
 
-        
+
         private System.Action _onArrive;
         public void Init(DropItemType type)
         {
@@ -23,12 +23,20 @@ namespace Controller.Pickups
             _onArrive = null;
             ScenePickupController.Instance.materials.Add(this);
             spriteRenderer.sprite = _assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType(type));
+
+
+        }
+        void Update()
+        {
+            int order = 30000 - Mathf.RoundToInt(transform.position.y * 100);
+
+            spriteRenderer.sortingOrder = order;
         }
 
         /// <summary>
         /// 对外唯一入口：让物品飞向目标
         /// </summary>
-        public void FlyTo(Transform picker, Transform receivePoint,System.Action onArrive = null)
+        public void FlyTo(Transform picker, Transform receivePoint, System.Action onArrive = null)
         {
             if (!gameObject.activeInHierarchy) return;
 
@@ -36,7 +44,7 @@ namespace Controller.Pickups
             this.pickerReceivePoint = receivePoint;
             this._onArrive = onArrive;
             StopAllCoroutines();
-            StartCoroutine(FlyCoroutine(true , picker.gameObject));
+            StartCoroutine(FlyCoroutine(true, picker.gameObject));
         }
         public void FlyTo(Transform receivePoint)
         {
@@ -50,7 +58,7 @@ namespace Controller.Pickups
         {
             StopAllCoroutines();
         }
-        private IEnumerator FlyCoroutine(bool isPlayer = false , GameObject player = null)
+        private IEnumerator FlyCoroutine(bool isPlayer = false, GameObject player = null)
         {
             Vector2 start = transform.position;
             Vector2 end = pickerReceivePoint.position;

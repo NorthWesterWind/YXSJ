@@ -1,3 +1,4 @@
+using System.Collections;
 using Controller;
 using DG.Tweening;
 using Module;
@@ -6,6 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
+using View.CardView;
 
 namespace View
 {
@@ -26,7 +28,7 @@ namespace View
         public TextMeshProUGUI bottompreviewtxt1;
         public TextMeshProUGUI bottompreviewtxt2;
         public Image bottomprogressfill;
-    
+
         public UIButton bootomBtn1;
         public TextMeshProUGUI bootomBtntxt1;
         public UIButton bootomBtn2;
@@ -35,13 +37,22 @@ namespace View
         private GoodsType goodsType;
         public UIButton cardBtn;
         public RectTransform content;
+
+        public UIButton closeBtn;
+        CardUpProgress cardData = null;
+        public Image iconBg;
+        void OnEnable()
+        {
+            content.anchoredPosition = new Vector2(0, -1100);
+        }
+
         public override void UpdateViewWithArgs(params object[] args)
         {
             base.UpdateViewWithArgs(args);
             type = (BuildingType)args[0];
             goodsType = (GoodsType)args[1];
-           productionIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(goodsType));
-           cardIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(type));
+            productionIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(goodsType));
+            cardIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(type));
             switch (goodsType)
             {
                 case GoodsType.YunZhiCha:
@@ -101,6 +112,12 @@ namespace View
             content.DOAnchorPos(new Vector2(0, 0), 0.5f).SetEase(Ease.OutBack);
         }
 
+        protected override void OnShowComplete()
+        {
+            base.OnShowComplete();
+
+        }
+
         protected override void AddEventListener()
         {
             base.AddEventListener();
@@ -109,57 +126,103 @@ namespace View
 
             bootomBtn2.onClick.RemoveAllListeners();
             bootomBtn2.onClick.AddListener((() => { }));
-            
+
             cardBtn.onClick.RemoveAllListeners();
-            cardBtn.onClick.AddListener((() => { }));
-            
+            cardBtn.onClick.AddListener((() =>
+            {
+                switch (type)
+                {
+                    case BuildingType.YuShaHu_1:
+                        UIController.Instance.Show<CardDetailPop>(DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_1));
+                        break;
+                    case BuildingType.YuShaHu_2:
+                        UIController.Instance.Show<CardDetailPop>(DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_2));
+                        break;
+                    case BuildingType.YuShaHu_3:
+                        UIController.Instance.Show<CardDetailPop>(DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_3));
+                        break;
+                    case BuildingType.YuShaHu_4:
+                        UIController.Instance.Show<CardDetailPop>(DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_4));
+                        break;
+                    case BuildingType.LianQiLu_1:
+                        UIController.Instance.Show<CardDetailPop>(DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_1));
+                        break;
+                    case BuildingType.LianQiLu_2:
+                        UIController.Instance.Show<CardDetailPop>(DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_2));
+                        break;
+                    case BuildingType.LianQiLu_3:
+                        UIController.Instance.Show<CardDetailPop>(DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_3));
+                        break;
+                }
+
+
+            }));
+
+            closeBtn.onClick.RemoveAllListeners();
+            closeBtn.onClick.AddListener(() => { StartCoroutine(ShowAnimation()); });
+        }
+
+        private IEnumerator ShowAnimation()
+        {
+            content.DOAnchorPos(new Vector2(0, -1100), 0.4f)
+                .SetEase(Ease.InBack);
+            yield return new WaitForSeconds(0.4f);
+            Hide();
         }
 
         public void UpdateInfo()
         {
             PlayerData player = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
             ProductStationData productStationdata = player.ProductStationDataList.Find(x => x.buildingType == type);
-            CardUpProgress cardData = null;
+
 
             switch (type)
             {
                 case BuildingType.YuShaHu_1:
                     cardData = player.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_1);
+
                     cardnametxt.text = "一号玉砂壶";
                     nametxt.text = "一号玉砂壶";
+                    iconBg.sprite = _assetHandle.Get<Sprite>("白卡");
                     break;
                 case BuildingType.YuShaHu_2:
                     cardData = player.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_2);
                     cardnametxt.text = "二号玉砂壶";
                     nametxt.text = "二号玉砂壶";
+                    iconBg.sprite = _assetHandle.Get<Sprite>("白卡");
                     break;
                 case BuildingType.YuShaHu_3:
                     cardData = player.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_3);
                     cardnametxt.text = "三号玉砂壶";
                     nametxt.text = "三号玉砂壶";
+                    iconBg.sprite = _assetHandle.Get<Sprite>("白卡");
                     break;
                 case BuildingType.YuShaHu_4:
                     cardData = player.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_4);
                     cardnametxt.text = "四号玉砂壶";
                     nametxt.text = "四号玉砂壶";
+                    iconBg.sprite = _assetHandle.Get<Sprite>("白卡");
                     break;
                 case BuildingType.LianQiLu_1:
                     cardData = player.cardUpProgressesList.Find(x =>
                         x.developType == CardDevelopType.UpgradeLianQiLu_1);
                     cardnametxt.text = "一号炼器炉";
                     nametxt.text = "一号炼器炉";
+                    iconBg.sprite = _assetHandle.Get<Sprite>("紫卡");
                     break;
                 case BuildingType.LianQiLu_2:
                     cardData = player.cardUpProgressesList.Find(x =>
                         x.developType == CardDevelopType.UpgradeLianQiLu_2);
                     cardnametxt.text = "二号炼器炉";
                     nametxt.text = "二号炼器炉";
+                    iconBg.sprite = _assetHandle.Get<Sprite>("紫卡");
                     break;
                 case BuildingType.LianQiLu_3:
                     cardData = player.cardUpProgressesList.Find(x =>
                         x.developType == CardDevelopType.UpgradeLianQiLu_3);
                     cardnametxt.text = "三号炼器炉";
                     nametxt.text = "三号炼器炉";
+                    iconBg.sprite = _assetHandle.Get<Sprite>("紫卡");
                     break;
             }
 
@@ -183,7 +246,7 @@ namespace View
                 bottompreviewtxt1.text = "x3   <color=green>X9</color>";
                 bottompreviewtxt2.text = "5秒   <color=green>4秒</color>";
                 bottomprogressfill.fillAmount = 0f;
-            
+
                 bootomBtntxt1.text = "1000";
                 bootomBtntxt2.text = "1000";
             }
@@ -205,12 +268,12 @@ namespace View
                          (productStationdata.priceLevel - 1) * 25).ToString();
                 }
 
-                bootomBtntxt1.text = (1000*productStationdata.priceLevel).ToString();
-                bootomBtntxt2.text = (1000*productStationdata.timelevel).ToString();
-                
+                bootomBtntxt1.text = (1000 * productStationdata.priceLevel).ToString();
+                bootomBtntxt2.text = (1000 * productStationdata.timelevel).ToString();
+
                 workingtimetxt.text = WorldData.productStationWorkingTimeDic[productStationdata.priceLevel] + "秒";
-                bottomleveltxt1.text =  productStationdata.priceLevel + "级";
-                bottomleveltxt2.text =  productStationdata.timelevel + "级";
+                bottomleveltxt1.text = productStationdata.priceLevel + "级";
+                bottomleveltxt2.text = productStationdata.timelevel + "级";
                 bottompreviewtxt1.text = "x" + (WorldData.goodsPriceDic[goodsType] * DataController.Instance
                                                     .mapDataDic[
                                                         ModuleMgr.Instance.GetModule<PlayerDataModule>().data
@@ -239,7 +302,7 @@ namespace View
                 cardleveltxt.text = "0";
                 cardprogressfill.fillAmount = 0;
                 cardprogresstxt.text = "0";
-              
+
             }
             else
             {
@@ -254,7 +317,7 @@ namespace View
                     cardprogressfill.fillAmount =
                         cardData.currentNum * 1f / WorldData.cardUpLevelArr[cardData.level + 1];
                     cardprogresstxt.text = cardData.currentNum + "/" + WorldData.cardUpLevelArr[cardData.level + 1];
-                    
+
                 }
             }
         }

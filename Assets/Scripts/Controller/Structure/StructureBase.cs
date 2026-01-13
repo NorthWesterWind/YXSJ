@@ -13,7 +13,7 @@ namespace Controller.Structure
         public GameObject content;
         protected virtual void Start()
         {
-            int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
+            int newOrder = 3000 -  Mathf.RoundToInt(transform.position.y * 100);
             sprite.sortingOrder = newOrder;
             _assetHandle = GetComponent<AssetHandle>();
         }

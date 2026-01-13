@@ -11,7 +11,6 @@ namespace View.CardView
     {
        public UIButton closeBtn;
        public TextMeshProUGUI title1txt;
-       public TextMeshProUGUI title2txt;
        public TextMeshProUGUI contenttxt;
        public TextMeshProUGUI currenttxt;
        public TextMeshProUGUI nexttxt;
@@ -37,7 +36,7 @@ namespace View.CardView
        {
            base.UpdateViewWithArgs(args);
            cardLevelData = args[0] as CardLevelData;
-           title2txt.text = cardLevelData.name;
+           title1txt.text = cardLevelData.name;
            switch (cardLevelData.developType)
            {
                case CardDevelopType.UpgradeCharacterWithXuanCaiTuAtk:
@@ -244,16 +243,19 @@ namespace View.CardView
            switch (cardLevelData.levelType)
            {
                case CardLevelType.FanPing:
-                   title1txt.text = "凡品升级令";
                    currentNeedGold = WorldData.cardUpgradeCostArr1[ tempvalue ];
+                    cardImg.sprite = assetHandle.Get<Sprite>("白卡");
+                    mask.sprite = assetHandle.Get<Sprite>("白卡");
                    break;
                case CardLevelType.LingYun:
-                   title1txt.text = "灵韵升级令";
                    currentNeedGold = WorldData.cardUpgradeCostArr2[ tempvalue ];
+                   cardImg.sprite = assetHandle.Get<Sprite>("紫卡");
+                    mask.sprite = assetHandle.Get<Sprite>("紫卡");
                    break;
                case CardLevelType.XianYun:
-                   title1txt.text = "仙韵升级令";
                    currentNeedGold = WorldData.cardUpgradeCostArr3[ tempvalue ];
+                   cardImg.sprite = assetHandle.Get<Sprite>("红卡");
+                    mask.sprite = assetHandle.Get<Sprite>("红卡");
                    break;
            }
 

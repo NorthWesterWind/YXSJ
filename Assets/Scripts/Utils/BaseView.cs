@@ -299,7 +299,11 @@ namespace Utils
 
         protected virtual void OnShow() { }
         protected virtual void OnHide() { }  // ****** FIXED：不再设置 IsHiding ******
-        protected virtual void OnShowComplete() { }
+        protected virtual void OnShowComplete()
+        {
+            
+            
+        }
         protected virtual void OnHideComplete() { }
     }
 }

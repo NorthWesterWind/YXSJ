@@ -21,6 +21,7 @@ namespace Controller
         public ShowUIType showUIType;
         public BuildingType buildingType;
 
+
         public bool SpeedUp;
         public void Interact()
         {
@@ -41,10 +42,10 @@ namespace Controller
                     UIController.Instance.Show<ProductionStationPop>(buildingType, (GameController.Instance.buildings[buildingType] as ProductionStation).goodsType);
                     break;
                 case ShowUIType.LingZhangTai:
-                    // UIController.Instance.Show<LingZhangTaiPop>();
+                   // UIController.Instance.Show<LingZhangTaiPop>();
                     break;
                 case ShowUIType.YunDiGe:
-                    // UIController.Instance.Show<YunDiGePop>();
+                   // UIController.Instance.Show<YunDiGePop>();
                     break;
                 case ShowUIType.LingChuGe:
                     // UIController.Instance.Show<LingChuGePop>();

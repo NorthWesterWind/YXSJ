@@ -17,7 +17,7 @@ namespace Module.Data
 
         #region 天赋属性
         public float moveSpeed = 5f;   //移动速度
-        public float pickUpRange = 5f;  //拾取物品距离
+        public float pickUpRange = 4f;  //拾取物品距离
         public float slowDownValue = 3f; //降低速度值
         public float weaponSize = 1f;   //武器尺寸
         public float hpRecover = 0f;       //生命值回复
@@ -63,7 +63,7 @@ namespace Module.Data
         public int goldIngot = 5000000;   //金元宝
         public int lingJing = 500000;    //灵晶
         public int jingMangZhu = 10000; //金芒珠
-        public int currentMapID = 3;
+        public int currentMapID = 2;
 
         
         public int accountLevel = 1;

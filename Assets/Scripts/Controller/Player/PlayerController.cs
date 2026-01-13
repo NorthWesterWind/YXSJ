@@ -6,6 +6,7 @@ using Controller.Structure;
 using Module;
 using Module.Data;
 using Sirenix.OdinInspector;
+using Spine;
 using Spine.Unity;
 using UnityEngine;
 using Utils;
@@ -26,7 +27,7 @@ namespace Controller.Player
         private Rigidbody2D _rigidbody;
         public GameObject weapon;
 
-        public float detectRadius =6f ; // 怪物检测半径
+        public float detectRadius = 6f; // 怪物检测半径
         public LayerMask monsterLayer;   // 只检测怪物层
         public LayerMask productLayer;
         public LayerMask productStationLayer;
@@ -53,7 +54,6 @@ namespace Controller.Player
 
         public int RemainCapacity => (int)maxCarryNum - currentCarryNum;
 
-
         /// <summary>
         /// 角色是否处于交互范围内（解锁）
         /// </summary>
@@ -74,6 +74,17 @@ namespace Controller.Player
             _rigidbody = GetComponent<Rigidbody2D>();
             _assetHandle = GetComponent<AssetHandle>();
             _skeletonAnimation = transform.Find("Character").GetComponent<SkeletonAnimation>();
+
+            var data = _skeletonAnimation.AnimationState.Data;
+
+            data.SetMix("待机", "走路", 0.2f);
+            data.SetMix("走路", "待机", 0.2f);
+
+            data.SetMix("走路", "攻击", 0.1f);
+            data.SetMix("待机", "攻击", 0.1f);
+
+            data.SetMix("攻击", "待机", 0.15f);
+            data.SetMix("攻击", "走路", 0.15f);
         }
 
         private MeshRenderer renderer;
@@ -82,6 +93,8 @@ namespace Controller.Player
             AddEvent();
             Init();
             renderer = transform.Find("Character").GetComponent<MeshRenderer>();
+          
+
         }
 
 
@@ -123,7 +136,7 @@ namespace Controller.Player
 
         public void SetLayer()
         {
-            int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
+            int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
             renderer.sortingOrder = newOrder;
             weaponRenderer.sortingOrder = newOrder;
             shadowRenderer.sortingOrder = newOrder;
@@ -159,11 +172,20 @@ namespace Controller.Player
 
                 var state = _skeletonAnimation.AnimationState;
                 var current = state.GetCurrent(0);
-
-                if (current == null || current.Animation.Name != "walk")
+                if (weapon.gameObject.activeSelf)
                 {
+                    if (current == null || current.Animation.Name != "攻击")
+                    {
+                        state.SetAnimation(0, "攻击", true);
+                    }
 
-                    state.SetAnimation(0, "walk", true);
+                }
+                else
+                {
+                    if (current == null || current.Animation.Name != "走路")
+                    {
+                        state.SetAnimation(0, "走路", true);
+                    }
                 }
             }
             else
@@ -172,10 +194,22 @@ namespace Controller.Player
                 var state = _skeletonAnimation.AnimationState;
                 var current = state.GetCurrent(0);
 
-                if (current == null || current.Animation.Name != "idle")
+                if (weapon.gameObject.activeSelf)
                 {
-                    state.SetAnimation(0, "idle", true);
+                    if (current == null || current.Animation.Name != "攻击腿不动")
+                    {
+                        state.SetAnimation(0, "攻击腿不动", true);
+                    }
                 }
+                else
+                {
+                
+                    if (current == null || current.Animation.Name != "待机")
+                    {
+                        state.SetAnimation(0, "待机", true);
+                    }
+                }
+
                 // if (!Mathf.Approximately(camera.m_Lens.OrthographicSize,10))
                 // {
                 //     camera.m_Lens.OrthographicSize =
@@ -250,11 +284,19 @@ namespace Controller.Player
 
         private void UpdatePlayerEquimentInfo(params object[] args)
         {
-            WeaponData weaponData = DataController.Instance.weaponDataDic[dataModule.data.currentWeapon];
-            weaponRenderer.sprite = _assetHandle.Get<Sprite>(weaponData.name);
-            _skeletonAnimation.skeleton.SetAttachment(weaponData.slotName, weaponData.attachmentName);
-            StotageBagData stotageBagData = DataController.Instance.storageBagDataDic[dataModule.data.currentBag];
-            _skeletonAnimation.skeleton.SetAttachment(stotageBagData.slotName, stotageBagData.attachmentName);
+            if (DataController.Instance.weaponDataDic.ContainsKey(dataModule.data.currentWeapon))
+            {
+                WeaponData weaponData = DataController.Instance.weaponDataDic[dataModule.data.currentWeapon];
+                weaponRenderer.sprite = _assetHandle.Get<Sprite>(weaponData.name);
+                _skeletonAnimation.skeleton.SetAttachment(weaponData.slotName, weaponData.attachmentName);
+            }
+            if (DataController.Instance.storageBagDataDic.ContainsKey(dataModule.data.currentBag))
+            {
+                StotageBagData stotageBagData = DataController.Instance.storageBagDataDic[dataModule.data.currentBag];
+                _skeletonAnimation.skeleton.SetAttachment(stotageBagData.slotName, stotageBagData.attachmentName);
+            }
+
+
         }
 
         private void HandleFocusView(params object[] args)
@@ -359,19 +401,12 @@ namespace Controller.Player
             if (hits.Length > 0)
             {
                 weapon.gameObject.SetActive(true);
-                var state = _skeletonAnimation.AnimationState;
-                var current = state.GetCurrent(0);
-
-                if (current == null || current.Animation.Name != "attack")
-                {
-                    state.SetAnimation(1, "attack", true);
-                }
             }
             else
 
             {
-                var state = _skeletonAnimation.AnimationState;
-                state.ClearTrack(1);
+
+                UpdatePlayerEquimentInfo();
                 weapon.gameObject.SetActive(false);
                 // 自动回血检测
                 if (currentHp < maxHp && !isRegenerating)
@@ -535,6 +570,7 @@ namespace Controller.Player
                 goodsDic[station.currentGoodsType]--;
                 currentCarryNum--;
                 playerInfo.UpdateTxt();
+            
                 yield return new WaitForSeconds(0.05f);
             }
 

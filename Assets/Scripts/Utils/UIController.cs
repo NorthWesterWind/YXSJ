@@ -48,9 +48,9 @@ namespace Utils
             // 检查缓存是否有效
             if (!_uiPanels.TryGetValue(type, out var view) || view == null || view.gameObject == null)
             {
-              
+
                 Transform _canvas = GameObject.Find("Canvas")?.transform;
-                Transform _popCanvas = GameObject.Find("Canvas")?.transform;
+                Transform _popCanvas = GameObject.Find("PopupCanvas")?.transform;
                 if (_canvas != null || _popCanvas != null)
                 {
                     var go = _canvas.GetComponentsInChildren<Transform>(true) // ✅ true = 包含失活物体
@@ -65,7 +65,8 @@ namespace Utils
                             view = _view;
                             _uiPanels[type] = view;
                         }
-                    }else if (go_1 != null)
+                    }
+                    else if (go_1 != null)
                     {
                         var _view = go.GetComponent<T>();
                         if (_view != null)
@@ -85,8 +86,16 @@ namespace Utils
                                 Debug.LogError($"加载UI失败：{type.Name}");
                                 return;
                             }
-                            Transform parent = typeof(T).IsSubclassOf(typeof(PopBaseView)) ? _popCanvas : _canvas;
+                            Transform parent = null;
                             view = ui.GetComponent<T>();
+                            if (view.IsPopup)
+                            {
+                                parent = _popCanvas;
+                            }
+                            else
+                            {
+                                parent = _canvas;
+                            }
                             ui.transform.SetParent(parent, false);
                             if (view == null)
                             {
@@ -103,7 +112,7 @@ namespace Utils
                         }
                     }
                 }
-               
+
             }
 
             view.gameObject.SetActive(true);
@@ -114,10 +123,10 @@ namespace Utils
             if (view.IsPopup)
             {
                 _uiStack.Push(view);
-                
+
             }
         }
-        
+
         /// <summary>
         /// 隐藏 UI 面板
         /// </summary>
@@ -153,10 +162,10 @@ namespace Utils
                 {
                     top.Hide();
                 }
-                
+
             }
         }
-        
+
 
         /// <summary>
         /// 移除并释放 UI

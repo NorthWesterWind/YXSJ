@@ -292,15 +292,15 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 68
-  m_Sprite: {fileID: 21300000, guid: c778a4d702864a249b24b8f6929c3724, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c4f28d399b6047c46bc006bd21665794, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.69, y: 1.98}
+  m_Size: {x: 3, y: 3}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!95 &7210796476030582279
@@ -360,8 +360,8 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.69, y: 1.98}
-    newSize: {x: 0.69, y: 1.98}
+    oldSize: {x: 0.79, y: 2.11}
+    newSize: {x: 3, y: 3}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
@@ -517,6 +517,9 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+    - Name: ikConstraint
+      Entry: 6
+      Data: 
   isMoving: 0
   shadowRenderer: {fileID: 403647562830133932}
   weaponRenderer: {fileID: 9144960558503794835}
@@ -543,6 +546,7 @@ MonoBehaviour:
   maxCarryNum: 0
   currentPinkUpRange: 0
   isDead: 0
+  ikName: target
   InteractionTriggerTransform: {fileID: 0}
   isShowUI: 0
   scatterCurve:

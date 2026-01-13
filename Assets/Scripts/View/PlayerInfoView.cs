@@ -65,6 +65,7 @@ namespace View
             EventCenter.Instance.AddListener(EventMessages.HidePlayerInfoViewCartoon, HandleHidePlayerInfoViewCartoon);
             EventCenter.Instance.AddListener(EventMessages.UpdateLevelProgress, HandleUpdateLevelProgress);
             EventCenter.Instance.AddListener(EventMessages.UpdateFunctionState, HandleUpdateFunctionState);
+            EventCenter.Instance.AddListener(EventMessages.UpdatePlayerCarryInfo, HandleUpdatePlayerCarryInfo);
             
             settingBtn.onClick.RemoveAllListeners();
             settingBtn.onClick.AddListener(OnClickSettingBtn);
@@ -113,8 +114,16 @@ namespace View
             EventCenter.Instance.RemoveListener(EventMessages.ShowPlayerInfoViewCartoon, HandleShowPlayerInfoViewCartoon);
             EventCenter.Instance.RemoveListener(EventMessages.UpdateLevelProgress, HandleUpdateLevelProgress);
             EventCenter.Instance.RemoveListener(EventMessages.UpdateFunctionState, HandleUpdateFunctionState);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerCarryInfo, HandleUpdatePlayerCarryInfo);
         }
 
+
+        public void HandleUpdatePlayerCarryInfo(params object[] args)
+        {
+            InitInfoItem();
+        }
+
+   
         private void InitInfoItem()
         {
             Extensions.ClearChildren(infoItemContent);

@@ -27,7 +27,7 @@ namespace Utils
         private RectTransform _rectTransform;
         private bool _isInitialized = false;
         
-        private AssetHandle _assetHandle;
+        public AssetHandle _assetHandle;
         /// <summary>
         /// 面板是否可见
         /// </summary>

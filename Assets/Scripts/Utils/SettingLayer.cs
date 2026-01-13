@@ -7,7 +7,7 @@ public class SettingLayer : MonoBehaviour
  public SpriteRenderer spriteRenderer;
     void Start()
     {
-        int  newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
+        int  newOrder = 3000 - Mathf.RoundToInt(transform.position.y * 100);
         spriteRenderer.sortingOrder = newOrder;
     }
 

@@ -99,6 +99,7 @@ namespace Controller.Player
             {
                 text.text = $"{player.currentCarryNum}/{player.maxCarryNum}";
             }
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerCarryInfo);
         }
     }
 }
