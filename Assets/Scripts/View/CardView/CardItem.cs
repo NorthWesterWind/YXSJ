@@ -9,6 +9,7 @@ namespace View.CardView
 {
     public class CardItem : MonoBehaviour
     {
+        public  Image iconBg;
         public Image icon;
         public TextMeshProUGUI leveltxt;
         public TextMeshProUGUI nametxt;
@@ -39,8 +40,24 @@ namespace View.CardView
 
         public void Init(CardLevelData _data)
         {
+
+            switch (_data.levelType)
+            {
+                case CardLevelType.FanPing:
+                 
+                 iconBg.sprite = _assetHandle.Get <Sprite>("白卡");
+                break;
+                case CardLevelType.XianYun:
+                    iconBg.sprite = _assetHandle.Get <Sprite>("红卡");
+                    break;
+                case CardLevelType.LingYun:
+                    iconBg.sprite = _assetHandle.Get <Sprite>("紫卡");
+                    break;
+            }
             data = _data;
+            icon.sprite = _assetHandle.Get<Sprite>(data.name);
             PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+
             bool own = false;
             CardUpProgress cardUpProgress = null ;
             foreach (var value in playerData.cardUpProgressesList)

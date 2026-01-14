@@ -93,7 +93,7 @@ namespace Controller.Player
             AddEvent();
             Init();
             renderer = transform.Find("Character").GetComponent<MeshRenderer>();
-          
+
 
         }
 
@@ -203,7 +203,7 @@ namespace Controller.Player
                 }
                 else
                 {
-                
+
                     if (current == null || current.Animation.Name != "待机")
                     {
                         state.SetAnimation(0, "待机", true);
@@ -222,6 +222,7 @@ namespace Controller.Player
             CheckProductStation();
             CheckProduct();
             CheckSaleStall();
+            CheckInteractionByDistance();
 
             if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi < 100)
             {
@@ -570,7 +571,7 @@ namespace Controller.Player
                 goodsDic[station.currentGoodsType]--;
                 currentCarryNum--;
                 playerInfo.UpdateTxt();
-            
+
                 yield return new WaitForSeconds(0.05f);
             }
 
@@ -590,48 +591,126 @@ namespace Controller.Player
             }
         }
 
-        private void OnTriggerEnter2D(Collider2D other)
+        [SerializeField] private float detectRadiu = 1.5f;
+        [SerializeField] private LayerMask interactionLayer;
+
+        private readonly List<InteractionController> overlappTrigger = new();
+        private readonly List<InteractionTrigger> overlappingTrigger2 = new();
+
+        private void CheckInteractionByDistance()
         {
-            var trigger = other.GetComponent<InteractionController>();
-            var trigger2 = other.GetComponent<InteractionTrigger>();
-            if (trigger != null)
+            Vector2 center = transform.position;
+
+            // 找范围内的 Collider
+            Collider2D[] hits = Physics2D.OverlapCircleAll(
+                center,
+                detectRadius,
+                interactionLayer
+            );
+
+            HashSet<InteractionController> currentControllers = new();
+            HashSet<InteractionTrigger> currentTriggers = new();
+
+            foreach (var hit in hits)
             {
-                overlappingTrigger.Add(trigger);
-                if (trigger.interactionType == InteractionType.Immediate)
+                // InteractionController
+                var controller = hit.GetComponent<InteractionController>();
+                if (controller != null)
                 {
-                    trigger.Interact();
+                    currentControllers.Add(controller);
+
+                    // 进入
+                    if (!overlappTrigger.Contains(controller))
+                    {
+                        overlappTrigger.Add(controller);
+
+                        if (controller.interactionType == InteractionType.Immediate)
+                        {
+                            controller.Interact();
+                        }
+                    }
+                }
+
+                // InteractionTrigger
+                var trigger = hit.GetComponent<InteractionTrigger>();
+                if (trigger != null)
+                {
+                    currentTriggers.Add(trigger);
+
+                    if (!overlappingTrigger2.Contains(trigger))
+                    {
+                        overlappingTrigger2.Add(trigger);
+                        trigger.TriggerEnter();
+                    }
                 }
             }
 
-            if (trigger2 != null)
+            // 处理离开（InteractionController）
+            for (int i = overlappTrigger.Count - 1; i >= 0; i--)
             {
-                trigger2.TriggerEnter();
+                var item = overlappTrigger[i];
+                if (!currentControllers.Contains(item))
+                {
+                    item.CloseInteract();
+                    overlappTrigger.RemoveAt(i);
+                }
+            }
+
+            // 处理离开（InteractionTrigger）
+            for (int i = overlappingTrigger2.Count - 1; i >= 0; i--)
+            {
+                var item = overlappingTrigger2[i];
+                if (!currentTriggers.Contains(item))
+                {
+                    item.TriggerExit();
+                    overlappingTrigger2.RemoveAt(i);
+                }
             }
         }
 
-        private void OnTriggerStay2D(Collider2D other)
-        {
-            Debug.Log("持续重叠：" + other.name);
-            if (other.GetComponent<InteractionTrigger>())
-            {
-            }
-        }
 
-        private void OnTriggerExit2D(Collider2D other)
-        {
-            var trigger = other.GetComponent<InteractionController>();
-            var trigger2 = other.GetComponent<InteractionTrigger>();
-            if (trigger != null)
-            {
-                trigger.CloseInteract();
-                overlappingTrigger.Remove(trigger);
-            }
+        // private void OnTriggerEnter2D(Collider2D other)
+        // {
+        //     var trigger = other.GetComponent<InteractionController>();
+        //     var trigger2 = other.GetComponent<InteractionTrigger>();
+        //     if (trigger != null)
+        //     {
+        //         overlappingTrigger.Add(trigger);
+        //         if (trigger.interactionType == InteractionType.Immediate)
+        //         {
+        //             trigger.Interact();
+        //         }
+        //     }
 
-            if (trigger2 != null)
-            {
-                trigger2.TriggerExit();
-            }
-        }
+        //     if (trigger2 != null)
+        //     {
+        //         trigger2.TriggerEnter();
+        //     }
+        // }
+
+        // private void OnTriggerStay2D(Collider2D other)
+        // {
+        //     Debug.Log("持续重叠：" + other.name);
+        //     if (other.GetComponent<InteractionTrigger>())
+        //     {
+        //     }
+        // }
+
+        // private void OnTriggerExit2D(Collider2D other)
+        // {
+        //     var trigger = other.GetComponent<InteractionController>();
+        //     var trigger2 = other.GetComponent<InteractionTrigger>();
+        //     if (trigger != null)
+        //     {
+        //         trigger.CloseInteract();
+        //         overlappingTrigger.Remove(trigger);
+        //     }
+
+        //     if (trigger2 != null)
+        //     {
+        //         trigger2.TriggerExit();
+        //     }
+        // }
 
         public void AddDropItem(DropItemType itemType)
         {
@@ -773,10 +852,12 @@ namespace Controller.Player
             if (goodsType == GoodsType.TongBi)
             {
                 dataModule.AddYinQian(100);
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
             }
             else if (goodsType == GoodsType.JingYunBao)
             {
                 dataModule.AddJinYuanBao(10);
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
             }
             else
             {

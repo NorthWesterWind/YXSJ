@@ -1,8 +1,9 @@
 
- using System;
- using Module;
- using Module.Data;
- using TMPro;
+using System;
+using JetBrains.Annotations;
+using Module;
+using Module.Data;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
@@ -15,23 +16,26 @@ namespace View.MapFunction
         public TextMeshProUGUI tiptxt;
         public Image mapImg;
         public GameObject maskImg;
-        public Image completedImg;
+        public TextMeshProUGUI masktxt;
+        // public Image completedImg;
         public TextMeshProUGUI pricetxt;
         public Transform content_1;
         public Transform content_2;
         public UIButton unlockBtn;
         public TextMeshProUGUI btntxt;
-        public MapData  mapData;
+        public MapData mapData;
+        public GameObject fruit;
+        public GameObject constuct;
 
         public void Start()
         {
             unlockBtn.onClick.RemoveAllListeners();
             unlockBtn.onClick.AddListener((() =>
             {
-                if(ModuleMgr.Instance.GetModule<PlayerDataModule>().data.accountLevel < mapData.unlockLevel)
+                if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.accountLevel < mapData.unlockLevel)
                 {
                     UIController.Instance.Show<TipView>("等级未达到要求！");
-                    
+
                 }
                 else
                 {
@@ -40,9 +44,9 @@ namespace View.MapFunction
                         ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi -= mapData.unlockCost;
                         ModuleMgr.Instance.GetModule<PlayerDataModule>().data.unlockMapList.Add(mapData.id);
                         maskImg.SetActive(false);
-                        completedImg.gameObject.SetActive(true);
-                        UIController.Instance.Show<TipView>( mapData.name + "解锁成攻！");
-                        
+                        // completedImg.gameObject.SetActive(true);
+                        UIController.Instance.Show<TipView>(mapData.name + "解锁成攻！");
+
                     }
                     else
                     {
@@ -61,17 +65,24 @@ namespace View.MapFunction
             }
             mapData = data;
             tiptxt.text = mapData.name;
+            mapImg.sprite = assetHandle.Get<Sprite>(mapData.name);
+            maskImg.GetComponent<Image>().sprite = assetHandle.Get<Sprite>(mapData.name + "灰");
+
+
             if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.unlockMapList.Contains(mapData.id))
             {
-                completedImg.gameObject.SetActive(true);
+                //  completedImg.gameObject.SetActive(true);
                 maskImg.SetActive(false);
+                masktxt.gameObject.SetActive(false);
                 unlockBtn.gameObject.SetActive(false);
             }
             else
             {
                 unlockBtn.gameObject.SetActive(true);
-                completedImg.gameObject.SetActive(false);
+                // completedImg.gameObject.SetActive(false);
                 maskImg.SetActive(true);
+                masktxt.gameObject.SetActive(true);
+                masktxt.text = $"{mapData.unlockLevel}级后解锁";
                 if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.accountLevel < mapData.unlockLevel)
                 {
                     btntxt.text = "要求等级:" + mapData.unlockLevel;
@@ -81,35 +92,37 @@ namespace View.MapFunction
                     btntxt.text = "银币:" + mapData.unlockCost;
                 }
             }
-            pricetxt.text = "价格: x"+ mapData.price;
-            if (mapData.monsterTypeList.Count > 0)
+            pricetxt.text = "x" + mapData.price;
+            Extensions.ClearChildren(content_1);
+            Extensions.ClearChildren(content_2);
+            if (mapData.monsterFamilyList.Count > 0)
             {
-                content_1.gameObject.SetActive(true);
-                for (int i = 0; i < mapData.monsterTypeList.Count; i++)
+               fruit.gameObject.SetActive(true);
+                for (int i = 0; i < mapData.monsterFamilyList.Count; i++)
                 {
-                    GameObject obj = GameObject.Instantiate(assetHandle.Get<GameObject>("mapinfoitem"), content_1.transform,false);
-                    obj.GetComponent<MapInfoItem>().Init(Extensions.GetMonsterPictureNameByType((MonsterType)mapData.monsterTypeList[i]));
-                  
+                    GameObject obj = GameObject.Instantiate(assetHandle.Get<GameObject>("mapinfoitem"), content_1.transform, false);
+                    obj.GetComponent<MapInfoItem>().Init(Extensions.GetMonsterPictureNameByType((MonsterFamily)mapData.monsterFamilyList[i]), (MonsterFamily)mapData.monsterFamilyList[i], obj.transform);
+
                 }
             }
             else
             {
-                content_1.gameObject.SetActive(false);
+                fruit.gameObject.SetActive(false);
             }
-             if (mapData.buildTypeList.Count > 0)
+            if (mapData.buildTypeList.Count > 0)
             {
-                content_1.gameObject.SetActive(true);
-                for (int i = 0; i < mapData.monsterTypeList.Count; i++)
+                constuct.gameObject.SetActive(true);
+                for (int i = 0; i < mapData.buildTypeList.Count; i++)
                 {
-                    GameObject obj = GameObject.Instantiate(assetHandle.Get<GameObject>("mapinfoitem"), content_1.transform,false);
-                    obj.GetComponent<MapInfoItem>().Init(Extensions.GetMonsterPictureNameByType((MonsterType)mapData.monsterTypeList[i]));
+                    GameObject obj = GameObject.Instantiate(assetHandle.Get<GameObject>("mapinfoitem"), content_2.transform, false);
+                    obj.GetComponent<MapInfoItem>().Init(Extensions.GetStructureResNameByType((BuildingType)mapData.buildTypeList[i]), (BuildingType)mapData.buildTypeList[i], obj.transform);
                 }
             }
             else
             {
-                content_1.gameObject.SetActive(false);
+                constuct.gameObject.SetActive(false);
             }
-           
+
         }
     }
 }

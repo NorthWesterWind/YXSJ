@@ -349,71 +349,68 @@ namespace Utils
 			return resName;
 		}
 
-		public static string GetMonsterPictureNameByType(MonsterType type)
+		public static string GetMonsterPictureNameByType(MonsterFamily type)
 		{
 			string resName = string.Empty;
 			switch (type)
 			{
-				case MonsterType.ShuangYunZhi:
+				case MonsterFamily.ShuangYunZhi:
 					resName = "ShuangYunZhi";
 					break;
-				case MonsterType.YueLuCao:
+				case MonsterFamily.YueLuCao:
 					resName = "YueLuCao";
 					break;
 
-				case MonsterType.ZiXinHua:
+				case MonsterFamily.ZiXinHua:
 					resName = "ZiXinHua";
 					break;
 
-				case MonsterType.YuHuiHe:
+				case MonsterFamily.YuHuiHe:
 					resName = "YuHuiHe";
 					break;
 
-				case MonsterType.XingWenGuo:
+				case MonsterFamily.XingWenGuo:
 					resName = "XingWenGuo";
 					break;
 
-				case MonsterType.WuRongJun:
+				case MonsterFamily.WuRongJun:
 					resName = "WuRongJun";
 					break;
 
-				case MonsterType.LingXuSheng:
+				case MonsterFamily.LingXuSheng:
 					resName = "LingXuSheng";
 					break;
 
-				case MonsterType.XueBanHua:
+				case MonsterFamily.XueBanHua:
 					resName = "XueBanHua";
 					break;
 
-				case MonsterType.MuLingYa:
+				case MonsterFamily.MuLingYa:
 					resName = "MuLingYa";
 					break;
 
-				case MonsterType.JingRuiCao:
+				case MonsterFamily.JingRuiCao:
 					resName = "JingRuiCao";
 					break;
 
-				case MonsterType.TieKuangShi:
+				case MonsterFamily.TieKuangShi:
 					resName = "TieKuangShi";
 					break;
 
-				case MonsterType.YinKuangShi:
+				case MonsterFamily.YinKuangShi:
 					resName = "YinKuangShi";
 					break;
 
-				case MonsterType.TongKuangShi:
+				case MonsterFamily.TongKuangShi:
 					resName = "TongKuangShi";
 					break;
 
-				case MonsterType.ZiJingShi:
+				case MonsterFamily.ZiJingShi:
 					resName = "ZiJingShi";
 					break;
 
-				case MonsterType.YueJingShi:
+				case MonsterFamily.YueJingShi:
 					resName = "YueJingShi";
-					break;
-				case MonsterType.JingYuanBao:
-					resName = "JingYuanBao";
 					break;
 
 			}
@@ -560,7 +557,7 @@ namespace Utils
 				case MonsterType.YueJingShiBig:
 					resName = "YueJingShiBig";
 					break;
-					case MonsterType.JingYuanBao:
+				case MonsterType.JingYuanBao:
 					resName = "JingYuanBao";
 					break;
 			}
@@ -930,7 +927,13 @@ namespace Utils
 					resName = "YuanBaoKuangDong";
 					break;
 				case BuildingType.LingChuGe_2:
-					resName = "LingChuGe_2";
+					resName = "LingChuGe";
+					break;
+				case BuildingType.LingChuGe_1:
+					resName = "LingChuGe";
+					break;
+				case BuildingType.YunDiGe:
+					resName = "YunDiGe";
 					break;
 
 			}

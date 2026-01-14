@@ -157,7 +157,7 @@ namespace Module.Data
 
         #region 元宝矿洞数据
         public int remainCount = 0;
-        public string lastRefrashTime;
+        public string lastRefrashTime = "";
 
 
         #endregion

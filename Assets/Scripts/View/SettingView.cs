@@ -75,7 +75,7 @@ namespace View
             if (scene.name == "Login")
             {
                 // 显示UI
-                // UIController.Instance.Show<LoginView>();
+                 UIController.Instance.Show<LoginView>();
             }
 
             // 用完就移除，防止多次注册

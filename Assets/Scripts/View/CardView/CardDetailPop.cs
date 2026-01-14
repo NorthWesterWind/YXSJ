@@ -32,10 +32,14 @@ namespace View.CardView
        public int currentNeedCard;
        public int currentNeedGold;
        CardUpProgress cardUpProgress = null ;
+
+       public Image icon;
+
        public override void UpdateViewWithArgs(params object[] args)
        {
            base.UpdateViewWithArgs(args);
            cardLevelData = args[0] as CardLevelData;
+           icon.sprite = assetHandle.Get<Sprite>(cardLevelData.name);
            title1txt.text = cardLevelData.name;
            switch (cardLevelData.developType)
            {
@@ -213,7 +217,7 @@ namespace View.CardView
                if (cardLevelData.unlockLevel > playerData.accountLevel)
                {
                    //未到达等级解锁条件
-                   topleftLock.gameObject.SetActive(false);
+                 
                    fillContent.SetActive(false);
                    filltxt.gameObject.SetActive(false);
                    mask.gameObject.SetActive(true);
@@ -222,12 +226,12 @@ namespace View.CardView
                else
                {
                    //到达等级解锁条件，未拥有
-                   topleftLock.gameObject.SetActive(true);
+                //    topleftLock.gameObject.SetActive(false);
                    fillContent.SetActive(false);
                    filltxt.gameObject.SetActive(false);
                    mask.gameObject.SetActive(false);
                }
-                
+               topleftLock.gameObject.SetActive(true);
            }
            int tempvalue;
            if (cardUpProgress != null)

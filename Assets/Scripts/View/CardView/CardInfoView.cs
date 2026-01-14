@@ -94,7 +94,7 @@ namespace View.CardView
         public void UpdateInfoTxt(params object[] args)
         {
             PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
-            jybtxt.text = playerData.goldIngot.ToString();
+            jybtxt.text = Extensions.FormatNumber(playerData.goldIngot);
         }
     }
 }

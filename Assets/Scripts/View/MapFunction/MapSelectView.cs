@@ -10,7 +10,7 @@ namespace View.MapFunction
 {
     public class MapSelectView : BaseView
     {
-        public TextMeshProUGUI goldtxt;
+        public TextMeshProUGUI tongbitxt;
         public UIButton closeBtn;
         public Transform content;
         public List<MapItem> mapItems = new List<MapItem>();
@@ -61,7 +61,7 @@ namespace View.MapFunction
 
         private void HandleUpdatePlayerInfo(params object[] args)
         {
-            goldtxt.text = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.goldIngot.ToString();
+            tongbitxt.text = Extensions.FormatNumber(ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi);
         }
     }
 }
