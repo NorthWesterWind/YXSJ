@@ -20,7 +20,7 @@ namespace Controller
         public Transform infoTransform;
         public LingChuGeInfo infoitem;
         public Transform collectorTransform;
-        public int id;
+        public WarehouseCategoryType categoryType; 
         public List<CollectorController>  collectorControllerList = new List<CollectorController>();
         public Dictionary< DropItemType , int> storage;
         public PlayerController characterController;
@@ -69,7 +69,7 @@ namespace Controller
 
         public void HandleBeginWorking(params object[] args)
         {
-            warehouseCategory = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.warehouselist.Find(x => x.id == id);
+            warehouseCategory = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.warehouselist.Find(x => x.warehouseCategoryType == categoryType);
             if (infoitem == null)
             {
                 infoitem = Instantiate(_assetHandle.Get<GameObject>("LingChuGeInfo") , GameObject.Find("Canvas").transform,false).GetComponent<LingChuGeInfo>();

@@ -34,14 +34,16 @@ namespace Utils
 
         public const string TriggerSearch = "Trigger Search"; //触发任务目标寻找
 
-        public const string AddYunDiZhe = "AddYunDiZhe";       //增加工作中的云递者
-        public const string RemoveYunDiZhe = "RemoveYunDiZhe"; //减少工作中的云递者
+        public const string UpdateYunDiZheInfo = "UpdateYunDiZheInfo";       //更新云递者信息
+    
 
         public const string UpdateLingChuGeInfo = "UpdateLingChuGeInfo"; //更新灵储阁信息
         public const string LingChuGeBeginWorking = "LingChuGeBeginWorking"; //灵储阁开始派遣储玄采徒
         public const string LingChuGeEndWorking = "LingChuGeEndWorking"; //清除所有玄采徒
         public const string LingChuGeDelivery = "LingChuGeDelivery"; //灵储阁递送物品
         public const string LingChuGeStopDelivery = "LingChuGeStopDelivery"; //灵储阁停止递送物品
+        
+        public const string UpdateLingChuGeWorkingInfo = "UpdateLingChuGeWorkingInfo"; //更新灵储阁工作信息
 
 
         public const string StructureSpeedUp = "StructureSpeedUp"; //建筑速度加快
@@ -59,6 +61,8 @@ namespace Utils
         public const string StructureLockUnlocked = "StructureLockUnlocked"; //建筑区域锁解锁
         public const string JingYuanBaoDead = "JingYuanBaoDead"; //金元宝死亡
 
-        public const string MapLockDataPrepareded = "MapLockDataPrepareded"; //地图区域锁数据准备完成
+        public const string MapLockDataPrepareded = "MapLockDataPrepareded"; //地图区域锁数据准备完成\
+        
+        public const string ShowOrderDetail = "ShowOrderDetail"; //显示订单详情
     }
 }

@@ -49,12 +49,10 @@ namespace View.LingChuGe
             foreach (var value in warehouseCategory.targetTypeList)
             {
                 GameObject obj = GameObject.Instantiate(assetHandle.Get<GameObject>("topItem"), topTransform, false);
-                obj.GetComponent<TopItem>()
-                    .Init(value, warehouseCategory.ownItemList.Get((int)value), warehouseCategory.id);
+               // obj.GetComponent<TopItem>().Init(value, warehouseCategory.ownItemList.Get((int)value), warehouseCategory.id);
 
-                GameObject obj2 =
-                    GameObject.Instantiate(assetHandle.Get<GameObject>("bottomItem"), bottomTransform, false);
-                obj2.GetComponent<BottomItem>().Init(value, warehouseCategory.id);
+                GameObject obj2 =GameObject.Instantiate(assetHandle.Get<GameObject>("bottomItem"), bottomTransform, false);
+                //obj2.GetComponent<BottomItem>().Init(value, warehouseCategory.id);
             }
         }
     }

@@ -22,7 +22,7 @@ namespace View.EmployeeFunction
            {
                _assetHandle = GetComponent<AssetHandle>();
            }
-           if (data.id == 1)
+           if (data.warehouseCategoryType ==  WarehouseCategoryType.LingChuGe_1)
            {
                tiptxt.text = "一号灵储阁";
            }
@@ -36,7 +36,7 @@ namespace View.EmployeeFunction
            for (int i = 0; i < mapData.monsterFamilyList.Count; i++)
            {
                GameObject obj = Instantiate(_assetHandle.Get<GameObject>("EmployeeInfoItem") , content.transform , false);
-               obj.GetComponent<EmployeeInfoItem>().Init((MonsterFamily)mapData.monsterFamilyList[i] , data);
+               //obj.GetComponent<EmployeeInfoItem>().Init((MonsterFamily)mapData.monsterFamilyList[i] , data);
            }
        }
     }

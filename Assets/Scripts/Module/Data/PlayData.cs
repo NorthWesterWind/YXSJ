@@ -6,6 +6,12 @@ using Utils;
 
 namespace Module.Data
 {
+
+    public enum WarehouseCategoryType
+    {
+        LingChuGe_1 = 1,  //一号灵储阁
+        LingChuGe_2 = 2,  //二号灵储阁
+    }
     public class PlayerData : BaseData
     {
         #region 基础属性
@@ -113,6 +119,7 @@ namespace Module.Data
         public int totalNum = 1;    //总人数
         public int currentMoveSpeed;
         public int capacity = 1;
+        public List<BuildingType> yunDiZheWorkingBuildList = new List<BuildingType>();
         #endregion
         
 
@@ -216,14 +223,15 @@ namespace Module.Data
     public class  OrderDataProgress
     {
         public int orderId;
-        public Dictionary< GoodsType , int> needDic = new Dictionary< GoodsType , int> ();
-        public Dictionary<MonsterType, int> monsterDic = new Dictionary<MonsterType, int>();
+        public Dictionary< GoodsType , int> goodDic = new Dictionary< GoodsType , int> ();
+        public Dictionary<DropItemType, int> dropDic = new Dictionary<DropItemType, int>();
+    
 
-        public OrderDataProgress(int orderId , Dictionary< GoodsType , int> needDic, Dictionary<MonsterType, int> monsterDic)
+        public OrderDataProgress(int orderId , Dictionary< GoodsType , int> goodDic, Dictionary<DropItemType, int> dropDic )
         {
             this.orderId = orderId;
-            this.needDic = needDic;
-            this.monsterDic = monsterDic;
+            this.goodDic = goodDic;
+            this.dropDic = dropDic ;
         }
     }
 
@@ -284,21 +292,20 @@ namespace Module.Data
     [Serializable]
     public class WarehouseCategory
     {
-        public int id;
+        public WarehouseCategoryType warehouseCategoryType;
         public List<Collector> workingCollectorList = new ();
         public int capacity ;
         public List<MonsterType> targetTypeList = new ();
         public List<Collector> unworkingCollectorList = new();
         public SerializableIntDictionary<int> ownItemList = new SerializableIntDictionary<int>();
-        public WarehouseCategory(int id)
+        public WarehouseCategory(WarehouseCategoryType type)
         {
-            this.id = id;
+            warehouseCategoryType = type;
             capacity = 60;
             unworkingCollectorList.Add(new Collector(1,MonsterFamily.None));
             
         }
-        
-        
+    
     }
 
 

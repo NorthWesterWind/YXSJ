@@ -60,6 +60,13 @@ namespace Controller.Player
         public bool InteractionTriggerInRange { get; set; } = false;
         public Transform InteractionTriggerTransform;
 
+        public Transform weaponRoot;
+        public float speed;
+        [SerializeField] private float radiusX = 1.1f;   // 左右摆动距离
+        [SerializeField] private float radiusZ = 0.55f;  // 前后景深（决定遮挡感）
+        [SerializeField] private float minScale = 0.85f; // 在身后时的最小缩放
+        [SerializeField] private float maxScale = 1.15f; // 在身前时的最大缩放s
+
         private void Awake()
         {
             if (dataModule == null)
@@ -138,7 +145,7 @@ namespace Controller.Player
         {
             int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
             renderer.sortingOrder = newOrder;
-            weaponRenderer.sortingOrder = newOrder;
+            //weaponRenderer.sortingOrder = newOrder;
             shadowRenderer.sortingOrder = newOrder;
         }
 
@@ -156,11 +163,11 @@ namespace Controller.Player
                 isMoving = true;
                 if (_dirValue.x < 0)
                 {
-                    transform.localScale = new Vector3(-1, 1, 1);
+                    _skeletonAnimation.transform.localScale = new Vector3(-0.6f,0.6f, 0.6f);
                 }
                 else
                 {
-                    transform.localScale = new Vector3(1, 1, 1);
+                    _skeletonAnimation.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
                 }
 
                 // if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 12))
@@ -243,9 +250,20 @@ namespace Controller.Player
                 }
             }
 
+            if (weapon.gameObject.activeSelf)
+            {
+                weaponRoot.Rotate(0f, 0f, -speed * Time.deltaTime);
+                float z = weaponRoot.localEulerAngles.z;
+                if (z > 180f) z -= 360f;
+                weaponRenderer.sortingOrder = renderer.sortingOrder + 1;
+                float t = Mathf.Abs(Mathf.Cos(z * Mathf.Deg2Rad));
+                float scale = Mathf.Lerp(0.85f, 1.1f, t);
+                weaponRoot.localScale = Vector3.one * scale;
+
+            }
+
 
         }
-
         private Coroutine coroutine;
         private IEnumerator ThrowOutTongBi()
         {

@@ -13,7 +13,7 @@ namespace View.LingChuGe
       public TextMeshProUGUI numtxt;
       public AssetHandle assetHandle;
       public UIButton btn;
-      public int id; //灵储阁Id
+      public WarehouseCategoryType  categoryType; //灵储阁Id
       public int ownnum;
       public MonsterType type;
       public void Init(MonsterType monsterType , int num , int id)
@@ -44,7 +44,7 @@ namespace View.LingChuGe
 
       public void HandleUpdateLingChuGeInfo(params object[] args)
       {
-          int ownnum = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.warehouselist.Find(x => x.id == id).ownItemList.Get((int)type);
+          int ownnum = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.warehouselist.Find(x => x.warehouseCategoryType == categoryType).ownItemList.Get((int)type);
           numtxt.text = ownnum.ToString();
       }
 

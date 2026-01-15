@@ -12,15 +12,15 @@ namespace View.LingChuGe
     {
         public Image icon;
         public int num;
-        public int id;
+        public WarehouseCategoryType warehouseCategoryType;
         public MonsterType type;
         public AssetHandle assetHandle;
         public TextMeshProUGUI numtxt;
 
-        public void Init(MonsterType monsterType, int id)
+        public void Init(MonsterType monsterType, WarehouseCategoryType waretype)
         {
             type = monsterType;
-            this.id = id;
+            warehouseCategoryType = waretype;
             if (assetHandle == null)
             {
                 assetHandle = GetComponent<AssetHandle>();
@@ -42,7 +42,7 @@ namespace View.LingChuGe
         public void HandleUpdateLingChuGeInfo(params object[] args)
         {
             WarehouseCategory data = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.warehouselist
-                .Find(x => x.id == id);
+                .Find(x => x.warehouseCategoryType == warehouseCategoryType);
             if (data == null)
             {
                 Debug.LogError(" WarehouseCategory data == null");

@@ -10,20 +10,25 @@ namespace View.EmployeeFunction
     public class EmployeeFunctionView : BaseView
     {
         public UIButton closeBtn;
-        public TextMeshProUGUI usepeopletxt;
-        public UIButton addBtn1;
-        public Image addImg1;
-        public UIButton removeBtn1;
-        public Image removeImg1;
-        public TextMeshProUGUI progresstxt1    ;
+        public GameObject yundizheBtnObj;
+        public UIButton yundizheBtn;
+        public GameObject yundizheBtnMask;
+        public GameObject content_1;
 
-        public Transform storageContent;
-        
+
+        public GameObject xuancaituBtnObj_1;
+        public UIButton xuancaituBtn_1;
+        public GameObject xuancaituBtn_1Mask;
+        public GameObject content_2;
+        public GameObject xuancaituBtnObj_2;
+        public UIButton xuancaituBtn_2;
+        public GameObject xuancaituBtn_2Mask;
+        public GameObject content_3;
+
         public override void UpdateViewWithArgs(params object[] args)
         {
             base.UpdateViewWithArgs(args);
             UpdateInfo();
-            
         }
 
         protected override void AddEventListener()
@@ -34,37 +39,7 @@ namespace View.EmployeeFunction
             {
                 Hide();
             }));
-            addBtn1.onClick.RemoveAllListeners();
-            addBtn1.onClick.AddListener((() =>
-            {
-                if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.workingNum == ModuleMgr.Instance.GetModule<PlayerDataModule>().data.totalNum)
-                {
-                    return;
-                }
-                else
-                {
-                    ModuleMgr.Instance.GetModule<PlayerDataModule>().data.workingNum += 1;
-                    EventCenter.Instance.TriggerEvent(EventMessages.AddYunDiZhe);
-                }
-
-                UpdateInfo();
-            }));
-            removeBtn1.onClick.RemoveAllListeners();
-            removeBtn1.onClick.AddListener((() =>
-            {
-                
-                if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.workingNum < 1)
-                {
-                    return;
-                }
-                else
-                {
-                    ModuleMgr.Instance.GetModule<PlayerDataModule>().data.workingNum -= 1;
-                    EventCenter.Instance.TriggerEvent(EventMessages.RemoveYunDiZhe);
-                }
-
-                UpdateInfo();
-            }));
+           
         }
 
         protected override void OnHideComplete()
@@ -76,8 +51,9 @@ namespace View.EmployeeFunction
         public void UpdateInfo()
         {
             PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
-            usepeopletxt.text = playerData.workingNum + "/" + playerData.totalNum;
-            progresstxt1.text = playerData.workingNum + "/" + playerData.totalNum;
+        
         }
+
+        //public 
     }
 }
