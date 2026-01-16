@@ -74,7 +74,7 @@ namespace Controller
             {
                 infoitem = Instantiate(_assetHandle.Get<GameObject>("LingChuGeInfo") , GameObject.Find("Canvas").transform,false).GetComponent<LingChuGeInfo>();
             }
-            infoitem.Init( warehouseCategory);
+            infoitem.Init( warehouseCategory , this);
             List<Collector> list = warehouseCategory.workingCollectorList;
             foreach (Collector c in list)
             {

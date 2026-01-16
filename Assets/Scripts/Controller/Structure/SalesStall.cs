@@ -19,8 +19,8 @@ namespace Controller.Structure
         public List<Production> productList = new();
         public Transform transferPoint;
         public BuildingType buildingType;
-        public SpriteRenderer  productIcon;
-        public SpriteRenderer  productIconbg;
+        public SpriteRenderer productIcon;
+        public SpriteRenderer productIconbg;
 
         protected override void Start()
         {
@@ -30,48 +30,105 @@ namespace Controller.Structure
 
         public void Init()
         {
-            PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
-            List<StructureLockData> structureLocks = new();
-            switch (playerData.currentMapID)
+            // PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            // List<StructureLockData> structureLocks = new();
+            // switch (playerData.currentMapID)
+            // {
+            //     case 1:
+            //         structureLocks = DataController.Instance.structureLockDataList_1;
+            //         break;
+            //     case 2:
+            //         structureLocks = DataController.Instance.structureLockDataList_2;
+            //         break;
+            //     case 3:
+            //         structureLocks = DataController.Instance.structureLockDataList_3;
+            //         break;
+            //     case 4:
+            //         structureLocks = DataController.Instance.structureLockDataList_4;
+            //         break;
+            //     case 5:
+            //         structureLocks = DataController.Instance.structureLockDataList_5;
+            //         break;
+            // }
+            // var lockData = structureLocks.Find(s => s.buildingType == buildingType);
+            // if (lockData != null)
+            // {
+            //     var progressData = playerData.structureLockProgressDataList.Find(s => s.buildType == buildingType && s.lockId == lockData.lockId && s.mapId == playerData.currentMapID);
+            //     if (progressData != null && progressData.isUnlock)
+            //     {
+            //         content.SetActive(true);
+            //         structureLock.gameObject.SetActive(false);
+            //         grid.basePosition = baseTransform.position;
+            //         GameController.Instance.goodBuild.Add(currentGoodsType, this);
+            //     }
+            //     else
+            //     {
+            //         content.SetActive(false);
+            //         structureLock.gameObject.SetActive(true);
+            //         structureLock.InitInfo(lockData);
+            //     }
+            // }
+            // productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(currentGoodsType));
+            // productIcon.sortingOrder = sprite.sortingOrder+2;
+            // productIconbg.sortingOrder = sprite.sortingOrder+1;
+            // grid.basePosition = baseTransform.position;
+
+
+
+            var playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+
+            var lockData = GetLockData(playerData.currentMapID);
+            var state = GetStructureState(playerData, lockData);
+
+            RefreshView(state, lockData);
+        }
+
+        private void RefreshView(StructureState state, StructureLockData lockData)
+        {
+            switch (state)
             {
-                case 1:
-                    structureLocks = DataController.Instance.structureLockDataList_1;
+                case StructureState.Locked:
+                case StructureState.CanUnlock:
+                    ShowLock(lockData);
                     break;
-                case 2:
-                    structureLocks = DataController.Instance.structureLockDataList_2;
-                    break;
-                case 3:
-                    structureLocks = DataController.Instance.structureLockDataList_3;
-                    break;
-                case 4:
-                    structureLocks = DataController.Instance.structureLockDataList_4;
-                    break;
-                case 5:
-                    structureLocks = DataController.Instance.structureLockDataList_5;
+
+                case StructureState.Unlocked:
+                    ShowContent();
                     break;
             }
-            var lockData = structureLocks.Find(s => s.buildingType == buildingType);
-            if (lockData != null)
-            {
-                var progressData = playerData.structureLockDataList.Find(s => s.buildType == buildingType && s.lockId == lockData.lockId && s.mapId == playerData.currentMapID);
-                if (progressData != null && progressData.isUnlock)
-                {
-                    content.SetActive(true);
-                    structureLock.gameObject.SetActive(false);
-                    grid.basePosition = baseTransform.position;
-                    GameController.Instance.goodBuild.Add(currentGoodsType, this);
-                }
-                else
-                {
-                    content.SetActive(false);
-                    structureLock.gameObject.SetActive(true);
-                    structureLock.InitInfo(lockData);
-                }
-            }
+        }
+
+        private void ShowContent()
+        {
+            content.SetActive(true);
+            structureLock.gameObject.SetActive(false);
+            grid.basePosition = baseTransform.position;
             productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(currentGoodsType));
             productIcon.sortingOrder = sprite.sortingOrder+2;
             productIconbg.sortingOrder = sprite.sortingOrder+1;
-               grid.basePosition = baseTransform.position;
+        }
+
+        public StructureLockData GetLockData(int mapId)
+        {
+            var list = DataController.Instance.GetStructureLockList(mapId);
+            return list?.Find(s => s.buildingType == buildingType);
+        }
+        private StructureState GetStructureState(PlayerData playerData, StructureLockData lockData)
+        {
+            if (lockData == null)
+                return StructureState.Unlocked;
+
+            var locked = playerData.structLockDataDic[playerData.currentMapID];
+            var unlocked = playerData.structUnLockDataDic[playerData.currentMapID];
+            var canUnlock = playerData.structCanUnLockDataDic[playerData.currentMapID];
+
+            if (unlocked.Contains(buildingType))
+                return StructureState.Unlocked;
+
+            if (locked.Contains(buildingType))
+                return StructureState.Locked;
+
+            return StructureState.CanUnlock;
         }
 
         public void AddGoods(Production p)

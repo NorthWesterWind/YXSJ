@@ -76,7 +76,7 @@ namespace Controller
             if (_meshRenderer == null)
                 _meshRenderer = skeletonAnimation.GetComponent<MeshRenderer>();
 
-            int order = 3000 - Mathf.RoundToInt(transform.position.y * 100);
+            int order = 30000 - Mathf.RoundToInt(transform.position.y * 100);
             _meshRenderer.sortingOrder = order;
             shadow.sortingOrder = order - 5;
         }

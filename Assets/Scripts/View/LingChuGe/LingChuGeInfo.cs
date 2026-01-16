@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Controller;
 using Module.Data;
 using UnityEngine;
 using Utils;
@@ -9,11 +10,11 @@ namespace View.LingChuGe
     public class LingChuGeInfo : MonoBehaviour
     {
         public CanvasGroup canvasGroup;
-        public Transform bottomTransform;
         public Transform topTransform;
 
         public AssetHandle assetHandle;
-        public List<MonsterType> targetTypeList = new();
+        public List<MonsterFamily> targetTypeList = new();
+        public  LingChuGeController lingChuGeController;
 
         private void Start()
         {
@@ -35,24 +36,22 @@ namespace View.LingChuGe
         }
 
 
-        public void Init(WarehouseCategory warehouseCategory)
+        public void Init(WarehouseCategory warehouseCategory ,   LingChuGeController c)
         {
             targetTypeList.Clear();
             targetTypeList = warehouseCategory.targetTypeList;
+            lingChuGeController = c;
             if (assetHandle == null)
             {
                 assetHandle = GetComponent<AssetHandle>();
             }
 
             Extensions.ClearChildren(topTransform);
-            Extensions.ClearChildren(bottomTransform);
             foreach (var value in warehouseCategory.targetTypeList)
             {
                 GameObject obj = GameObject.Instantiate(assetHandle.Get<GameObject>("topItem"), topTransform, false);
-               // obj.GetComponent<TopItem>().Init(value, warehouseCategory.ownItemList.Get((int)value), warehouseCategory.id);
+                obj.GetComponent<TopItem>().Init( lingChuGeController ,value);
 
-                GameObject obj2 =GameObject.Instantiate(assetHandle.Get<GameObject>("bottomItem"), bottomTransform, false);
-                //obj2.GetComponent<BottomItem>().Init(value, warehouseCategory.id);
             }
         }
     }

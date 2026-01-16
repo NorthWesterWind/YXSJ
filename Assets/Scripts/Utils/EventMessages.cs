@@ -35,6 +35,7 @@ namespace Utils
         public const string TriggerSearch = "Trigger Search"; //触发任务目标寻找
 
         public const string UpdateYunDiZheInfo = "UpdateYunDiZheInfo";       //更新云递者信息
+        public const string UpdateYunDiGeWorkingState = "UpdateYunDiGeWorkingState";       //更新云递阁工作状态
     
 
         public const string UpdateLingChuGeInfo = "UpdateLingChuGeInfo"; //更新灵储阁信息

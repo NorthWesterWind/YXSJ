@@ -3,6 +3,7 @@ using Module;
 using Module.Data;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Utils;
 using View.EmployeeFunction;
 
@@ -19,7 +20,17 @@ public class EmployeeContent : MonoBehaviour
     public Transform content;
     public EmployeeType employeeType;
     public BuildingType buildingType;
-    public void Init(EmployeeType employeeType, BuildingType buildingType)
+
+    public UIButton addbtn;
+    public Image addMask;
+    public TextMeshProUGUI progressTxt;
+    public UIButton removebtn;
+    public Image removeMask;
+
+
+
+
+    public void Init(EmployeeType employeeType, BuildingType buildingType = BuildingType.None)
     {
         this.employeeType = employeeType;
         this.buildingType = buildingType;
@@ -56,6 +67,58 @@ public class EmployeeContent : MonoBehaviour
                     obj.GetComponent<EmployeeInfoItem>().Init((MonsterFamily)mapData.monsterFamilyList[i], 3);
                 }
             }
+        }
+
+
+        if (employeeType == EmployeeType.YunDiZhe)
+        {
+            progressTxt.text = playerData.workingNum + "/" + playerData.totalNum;
+            if (playerData.totalNum > playerData.workingNum)
+            {
+                addMask.gameObject.SetActive(false);
+            }
+            else
+            {
+                addMask.gameObject.SetActive(true);
+            }
+            if (playerData.workingNum > 0)
+            {
+                removeMask.gameObject.SetActive(false);
+            }
+            else
+            {
+                removeMask.gameObject.SetActive(true);
+            }
+            addbtn.onClick.RemoveAllListeners();
+            addbtn.onClick.AddListener(() =>
+            {
+
+                playerData.workingNum += 1;
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdateYunDiGeWorkingState);
+
+                if (playerData.totalNum > playerData.workingNum)
+                {
+                    addMask.gameObject.SetActive(false);
+                }
+                else
+                {
+                    addMask.gameObject.SetActive(true);
+                }
+            });
+            removebtn.onClick.RemoveAllListeners();
+            removebtn.onClick.AddListener(() =>
+            {
+                playerData.workingNum -= 1;
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdateYunDiGeWorkingState);
+                if (playerData.workingNum > 0)
+                {
+                    removeMask.gameObject.SetActive(false);
+                }
+                else
+                {
+                    removeMask.gameObject.SetActive(true);
+                }
+            });
         }
     }
 

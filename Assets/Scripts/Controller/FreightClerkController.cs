@@ -21,18 +21,19 @@ namespace Controller
         public int currentMove;
         public int pickUpRange;
         private AssetHandle _assetHandle;
-    
-        
+
+
         public List<Transform> points = new List<Transform>();
         public List<ProductionStation> productionStationList = new List<ProductionStation>();
         public List<SalesStall> salesStallList = new List<SalesStall>();
         public Transform normalPos;
-        public List<Production>  productList = new List<Production>();
-        
+        public List<Production> productList = new List<Production>();
+
         private ProductionStation targetStation; // 当前目标生产台
         private SalesStall targetStall;          // 对应销售摊位
         private bool isWorking;
-        
+        private bool needDestory;  // 是否需要销毁
+
         public void Init()
         {
             if (_assetHandle == null)
@@ -48,9 +49,22 @@ namespace Controller
             _agent.maxSpeed = currentMove;
             StartCoroutine(WorkerLoop());
         }
-        
-        
-        
+
+        public void StopWorking()
+        {
+            if(productList.Count == 0)
+            {
+
+                Destroy(gameObject);
+            }
+            else
+            {
+                needDestory = true;
+            }
+        }
+
+
+
         private IEnumerator WorkerLoop()
         {
             yield return null;
@@ -62,7 +76,7 @@ namespace Controller
                 if (targetStation == null)
                 {
                     // 没有任何生产台有产品，等一会再查找
-                    yield return new WaitForSeconds(1f);
+                    yield return new WaitForSeconds(5f);
                     continue;
                 }
 
@@ -70,14 +84,14 @@ namespace Controller
                 yield return MoveTo(targetStation.transferPoint.position);
 
                 // 抵达后再次检查是否有货
-                if (targetStation.productionList.Count <1)
+                if (targetStation.productionList.Count < 1)
                     continue;
 
                 // 拿货
                 productList = targetStation.TakeProduct(this);
-                    
+
                 yield return new WaitForSeconds(0.5f + productList.Count);
-                
+
                 // 找到对应该商品的销售摊位
                 targetStall = FindSalesStall(targetStation.goodsType);
 
@@ -92,25 +106,34 @@ namespace Controller
 
                 // 放下商品
                 targetStall.ReceiveProduct(this);
-                
+
                 currentCapacity = 0;
-                
+
+                yield return new WaitForSeconds(1f );
+
             }
         }
         private IEnumerator MoveTo(Vector2 target)
         {
             _agent.SetDestination(target);
-            while (_agent.hasPath  && _agent.remainingDistance > 1f)
+            while (_agent.hasPath && _agent.remainingDistance > 1f)
                 yield return null;
         }
-        
-        
+
+
         /// 查找有产品的生产台
         private ProductionStation FindValidProductionStation()
         {
             foreach (var ps in productionStationList)
             {
-                if (ps.productionList.Count>0)
+                if (ps.isLock || ps.isCanUnlockState)
+                    continue;
+                var stall = FindSalesStall(ps.goodsType);
+                if (stall == null || stall.isLock || stall.isCanUnlockState)
+                {
+                    continue;
+                }
+                if (ps.productionList.Count > 0)
                     return ps;
             }
             return null;
@@ -132,24 +155,24 @@ namespace Controller
         {
             if (_agent.hasPath)
             {
-               var state = skeletonAnimation.AnimationState;
+                var state = skeletonAnimation.AnimationState;
                 var current = state.GetCurrent(0);
 
                 if (current == null || current.Animation.Name != "walk")
                 {
-                    
+
                     state.SetAnimation(0, "walk", true);
                 }
-              
+
             }
             else
             {
-                 var state = skeletonAnimation.AnimationState;
+                var state = skeletonAnimation.AnimationState;
                 var current = state.GetCurrent(0);
 
                 if (current == null || current.Animation.Name != "idle")
                 {
-                    
+
                     state.SetAnimation(0, "walk", true);
                 }
             }
@@ -157,10 +180,10 @@ namespace Controller
         }
         public void SetLayer()
         {
-            int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
-           renderer.sortingOrder = newOrder;
+            int newOrder = 30000 - Mathf.FloorToInt(transform.localPosition.y);
+            renderer.sortingOrder = newOrder;
         }
-        
+
         void OnEnable()
         {
             _agent.OnDestinationReached += OnReachDestination;
@@ -172,7 +195,7 @@ namespace Controller
         }
         void OnReachDestination()
         {
-            
+
         }
     }
 }

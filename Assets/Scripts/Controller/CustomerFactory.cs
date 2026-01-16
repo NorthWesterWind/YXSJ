@@ -53,8 +53,6 @@ namespace Controller
                 ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID];
 
             customerTypeList = mapData.customerTypeList;
-
-            // ✅ 关键：防止重复启动
             if (createCustomerCoroutine != null)
             {
                 StopCoroutine(createCustomerCoroutine);
@@ -62,6 +60,12 @@ namespace Controller
             }
 
             createCustomerCoroutine = StartCoroutine(CreatCustomer());
+        }
+
+        bool IsStructureUnlocked(BuildingType buildingType)
+        {
+            var playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            return !playerData.structUnLockDataDic[playerData.currentMapID].Contains(buildingType);
         }
 
         public IEnumerator CreatCustomer()
@@ -72,6 +76,8 @@ namespace Controller
                 var availableStructures = GameController.Instance.goodBuild
                     .Where(pair =>
                     {
+                        if (!IsStructureUnlocked((pair.Value as SalesStall).buildingType))
+                            return false;
                         if (!placeCustomerCount.ContainsKey(pair.Value))
                             return true;
 

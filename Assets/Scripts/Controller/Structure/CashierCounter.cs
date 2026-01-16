@@ -1,9 +1,9 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using Controller.Pickups;
 using Module;
 using Module.Data;
+using Spine.Unity;
 using UnityEngine;
 using Utils;
 
@@ -21,6 +21,7 @@ namespace Controller.Structure
         public SpriteRenderer fillImage;
         public Transform receiveTransform;
         public GameObject LingZhangShi;
+        public SkeletonAnimation skeletonAnimation;
         public MeshRenderer renderer;
         protected override void Start()
         {
@@ -44,7 +45,7 @@ namespace Controller.Structure
 
         public void Init()
         {
-            fillImage.size = new Vector2( 0 ,0);
+            fillImage.size = new Vector2(0, 0);
             grid.basePosition = exportTransform.position;
 
 
@@ -71,7 +72,7 @@ namespace Controller.Structure
             var lockData = structureLocks.Find(s => s.buildingType == BuildingType.LingZhangTai);
             if (lockData != null)
             {
-                var progressData = playerData.structureLockDataList.Find(s => s.buildType == BuildingType.LingZhangTai && s.lockId == lockData.lockId && s.mapId == playerData.currentMapID);
+                var progressData = playerData.structureLockProgressDataList.Find(s => s.buildType == BuildingType.LingZhangTai && s.lockId == lockData.lockId && s.mapId == playerData.currentMapID);
                 if (progressData != null && progressData.isUnlock)
                 {
                     content.SetActive(true);
@@ -87,8 +88,8 @@ namespace Controller.Structure
 
 
 
-            int newOrder = 3500 - Mathf.FloorToInt(transform.localPosition.y);
-            renderer.sortingOrder = newOrder;
+            int newOrder = 3000 - Mathf.RoundToInt(transform.position.y * 100);
+            renderer.sortingOrder = newOrder + 2;
         }
 
         private IEnumerator ProcessCustomers()
@@ -98,7 +99,7 @@ namespace Controller.Structure
                 if (customerQueue.Count == 0)
                 {
                     processCoroutine = null;
-                    fillImage.size = new Vector2( 0 ,0);
+                    fillImage.size = new Vector2(0, 0);
                     yield break;
                 }
                 CustomerController customer = customerQueue.Dequeue();
@@ -125,24 +126,24 @@ namespace Controller.Structure
         private IEnumerator HandleSingleCustomer(CustomerController customer)
         {
             float t = 0f;
-            float productionTime = baseTime / speed; 
+            float productionTime = baseTime / speed;
 
-            fillImage.size= new Vector2(0,0.08f);
+            fillImage.size = new Vector2(0, 0.08f);
 
             while (t < productionTime)
             {
                 t += Time.deltaTime;
                 float value = t / productionTime;
-                fillImage.size =  new Vector2( 2.9f*value ,0.08f )  ;
+                fillImage.size = new Vector2(2.9f * value, 0.08f);
                 yield return null;
             }
-            fillImage.size= new Vector2(2.9f,0.08f);
+            fillImage.size = new Vector2(2.9f, 0.08f);
             customer.state = NpcState.JieZhangChengGong;
             customer.SetNextPosition();
             customer.agent.SetDestination(customer.nextPosition);
             PrintingMoney();
-        
-           
+
+
         }
 
 
@@ -150,12 +151,12 @@ namespace Controller.Structure
         {
             GameObject productObj = ObjectPoolManager.Instance.GetObject("Production");
             productObj.transform.position = receiveTransform.position;
-            Production product =  productObj.GetComponent<Production>();
+            Production product = productObj.GetComponent<Production>();
             product.Init(GoodsType.TongBi);
             product.SetStation(this);
             product.spriteRenderer.sortingOrder = 4000 + grid.currentIndex;
-            
-            product.FlyTo(grid.GetNextPosition() , (() =>
+
+            product.FlyTo(grid.GetNextPosition(), (() =>
             {
                 product.canPickup = true;
                 product.state = ItemState.OnWorkbench;

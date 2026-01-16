@@ -417,6 +417,61 @@ namespace Utils
 			return resName;
 		}
 
+		public static DropItemType ExchangeType(MonsterFamily monsterType)
+		{
+			DropItemType resultype = DropItemType.None;
+			switch (monsterType)
+			{
+				case MonsterFamily.ShuangYunZhi:
+					resultype = DropItemType.ShuangYunZhiFragment;
+					break;
+				case MonsterFamily.YueLuCao:
+					resultype = DropItemType.YueLuCaoFragment;
+					break;
+				case MonsterFamily.ZiXinHua:
+					resultype = DropItemType.ZiXinHuaFragment;
+					break;
+			
+				case MonsterFamily.YuHuiHe:
+					resultype = DropItemType.YuHuiHeFragment;
+					break;
+				case MonsterFamily.XingWenGuo:
+					resultype = DropItemType.XingWenGuoFragment;
+					break;
+				case MonsterFamily.WuRongJun:
+					resultype = DropItemType.WuRongJunFragment;
+					break;
+				case MonsterFamily.LingXuSheng:
+					resultype = DropItemType.LingXuShengFragment;
+					break;
+				case MonsterFamily.XueBanHua:
+					resultype = DropItemType.XueBanHuaFragment;
+					break;
+				case MonsterFamily.MuLingYa:
+					resultype = DropItemType.MuLingYaFragment;
+					break;
+				case MonsterFamily.JingRuiCao:
+					resultype = DropItemType.JingRuiCaoFragment;
+					break;
+				case MonsterFamily.TieKuangShi:
+					resultype = DropItemType.TieKuangShiFragment;
+					break;
+				case MonsterFamily.YinKuangShi:
+					resultype = DropItemType.YinKuangShiFragment;
+					break;
+				case MonsterFamily.TongKuangShi:
+					resultype = DropItemType.TongKuangShiFragment;
+					break;
+				case MonsterFamily.ZiJingShi:
+					resultype = DropItemType.ZiJingShiFragment;
+					break;
+				case MonsterFamily.YueJingShi:
+					resultype = DropItemType.YueJingShiFragment;
+					break;
+			}
+			return resultype;
+		}
+
 		public static string GetMonsterResNameByType(MonsterType type)
 		{
 			string resName = "";
@@ -934,6 +989,71 @@ namespace Utils
 					break;
 				case BuildingType.YunDiGe:
 					resName = "YunDiGe";
+					break;
+
+			}
+			return resName;
+		}
+
+
+		public static string GetStructureNameByType(BuildingType type)
+		{
+			string resName = "";
+			switch (type)
+			{
+				case BuildingType.LingChaJia_1:
+					resName = "一号灵茶架";
+					break;
+				case BuildingType.YuShaHu_1:
+					resName = "一号玉沙壶";
+					break;
+				case BuildingType.LingChaJia_2:
+					resName = "二号灵茶架";
+					break;
+				case BuildingType.YuShaHu_2:
+					resName = "二号玉沙壶";
+					break;
+				case BuildingType.LingChaJia_3:
+					resName = "三号灵茶架";
+					break;
+				case BuildingType.YuShaHu_3:
+					resName = "三号玉沙壶";
+					break;
+				case BuildingType.LingChaJia_4:
+					resName = "四号灵茶架";
+					break;
+				case BuildingType.YuShaHu_4:
+					resName = "四号玉沙壶";
+					break;
+				case BuildingType.LianQiLu_1:
+					resName = "一号炼器炉";
+					break;
+				case BuildingType.LingQiJia_1:
+					resName = "一号灵器架";
+					break;
+				case BuildingType.LianQiLu_2:
+					resName = "二号炼器炉";
+					break;
+				case BuildingType.LingQiJia_2:
+					resName = "二号灵器架";
+					break;
+				case BuildingType.LianQiLu_3:
+					resName = "三号炼器炉";
+					break;
+				case BuildingType.LingQiJia_3:
+					resName = "三号灵器架";
+					break;
+				case BuildingType.YuanBaoKuangDong:
+					resName = "元宝矿洞";
+					break;
+				case BuildingType.LingChuGe_2:
+					resName = "二号灵储阁";
+					break;
+				case BuildingType.LingChuGe_1:
+					resName = "一号灵储阁";
+					break;
+				case BuildingType.YunDiGe:
+					resName = "云递阁                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ";
 					break;
 
 			}

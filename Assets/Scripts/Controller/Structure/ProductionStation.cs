@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using Controller.Pickups;
 using Module;
 using Module.Data;
+using Spine;
+using Spine.Unity;
 using UnityEngine;
 using Utils;
 using View;
@@ -31,11 +33,11 @@ namespace Controller.Structure
         public PlacementGrid grid = new PlacementGrid();
 
         public List<Production> productionList = new List<Production>();
-        public SpriteRenderer icon;
 
         public SpriteRenderer productIcon;
         public SpriteRenderer materialIcon;
         public Transform infoTransform;
+        public SkeletonAnimation icon;
 
         protected override void Start()
         {
@@ -47,7 +49,7 @@ namespace Controller.Structure
                 GameObject obj = GameObject.Instantiate(_assetHandle.Get<GameObject>("ProductionInfo"), GameObject.Find("HpCanvas").transform, false);
                 productionInfo = obj.GetComponent<ProductionInfo>();
                 productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
-                if(currentMaterialCount == 0)
+                if (currentMaterialCount == 0)
                 {
                     productionInfo.gameObject.SetActive(false);
                 }
@@ -58,87 +60,235 @@ namespace Controller.Structure
         public void Init()
         {
 
-            PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
-            List<StructureLockData> structureLocks = new();
-            switch (playerData.currentMapID)
+            // PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            // List<StructureLockData> structureLocks = new();
+            // switch (playerData.currentMapID)
+            // {
+            //     case 1:
+            //         structureLocks = DataController.Instance.structureLockDataList_1;
+            //         break;
+            //     case 2:
+            //         structureLocks = DataController.Instance.structureLockDataList_2;
+            //         break;
+            //     case 3:
+            //         structureLocks = DataController.Instance.structureLockDataList_3;
+            //         break;
+            //     case 4:
+            //         structureLocks = DataController.Instance.structureLockDataList_4;
+            //         break;
+            //     case 5:
+            //         structureLocks = DataController.Instance.structureLockDataList_5;
+            //         break;
+            // }
+            // var lockData = structureLocks.Find(s => s.buildingType == buildingType);
+            // if (lockData != null)
+            // {
+            //     var list = playerData.structLockDataDic[playerData.currentMapID];
+            //     var list1 = playerData.structUnLockDataDic[playerData.currentMapID];
+            //     var list2 = playerData.structCanUnLockDataDic[playerData.currentMapID];
+            //     if (list2.Contains(buildingType))
+            //     {
+            //         isLock = false;
+            //         isCanUnlockState = false;
+            //     }
+            //     else
+            //     {
+            //         if (list.Contains(buildingType))
+            //         {
+            //             isLock = true;
+            //             isCanUnlockState = false;
+            //         }
+            //         else
+            //         {
+            //             isLock = false;
+            //             isCanUnlockState = true;
+            //         }
+            //     }
+
+
+            //     if (isLock)
+            //     {
+            //         content.SetActive(false);
+            //         structureLock.gameObject.SetActive(true);
+            //         structureLock.InitInfo(lockData);
+            //     }
+            //     else
+            //     {
+            //         if (isCanUnlockState)
+            //         {
+            //             content.SetActive(false);
+            //             structureLock.gameObject.SetActive(true);
+            //             structureLock.InitInfo(lockData);
+            //         }
+            //         else
+            //         {
+            //             content.SetActive(true);
+            //             structureLock.gameObject.SetActive(false);
+            //             productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
+            //             grid.basePosition = productPosition.position;
+            //             ObjectPoolManager.Instance.WarmPool("Production", _productObj, 50);
+            //             productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(goodsType));
+            //             materialIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType(dropItemType));
+            //             icon.sortingOrder = sprite.sortingOrder + 2;
+            //             productIcon.sortingOrder = sprite.sortingOrder + 2;
+            //             materialIcon.sortingOrder = sprite.sortingOrder + 2;
+            //             switch (buildingType)
+            //             {
+            //                 case BuildingType.YuShaHu_1:
+            //                     icon.sprite = _assetHandle.Get<Sprite>("1");
+            //                     break;
+            //                 case BuildingType.YuShaHu_2:
+            //                     icon.sprite = _assetHandle.Get<Sprite>("2");
+            //                     break;
+            //                 case BuildingType.YuShaHu_3:
+            //                     icon.sprite = _assetHandle.Get<Sprite>("3");
+            //                     break;
+            //                 case BuildingType.YuShaHu_4:
+            //                     icon.sprite = _assetHandle.Get<Sprite>("4");
+            //                     break;
+            //                 case BuildingType.LianQiLu_1:
+            //                     icon.sprite = _assetHandle.Get<Sprite>("5");
+            //                     break;
+            //                 case BuildingType.LianQiLu_2:
+            //                     icon.sprite = _assetHandle.Get<Sprite>("6");
+            //                     break;
+            //                 case BuildingType.LianQiLu_3:
+            //                     icon.sprite = _assetHandle.Get<Sprite>("7");
+            //                     break;
+
+            //             }
+            //             grid.basePosition = productPosition.position;
+            //         }
+            //     }
+            // }
+            // else
+            // {
+            //     isLock = false;
+            //     isCanUnlockState = false;
+            //     content.SetActive(true);
+            //     structureLock.gameObject.SetActive(false);
+            //     productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
+            //     grid.basePosition = productPosition.position;
+            //     ObjectPoolManager.Instance.WarmPool("Production", _productObj, 50);
+            //     productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(goodsType));
+            //     materialIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType(dropItemType));
+            //     icon.sortingOrder = sprite.sortingOrder + 2;
+            //     productIcon.sortingOrder = sprite.sortingOrder + 2;
+            //     materialIcon.sortingOrder = sprite.sortingOrder + 2;
+            //     switch (buildingType)
+            //     {
+            //         case BuildingType.YuShaHu_1:
+            //             icon.sprite = _assetHandle.Get<Sprite>("1");
+            //             break;
+            //         case BuildingType.YuShaHu_2:
+            //             icon.sprite = _assetHandle.Get<Sprite>("2");
+            //             break;
+            //         case BuildingType.YuShaHu_3:
+            //             icon.sprite = _assetHandle.Get<Sprite>("3");
+            //             break;
+            //         case BuildingType.YuShaHu_4:
+            //             icon.sprite = _assetHandle.Get<Sprite>("4");
+            //             break;
+            //         case BuildingType.LianQiLu_1:
+            //             icon.sprite = _assetHandle.Get<Sprite>("5");
+            //             break;
+            //         case BuildingType.LianQiLu_2:
+            //             icon.sprite = _assetHandle.Get<Sprite>("6");
+            //             break;
+            //         case BuildingType.LianQiLu_3:
+            //             icon.sprite = _assetHandle.Get<Sprite>("7");
+            //             break;
+
+            //     }
+            //     grid.basePosition = productPosition.position;
+            // }
+
+
+            var playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+
+            var lockData = GetLockData(playerData.currentMapID);
+            var state = GetStructureState(playerData, lockData);
+
+            RefreshView(state, lockData);
+
+        }
+        public StructureLockData GetLockData(int mapId)
+        {
+            var list = DataController.Instance.GetStructureLockList(mapId);
+            return list?.Find(s => s.buildingType == buildingType);
+        }
+        private StructureState GetStructureState(PlayerData playerData, StructureLockData lockData)
+        {
+            if (lockData == null)
+                return StructureState.Unlocked;
+
+            var locked = playerData.structLockDataDic[playerData.currentMapID];
+            var unlocked = playerData.structUnLockDataDic[playerData.currentMapID];
+            var canUnlock = playerData.structCanUnLockDataDic[playerData.currentMapID];
+
+            if (unlocked.Contains(buildingType))
+                return StructureState.Unlocked;
+
+            if (locked.Contains(buildingType))
+                return StructureState.Locked;
+
+            return StructureState.CanUnlock;
+        }
+        private void RefreshView(StructureState state, StructureLockData lockData)
+        {
+            switch (state)
             {
-                case 1:
-                    structureLocks = DataController.Instance.structureLockDataList_1;
-                    break;
-                case 2:
-                    structureLocks = DataController.Instance.structureLockDataList_2;
-                    break;
-                case 3:
-                    structureLocks = DataController.Instance.structureLockDataList_3;
-                    break;
-                case 4:
-                    structureLocks = DataController.Instance.structureLockDataList_4;
-                    break;
-                case 5:
-                    structureLocks = DataController.Instance.structureLockDataList_5;
-                    break;
-            }
-            var lockData = structureLocks.Find(s => s.buildingType == buildingType);
-            if (lockData != null)
-            {
-                var progressData = playerData.structureLockDataList.Find(s => s.buildType == buildingType && s.lockId == lockData.lockId && s.mapId == playerData.currentMapID);
-                if (progressData != null && progressData.isUnlock)
-                {
-                    content.SetActive(true);
-                    structureLock.gameObject.SetActive(false);
-                    productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
-                    grid.basePosition = productPosition.position;
-                    ObjectPoolManager.Instance.WarmPool("Production", _productObj, 50);
-                    productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(goodsType));
-                    materialIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType(dropItemType));
-                }
-                else
-                {
-                    content.SetActive(false);
-                    structureLock.gameObject.SetActive(true);
-                    structureLock.InitInfo(lockData);
-                }
-            }
-            else
-            {
-                content.SetActive(true);
-                structureLock.gameObject.SetActive(false);
-                productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
-                grid.basePosition = productPosition.position;
-                ObjectPoolManager.Instance.WarmPool("Production", _productObj, 50);
-                productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(goodsType));
-                materialIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType(dropItemType));
-            }
-            icon.sortingOrder = sprite.sortingOrder + 2;
-            productIcon.sortingOrder = sprite.sortingOrder + 2;
-            materialIcon.sortingOrder = sprite.sortingOrder + 2;
-            switch (buildingType)
-            {
-                case BuildingType.YuShaHu_1:
-                    icon.sprite = _assetHandle.Get<Sprite>("1");
-                    break;
-                case BuildingType.YuShaHu_2:
-                    icon.sprite = _assetHandle.Get<Sprite>("2");
-                    break;
-                case BuildingType.YuShaHu_3:
-                    icon.sprite = _assetHandle.Get<Sprite>("3");
-                    break;
-                case BuildingType.YuShaHu_4:
-                    icon.sprite = _assetHandle.Get<Sprite>("4");
-                    break;
-                case BuildingType.LianQiLu_1:
-                    icon.sprite = _assetHandle.Get<Sprite>("5");
-                    break;
-                case BuildingType.LianQiLu_2:
-                    icon.sprite = _assetHandle.Get<Sprite>("6");
-                    break;
-                case BuildingType.LianQiLu_3:
-                    icon.sprite = _assetHandle.Get<Sprite>("7");
+                case StructureState.Locked:
+                case StructureState.CanUnlock:
+                    ShowLock(lockData);
                     break;
 
+                case StructureState.Unlocked:
+                    ShowContent();
+                    break;
             }
-            grid.basePosition = productPosition.position;
         }
+
+        private void ShowContent()
+        {
+            content.SetActive(true);
+            structureLock.gameObject.SetActive(false);
+
+            productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
+            grid.basePosition = productPosition.position;
+
+            ObjectPoolManager.Instance.WarmPool("Production", _productObj, 50);
+
+            productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(goodsType));
+            materialIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType(dropItemType));
+
+            int order = sprite.sortingOrder + 2;
+            icon.GetComponent<MeshRenderer>().sortingOrder = order;
+            productIcon.sortingOrder = order;
+            materialIcon.sortingOrder = order;
+
+            icon.initialSkinName = GetBuildingIcon().ToString();
+        }
+
+
+        private int GetBuildingIcon()
+        {
+            return buildingType switch
+            {
+                BuildingType.YuShaHu_1 => 1,
+                BuildingType.YuShaHu_2 => 2,
+                BuildingType.YuShaHu_3 => 3,
+                BuildingType.YuShaHu_4 => 4,
+                BuildingType.LianQiLu_1 => 1,
+                BuildingType.LianQiLu_2 => 2,
+                BuildingType.LianQiLu_3 => 3,
+                _ => 1
+            };
+        }
+
+
+
+
 
         private void Update()
         {
@@ -153,6 +303,8 @@ namespace Controller.Structure
             if (!productionInfo.gameObject.activeSelf)
                 productionInfo.gameObject.SetActive(true);
             productionInfo.StartProductionLoop(this, structureType, baseProductionTime, productionSpeed);
+            icon.AnimationState.SetAnimation(0, "animation", true);
+            
         }
 
         public void SetSpeed(float speed)
@@ -164,6 +316,7 @@ namespace Controller.Structure
         {
             currentMaterialCount = 0;
             productionInfo.gameObject.SetActive(false); // 在这里关闭 UI
+            icon.AnimationState.ClearTracks();
         }
         private void HandleProductionComplete(params object[] args)
         {
@@ -197,7 +350,7 @@ namespace Controller.Structure
 
         private void OnDestroy()
         {
-            if(productionInfo != null)
+            if (productionInfo != null)
                 Destroy(productionInfo.gameObject);
             EventCenter.Instance.RemoveListener(EventMessages.ProductionComplete, HandleProductionComplete);
         }

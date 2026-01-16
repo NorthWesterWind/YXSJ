@@ -39,6 +39,8 @@ namespace Controller
         /// </summary>
         public List<SalesStall> salesStallList = new();
 
+        
+
         public override void Awake()
         {
             base.Awake();

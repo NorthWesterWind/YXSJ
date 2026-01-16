@@ -23,6 +23,7 @@ public class StructureLock : MonoBehaviour
     private bool playerInRange;
     private PlayerController player;
     public bool isLocked = true;
+    public TextMeshPro  nametxt;
 
     public void InitInfo(StructureLockData data)
     {
@@ -30,7 +31,7 @@ public class StructureLock : MonoBehaviour
         buildType = _data.buildingType;
         structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
         PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
-        StructureLockProgressData progressData = playerData.structureLockDataList.Find(s => s.buildType == buildType && s.lockId == data.lockId && s.mapId == playerData.currentMapID);
+        StructureLockProgressData progressData = playerData.structureLockProgressDataList.Find(s => s.buildType == buildType && s.lockId == data.lockId && s.mapId == playerData.currentMapID);
         if (progressData != null)
         {
             float fillWidth = Mathf.Clamp01(progressData.currentOwnMoney / _data.needMoney);
@@ -52,6 +53,7 @@ public class StructureLock : MonoBehaviour
             lockSprite.gameObject.SetActive(true);
             bg.SetActive(false);
         }
+        nametxt.text =  Extensions.GetStructureNameByType(buildType) ;
 
     }
 
@@ -105,7 +107,7 @@ public class StructureLock : MonoBehaviour
         player.InteractionTriggerInRange = false;
         player.InteractionTriggerTransform = null;
         PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
-        StructureLockProgressData progressData = playerData.structureLockDataList.Find(s => s.buildType == buildType && s.mapId == playerData.currentMapID);
+        StructureLockProgressData progressData = playerData.structureLockProgressDataList.Find(s => s.buildType == buildType && s.mapId == playerData.currentMapID);
         float fillWidth = Mathf.Clamp01(progressData.currentOwnMoney / _data.needMoney);
         fill.transform.localScale = new Vector3(fillWidth, 1, 1);
     }
@@ -133,7 +135,7 @@ public class StructureLock : MonoBehaviour
         var playerData = ModuleMgr.Instance
             .GetModule<PlayerDataModule>().data;
 
-        return playerData.structureLockDataList.Find(
+        return playerData.structureLockProgressDataList.Find(
             x => x.buildType == _data.buildingType &&
                  x.mapId == playerData.currentMapID);
     }

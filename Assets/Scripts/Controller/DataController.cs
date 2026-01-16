@@ -50,6 +50,24 @@ namespace Controller
         {
 
         }
+        public  List<StructureLockData> GetStructureLockList(int mapID)
+        {
+            switch (mapID)
+            {
+                case 1:
+                    return structureLockDataList_1;
+                case 2:
+                    return structureLockDataList_2;
+                case 3:
+                    return structureLockDataList_3;
+                case 4:
+                    return structureLockDataList_4;
+                case 5:
+                    return structureLockDataList_5;
+                default:
+                    return null;
+            }
+        }
 
 
         private async void PrepareData()

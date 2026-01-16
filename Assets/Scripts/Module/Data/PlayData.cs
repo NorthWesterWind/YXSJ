@@ -18,7 +18,7 @@ namespace Module.Data
         public float hp = 30;
         public float atk = 10;
         public float bagCapacity = 20;
-        
+
         #endregion
 
         #region 天赋属性
@@ -28,7 +28,7 @@ namespace Module.Data
         public float weaponSize = 1f;   //武器尺寸
         public float hpRecover = 0f;       //生命值回复
 
-        
+
         /// <summary>
         /// 天赋附加属性
         /// </summary>
@@ -41,7 +41,7 @@ namespace Module.Data
         public float addSlowDownValue;
         public float addweaponSize;
         public float addhpRecover;
-        
+
         #endregion
 
         #region 账号信息
@@ -63,45 +63,45 @@ namespace Module.Data
         #endregion
 
 
-        public List<int> unlockMapList = new List<int>(){1};
-        public Dictionary<int ,List<int>> mapPlayRecordDic = new Dictionary<int ,List<int>>();
+        public List<int> unlockMapList = new List<int>() { 1 };
+        public Dictionary<int, List<int>> mapPlayRecordDic = new Dictionary<int, List<int>>();
         public int tongbi = 5000000;  //铜币
         public int goldIngot = 5000000;   //金元宝
         public int lingJing = 500000;    //灵晶
         public int jingMangZhu = 10000; //金芒珠
         public int currentMapID = 2;
 
-        
+
         public int accountLevel = 1;
         public int characterFunction = 1;
         public int cardFunction = 1;
         public int mapFunction = 1;
         public int employeeFunction = 1;
         public int ordenFunction = 0;
-        public List<int> levelLockMapList = new (){2,3,4,5};
-        public List<int> realUnlockMapList = new (){1};
-        
+        public List<int> levelLockMapList = new() { 2, 3, 4, 5 };
+        public List<int> realUnlockMapList = new() { 1 };
+
         [Header("key = 地图编号 ， value = 当前任务进度")]
-        public Dictionary< int  , List<int>> mapTaskRecordDic = new(){{1,new List<int>()},{2,new List<int>()},{3,new List<int>()},{4,new List<int>()},{5,new List<int>()}};
+        public Dictionary<int, List<int>> mapTaskRecordDic = new() { { 1, new List<int>() }, { 2, new List<int>() }, { 3, new List<int>() }, { 4, new List<int>() }, { 5, new List<int>() } };
         public int nowTaskId = 1; //当前主界面显示的任务信息
-        public List<TaskData> listenInTaskList = new ();//监听的任务
-        public Dictionary<int  , int> taskProgressDic = new (); //进行中任务
+        public List<TaskData> listenInTaskList = new();//监听的任务
+        public Dictionary<int, int> taskProgressDic = new(); //进行中任务
         public List<int> completedTaskIdList = new List<int>(); //已完成任务
-        
+
         public string FanPingBaoXiaoTime;
         public string LingShunLingTime;
         public string PurchaseVipTime;
-        
+
         public List<int> sevenDayRecordList = new List<int>();
         public string sevenDayRecordTime;
-        public int GetSevenDayRewardIndex = 0   ;
+        public int GetSevenDayRewardIndex = 0;
 
         public int talentLevel;
-        
-        
-        public List<int> ownWeaponList = new List<int>(){1};
+
+
+        public List<int> ownWeaponList = new List<int>() { 1 };
         public int currentWeapon = 1;
-        public List<int> ownBagList = new List<int>(){1};
+        public List<int> ownBagList = new List<int>() { 1 };
         public int currentBag = 1;
 
         public int cardLevelMax = 0; //最大升级令等级
@@ -109,8 +109,33 @@ namespace Module.Data
         public int useZhuanPanTotalValue = 0; //累积使用转盘次数
 
         public int useZhuanPanTodayValue = 0; //今日使用转盘次数
-        
-        public List<CardUpProgress>  cardUpProgressesList = new List<CardUpProgress>();
+
+        public List<CardUpProgress> cardUpProgressesList = new List<CardUpProgress>();
+
+
+        /// <summary>
+        /// 每个地图中处于锁定的建筑
+        /// </summary>
+        public Dictionary<int, List<BuildingType>> structLockDataDic = new Dictionary<int, List<BuildingType>>
+        {
+            {1, new List<BuildingType>(){}},{2,new List<BuildingType>()},{3,new List<BuildingType>()},{4,new List<BuildingType>()},{5,new List<BuildingType>()}
+        };
+
+        /// <summary>
+        /// 每个地图中已解锁的建筑
+        /// </summary>
+        public Dictionary<int, List<BuildingType>> structUnLockDataDic = new Dictionary<int, List<BuildingType>>()
+        {
+            {1, new List<BuildingType>(){}},{2,new List<BuildingType>()},{3,new List<BuildingType>()},{4,new List<BuildingType>()},{5,new List<BuildingType>()}
+        };
+        /// <summary>
+        /// 每个地图中处于可解锁状态的建筑
+        /// </summary>
+        public Dictionary<int, List<BuildingType>> structCanUnLockDataDic = new Dictionary<int, List<BuildingType>>()
+        {
+            {1, new List<BuildingType>(){}},{2,new List<BuildingType>()},{3,new List<BuildingType>()},{4,new List<BuildingType>()},{5,new List<BuildingType>()}
+        };
+
 
 
         #region 云递者数据
@@ -121,24 +146,25 @@ namespace Module.Data
         public int capacity = 1;
         public List<BuildingType> yunDiZheWorkingBuildList = new List<BuildingType>();
         #endregion
-        
+
 
         #region 玄采徒数据
-        public  List<WarehouseCategory> warehouselist = new List<WarehouseCategory>();
-        
+        public List<WarehouseCategory> warehouselist = new List<WarehouseCategory>();
+
         #endregion
 
-        
+
         public List<ProductStationData> ProductStationDataList = new List<ProductStationData>()
         {
-            
+
         };
         #endregion      
 
 
         #region 订单数据缓存
-        public List<OrderDataProgress> orderDataprogressList = new List<OrderDataProgress>(){
-           
+        public List<OrderDataProgress> orderDataprogressList = new List<OrderDataProgress>()
+        {
+
         };
 
         #endregion
@@ -148,16 +174,18 @@ namespace Module.Data
         /// <summary>
         /// 区域解锁数据
         /// </summary>
-        public List<MapLockDataProgress> mapLockDataProgressList = new List<MapLockDataProgress>(){
-           
+        public List<MapLockDataProgress> mapLockDataProgressList = new List<MapLockDataProgress>()
+        {
+
         };
 
 
         /// <summary>
         /// 建筑解锁数据
         /// </summary>
-        public List<StructureLockProgressData> structureLockDataList = new List<StructureLockProgressData>(){
-           
+        public List<StructureLockProgressData> structureLockProgressDataList = new List<StructureLockProgressData>()
+        {
+
         };
         #endregion
 
@@ -182,7 +210,7 @@ namespace Module.Data
         public float currentOwnMoney;
         public bool canShowBg;
         public int mapId;
-        public StructureLockProgressData(BuildingType type, int money , int lockId, int mapId)
+        public StructureLockProgressData(BuildingType type, int money, int lockId, int mapId)
         {
             this.buildType = type;
             this.needMoney = money;
@@ -206,7 +234,7 @@ namespace Module.Data
         public float currentOwnMoney;
         public bool canShowBg;
 
-        public MapLockDataProgress(int mapId, int lockId, bool isUnlock, float currentOwnMoney , bool canShowBg)
+        public MapLockDataProgress(int mapId, int lockId, bool isUnlock, float currentOwnMoney, bool canShowBg)
         {
             this.mapId = mapId;
             this.lockId = lockId;
@@ -220,18 +248,18 @@ namespace Module.Data
 
 
 
-    public class  OrderDataProgress
+    public class OrderDataProgress
     {
         public int orderId;
-        public Dictionary< GoodsType , int> goodDic = new Dictionary< GoodsType , int> ();
+        public Dictionary<GoodsType, int> goodDic = new Dictionary<GoodsType, int>();
         public Dictionary<DropItemType, int> dropDic = new Dictionary<DropItemType, int>();
-    
 
-        public OrderDataProgress(int orderId , Dictionary< GoodsType , int> goodDic, Dictionary<DropItemType, int> dropDic )
+
+        public OrderDataProgress(int orderId, Dictionary<GoodsType, int> goodDic, Dictionary<DropItemType, int> dropDic)
         {
             this.orderId = orderId;
             this.goodDic = goodDic;
-            this.dropDic = dropDic ;
+            this.dropDic = dropDic;
         }
     }
 
@@ -241,32 +269,32 @@ namespace Module.Data
 
 
     [Serializable]
-    
-    public  class CardUpProgress  //卡片养成数据类
+
+    public class CardUpProgress  //卡片养成数据类
     {
         public CardLevelType levelType;
         public CardDevelopType developType;
         public int level;
         public int id;
         public int currentNum;
-        
-        
-        public CardUpProgress(int id , int num)
+
+
+        public CardUpProgress(int id, int num)
         {
             this.id = id;
-            currentNum = num-1;
+            currentNum = num - 1;
             level = 1;
             foreach (var data in DataController.Instance.cardLevelDataList)
             {
                 if (data.id == id)
                 {
-                    levelType =  data.levelType;
+                    levelType = data.levelType;
                     developType = data.developType;
                 }
             }
         }
     }
-    
+
     [Serializable]
     public class Collector
     {
@@ -279,13 +307,13 @@ namespace Module.Data
         public float weaponSize = 1f;    //武器尺寸
         public MonsterFamily monsterType; //当前的目标怪物
         public CollectorType collectorType;
-        public Collector(int id  ,  MonsterFamily monsterType)
+        public Collector(int id, MonsterFamily monsterType)
         {
             this.id = id;
             this.monsterType = monsterType;
         }
     }
-    
+
     /// <summary>
     /// 灵储阁数据类
     /// </summary>
@@ -293,19 +321,19 @@ namespace Module.Data
     public class WarehouseCategory
     {
         public WarehouseCategoryType warehouseCategoryType;
-        public List<Collector> workingCollectorList = new ();
-        public int capacity ;
-        public List<MonsterType> targetTypeList = new ();
+        public List<Collector> workingCollectorList = new();
+        public int capacity;
+        public List<MonsterFamily> targetTypeList = new();
         public List<Collector> unworkingCollectorList = new();
         public SerializableIntDictionary<int> ownItemList = new SerializableIntDictionary<int>();
         public WarehouseCategory(WarehouseCategoryType type)
         {
             warehouseCategoryType = type;
             capacity = 60;
-            unworkingCollectorList.Add(new Collector(1,MonsterFamily.None));
-            
+            unworkingCollectorList.Add(new Collector(1, MonsterFamily.None));
+
         }
-    
+
     }
 
 
@@ -321,5 +349,5 @@ namespace Module.Data
         public float workingtime;
         public int timelevel;
     }
-    
+
 }

@@ -65,7 +65,7 @@ namespace Controller
 
         public void SetLayer()
         {
-            int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
+            int newOrder = 30000 - Mathf.FloorToInt(transform.localPosition.y);
             spriteRenderer.sortingOrder = newOrder;
             weaponRenderer.sortingOrder = newOrder;
             shadowRenderer.sortingOrder = newOrder;

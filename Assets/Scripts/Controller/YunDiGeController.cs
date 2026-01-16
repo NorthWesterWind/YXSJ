@@ -15,61 +15,97 @@ namespace Controller
 
         protected override void Start()
         {
-            // for (int i = 0; i < ModuleMgr.Instance.GetModule<PlayerDataModule>().data.totalNum; i++)
-            // {
-            //     GameObject obj = GameObject.Instantiate(_assetHandle.Get<GameObject>("FreightClerk"));
-            //     obj.transform.position = bornTransform.position;
-            //     var cc = obj.GetComponent<FreightClerkController>();
-            //     cc.Init();
-            //     freightClerkList.Add(cc);
-            // }
+            Init();
         }
 
         public void Init()
         {
-             PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
-            List<StructureLockData> structureLocks = new();
-            switch (playerData.currentMapID)
+            var playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            var lockData = GetLockData(playerData.currentMapID);
+            var state = GetStructureState(playerData, lockData);
+            for(int i = freightClerkList.Count; i >0; i++)
             {
-                case 1:
-                    structureLocks = DataController.Instance.structureLockDataList_1;
-                    break;
-                case 2:
-                    structureLocks = DataController.Instance.structureLockDataList_2;
-                    break;
-                case 3:
-                    structureLocks = DataController.Instance.structureLockDataList_3;
-                    break;
-                case 4:
-                    structureLocks = DataController.Instance.structureLockDataList_4;
-                    break;
-                case 5:
-                    structureLocks = DataController.Instance.structureLockDataList_5;
-                    break;
+                Destroy(freightClerkList[i - 1].gameObject);
+                freightClerkList.RemoveAt(i - 1);
             }
-            var lockData = structureLocks.Find(s => s.buildingType == buildingType);
-            if (lockData != null)
+            RefreshView(state, lockData);
+            UpdateYunDiZheInfo();
+        }
+
+        private void RefreshView(StructureState state, StructureLockData lockData)
+        {
+            switch (state)
             {
-                var progressData = playerData.structureLockDataList.Find(s => s.buildType == buildingType && s.lockId == lockData.lockId && s.mapId == playerData.currentMapID);
-                if (progressData != null && progressData.isUnlock)
-                {
-                    content.SetActive(true);
-                    structureLock.gameObject.SetActive(false);
-                
-                }
-                else
-                {
-                    content.SetActive(false);
-                    structureLock.gameObject.SetActive(true);
-                    structureLock.InitInfo(lockData);
-                }
+                case StructureState.Locked:
+                case StructureState.CanUnlock:
+                    ShowLock(lockData);
+                    break;
+
+                case StructureState.Unlocked:
+                    ShowContent();
+                    break;
             }
         }
 
+        private void ShowContent()
+        {
+            content.SetActive(true);
+            structureLock.gameObject.SetActive(false);
+           
+        }
+
+        public StructureLockData GetLockData(int mapId)
+        {
+            var list = DataController.Instance.GetStructureLockList(mapId);
+            return list?.Find(s => s.buildingType == buildingType);
+        }
+        private StructureState GetStructureState(PlayerData playerData, StructureLockData lockData)
+        {
+            if (lockData == null)
+                return StructureState.Unlocked;
+
+            var locked = playerData.structLockDataDic[playerData.currentMapID];
+            var unlocked = playerData.structUnLockDataDic[playerData.currentMapID];
+            var canUnlock = playerData.structCanUnLockDataDic[playerData.currentMapID];
+
+            if (unlocked.Contains(buildingType))
+                return StructureState.Unlocked;
+
+            if (locked.Contains(buildingType))
+                return StructureState.Locked;
+
+            return StructureState.CanUnlock;
+        }
+
+
+        public void UpdateYunDiZheInfo(params object[] args)
+        {
+            PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            if(playerData.workingNum > freightClerkList.Count)
+            {
+                for (int i = freightClerkList.Count; i < playerData.workingNum; i++)
+                {
+                    FreightClerkController freightClerk = Instantiate( _assetHandle.Get<GameObject>("FreightClerk"),  bornTransform ,false).GetComponent<FreightClerkController>();
+                    freightClerk.Init();
+                    freightClerkList.Add(freightClerk);
+                }
+            }
+
+
+        }
+        public override void AddEvent()
+        {
+            base.AddEvent();
+            EventCenter.Instance.AddListener(EventMessages.UpdateYunDiZheInfo , UpdateYunDiZheInfo);
+            
+
+
+        }
 
 
         void Update()
         {
+            
         }
     }
 }
