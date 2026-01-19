@@ -18,7 +18,7 @@ namespace Controller.Structure
         private Coroutine processCoroutine;
         public float baseTime;
         public float speed = 1f;
-        public SpriteRenderer fillImage;
+
         public Transform receiveTransform;
         public GameObject LingZhangShi;
         public SkeletonAnimation skeletonAnimation;
@@ -42,13 +42,33 @@ namespace Controller.Structure
             EventCenter.Instance.RemoveListener(EventMessages.StructureSpeedUp, HandleStructureSpeedUp);
             EventCenter.Instance.RemoveListener(EventMessages.StructureSpeedDown, HandleStructureSpeedDown);
         }
+        void Update()
+        {
+            if (customerQueue.Count > 0)
+            {
+                var currentAnimation = skeletonAnimation.AnimationState.GetCurrent(0);
+
+                if (currentAnimation == null || currentAnimation.Animation.Name != "idle穿搭")
+                {
+                    skeletonAnimation.AnimationState.SetAnimation(0, "idle穿搭", true);
+                }
+
+
+
+            }
+            else
+            {
+                var currentAnimation = skeletonAnimation.AnimationState.GetCurrent(0);
+                if (currentAnimation == null || currentAnimation.Animation.Name != "待机")
+                {
+                    skeletonAnimation.AnimationState.SetAnimation(0, "待机", true);
+                }
+            }
+        }
 
         public void Init()
         {
-            fillImage.size = new Vector2(0, 0);
             grid.basePosition = exportTransform.position;
-
-
             PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
             List<StructureLockData> structureLocks = new();
             switch (playerData.currentMapID)
@@ -85,11 +105,9 @@ namespace Controller.Structure
                     structureLock.InitInfo(lockData);
                 }
             }
-
-
-
-            int newOrder = 3000 - Mathf.RoundToInt(transform.position.y * 100);
+            int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
             renderer.sortingOrder = newOrder + 2;
+
         }
 
         private IEnumerator ProcessCustomers()
@@ -99,7 +117,6 @@ namespace Controller.Structure
                 if (customerQueue.Count == 0)
                 {
                     processCoroutine = null;
-                    fillImage.size = new Vector2(0, 0);
                     yield break;
                 }
                 CustomerController customer = customerQueue.Dequeue();
@@ -127,23 +144,21 @@ namespace Controller.Structure
         {
             float t = 0f;
             float productionTime = baseTime / speed;
-
-            fillImage.size = new Vector2(0, 0.08f);
-
+            customer.fillBg.gameObject.SetActive(true);
+            customer.fill.gameObject.transform.localScale = new Vector3(0, 1, 1);
             while (t < productionTime)
             {
                 t += Time.deltaTime;
                 float value = t / productionTime;
-                fillImage.size = new Vector2(2.9f * value, 0.08f);
+                customer.fill.gameObject.transform.localScale = new Vector3(1f * value, 1, 1);
                 yield return null;
             }
-            fillImage.size = new Vector2(2.9f, 0.08f);
+            customer.fillBg.gameObject.SetActive(false);
             customer.state = NpcState.JieZhangChengGong;
             customer.SetNextPosition();
+            customer.agent.Stop();
             customer.agent.SetDestination(customer.nextPosition);
             PrintingMoney();
-
-
         }
 
 
@@ -169,7 +184,7 @@ namespace Controller.Structure
             {
                 return;
             }
-            speed = 2f;
+            speed = 1.5f;
         }
         public void HandleStructureSpeedDown(params object[] args)
         {

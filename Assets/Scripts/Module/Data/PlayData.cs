@@ -49,14 +49,18 @@ namespace Module.Data
         public string userName;
         public string userAccount;
         public string userPassword;
-        public string age;
+        public int age;
         public int oncePurchaseLimit;
         public int monthPurchaseLimit;
         public int mothTotalSpending;
 
+        public  bool isCreated;
+        public int user_id;
         #endregion
 
         #region 游玩数据
+
+        public List<int> guidIdList = new List<int>(){};
 
         #region  每日限制数据
         public int todayUseZhuanPanNum = 0; //今日转盘使用次数
@@ -307,6 +311,8 @@ namespace Module.Data
         public float weaponSize = 1f;    //武器尺寸
         public MonsterFamily monsterType; //当前的目标怪物
         public CollectorType collectorType;
+        public float maxHp = 30;
+        public float hpRecover ;
         public Collector(int id, MonsterFamily monsterType)
         {
             this.id = id;

@@ -50,6 +50,7 @@ namespace View.LingChuGe
         private void OnDisable()
         {
             EventCenter.Instance.RemoveListener(EventMessages.UpdateLingChuGeInfo, HandleUpdateLingChuGeInfo);
+            EventCenter.Instance.TriggerEvent(EventMessages.LingChuGeStopDelivery);
         }
 
         public void HandleUpdateLingChuGeInfo(params object[] args)

@@ -6184,75 +6184,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.25, y: 13.939688}
   m_EdgeRadius: 0
---- !u!1001 &740051716
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 196505871526933829, guid: dd1008d88e41a0249ae1602512a57c72, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.56100994
-      objectReference: {fileID: 0}
-    - target: {fileID: 196505871526933829, guid: dd1008d88e41a0249ae1602512a57c72, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 2.64
-      objectReference: {fileID: 0}
-    - target: {fileID: 196505871526933829, guid: dd1008d88e41a0249ae1602512a57c72, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0.648865
-      objectReference: {fileID: 0}
-    - target: {fileID: 196505871526933829, guid: dd1008d88e41a0249ae1602512a57c72, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 196505871526933829, guid: dd1008d88e41a0249ae1602512a57c72, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 196505871526933829, guid: dd1008d88e41a0249ae1602512a57c72, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 196505871526933829, guid: dd1008d88e41a0249ae1602512a57c72, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 196505871526933829, guid: dd1008d88e41a0249ae1602512a57c72, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 196505871526933829, guid: dd1008d88e41a0249ae1602512a57c72, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 196505871526933829, guid: dd1008d88e41a0249ae1602512a57c72, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2843410268629754436, guid: dd1008d88e41a0249ae1602512a57c72, type: 3}
-      propertyPath: m_Mesh
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 6090174618722108955, guid: dd1008d88e41a0249ae1602512a57c72, type: 3}
-      propertyPath: detectRadius
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 6090174618722108955, guid: dd1008d88e41a0249ae1602512a57c72, type: 3}
-      propertyPath: serializationData.Prefab
-      value: 
-      objectReference: {fileID: 0}
-    - target: {fileID: 8553982369087694999, guid: dd1008d88e41a0249ae1602512a57c72, type: 3}
-      propertyPath: m_Name
-      value: "\u6D1B\u7720\u67AB"
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: dd1008d88e41a0249ae1602512a57c72, type: 3}
 --- !u!1 &767230970
 GameObject:
   m_ObjectHideFlags: 0
@@ -9934,6 +9865,10 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: 28bb502655cbb0d4fa3f0cfa8251743c, type: 3}
+    - target: {fileID: 4655705060533257425, guid: 8d01b1939676fc1499863ff05a140e1d, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 7126136069941092551, guid: 8d01b1939676fc1499863ff05a140e1d, type: 3}
       propertyPath: showUIType
       value: 4
@@ -18605,6 +18540,10 @@ PrefabInstance:
       propertyPath: m_LocalPosition.y
       value: -0.66
       objectReference: {fileID: 0}
+    - target: {fileID: 4655705060533257425, guid: 8d01b1939676fc1499863ff05a140e1d, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 7126136069941092551, guid: 8d01b1939676fc1499863ff05a140e1d, type: 3}
       propertyPath: showUIType
       value: 4
@@ -18810,6 +18749,5 @@ SceneRoots:
   - {fileID: 1791901966}
   - {fileID: 1618143724}
   - {fileID: 1699985938}
-  - {fileID: 740051716}
   - {fileID: 1220704940}
   - {fileID: 335615273}

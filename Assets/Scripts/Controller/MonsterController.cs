@@ -58,8 +58,6 @@ namespace Controller
         public DropItemType dropItemType;
         public MonsterBehavior behaviorType;
         private IMonsterBehaviorStrategy _behaviorStrategy;
-
-        public SpriteRenderer indicator;
         public GameObject indicatorParent;
         public Transform playerTransform;
 
@@ -76,6 +74,8 @@ namespace Controller
         private float deadtime;
         public MeshRenderer _meshRenderer;
         public CanvasGroup canvasGroup;
+        public SkeletonAnimation specialEffect;
+        public int atk; 
 
         void Awake()
         {
@@ -94,6 +94,7 @@ namespace Controller
             monsterType = data.type;
             behaviorType = behavior;
             factorID = Id;
+            atk = data.atk;
 
             this.patrolSize = patrolSize;
 
@@ -127,6 +128,10 @@ namespace Controller
             playerTransform = GameObject.FindWithTag("Player").transform;
 
             deadtime = skeletonAnimation.Skeleton.Data.FindAnimation("dead").Duration;
+
+            specialEffect.GetComponent<MeshRenderer>().sortingOrder = _meshRenderer.sortingOrder + 1;
+            specialEffect.AnimationState.SetAnimation(0, "animation", false);
+            indicatorParent.gameObject.SetActive(false);
         }
 
         void OnEnable()
@@ -145,6 +150,7 @@ namespace Controller
             EventCenter.Instance.AddListener(EventMessages.NotifyToFlee, HandleNotifyToFlee);
         }
 
+        public bool InAtking;
         void Update()
         {
             SetLayer();
@@ -168,8 +174,7 @@ namespace Controller
 
             // 检查当前动画槽是否为 null
             var currentAnimation = skeletonAnimation.AnimationState.GetCurrent(0);
-            // 根据条件切换动画
-            if (agent.hasPath || agent.remainingDistance > 1)
+            if (InAtking)
             {
                 if (currentAnimation == null || currentAnimation.Animation.Name != "walk")
                 {
@@ -178,16 +183,30 @@ namespace Controller
             }
             else
             {
-                if (currentAnimation == null || currentAnimation.Animation.Name != "idle")
+                if (agent.hasPath || agent.remainingDistance > 1)
                 {
-                    skeletonAnimation.AnimationState.SetAnimation(0, "idle", true);
+                    if (currentAnimation == null || currentAnimation.Animation.Name != "walk")
+                    {
+                        skeletonAnimation.AnimationState.SetAnimation(0, "walk", true);
+                    }
                 }
+                else
+                {
+                    if (currentAnimation == null || currentAnimation.Animation.Name != "idle")
+                    {
+                        skeletonAnimation.AnimationState.SetAnimation(0, "idle", true);
+                    }
+                }
+
             }
+
         }
+        private bool hasHitPlayer = false;
+        private Coroutine chargeCoroutine;
 
         public void SetLayer()
         {
-            int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
+            int newOrder = 30000 - Mathf.FloorToInt(transform.localPosition.y);
             _meshRenderer.sortingOrder = newOrder;
         }
 
@@ -343,7 +362,6 @@ namespace Controller
         // ---------------- 巨型怪物逻辑 ----------------
         public void CheckPlayer()
         {
-            return;
             if (behaviorType != MonsterBehavior.Giant) return;
 
             if (state == MonsterState.ChargeWait || state == MonsterState.Flee || state == MonsterState.ChargeCooldown)
@@ -353,6 +371,7 @@ namespace Controller
             {
                 playerTransform = GameObject.Find("Player").transform;
             }
+            if( chargeCoroutine  != null) return;
             float distance = Vector2.Distance(transform.position, playerTransform.position);
             if (distance < detectRadius)
             {
@@ -360,47 +379,55 @@ namespace Controller
                 stateRoutine = null;
 
                 agent.Stop(); // 立即停止移动
-                StartCoroutine(GiantChargeSequence(playerTransform.position));
+                InAtking = true;
+                chargeCoroutine = StartCoroutine(GiantChargeSequence(playerTransform.position));
+
             }
             else
             {
+                InAtking = false;
                 ChangeState(MonsterState.Patrol);
+            }
+
+        }
+        private void OnTriggerEnter2D(Collider2D other)
+        {
+            if (state != MonsterState.ChargeMove) return;
+            if (hasHitPlayer) return;
+
+            if (other.CompareTag("Player"))
+            {
+                hasHitPlayer = true;
+                EventCenter.Instance.TriggerEvent(EventMessages.PlayerTakeDamage, atk);
             }
         }
 
         private IEnumerator GiantChargeSequence(Vector2 targetPos)
         {
+            hasHitPlayer = false;
             // 指示器阶段
             state = MonsterState.ChargeWait;
             agent.Stop();
-
-            indicator.sortingOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
-            indicator.color = Color.white;
-            indicator.transform.localScale = Vector3.zero;
-
             Vector2 dir = targetPos - (Vector2)indicatorParent.transform.position;
-            float angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
-            indicatorParent.transform.rotation = Quaternion.Euler(0, 0, angle);
+            indicatorParent.transform.right = dir;
 
             // 冲撞阶段
             // --- 冲撞准备阶段 ---
             state = MonsterState.ChargeWait;
             agent.Stop();
             indicatorParent.gameObject.SetActive(true); // 指示器显示
-            indicator.transform.localScale = Vector3.zero;
-            indicator.DOColor(Color.red, 1f).SetLoops(2, LoopType.Yoyo);
-            indicator.transform.DOScale(Vector3.one, 0.3f).SetEase(Ease.OutBack);
-            yield return new WaitForSeconds(1.5f);       // 准备时间
+            yield return new WaitForSeconds(0.5f);       // 准备时间
             indicatorParent.gameObject.SetActive(false); // 准备完成隐藏
 
             // --- 冲撞移动阶段 ---
             state = MonsterState.ChargeMove;
             agent.maxSpeed = 8f;
+            agent.avoidRadius = 0f; // 禁用避障
             agent.SetDestination(targetPos);
 
             float startTime = Time.time;
             float maxChargeTime = 1f;
-            while (Vector2.Distance(transform.position, targetPos) > 0.5f &&
+            while (!hasHitPlayer && Vector2.Distance(transform.position, targetPos) > 0.5f &&
                    Time.time - startTime < maxChargeTime)
             {
                 yield return null;
@@ -413,9 +440,10 @@ namespace Controller
             state = MonsterState.ChargeCooldown;
             agent.Stop();
             yield return new WaitForSeconds(1f);
-
+            agent.avoidRadius = 0.6f; // 禁用避障
             // 回到巡逻/闲置
             ChangeState(MonsterState.Patrol);
+             chargeCoroutine = null;
         }
 
         private IEnumerator RegenerateHealth()
@@ -445,7 +473,7 @@ namespace Controller
 
             Destroy(_hpInfo);
             EventCenter.Instance.RemoveListener(EventMessages.NotifyToFlee, HandleNotifyToFlee);
-            if(monsterType == MonsterType.JingYuanBao)
+            if (monsterType == MonsterType.JingYuanBao)
             {
                 EventCenter.Instance.TriggerEvent(EventMessages.JingYuanBaoDead);
             }

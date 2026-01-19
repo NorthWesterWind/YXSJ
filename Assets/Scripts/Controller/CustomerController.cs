@@ -27,7 +27,13 @@ namespace Controller
         public Transform receiveTransform;
         private List<Production> productionList = new();
         public List<Production> purchaseList = new();
-        public MeshRenderer _meshRenderer; void Start() { skeletonAnimation.state.Complete += HandleAnimationComplete; }
+        public MeshRenderer _meshRenderer;
+        public GameObject fillBg;
+        public GameObject fill;
+        void Start()
+        {
+            skeletonAnimation.state.Complete += HandleAnimationComplete;
+        }
         private void HandleAnimationComplete(TrackEntry trackEntry)
         {
             if (trackEntry.TrackIndex == 1 && trackEntry.Animation.Name == "angry")
@@ -91,6 +97,8 @@ namespace Controller
             agent.Stop(); ;
             agent.SetDestination(nextPosition);
             Vector2 dir = (nextPosition - (Vector2)transform.position).normalized;
+            fillBg.gameObject.SetActive(false);
+            fill.gameObject.transform.localScale = new Vector3(0, 1, 1);
         }
         void OnEnable()
         {
@@ -125,7 +133,7 @@ namespace Controller
         private IEnumerator PurchaseRoutine()
         {
             float timer = 0f;
-             bool purchased = false; 
+            bool purchased = false;
             while (timer < data.waitTime)
             { // 判断摊位商品是否满足顾客需求 
                 if (salesStall.TryPurchase(data.carryNum, purchaseList))

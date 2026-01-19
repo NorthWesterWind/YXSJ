@@ -3,11 +3,22 @@ using System.Collections.Generic;
 using Controller.Pickups;
 using Module.Data;
 using PolyNav;
+using Spine.Unity;
 using UnityEngine;
+using UnityEngine.AI;
 using Utils;
 
 namespace Controller
 {
+    public enum CollectorState
+    {
+        Idle,
+        FindResource,
+        GoToResource,
+        Fight,
+        ReturnToDepot,
+        Wait
+    }
     public class CollectorController : MonoBehaviour
     {
         public PolyNavAgent agent;
@@ -22,25 +33,24 @@ namespace Controller
         public CollectorInventory inventory;
         public LingChuGeController depot;
         public Transform receiveTransform;
-        public Animator animator;
+        public Transform infoTransform;
+        public SkeletonAnimation skeletonAnimation;
         public SpriteRenderer spriteRenderer;
         public SpriteRenderer shadowRenderer;
         public SpriteRenderer weaponRenderer;
+
         public Collector collectorData;
 
         public int id;
-        private enum CollectorState
-        {
-            Idle,
-            FindResource,
-            GoToResource,
-            Fight,
-            ReturnToDepot,
-            Wait
-        }
+
 
         private CollectorState currentState;
-        private Transform currentTarget; // 当前采集物目标
+        private FactoryController currentTarget; // 当前采集物目标
+
+        public float currentHp;
+        public CollectorInfo collectorInfo;
+        public int currentCarryNum;
+        public int maxCarryNum;
 
         private void Start()
         {
@@ -58,9 +68,11 @@ namespace Controller
             targetType = v.Item2;
             depot = structure;
 
-            inventory.max =(int) c.bagCapacity;
+            inventory.max = (int)c.bagCapacity;
             agent.maxSpeed = collectorData.moveSpeed;
-
+            currentHp = collectorData.maxHp;
+            currentCarryNum = 0;
+            maxCarryNum = (int)c.bagCapacity;
         }
 
         public void SetLayer()
@@ -73,18 +85,61 @@ namespace Controller
 
         private void Update()
         {
+            SetLayer();
             if (agent.hasPath && agent.remainingDistance > 1 && agent.currentSpeed < 0.1f)
             {
-                animator.SetBool("move", true);
-                animator.SetBool("idle", false);
+                var state = skeletonAnimation.AnimationState;
+                var current = state.GetCurrent(0);
+                if (weapon.gameObject.activeSelf)
+                {
+                    if (current == null || current.Animation.Name != "zoulugongji")
+                    {
+                        state.SetAnimation(0, "zoulugongji", true);
+                    }
+
+                }
+                else
+                {
+                    if (current == null || current.Animation.Name != "walk")
+                    {
+                        state.SetAnimation(0, "walk", true);
+                    }
+                }
             }
             else
             {
-                animator.SetBool("move", false);
-                animator.SetBool("idle", true);
+                var state = skeletonAnimation.AnimationState;
+                var current = state.GetCurrent(0);
+
+                if (weapon.gameObject.activeSelf)
+                {
+                    if (current == null || current.Animation.Name != "gongji")
+                    {
+                        state.SetAnimation(0, "gongji", true);
+                    }
+                }
+                else
+                {
+
+                    if (current == null || current.Animation.Name != "idle")
+                    {
+                        state.SetAnimation(0, "idle", true);
+                    }
+                }
+
             }
 
-            SetLayer();
+
+
+            if (inventory.IsFull())
+            {
+                if (currentState != CollectorState.ReturnToDepot)
+                {
+                    SwitchState(CollectorState.ReturnToDepot);
+                    agent.SetDestination(depot.collectorTransform.position);
+                }
+                return;
+            }
 
             CheckMonster();
             switch (currentState)
@@ -92,45 +147,41 @@ namespace Controller
                 case CollectorState.Idle:
                     SwitchState(CollectorState.FindResource);
                     break;
+
                 case CollectorState.FindResource:
-                    FindResource();
+                    currentTarget = GameController.Instance.factoryControllers[monsterType];
+                    agent.SetDestination(currentTarget.transform.position);
+                    SwitchState(CollectorState.GoToResource);
                     break;
+
                 case CollectorState.GoToResource:
                     if (!agent.hasPath)
                         SwitchState(CollectorState.Fight);
                     break;
+
                 case CollectorState.Fight:
                     DoFight();
                     break;
+
                 case CollectorState.ReturnToDepot:
-                    if (!agent.hasPath || agent.remainingDistance < 0.1f || agent.currentSpeed < 0.1f)
+                    if (!agent.hasPath || agent.remainingDistance < 0.1f)
                     {
                         depot.Store(this, inventory);
                         SwitchState(CollectorState.Idle);
                     }
-
                     break;
 
                 case CollectorState.Wait:
-                    if (!inventory.IsFull())
-                    {
-                        SwitchState(CollectorState.Idle);
-                        if (GameController.Instance.factoryControllers[monsterType].monsterList.Count > 0)
-                        {
-                            SwitchState(CollectorState.Fight);
-                        }
-                    }
-                    else
-                    {
-                        SwitchState(CollectorState.ReturnToDepot);
-                    }
-
+                    SwitchState(CollectorState.Idle);
                     break;
             }
 
-            DoCollect();
+            if (currentState != CollectorState.Fight &&
+                currentState != CollectorState.ReturnToDepot)
+            {
+                DoCollect();
+            }
         }
-
         public void AddDropItem(DropItemType itemType)
         {
             inventory.Add(itemType);
@@ -142,8 +193,10 @@ namespace Controller
 
         private void FindResource()
         {
-            currentTarget = GameController.Instance.monsterBornPositions[monsterType];
-            agent.SetDestination(currentTarget.position);
+            if (currentState == CollectorState.GoToResource)
+                return;
+            currentTarget = GameController.Instance.factoryControllers[monsterType];
+            agent.SetDestination(currentTarget.transform.position);
             SwitchState(CollectorState.GoToResource);
         }
 
@@ -182,7 +235,44 @@ namespace Controller
             else
             {
                 weapon.gameObject.SetActive(false);
+
+                // 自动回血检测
+                if (currentHp < collectorData.maxHp && !isRegenerating)
+                {
+                    if (Time.time - lastDamageTime >= regenDelay)
+                    {
+                        regenCoroutine = StartCoroutine(RegenerateHealth());
+                    }
+                }
             }
+        }
+
+
+        private float lastDamageTime = -999f; // 上次受伤时间
+        private bool isRegenerating = false;
+        private Coroutine regenCoroutine;
+        private float regenDelay = 3f;
+
+        private IEnumerator RegenerateHealth()
+        {
+            isRegenerating = true;
+
+            while (currentHp < collectorData.maxHp)
+            {
+                currentHp += 5 * Time.deltaTime;
+                currentHp = Mathf.Min(currentHp, collectorData.maxHp);
+                collectorInfo.UpdateFill(currentHp / collectorData.maxHp);
+                yield return null;
+
+                if (Time.time - lastDamageTime < regenDelay)
+                {
+                    isRegenerating = false;
+                    yield break;
+                }
+            }
+
+            collectorInfo.HideHpInfo();
+            isRegenerating = false;
         }
 
         private void DoFight()
@@ -242,7 +332,7 @@ namespace Controller
 
         void OnReachDestination()
         {
-           
+
         }
     }
 

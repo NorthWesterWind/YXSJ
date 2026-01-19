@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Module;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -9,21 +10,52 @@ namespace Utils
     [Serializable]
     public class ResponseLogin
     {
-        public int state;
-        public string msg;
-        public int fcm;
-        public int age;
-        public int recharge;
-        public string more;
         public int account_level;
+        public int age;
+        public int fcm;
+        public int id;
+        public string more;
+        public string msg;
+        public int users;
+        public int password;
+        public int recharge;
+        public int state;
+        public string user_uuid;
+        public string timestamp;
+
     }
 
     public class ResponseRegister
     {
         public int state;
-        public int code;
-        public int fcm;
         public string msg;
+        public int fcm;
+        public int code;
+        public ResData res;
+        public string timestamp;
+
+    }
+    public class ResData
+    {
+        public int id;
+        public string user_login;
+        public string user_pass;
+        public string user_idnum;
+        public int user_fcm;
+        public int user_recharge;
+        public int user_vip;
+        public int user_age;
+        public string user_name;
+        public string user_item;
+        public string user_app_name;
+        public int account_level;
+        public string user_more;
+        public int user_zhanli;
+        public int user_level;
+        public string user_uuid;
+        public int increase_power;
+        public int decrease_power;
+        public int user_currentLv;
     }
 
     public class ResponseRealName
@@ -31,6 +63,8 @@ namespace Utils
         public int state;
         public int age;
         public string msg;
+        public int fcm;
+        public string timestamp;
     }
 
     public class ResponseClear
@@ -52,8 +86,29 @@ namespace Utils
         public int state;
         public string msg;
         public string timestamp;
-        public string users;
+        public SaveUser user;
     }
+    public class SaveUser
+    {
+        public int id;
+        public int user_age;
+        public int user_fcm;
+        public int user_vip;
+        public string user_item;
+        public string user_more;
+        public string user_name;
+        public string user_pass;
+        public string user_uuid;
+        public string user_idnum;
+        public int user_level;
+        public string user_login;
+        public int user_zhanli;
+
+        public int account_level;
+        public string user_app_name;
+        public int user_recharge;
+    }
+
     [System.Serializable]
     public class AuthResponse
     {
@@ -83,17 +138,16 @@ namespace Utils
     }
     public class LoginUtil : MonoSingleton<LoginUtil>
     {
-        private string registerurl = "https://banhao2.dyhyyx.com/php/zhuce.php";
-        private  string Loginurl = "https://banhao2.dyhyyx.com/php/denglu.php";
-        private string realnameurl = "https://banhao2.dyhyyx.com/php/shiming.php";
-        private string saveurl = "https://banhao2.dyhyyx.com/php/cunchu.php";
-        private  string clearurl = "https://banhao2.dyhyyx.com/php/zhuxiao.php";
+        private string registerurl = "http://game.zikunhh.com/php/zhuce.php?app_name=Yxsj";
+        private string Loginurl = "http://game.zikunhh.com/php/denglu.php?app_name=Yxsj";
+        private string realnameurl = "http://game.zikunhh.com/php/shiming.php?app_name=Yxsj";
+        private string saveurl = "http://game.zikunhh.com/php/cunchu.php?app_name=Yxsj";
 
         public void RegisterCheck(string user, string password, Action<ResponseRegister> callback)
         {
             if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))
             {
-               // UIController.Instance.Show<TipView>("账号或密码不能为空");
+                // UIController.Instance.Show<TipView>("账号或密码不能为空");
                 return;
             }
 
@@ -105,7 +159,7 @@ namespace Utils
             WWWForm form = new WWWForm();
             form.AddField("user", user);
             form.AddField("password", password);
-            form.AddField("app_name", GameName.App_name);
+
 
             using (UnityWebRequest webRequest = UnityWebRequest.Post(registerurl, form))
             {
@@ -118,6 +172,11 @@ namespace Utils
                     Debug.Log("注册请求成功：" + webRequest.downloadHandler.text);
                     ResponseRegister response = JsonUtility.FromJson<ResponseRegister>(webRequest.downloadHandler.text);
                     callback?.Invoke(response);
+                    if(response.state == 1)
+                    {
+                       ModuleMgr.Instance.GetModule<PlayerDataModule>().data.user_id = response.res.id;
+                       SaveToServer();
+                    }
                 }
                 else
                 {
@@ -136,7 +195,6 @@ namespace Utils
             WWWForm form = new WWWForm();
             form.AddField("user", user);
             form.AddField("password", password);
-            form.AddField("app_name", GameName.App_name);
             using (UnityWebRequest webRequest = UnityWebRequest.Post(Loginurl, form))
             {
                 webRequest.timeout = 30;
@@ -176,54 +234,52 @@ namespace Utils
         }
 
 
-        // public void SaveToServer()
-        // {
-        //     StartCoroutine(UploadPlayerDataCoroutine());
-        // }
+        public void SaveToServer()
+        {
+            StartCoroutine(UploadPlayerDataCoroutine());
+        }
 
-        // private IEnumerator UploadPlayerDataCoroutine()
-        // {
-        //     WWWForm form = new WWWForm();
-        //     form.AddField("user", ModuleMgr.Instance.GetModule<PlayerDataModule>().data.user);
-        //     form.AddField("password", PlayerDataModule.password);
-        //     form.AddField("user_more", JsonConvert.SerializeObject(PlayerDataModule.Instance._playerData));
-        //     form.AddField("app_name", GameName.App_name);
-        //     Debug.Log(
-        //         $"JsonConvert.SerializeObject( PlayerDataModule.Instance._playerData) = {JsonConvert.SerializeObject(PlayerDataModule.Instance._playerData)}");
-        //     Debug.Log(
-        //         $"PlayerDataModule.Instance._playerData.playerChessProgressList.Count = {PlayerDataModule.Instance._playerData.playerChessProgressList.Count}");
-        //     using (UnityWebRequest webRequest = UnityWebRequest.Post(saveurl, form))
-        //     {
-        //         webRequest.timeout = 30;
-        //
-        //         yield return webRequest.SendWebRequest();
-        //         if (webRequest.result == UnityWebRequest.Result.Success)
-        //         {
-        //             Debug.Log("上传数据成功：" + webRequest.downloadHandler.text);
-        //             ResponseSaveData response = JsonUtility.FromJson<ResponseSaveData>(webRequest.downloadHandler.text);
-        //             if (response.state == 2)
-        //             {
-        //                 Debug.Log("更新数据成功");
-        //             }
-        //             else if (response.state == 3)
-        //             {
-        //                 Debug.Log("错误");
-        //             }
-        //             else if (response.state == 4)
-        //             {
-        //                 Debug.Log("用户不存在");
-        //             }
-        //         }
-        //         else
-        //         {
-        //             Debug.LogError("上传数据失败：" + webRequest.error);
-        //         }
-        //
-        //         PlayerDataModule.Instance.FixPlayerData();
-        //     }
-        // }
-        //
-        
+        private IEnumerator UploadPlayerDataCoroutine()
+        {
+            WWWForm form = new WWWForm();
+            form.AddField("user", ModuleMgr.Instance.GetModule<PlayerDataModule>().data.userAccount);
+            form.AddField("password", ModuleMgr.Instance.GetModule<PlayerDataModule>().data.userPassword);
+            form.AddField("user_more", JsonConvert.SerializeObject(ModuleMgr.Instance.GetModule<PlayerDataModule>().data));
+            form.AddField("user_rolename", ModuleMgr.Instance.GetModule<PlayerDataModule>().data.userName);
+            Debug.Log(
+                $"JsonConvert.SerializeObject( PlayerData) = {JsonConvert.SerializeObject(ModuleMgr.Instance.GetModule<PlayerDataModule>().data)}");
+            using (UnityWebRequest webRequest = UnityWebRequest.Post(saveurl, form))
+            {
+                webRequest.timeout = 30;
+
+                yield return webRequest.SendWebRequest();
+                if (webRequest.result == UnityWebRequest.Result.Success)
+                {
+                    Debug.Log("上传数据成功：" + webRequest.downloadHandler.text);
+                    ResponseSaveData response = JsonUtility.FromJson<ResponseSaveData>(webRequest.downloadHandler.text);
+                    if (response.state == 2)
+                    {
+                        Debug.Log("更新数据成功");
+                    }
+                    else if (response.state == 3)
+                    {
+                        Debug.Log("错误");
+                    }
+                    else if (response.state == 4)
+                    {
+                        Debug.Log("用户不存在");
+                    }
+                }
+                else
+                {
+                    Debug.LogError("上传数据失败：" + webRequest.error);
+                }
+
+                ModuleMgr.Instance.GetModule<PlayerDataModule>().FixPlayerData();
+            }
+        }
+
+
         public void RealName(string user, string idnum, string chinese, string fcmLvl,
             Action<ResponseRealName> callback)
         {
@@ -238,7 +294,6 @@ namespace Utils
             form.AddField("idnum", idnum);
             form.AddField("chinese", chinese);
             form.AddField("fcmLvl", fcmLvl);
-            form.AddField("app_name", GameName.App_name);
 
             using (UnityWebRequest webRequest = UnityWebRequest.Post(realnameurl, form))
             {
@@ -259,42 +314,42 @@ namespace Utils
             }
         }
 
-        public void ClearUser(string user, Action<ResponseClear> callback)
-        {
-            StartCoroutine(GetClearUserCoroutine(user, callback));
-        }
+        // public void ClearUser(string user, Action<ResponseClear> callback)
+        // {
+        //     StartCoroutine(GetClearUserCoroutine(user, callback));
+        // }
 
-        private IEnumerator GetClearUserCoroutine(string user, Action<ResponseClear> callback)
-        {
-            WWWForm form = new WWWForm();
-            form.AddField("user", user);
-            form.AddField("app_name", GameName.App_name);
+        // private IEnumerator GetClearUserCoroutine(string user, Action<ResponseClear> callback)
+        // {
+        //     WWWForm form = new WWWForm();
+        //     form.AddField("user", user);
+        //     form.AddField("app_name", GameName.App_name);
 
-            using (UnityWebRequest webRequest = UnityWebRequest.Post(clearurl, form))
-            {
-                webRequest.timeout = 30;
+        //     using (UnityWebRequest webRequest = UnityWebRequest.Post(clearurl, form))
+        //     {
+        //         webRequest.timeout = 30;
 
-                yield return webRequest.SendWebRequest();
-                if (webRequest.result == UnityWebRequest.Result.Success)
-                {
-                    Debug.Log("注销请求成功：" + webRequest.downloadHandler.text);
-                    ResponseClear responseRealName =
-                        JsonUtility.FromJson<ResponseClear>(webRequest.downloadHandler.text);
-                    callback(responseRealName);
-                }
-                else
-                {
-                    Debug.LogError("注销请求失败：" + webRequest.error);
-                }
-            }
-        }
+        //         yield return webRequest.SendWebRequest();
+        //         if (webRequest.result == UnityWebRequest.Result.Success)
+        //         {
+        //             Debug.Log("注销请求成功：" + webRequest.downloadHandler.text);
+        //             ResponseClear responseRealName =
+        //                 JsonUtility.FromJson<ResponseClear>(webRequest.downloadHandler.text);
+        //             callback(responseRealName);
+        //         }
+        //         else
+        //         {
+        //             Debug.LogError("注销请求失败：" + webRequest.error);
+        //         }
+        //     }
+        // }
     }
 
     public static class GameName
     {
-        private static  string app_name = "Qhmx";
+        private static string app_name = "Yxsj";
 
-        public static  string App_name
+        public static string App_name
         {
             get => app_name;
             set => app_name = value;

@@ -234,6 +234,7 @@ namespace Module.Data
                 YunDiGe,
                 YuShaHu,
                 LianQiLu,
+                OrderView
         }
 
         public enum TalentType

@@ -1,0 +1,87 @@
+{
+"skeleton": {
+	"hash": "SPQa4AKe6TE",
+	"spine": "4.2.43",
+	"x": -6.71,
+	"y": 75.99,
+	"width": 90,
+	"height": 93,
+	"images": "./images/",
+	"audio": "./audio"
+},
+"bones": [
+	{ "name": "root" },
+	{ "name": "bone", "parent": "root", "length": 196.89, "rotation": 140.48, "x": 100.28, "y": 1.01 }
+],
+"slots": [
+	{ "name": "6", "bone": "bone", "attachment": "1" }
+],
+"skins": [
+	{
+		"name": "default",
+		"attachments": {
+			"6": {
+				"1": { "x": 125.13, "y": -54.26, "rotation": -140.48, "width": 90, "height": 93 },
+				"2": { "x": 124.3, "y": -14.76, "rotation": -140.48, "width": 173, "height": 147 },
+				"3": { "x": 137.51, "y": 15.58, "rotation": -140.48, "width": 154, "height": 177 },
+				"4": { "x": 114.76, "y": 48.67, "rotation": -140.48, "width": 103, "height": 137 },
+				"5": { "x": 100.62, "y": 38.3, "rotation": -140.48, "width": 80, "height": 123 }
+			}
+		}
+	}
+],
+"animations": {
+	"animation": {
+		"slots": {
+			"6": {
+				"rgba": [
+					{ "color": "ffffff00" },
+					{ "time": 0.1, "color": "ffffffff", "curve": "stepped" },
+					{ "time": 0.3, "color": "ffffffff" },
+					{ "time": 0.3667, "color": "ffffff00" }
+				],
+				"attachment": [
+					{ "time": 0.0667, "name": "2" },
+					{ "time": 0.1333, "name": "3" },
+					{ "time": 0.2, "name": "4" },
+					{ "time": 0.2667, "name": "5" }
+				]
+			}
+		},
+		"bones": {
+			"bone": {
+				"rotate": [
+					{
+						"value": -33.7,
+						"curve": [ 0.078, -25.56, 0.156, -9.27 ]
+					},
+					{
+						"time": 0.2333,
+						"value": -9.27,
+						"curve": [ 0.244, -9.27, 0.256, -13.62 ]
+					},
+					{
+						"time": 0.2667,
+						"value": -13.62,
+						"curve": [ 0.278, -13.62, 0.289, -5.48 ]
+					},
+					{
+						"time": 0.3,
+						"value": -5.48,
+						"curve": [ 0.311, -5.48, 0.322, -5.72 ]
+					},
+					{ "time": 0.3333, "value": -5.84 }
+				],
+				"shear": [
+					{
+						"x": 14.42,
+						"y": -33.57,
+						"curve": [ 0.044, 14.42, 0.089, 0, 0.044, -33.57, 0.089, 0 ]
+					},
+					{ "time": 0.1333 }
+				]
+			}
+		}
+	}
+}
+}

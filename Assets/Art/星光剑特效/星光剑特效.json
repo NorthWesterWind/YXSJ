@@ -1,0 +1,94 @@
+{
+"skeleton": {
+	"hash": "YOFwsYhbIbU",
+	"spine": "4.2.43",
+	"x": -82.25,
+	"y": -13.61,
+	"width": 86,
+	"height": 76,
+	"images": "./images/",
+	"audio": "./audio"
+},
+"bones": [
+	{ "name": "root" },
+	{ "name": "bone", "parent": "root", "length": 187.72, "rotation": 147.65, "x": 77.98, "y": 15.11 }
+],
+"slots": [
+	{ "name": "6", "bone": "bone", "attachment": "5" }
+],
+"skins": [
+	{
+		"name": "default",
+		"attachments": {
+			"6": {
+				"1": { "x": 120.66, "y": -45.23, "rotation": -147.65, "width": 93, "height": 97 },
+				"2": { "x": 135.35, "y": -10.48, "rotation": -147.65, "width": 131, "height": 152 },
+				"3": { "x": 140.74, "y": 0.63, "rotation": -147.65, "width": 128, "height": 173 },
+				"4": { "x": 138.59, "y": 33, "rotation": -147.65, "width": 71, "height": 136 },
+				"5": { "x": 104.01, "y": 54.89, "rotation": -147.65, "width": 86, "height": 76 }
+			}
+		}
+	}
+],
+"animations": {
+	"animation": {
+		"slots": {
+			"6": {
+				"rgba": [
+					{
+						"color": "ffffff00",
+						"curve": [ 0.033, 1, 0.067, 1, 0.033, 1, 0.067, 1, 0.033, 1, 0.067, 1, 0.033, 0, 0.067, 1 ]
+					},
+					{ "time": 0.1, "color": "ffffffff", "curve": "stepped" },
+					{
+						"time": 0.3,
+						"color": "ffffffff",
+						"curve": [ 0.333, 1, 0.367, 1, 0.333, 1, 0.367, 1, 0.333, 1, 0.367, 1, 0.333, 1, 0.367, 0 ]
+					},
+					{ "time": 0.4, "color": "ffffff00" }
+				],
+				"attachment": [
+					{ "name": "1" },
+					{ "time": 0.0667, "name": "2" },
+					{ "time": 0.1333, "name": "3" },
+					{ "time": 0.2, "name": "4" },
+					{ "time": 0.2667, "name": "5" }
+				]
+			}
+		},
+		"bones": {
+			"bone": {
+				"rotate": [
+					{
+						"value": -16.78,
+						"curve": [ 0.044, -16.78, 0.089, 0 ]
+					},
+					{ "time": 0.1333 }
+				],
+				"translate": [
+					{
+						"x": 2.96,
+						"curve": [ 0.111, 2.96, 0.222, 0, 0.111, 0, 0.222, 0 ]
+					},
+					{ "time": 0.3333 }
+				],
+				"scale": [
+					{
+						"time": 0.2667,
+						"curve": [ 0.311, 1, 0.356, 0.946, 0.311, 1, 0.356, 0.946 ]
+					},
+					{ "time": 0.4, "x": 0.92, "y": 0.92 }
+				],
+				"shear": [
+					{
+						"x": 0.61,
+						"y": -39.52,
+						"curve": [ 0.044, 0.41, 0.089, 0, 0.044, -26.35, 0.089, 0 ]
+					},
+					{ "time": 0.1333 }
+				]
+			}
+		}
+	}
+}
+}

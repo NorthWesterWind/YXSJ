@@ -4,6 +4,8 @@ namespace Utils
 {
     public static class EventMessages
     {
+
+        public const string BeginJugmentRemainTime = "BeginJugmentRemainTime";   ///未成年人可游玩时间倒计时
         public const string CameraBeginShaking = "CameraBeginShaking";       //触发镜头晃动
         public const string MonsterDead = "MonsterDead";                     //触发怪物死亡
         public const string MonsterBeginCreate = "MonsterBeginCreate";       //通知工厂创建怪物

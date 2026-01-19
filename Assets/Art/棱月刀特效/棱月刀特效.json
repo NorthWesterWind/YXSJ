@@ -1,0 +1,106 @@
+{
+"skeleton": {
+	"hash": "gG8BU1LnjaE",
+	"spine": "4.2.43",
+	"x": -26.99,
+	"y": 86.28,
+	"width": 90,
+	"height": 93,
+	"images": "./images/",
+	"audio": "./audio"
+},
+"bones": [
+	{ "name": "root" },
+	{ "name": "bone", "parent": "root", "length": 212.94, "rotation": 143.17, "x": 89.84, "y": 2.25 }
+],
+"slots": [
+	{ "name": "6", "bone": "bone", "attachment": "1" }
+],
+"skins": [
+	{
+		"name": "default",
+		"attachments": {
+			"6": {
+				"1": { "x": 135.73, "y": -61.43, "rotation": -143.17, "width": 90, "height": 93 },
+				"2": { "x": 136.76, "y": -21.93, "rotation": -143.17, "width": 173, "height": 147 },
+				"3": { "x": 151.38, "y": 7.76, "rotation": -143.17, "width": 154, "height": 177 },
+				"4": { "x": 130.21, "y": 41.88, "rotation": -143.17, "width": 103, "height": 137 },
+				"5": { "x": 115.6, "y": 32.19, "rotation": -143.17, "width": 80, "height": 123 }
+			}
+		}
+	}
+],
+"animations": {
+	"animation": {
+		"slots": {
+			"6": {
+				"rgba": [
+					{ "color": "ffffff00" },
+					{ "time": 0.1, "color": "ffffffff", "curve": "stepped" },
+					{ "time": 0.2333, "color": "ffffffff" },
+					{ "time": 0.3333, "color": "ffffff00" }
+				],
+				"attachment": [
+					{ "time": 0.0667, "name": "2" },
+					{ "time": 0.1333, "name": "3" },
+					{ "time": 0.2, "name": "4" },
+					{ "time": 0.2667, "name": "5" }
+				]
+			}
+		},
+		"bones": {
+			"bone": {
+				"rotate": [
+					{
+						"value": -6.49,
+						"curve": [ 0.011, -6.49, 0.023, 1.58 ]
+					},
+					{
+						"time": 0.0333,
+						"value": 1.76,
+						"curve": [ 0.045, 1.94, 0.056, -10.63 ]
+					},
+					{
+						"time": 0.0667,
+						"value": -10.61,
+						"curve": [ 0.078, -10.58, 0.089, -5.61 ]
+					},
+					{
+						"time": 0.1,
+						"value": -5.11,
+						"curve": [ 0.111, -4.61, 0.122, -7.5 ]
+					},
+					{
+						"time": 0.1333,
+						"value": -7.02,
+						"curve": [ 0.144, -6.53, 0.156, 1.9 ]
+					},
+					{
+						"time": 0.1667,
+						"value": 2.65,
+						"curve": [ 0.178, 3.4, 0.189, -6.77 ]
+					},
+					{
+						"time": 0.2,
+						"value": -7.16,
+						"curve": [ 0.211, -7.55, 0.222, 0.09 ]
+					},
+					{
+						"time": 0.2333,
+						"value": 1.97,
+						"curve": [ 0.256, 5.75, 0.278, 0 ]
+					},
+					{ "time": 0.3 }
+				],
+				"shear": [
+					{
+						"y": -21.64,
+						"curve": [ 0.089, 0, 0.178, 0, 0.089, -21.64, 0.178, 0 ]
+					},
+					{ "time": 0.2667 }
+				]
+			}
+		}
+	}
+}
+}

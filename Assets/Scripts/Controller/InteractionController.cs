@@ -3,6 +3,7 @@ using Module.Data;
 using UnityEngine;
 using Utils;
 using View;
+using View.OrderFunction;
 
 namespace Controller
 {
@@ -50,6 +51,10 @@ namespace Controller
                 case ShowUIType.LingChuGe:
                     // UIController.Instance.Show<LingChuGePop>();
                     break;
+                case  ShowUIType.OrderView:
+                    UIController.Instance.Show<OrderFunctionView>();
+                    break;
+
             }
         }
         public void CloseInteract()

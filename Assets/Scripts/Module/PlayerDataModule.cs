@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Controller;
 using Module.Data;
+using Newtonsoft.Json;
 using Utils;
+using View;
 
 namespace Module
 {
@@ -16,6 +18,88 @@ namespace Module
         {
             base.OnInitialize();
             //处理数据
+        }
+
+        public void SavePlayerData()
+        {
+            
+        }
+        public void SavePlayerDataToSever()
+        {
+            
+        }
+
+        public void Login(string user, string password, Action<int> callback)
+        {
+           LoginUtil.Instance.LoginCheck(user, password, (respone) =>
+            {
+                if (respone.state == 1)
+                {
+                    if (respone.more != null && !string.IsNullOrEmpty(respone.more))
+                    {
+                        data = null;
+                        data = JsonConvert.DeserializeObject<PlayerData>(respone.more, new JsonSerializerSettings
+                        {
+                            ObjectCreationHandling = ObjectCreationHandling.Replace
+                        });
+                        data.age = respone.age;
+                    
+
+                        FixPlayerData();
+                        SavePlayerData();
+                    }
+                    else
+                    {
+                       data = new PlayerData();
+                        data.userAccount = user;
+                       data.userPassword = password;
+                        SavePlayerData();
+                        SavePlayerDataToSever();
+                        FixPlayerData();
+                    }
+                    // if ( data.claimData == null)
+                    //     {
+                    //         _playerData.claimData = new DailyRewardClaimData();
+                    //         _playerData.claimData.currentMonth = DateTime.Now.ToString("yyyy-MM");
+                    //         _playerData.claimData.claimCount = 0;
+                    //         _playerData.claimData.lastClaimDate = "";
+                    //         _playerData.claimData.loginCount = 0;
+                    //         _playerData.claimData.lastLoginDate = "";
+                    //     }
+                    //     else
+                    //     {
+                    //         // 如果跨月了重置
+                    //         string currentMonth = DateTime.Now.ToString("yyyy-MM");
+                    //         if (_playerData.claimData.currentMonth != currentMonth)
+                    //         {
+                    //             _playerData.claimData.currentMonth = currentMonth;
+                    //             _playerData.claimData.claimCount = 0;
+                    //             _playerData.claimData.lastClaimDate = "";
+                    //             _playerData.claimData.loginCount = 0;
+                    //             _playerData.claimData.lastLoginDate = "";
+                    //         }
+                    //     }
+
+                    callback?.Invoke(respone.fcm);
+                }
+                else if (respone.state == 2)
+                {
+                    UIController.Instance.Show<TipView>("登录失败!");
+                }
+                else if (respone.state == 3)
+                {
+                    UIController.Instance.Show<TipView>("密码错误!");
+                }
+                else
+                {
+                    UIController.Instance.Show<TipView>(respone.msg);
+                }
+            });
+        }
+
+       public  void FixPlayerData()
+        {
+            
         }
 
 

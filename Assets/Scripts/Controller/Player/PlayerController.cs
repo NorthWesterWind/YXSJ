@@ -170,13 +170,6 @@ namespace Controller.Player
                     _skeletonAnimation.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
                 }
 
-                // if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 12))
-                // {
-                //     camera.m_Lens.OrthographicSize =
-                //         Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 12, ref velocity, 0.15f);
-                // }
-
-
                 var state = _skeletonAnimation.AnimationState;
                 var current = state.GetCurrent(0);
                 if (weapon.gameObject.activeSelf)
@@ -351,7 +344,7 @@ namespace Controller.Player
 
             while (currentHp < dataModule.data.hp)
             {
-                currentHp += dataModule.data.hpRecover * Time.deltaTime;
+                currentHp += 5 * Time.deltaTime;
                 currentHp = Mathf.Min(currentHp, dataModule.data.hp);
                 playerInfo.UpdateFill(currentHp / dataModule.data.hp);
                 yield return null;
