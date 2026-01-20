@@ -67,5 +67,7 @@ namespace Utils
         public const string MapLockDataPrepareded = "MapLockDataPrepareded"; //地图区域锁数据准备完成\
         
         public const string ShowOrderDetail = "ShowOrderDetail"; //显示订单详情
+
+        public const string HidePlayerGuide  = "HidePlayerGuide"; //玩家引导完成
     }
 }

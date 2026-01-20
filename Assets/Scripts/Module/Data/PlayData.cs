@@ -16,7 +16,7 @@ namespace Module.Data
     {
         #region 基础属性
         public float hp = 30;
-        public float atk = 10;
+        public float atk = 20;
         public float bagCapacity = 20;
 
         #endregion
@@ -54,13 +54,14 @@ namespace Module.Data
         public int monthPurchaseLimit;
         public int mothTotalSpending;
 
-        public  bool isCreated;
+        public bool isCreated;
         public int user_id;
         #endregion
 
         #region 游玩数据
 
-        public List<int> guidIdList = new List<int>(){};
+        public List<int> guidIdList = new List<int>() { };
+        public GuideStep guideStep = GuideStep.BuildYushaPot;
 
         #region  每日限制数据
         public int todayUseZhuanPanNum = 0; //今日转盘使用次数
@@ -140,15 +141,11 @@ namespace Module.Data
             {1, new List<BuildingType>(){}},{2,new List<BuildingType>()},{3,new List<BuildingType>()},{4,new List<BuildingType>()},{5,new List<BuildingType>()}
         };
 
-
+        public CashierData cashierData = new CashierData();
 
         #region 云递者数据
+        public DeliverData deliverData = new DeliverData();
 
-        public int workingNum; //正在工作人数
-        public int totalNum = 1;    //总人数
-        public int currentMoveSpeed;
-        public int capacity = 1;
-        public List<BuildingType> yunDiZheWorkingBuildList = new List<BuildingType>();
         #endregion
 
 
@@ -312,13 +309,31 @@ namespace Module.Data
         public MonsterFamily monsterType; //当前的目标怪物
         public CollectorType collectorType;
         public float maxHp = 30;
-        public float hpRecover ;
+        public float hpRecover;
         public Collector(int id, MonsterFamily monsterType)
         {
             this.id = id;
             this.monsterType = monsterType;
         }
     }
+
+    /// <summary>
+    /// 云递阁数据
+    /// </summary>
+    [Serializable]
+    public class DeliverData
+    {
+        public int workingNum; //正在工作人数
+        public int totalNum = 1;    //总人数
+        public float currentMoveSpeed = 4f;
+        public int capacity = 1;
+        public int speedLevel = 1;
+        public int peopleLevel = 1;
+        public int maxSpeedLevel = 10;
+        public int maxpeopleLevel = 3;
+        public List<BuildingType> yunDiZheWorkingBuildList = new List<BuildingType>();
+    }
+
 
     /// <summary>
     /// 灵储阁数据类
@@ -328,14 +343,19 @@ namespace Module.Data
     {
         public WarehouseCategoryType warehouseCategoryType;
         public List<Collector> workingCollectorList = new();
-        public int capacity;
+        public int capacity = 60;
         public List<MonsterFamily> targetTypeList = new();
         public List<Collector> unworkingCollectorList = new();
+        public float atk = 20;
+        public int peopleNum = 1;
+        public int atkLevel = 1;
+        public int maxAtkLevel = 60;
+        public int numLevel = 1;
+        public int maxNumLevel = 60;
         public SerializableIntDictionary<int> ownItemList = new SerializableIntDictionary<int>();
         public WarehouseCategory(WarehouseCategoryType type)
         {
             warehouseCategoryType = type;
-            capacity = 60;
             unworkingCollectorList.Add(new Collector(1, MonsterFamily.None));
 
         }
@@ -354,6 +374,22 @@ namespace Module.Data
 
         public float workingtime;
         public int timelevel;
+    }
+
+
+    /// <summary>
+    /// 灵账台数据
+    /// </summary>
+    public class CashierData
+    {
+        public int workingNum; //正在工作人数
+        public int totalNum = 1;    //总人数
+        public float currentWorkingSpeed = 5f;
+        public float earning  = 1f;
+        public int workspeedLevel = 1;
+        public int peopleLevel = 1;
+        public int maxworkspeedLevel = 10;
+        public int maxpeopleLevel = 3;
     }
 
 }

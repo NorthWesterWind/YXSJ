@@ -10,7 +10,7 @@ namespace View
 {
     public class ProductionInfo : MonoBehaviour
     {
-       // public Image fillImage;
+        public Image fillImage;
         public TextMeshProUGUI productionText;
         private float _productionTime;
 
@@ -34,23 +34,36 @@ namespace View
                 loopRoutine = null;
             }
             container = structureBase as ProductionStation;
-           // fillImage.fillAmount = 0f;
+            fillImage.fillAmount = 0f;
         }
-        void LateUpdate()
+        private Coroutine followRoutine;
+
+        private void OnEnable()
         {
-            if (!container) return;
-
-            Vector3 screenPos =
-                Camera.main.WorldToScreenPoint(container.infoTransform.position);
-
-            // 🔑 像素对齐，防抖核心
-            screenPos.x = Mathf.Round(screenPos.x);
-            screenPos.y = Mathf.Round(screenPos.y);
-
-            transform.position = screenPos;
+            followRoutine = StartCoroutine(FollowRoutine());
         }
 
+        private void OnDisable()
+        {
+            if (followRoutine != null)
+                StopCoroutine(followRoutine);
+        }
 
+        private IEnumerator FollowRoutine()
+        {
+            while (container)
+            {
+                yield return new WaitForEndOfFrame();
+
+                Vector3 screenPos =
+                    Camera.main.WorldToScreenPoint(container.infoTransform.position);
+
+                screenPos.x = Mathf.Round(screenPos.x);
+                screenPos.y = Mathf.Round(screenPos.y);
+
+                transform.position = screenPos;
+            }
+        }
 
         public void UpdateText()
         {
@@ -96,17 +109,17 @@ namespace View
             float t = 0f;
             float productionTime = baseTime / speed;
 
-            // fillImage.fillAmount = 0;
+            fillImage.fillAmount = 0;
 
             while (t < productionTime)
             {
                 t += Time.deltaTime;
                 float value = t / productionTime;
-              //  fillImage.fillAmount = 2.9f * value;
+                fillImage.fillAmount = 1f * value;
                 yield return null;
             }
 
-            //fillImage.fillAmount = 2.9f;
+            fillImage.fillAmount = 1f;
             EventCenter.Instance.TriggerEvent(EventMessages.ProductionComplete, type);
         }
     }

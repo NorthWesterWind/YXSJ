@@ -170,8 +170,8 @@ namespace View.EmployeeFunction
                 switch (value)
                 {
                     case 1:
-                        playerData.yunDiZheWorkingBuildList.Remove(buildingType);
-                        playerData.workingNum -= 1;
+                        playerData.deliverData.yunDiZheWorkingBuildList.Remove(buildingType);
+                        playerData.deliverData.workingNum -= 1;
                         UpdateInfo();
                         EventCenter.Instance.TriggerEvent(EventMessages.UpdateYunDiZheInfo);
                         break;
@@ -225,8 +225,8 @@ namespace View.EmployeeFunction
                 switch (value)
                 {
                     case 1:
-                        playerData.yunDiZheWorkingBuildList.Add(buildingType);
-                        playerData.workingNum += 1;
+                        playerData.deliverData.yunDiZheWorkingBuildList.Add(buildingType);
+                        playerData.deliverData.workingNum += 1;
                         UpdateInfo();
                         EventCenter.Instance.TriggerEvent(EventMessages.UpdateYunDiZheInfo);
                         break;
@@ -279,7 +279,7 @@ namespace View.EmployeeFunction
             switch (value)
             {
                 case 1:
-                    if (playerData.yunDiZheWorkingBuildList.Contains(buildingType))
+                    if (playerData.deliverData.yunDiZheWorkingBuildList.Contains(buildingType))
                     {
                         addBtnMask.gameObject.SetActive(true);
                         removeBtnMask.gameObject.SetActive(false);
@@ -288,7 +288,7 @@ namespace View.EmployeeFunction
                     else
                     {
                         progresstxt.text = "0/1";
-                        if (playerData.totalNum - playerData.workingNum > 0)
+                        if (playerData.deliverData.totalNum - playerData.deliverData.workingNum > 0)
                         {
                             addBtnMask.gameObject.SetActive(false);
                             removeBtnMask.gameObject.SetActive(true);

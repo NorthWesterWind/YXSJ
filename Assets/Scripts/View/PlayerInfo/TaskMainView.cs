@@ -17,11 +17,15 @@ namespace View.PlayerInfo
         public TextMeshProUGUI taskProgressTxt;
         public UIButton showBtn;
         private AssetHandle _assetHandle;
+        public GameObject content;
         void Start()
         {
             _assetHandle = GetComponent<AssetHandle>();
             AddEvent();
-
+            if(ModuleMgr.Instance.GetModule<PlayerDataModule>().data.guideStep != GuideStep.Finished)
+            {
+                 content.SetActive(false);
+            }
 
         }
 
@@ -31,15 +35,23 @@ namespace View.PlayerInfo
             showBtn.onClick.AddListener(OnClickShowBtn);
             EventCenter.Instance.AddListener(EventMessages.UpdateTaskMainView, HandleUpdateTaskMainView);
             EventCenter.Instance.AddListener(EventMessages.MapTaskDataPrepared, HandleUpdateTaskMainView);
+            EventCenter.Instance.AddListener(EventMessages.HidePlayerGuide, HidePlayerGuide);
         }
 
         private void OnDestroy()
         {
             EventCenter.Instance.RemoveListener(EventMessages.UpdateTaskMainView, HandleUpdateTaskMainView);
             EventCenter.Instance.RemoveListener(EventMessages.MapTaskDataPrepared, HandleUpdateTaskMainView);
+             EventCenter.Instance.RemoveListener(EventMessages.HidePlayerGuide, HidePlayerGuide);
         }
 
         #region 事件监听
+
+        public void HidePlayerGuide(params object[] args)
+        {
+            content.SetActive(true);
+            HandleUpdateTaskMainView();
+        }
         public void HandleUpdateTaskMainView(params object[] args)
         {
             if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.listenInTaskList.Count == 0)

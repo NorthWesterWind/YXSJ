@@ -72,8 +72,8 @@ public class EmployeeContent : MonoBehaviour
 
         if (employeeType == EmployeeType.YunDiZhe)
         {
-            progressTxt.text = playerData.workingNum + "/" + playerData.totalNum;
-            if (playerData.totalNum > playerData.workingNum)
+            progressTxt.text = playerData.deliverData.workingNum + "/" + playerData.deliverData.totalNum;
+            if (playerData.deliverData.totalNum > playerData.deliverData.workingNum)
             {
                 addMask.gameObject.SetActive(false);
             }
@@ -81,7 +81,7 @@ public class EmployeeContent : MonoBehaviour
             {
                 addMask.gameObject.SetActive(true);
             }
-            if (playerData.workingNum > 0)
+            if (playerData.deliverData.workingNum > 0)
             {
                 removeMask.gameObject.SetActive(false);
             }
@@ -93,10 +93,10 @@ public class EmployeeContent : MonoBehaviour
             addbtn.onClick.AddListener(() =>
             {
 
-                playerData.workingNum += 1;
+                playerData.deliverData.workingNum += 1;
                 EventCenter.Instance.TriggerEvent(EventMessages.UpdateYunDiGeWorkingState);
 
-                if (playerData.totalNum > playerData.workingNum)
+                if (playerData.deliverData.totalNum > playerData.deliverData.workingNum)
                 {
                     addMask.gameObject.SetActive(false);
                 }
@@ -108,9 +108,9 @@ public class EmployeeContent : MonoBehaviour
             removebtn.onClick.RemoveAllListeners();
             removebtn.onClick.AddListener(() =>
             {
-                playerData.workingNum -= 1;
+                playerData.deliverData.workingNum -= 1;
                 EventCenter.Instance.TriggerEvent(EventMessages.UpdateYunDiGeWorkingState);
-                if (playerData.workingNum > 0)
+                if (playerData.deliverData.workingNum > 0)
                 {
                     removeMask.gameObject.SetActive(false);
                 }
@@ -126,7 +126,7 @@ public class EmployeeContent : MonoBehaviour
     {
         if (employeeType == EmployeeType.YunDiZhe)
         {
-            peopleCountTxt.text = "空闲人数: " + (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.totalNum - ModuleMgr.Instance.GetModule<PlayerDataModule>().data.workingNum) + "/" + ModuleMgr.Instance.GetModule<PlayerDataModule>().data.totalNum;
+            peopleCountTxt.text = "空闲人数: " + (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.deliverData.totalNum - ModuleMgr.Instance.GetModule<PlayerDataModule>().data.deliverData.workingNum) + "/" + ModuleMgr.Instance.GetModule<PlayerDataModule>().data.deliverData.totalNum;
         }
         else
         {

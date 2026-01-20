@@ -56,19 +56,30 @@ namespace Controller.Player
 
 
 
-        private void LateUpdate()
+        private Coroutine uiRoutine;
+
+        private void OnEnable()
         {
-            StartCoroutine(UpdateUIPosition());
+            uiRoutine = StartCoroutine(UpdateUIRoutine());
         }
 
-        private IEnumerator UpdateUIPosition()
+        private void OnDisable()
         {
-            yield return new WaitForEndOfFrame(); // 等摄像机完全更新完
+            if (uiRoutine != null)
+                StopCoroutine(uiRoutine);
+        }
 
-            Vector3 screenPos = Camera.main.WorldToScreenPoint(target.position + offset);
-            transform.position = screenPos;
+        private IEnumerator UpdateUIRoutine()
+        {
+            while (true)
+            {
+                yield return new WaitForEndOfFrame();
 
-            SetLayer();
+                Vector3 screenPos = Camera.main.WorldToScreenPoint(target.position + offset);
+                transform.position = screenPos;
+
+                SetLayer();
+            }
         }
 
         private void Update()
@@ -78,7 +89,7 @@ namespace Controller.Player
 
         public void SetLayer()
         {
-            int newOrder = 3000 - Mathf.FloorToInt(player.transform.localPosition.y);
+            int newOrder = 30000 - Mathf.FloorToInt(player.transform.localPosition.y);
             canvas.sortingOrder = newOrder;
         }
 

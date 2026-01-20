@@ -81,6 +81,7 @@ namespace View.CardView
                 {
                     fillContent.SetActive(false);
                     progresstxt.text = "已满级";
+                      fillImg.fillAmount = 1f;
                 }
                 else
                 {

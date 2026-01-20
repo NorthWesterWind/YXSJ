@@ -22,7 +22,16 @@ namespace Controller.Structure
         public Transform receiveTransform;
         public GameObject LingZhangShi;
         public SkeletonAnimation skeletonAnimation;
-        public MeshRenderer renderer;
+        public MeshRenderer rend;
+
+        public SpriteRenderer point_1;
+        public SpriteRenderer point_2;
+        public SpriteRenderer point_3;
+        public SpriteRenderer point_4;
+
+    
+
+        
         protected override void Start()
         {
             base.Start();
@@ -106,7 +115,11 @@ namespace Controller.Structure
                 }
             }
             int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
-            renderer.sortingOrder = newOrder + 2;
+            rend.sortingOrder = newOrder + 2;
+            point_1.sortingOrder = newOrder + 2;
+            point_2.sortingOrder = newOrder + 2;
+            point_3.sortingOrder = newOrder + 2;
+            point_4.sortingOrder = newOrder + 2;
 
         }
 

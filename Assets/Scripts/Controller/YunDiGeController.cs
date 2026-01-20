@@ -81,9 +81,9 @@ namespace Controller
         public void UpdateYunDiZheInfo(params object[] args)
         {
             PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
-            if(playerData.workingNum > freightClerkList.Count)
+            if(playerData.deliverData.workingNum > freightClerkList.Count)
             {
-                for (int i = freightClerkList.Count; i < playerData.workingNum; i++)
+                for (int i = freightClerkList.Count; i < playerData.deliverData.workingNum; i++)
                 {
                     FreightClerkController freightClerk = Instantiate( _assetHandle.Get<GameObject>("FreightClerk"),  bornTransform ,false).GetComponent<FreightClerkController>();
                     freightClerk.Init();
