@@ -54,7 +54,7 @@ public class YunDiGePop : BaseView
     public override void UpdateViewWithArgs(params object[] args)
     {
         base.UpdateViewWithArgs(args);
-        playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+        playerData = PlayerDataModule.Instance.data;
         contentRect.DOAnchorPos(new Vector2(0, 0), 0.3f);
         deliverData = playerData.deliverData;
         speedtxt.text = deliverData.currentMoveSpeed.ToString();
@@ -151,13 +151,13 @@ public class YunDiGePop : BaseView
         {
             UIController.Instance.Show<TipView>("等级已满。");
         }
-        if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi < deliverData.speedLevel * 5000)
+        if (PlayerDataModule.Instance.data.tongbi < deliverData.speedLevel * 5000)
         {
             UIController.Instance.Show<TipView>("铜币数量不足。");
         }
         else
         {
-            ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi -= deliverData.speedLevel * 5000;
+            PlayerDataModule.Instance.data.tongbi -= deliverData.speedLevel * 5000;
             deliverData.speedLevel += 1;
             deliverData.currentMoveSpeed += 0.5f;
             speedLeveltxt.text = deliverData.speedLevel + "级";
@@ -183,13 +183,13 @@ public class YunDiGePop : BaseView
         {
             UIController.Instance.Show<TipView>("等级已满。");
         }
-        if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi < deliverData.speedLevel * 20000)
+        if (PlayerDataModule.Instance.data.tongbi < deliverData.speedLevel * 20000)
         {
             UIController.Instance.Show<TipView>("铜币数量不足。");
         }
         else
         {
-            ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi -= deliverData.speedLevel * 20000;
+            PlayerDataModule.Instance.data.tongbi -= deliverData.speedLevel * 20000;
             deliverData.peopleLevel += 1;
             deliverData.totalNum += 1;
             peopleLeveltxt.text = deliverData.peopleLevel + "级";

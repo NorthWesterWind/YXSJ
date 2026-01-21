@@ -35,18 +35,11 @@ public class EmployeeContent : MonoBehaviour
         this.employeeType = employeeType;
         this.buildingType = buildingType;
         UpdatePeopleInfo();
-        Extensions.ClearChildren(content);
-        PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
-        if (employeeType == EmployeeType.YunDiZhe)
+
+        PlayerData playerData = PlayerDataModule.Instance.data;
+        if (employeeType != EmployeeType.YunDiZhe)
         {
-            for (int i = 0; i < GameController.Instance.salesStallList.Count; i++)
-            {
-                GameObject obj = Instantiate(assetHandle.Get<GameObject>("EmployeeInfoItem"), content, false);
-                obj.GetComponent<EmployeeInfoItem>().Init(GameController.Instance.salesStallList[i].buildingType, 1);
-            }
-        }
-        else
-        {
+            Extensions.ClearChildren(content);
             if (buildingType == BuildingType.LingChuGe_1)
             {
                 MapData mapData = DataController.Instance.mapDataDic[playerData.currentMapID];
@@ -73,6 +66,7 @@ public class EmployeeContent : MonoBehaviour
         if (employeeType == EmployeeType.YunDiZhe)
         {
             progressTxt.text = playerData.deliverData.workingNum + "/" + playerData.deliverData.totalNum;
+            Debug.LogError($"playerData.deliverData.workingNum = {playerData.deliverData.workingNum} + playerData.deliverData.totalNum = {playerData.deliverData.totalNum}" );
             if (playerData.deliverData.totalNum > playerData.deliverData.workingNum)
             {
                 addMask.gameObject.SetActive(false);
@@ -126,19 +120,34 @@ public class EmployeeContent : MonoBehaviour
     {
         if (employeeType == EmployeeType.YunDiZhe)
         {
-            peopleCountTxt.text = "空闲人数: " + (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.deliverData.totalNum - ModuleMgr.Instance.GetModule<PlayerDataModule>().data.deliverData.workingNum) + "/" + ModuleMgr.Instance.GetModule<PlayerDataModule>().data.deliverData.totalNum;
+            peopleCountTxt.text = "空闲人数: " + (PlayerDataModule.Instance.data.deliverData.totalNum - PlayerDataModule.Instance.data.deliverData.workingNum) + "/" + PlayerDataModule.Instance.data.deliverData.totalNum;
         }
         else
         {
             switch (buildingType)
             {
                 case BuildingType.LingChuGe_1:
-                    WarehouseCategory data1 = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1);
-                    peopleCountTxt.text = "空闲人数: " + data1.unworkingCollectorList.Count + "/" + (data1.workingCollectorList.Count + data1.unworkingCollectorList.Count);
+                    WarehouseCategory data1 = PlayerDataModule.Instance.data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1);
+                    if (data1 != null)
+                    {
+                          peopleCountTxt.text = "空闲人数: " + data1.unworkingCollectorList.Count ;
+                    }
+                    else
+                    {
+                          peopleCountTxt.text = "空闲人数: 0" ;
+                    }
+                  
                     break;
                 case BuildingType.LingChuGe_2:
-                    WarehouseCategory data2 = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2);
-                    peopleCountTxt.text = "空闲人数: " + data2.unworkingCollectorList.Count + "/" + (data2.workingCollectorList.Count + data2.unworkingCollectorList.Count);
+                    WarehouseCategory data2 = PlayerDataModule.Instance.data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2);
+                    if (data2 != null)
+                    {
+                          peopleCountTxt.text = "空闲人数: " + data2.unworkingCollectorList.Count ;
+                    }
+                    else
+                    {
+                          peopleCountTxt.text = "空闲人数: 0" ;
+                    }
                     break;
             }
         }

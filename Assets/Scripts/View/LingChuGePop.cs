@@ -73,7 +73,7 @@ public class LingChuGePop : BaseView
             cardNametxt.text = "二号灵储阁";
             cardType = CardDevelopType.UpgradeLingChuGe_2;
         }
-        warehouse = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.warehouselist.Find(x => x.warehouseCategoryType == warehouseCategoryType);
+        warehouse = PlayerDataModule.Instance.data.warehouselist.Find(x => x.warehouseCategoryType == warehouseCategoryType);
         atktxt.text = warehouse.atk.ToString();
         numtxt.text = warehouse.peopleNum.ToString();
         storageTxt.text = warehouse.capacity.ToString();
@@ -102,7 +102,7 @@ public class LingChuGePop : BaseView
             nextNumTxt.text = "";
         }
 
-        var cardProgress = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.cardUpProgressesList.Find(x => x.developType == cardType);
+        var cardProgress = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == cardType);
         var cardLevelData = DataController.Instance.cardLevelDataList.Find(x => x.developType == cardType);
         cardMask.SetActive(false);
 
@@ -111,7 +111,7 @@ public class LingChuGePop : BaseView
             lockObj.SetActive(true);
             cardContent.SetActive(false);
 
-            if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.accountLevel < cardLevelData.unlockLevel)
+            if (PlayerDataModule.Instance.data.accountLevel < cardLevelData.unlockLevel)
             {
                 cardMask.SetActive(true);
                 cardMaskTxt.text = cardLevelData.unlockLevel.ToString();
@@ -183,13 +183,13 @@ public class LingChuGePop : BaseView
         {
             UIController.Instance.Show<TipView>("等级已满。");
         }
-        if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi < warehouse.atkLevel * 3000)
+        if (PlayerDataModule.Instance.data.tongbi < warehouse.atkLevel * 3000)
         {
             UIController.Instance.Show<TipView>("铜币数量不足。");
         }
         else
         {
-            ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi -= warehouse.atkLevel * 3000;
+            PlayerDataModule.Instance.data.tongbi -= warehouse.atkLevel * 3000;
             warehouse.atkLevel += 1;
             warehouse.atk += 1.5f;
             atkLevelTxt.text = warehouse.atkLevel+ "级";
@@ -213,13 +213,13 @@ public class LingChuGePop : BaseView
         {
             UIController.Instance.Show<TipView>("等级已满。");
         }
-        if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi < warehouse.numLevel * 20000)
+        if (PlayerDataModule.Instance.data.tongbi < warehouse.numLevel * 20000)
         {
             UIController.Instance.Show<TipView>("铜币数量不足。");
         }
         else
         {
-            ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi -= warehouse.numLevel * 20000;
+            PlayerDataModule.Instance.data.tongbi -= warehouse.numLevel * 20000;
             warehouse.numLevel += 1;
             warehouse.peopleNum += 1;
             numLevelTxt.text = warehouse.numLevel + "级";

@@ -29,7 +29,7 @@ namespace View
         public UIButton sevendayBtn;
         public UIButton zhuanpanBtn;
 
-        
+
         public UIButton characterBtn;
         public Image mask1;
         public UIButton cardFunctionBtn;
@@ -66,7 +66,7 @@ namespace View
             EventCenter.Instance.AddListener(EventMessages.UpdateLevelProgress, HandleUpdateLevelProgress);
             EventCenter.Instance.AddListener(EventMessages.UpdateFunctionState, HandleUpdateFunctionState);
             EventCenter.Instance.AddListener(EventMessages.UpdatePlayerCarryInfo, HandleUpdatePlayerCarryInfo);
-            
+
             settingBtn.onClick.RemoveAllListeners();
             settingBtn.onClick.AddListener(OnClickSettingBtn);
             storeBtn.onClick.RemoveAllListeners();
@@ -77,33 +77,39 @@ namespace View
             characterBtn.onClick.AddListener((() =>
             {
                 UIController.Instance.Show<CharacterView>();
+                HandleHidePlayerInfoViewCartoon();
             }));
             cardFunctionBtn.onClick.RemoveAllListeners();
             cardFunctionBtn.onClick.AddListener((() =>
             {
                 UIController.Instance.Show<CardInfoView>();
+                HandleHidePlayerInfoViewCartoon();
             }));
             mapFunctionBtn.onClick.RemoveAllListeners();
             mapFunctionBtn.onClick.AddListener((() =>
             {
                 UIController.Instance.Show<MapSelectView>();
+                HandleHidePlayerInfoViewCartoon();
             }));
             employeeFunctionBtn.onClick.RemoveAllListeners();
             employeeFunctionBtn.onClick.AddListener((() =>
             {
                 UIController.Instance.Show<EmployeeFunctionView>();
+                HandleHidePlayerInfoViewCartoon();
             }));
 
             zhuanpanBtn.onClick.RemoveAllListeners();
             zhuanpanBtn.onClick.AddListener((() =>
             {
                 UIController.Instance.Show<ZhuanPanView>();
+                HandleHidePlayerInfoViewCartoon();
             }));
 
             ordenFunctionBtn.onClick.RemoveAllListeners();
             ordenFunctionBtn.onClick.AddListener((() =>
             {
                 UIController.Instance.Show<OrderFunctionView>();
+                HandleHidePlayerInfoViewCartoon();
             }));
         }
 
@@ -123,7 +129,7 @@ namespace View
             InitInfoItem();
         }
 
-   
+
         private void InitInfoItem()
         {
             Extensions.ClearChildren(infoItemContent);
@@ -131,6 +137,8 @@ namespace View
             {
                 foreach (var value in player.dropDic)
                 {
+                    if (value.Value == 0)
+                        continue;
                     GameObject go = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), infoItemContent, false);
                     go.GetComponent<InfoItem>().SetType(ExchangeType(value.Key));
                     go.GetComponent<InfoItem>().Init(player);
@@ -141,12 +149,14 @@ namespace View
             {
                 foreach (var value in player.goodsDic)
                 {
+                    if (value.Value == 0)
+                        continue;
                     GameObject go = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), infoItemContent, false);
                     go.GetComponent<InfoItem>().SetType(ExchangeType(value.Key));
                     go.GetComponent<InfoItem>().Init(player);
                 }
             }
-            
+
         }
 
         #region 事件监听函数
@@ -154,42 +164,45 @@ namespace View
         private void OnClickSettingBtn()
         {
             UIController.Instance.Show<SettingView>();
+            HandleHidePlayerInfoViewCartoon();
         }
 
         private void OnClickStoreBtn()
         {
             UIController.Instance.Show<StoreView>();
+            HandleHidePlayerInfoViewCartoon();
         }
 
         private void OnClickSevendayBtn()
         {
             UIController.Instance.Show<SevenDayView>();
+            HandleHidePlayerInfoViewCartoon();
         }
 
-    
-        
+
+
 
         public void HandleUpdateMoneyInfo(params object[] args)
         {
-            
+
         }
 
         public void HandleShowPlayerInfoViewCartoon(params object[] args)
         {
-            leftSideContent.transform.position = new Vector3(-200,  leftSideContent.transform.position.y, 0);
-            leftSideContent.transform.DOMove(new Vector3(40,  leftSideContent.transform.position.y, 0),0.3f);
+            leftSideContent.transform.position = new Vector3(-200, leftSideContent.transform.position.y, 0);
+            leftSideContent.transform.DOMove(new Vector3(40, leftSideContent.transform.position.y, 0), 0.3f);
         }
-        
+
         public void HandleHidePlayerInfoViewCartoon(params object[] args)
         {
-            leftSideContent.transform.position = new Vector3(40,  leftSideContent.transform.position.y, 0);
-            leftSideContent.transform.DOMove(new Vector3(-200,  leftSideContent.transform.position.y, 0),0.3f);
+            leftSideContent.transform.position = new Vector3(40, leftSideContent.transform.position.y, 0);
+            leftSideContent.transform.DOMove(new Vector3(-200, leftSideContent.transform.position.y, 0), 0.3f);
         }
 
         public void HandleUpdateLevelProgress(params object[] args)
         {
             accountLevelTxt.text = player.dataModule.data.accountLevel.ToString();
-            accountLevelProgressTxt.text = player.dataModule.data.jingMangZhu + "/" +  WorldData.LevelRequirementDic[ player.dataModule.data.currentMapID];
+            accountLevelProgressTxt.text = player.dataModule.data.jingMangZhu + "/" + WorldData.LevelRequirementDic[player.dataModule.data.currentMapID];
             fillImage.fillAmount = player.dataModule.data.jingMangZhu * 1f / WorldData.LevelRequirementDic[player.dataModule.data.currentMapID];
         }
 
@@ -260,7 +273,7 @@ namespace View
             }
             return result;
         }
-        
+
         private InfoType ExchangeType(GoodsType type)
         {
             InfoType result = InfoType.None;

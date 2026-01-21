@@ -55,7 +55,7 @@ public class LingZhangTaiPop : BaseView
     public override void UpdateViewWithArgs(params object[] args)
     {
         base.UpdateViewWithArgs(args);
-        playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+        playerData = PlayerDataModule.Instance.data;
         contentRect.DOAnchorPos(new Vector2(0, 0), 0.3f);
         cashierData = playerData.cashierData;
         workspeedtxt.text = cashierData.currentWorkingSpeed.ToString();
@@ -116,7 +116,7 @@ public class LingZhangTaiPop : BaseView
             cardfilltxt.text = cardprogress.currentNum + "/" + WorldData.cardUpLevelArr[cardprogress.level + 1];
             fillImage.fillAmount = cardprogress.currentNum * 1f / WorldData.cardUpLevelArr[cardprogress.level + 1];
 
-            if (cardprogress.level < 5)
+            if (cardprogress.level < 2)
             {
                 btnMask_2.SetActive(true);
                 btnMaskTxt_2.text = "需要达到2级";
@@ -152,13 +152,13 @@ public class LingZhangTaiPop : BaseView
         {
             UIController.Instance.Show<TipView>("等级已满。");
         }
-        if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi < cashierData.workspeedLevel * 1000)
+        if (PlayerDataModule.Instance.data.tongbi < cashierData.workspeedLevel * 1000)
         {
             UIController.Instance.Show<TipView>("铜币数量不足。");
         }
         else
         {
-            ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi -= cashierData.workspeedLevel * 1000;
+            PlayerDataModule.Instance.data.tongbi -= cashierData.workspeedLevel * 1000;
             cashierData.workspeedLevel += 1;
             cashierData.currentWorkingSpeed -= 0.05f;
             workspeedLeveltxt.text =  cashierData.workspeedLevel + "级";
@@ -184,31 +184,31 @@ public class LingZhangTaiPop : BaseView
         {
             UIController.Instance.Show<TipView>("等级已满。");
         }
-        // if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi < deliverData.speedLevel * 20000)
-        // {
-        //     UIController.Instance.Show<TipView>("铜币数量不足。");
-        // }
-        // else
-        // {
-        //     ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi -= deliverData.speedLevel * 20000;
-        //     deliverData.peopleLevel += 1;
-        //     deliverData.totalNum += 1;
-        //     peopleLeveltxt.text = deliverData.peopleLevel + "级";
-        //     peopletxt.text = deliverData.totalNum.ToString();
-        //     currentpeopletxt.text = deliverData.totalNum.ToString();
-        //     if (deliverData.peopleLevel == deliverData.maxpeopleLevel)
-        //     {
-        //         btnMask_2.SetActive(true);
-        //         btnMaskTxt_2.text = "等级已满";
-        //         nextpeopletxt.text = "";
-        //     }
-        //     else
-        //     {
-        //         nextpeopletxt.text = (deliverData.totalNum + 1).ToString();
-        //     }
+        if (PlayerDataModule.Instance.data.tongbi < cashierData.peopleLevel * 20000)
+        {
+            UIController.Instance.Show<TipView>("铜币数量不足。");
+        }
+        else
+        {
+            PlayerDataModule.Instance.data.tongbi -= cashierData.peopleLevel * 20000;
+            cashierData.peopleLevel += 1;
+            cashierData.totalNum += 1;
+            peopleLeveltxt.text = cashierData.peopleLevel + "级";
+            peopletxt.text = cashierData.totalNum.ToString();
+            currentpeopletxt.text = cashierData.totalNum.ToString();
+            if (cashierData.peopleLevel == cashierData.maxpeopleLevel)
+            {
+                btnMask_2.SetActive(true);
+                btnMaskTxt_2.text = "等级已满";
+                nextpeopletxt.text = "";
+            }
+            else
+            {
+                nextpeopletxt.text = (cashierData.totalNum + 1).ToString();
+            }
 
-        //     UIController.Instance.Show<TipView>("升级成功。");
-        // }
+            UIController.Instance.Show<TipView>("升级成功。");
+        }
     }
 
 

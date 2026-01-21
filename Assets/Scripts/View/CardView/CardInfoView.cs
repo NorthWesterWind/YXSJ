@@ -23,14 +23,14 @@ namespace View.CardView
         {
             base.UpdateViewWithArgs(args);
             UpdateInfoTxt();
-            progressTxt.text = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.cardUpProgressesList.Count + "/" +
+            progressTxt.text = PlayerDataModule.Instance.data.cardUpProgressesList.Count + "/" +
                                DataController.Instance.cardLevelDataList.Count;
             UpdateCardItem();
         }
 
         public void UpdateCardItem()
         {
-            var data = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            var data = PlayerDataModule.Instance.data;
 
             // 用 HashSet 一次构建，高性能 O(1) 查找
             HashSet<int> ownedIds = new HashSet<int>(data.cardUpProgressesList.Select(x => x.id));
@@ -93,7 +93,7 @@ namespace View.CardView
 
         public void UpdateInfoTxt(params object[] args)
         {
-            PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            PlayerData playerData = PlayerDataModule.Instance.data;
             jybtxt.text = Extensions.FormatNumber(playerData.goldIngot);
         }
     }

@@ -13,6 +13,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Utils;
 using View;
+using World.Controller;
 
 public class LoginView : BaseView
 {
@@ -148,7 +149,7 @@ public class LoginView : BaseView
             return;
         }
 
-        ModuleMgr.Instance.GetModule<PlayerDataModule>().Login(accountInput.text, passwordInput.text, OnLogin);
+       PlayerDataModule.Instance.Login(accountInput.text, passwordInput.text, OnLogin);
     }
 
     private void OnLogin(int fcm)
@@ -160,7 +161,7 @@ public class LoginView : BaseView
             return;
         }
 
-        if (!ModuleMgr.Instance.GetModule<PlayerDataModule>().data.isCreated)
+        if (!PlayerDataModule.Instance.data.isCreated)
         {
             HideAllPanels();
             SwitchToSetNamePanel();
@@ -188,14 +189,14 @@ public class LoginView : BaseView
         {
             SceneManager.sceneLoaded += OnSceneLoaded;
              AsyncOperation asyncLoad ;
-        if (!ModuleMgr.Instance.GetModule<PlayerDataModule>().data.guidIdList.Contains(0))
+        if (!PlayerDataModule.Instance.data.guidIdList.Contains(0))
         {
             asyncLoad= SceneManager.LoadSceneAsync("StoryGuide");
            
         }
         else
         {
-            asyncLoad = SceneManager.LoadSceneAsync($"Game_{ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID}");
+            asyncLoad = SceneManager.LoadSceneAsync($"Game_{PlayerDataModule.Instance.data.currentMapID}");
         }
              asyncLoad.allowSceneActivation = false;
             float displayProgress = 0f;
@@ -224,7 +225,7 @@ public class LoginView : BaseView
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
-        if (!ModuleMgr.Instance.GetModule<PlayerDataModule>().data.guidIdList.Contains(0))
+        if (!PlayerDataModule.Instance.data.guidIdList.Contains(0))
         {
              if (scene.name == "StoryGuide")
             {
@@ -234,7 +235,7 @@ public class LoginView : BaseView
         }
         else
         {
-             if (scene.name == $"Game_{ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID}")
+             if (scene.name == $"Game_{PlayerDataModule.Instance.data.currentMapID}")
             {
                 // if (!PlayerDataModule.Instance._playerData.guidIdList.Contains(1))
                 // {
@@ -246,9 +247,7 @@ public class LoginView : BaseView
                 // }
             }
         }
-
-
-           
+            AudioSourceController.Instance.PlaySound();
             SceneManager.sceneLoaded -= OnSceneLoaded;
         }
 
@@ -294,11 +293,11 @@ public class LoginView : BaseView
         }
 
         HideAllPanels();
-        PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+        PlayerData playerData = PlayerDataModule.Instance.data;
         playerData.userName = name;
         playerData.isCreated = true;
-        ModuleMgr.Instance.GetModule<PlayerDataModule>().SavePlayerData();
-        ModuleMgr.Instance.GetModule<PlayerDataModule>().SavePlayerDataToSever();
+       PlayerDataModule.Instance.SavePlayerData();
+       PlayerDataModule.Instance.SavePlayerDataToSever();
         StartCoroutine(No18LoadGame());
 
 
@@ -524,7 +523,7 @@ public class LoginView : BaseView
         //  RealLogin();
         //  EventCenter.Instance.TriggerEvent(EventMessages.BeginJugmentRemainTime);
         //     yield break;
-        if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.age < 8)
+        if (PlayerDataModule.Instance.data.age < 8)
         {
             UIController.Instance.Show<ForceQuitView>(
                 "\u3000\u3000尊敬的玩家，您当前账号为未成年人账号，已被纳入防沉迷系统。根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》的要求，本游戏不为未满8周岁的用户提供游戏服务，您的年龄未满8周岁，无法登录本游戏。");
@@ -532,7 +531,7 @@ public class LoginView : BaseView
             yield break;
         }
 
-        if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.age >= 18)
+        if (PlayerDataModule.Instance.data.age >= 18)
         {
             RealLogin();
             yield break;

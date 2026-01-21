@@ -504,6 +504,9 @@ namespace Controller
                 case MonsterType.YueJingShiBig:
                     dropDict[DropItemType.YueJingShiFragment] = 4;
                     break;
+                case MonsterType.JingYuanBao:
+                    dropDict[DropItemType.JingYuanBao] = 2;
+                    break;
             }
         }
     }

@@ -9,16 +9,9 @@ using View;
 
 namespace Module
 {
-    public class PlayerDataModule : BaseModule
+    public class PlayerDataModule : MonoSingleton<PlayerDataModule>
     {
         public PlayerData data = new();
-        public override Type GetDataType() => typeof(PlayerData);
-
-        protected override void OnInitialize()
-        {
-            base.OnInitialize();
-            //处理数据
-        }
 
         public void SavePlayerData()
         {

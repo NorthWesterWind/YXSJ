@@ -51,9 +51,9 @@ ShowScrollView(1);
 
         private void HandleUpdatePlayerInfo(params object[] args)
         {
-            playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
-            LingJingtxt.text = playerData.lingJing.ToString();
-            JingYuanBaotxt.text = playerData.goldIngot.ToString();
+            playerData = PlayerDataModule.Instance.data;
+            LingJingtxt.text = Extensions.FormatNumber(playerData.lingJing);
+            JingYuanBaotxt.text = Extensions.FormatNumber(playerData.goldIngot) ;
         }
 
         public void ShowScrollView(int index)

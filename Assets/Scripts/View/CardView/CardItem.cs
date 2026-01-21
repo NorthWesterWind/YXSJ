@@ -56,7 +56,7 @@ namespace View.CardView
             }
             data = _data;
             icon.sprite = _assetHandle.Get<Sprite>(data.name);
-            PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            PlayerData playerData = PlayerDataModule.Instance.data;
 
             bool own = false;
             CardUpProgress cardUpProgress = null ;
@@ -79,7 +79,7 @@ namespace View.CardView
                 topLeftLockImage.gameObject.SetActive(false);
                 if (cardUpProgress.level == 10)
                 {
-                    fillContent.SetActive(false);
+                    fillContent.SetActive(true);
                     progresstxt.text = "已满级";
                       fillImg.fillAmount = 1f;
                 }

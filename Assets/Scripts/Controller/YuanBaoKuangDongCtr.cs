@@ -13,7 +13,7 @@ public class YuanBaoKuangDongCtr : StructureBase
 
     void Start()
     {
-        playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+        playerData = PlayerDataModule.Instance.data;
     }
 
     void OnEnable()

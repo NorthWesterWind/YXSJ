@@ -22,7 +22,7 @@ namespace View.PlayerInfo
         {
             _assetHandle = GetComponent<AssetHandle>();
             AddEvent();
-            if(ModuleMgr.Instance.GetModule<PlayerDataModule>().data.guideStep != GuideStep.Finished)
+            if(PlayerDataModule.Instance.data.guideStep != GuideStep.Finished)
             {
                  content.SetActive(false);
             }
@@ -54,21 +54,21 @@ namespace View.PlayerInfo
         }
         public void HandleUpdateTaskMainView(params object[] args)
         {
-            if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.listenInTaskList.Count == 0)
+            if (PlayerDataModule.Instance.data.listenInTaskList.Count == 0)
             {
                 //没有监听的任务数据
-                ModuleMgr.Instance.GetModule<PlayerDataModule>().data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
+                PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
             }
             List<TaskData> dataList = DataController.Instance.GetTaskGroupIds();
-            TaskData task = dataList.Find(x => x.taskId == ModuleMgr.Instance.GetModule<PlayerDataModule>().data.nowTaskId);
+            TaskData task = dataList.Find(x => x.taskId == PlayerDataModule.Instance.data.nowTaskId);
 
             if (task != null)
             {
                 taskInfoTxt.text = task.info;
-                if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.taskProgressDic.ContainsKey(task.taskId))
+                if (PlayerDataModule.Instance.data.taskProgressDic.ContainsKey(task.taskId))
                 {
                     //有进度
-                    taskProgressTxt.text = "(" + ModuleMgr.Instance.GetModule<PlayerDataModule>().data.taskProgressDic.ContainsKey(task.taskId) + "/" + task.keyValue + ")";
+                    taskProgressTxt.text = "(" + PlayerDataModule.Instance.data.taskProgressDic.ContainsKey(task.taskId) + "/" + task.keyValue + ")";
                 }
                 else
                 {

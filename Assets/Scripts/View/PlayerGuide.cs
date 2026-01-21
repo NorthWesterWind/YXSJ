@@ -20,10 +20,6 @@ public class PlayerGuide : BaseView
     public SkeletonGraphic jianling;
     public SkeletonGraphic character;
 
-    public GameObject taskItem;
-    public Image icon;
-    public TextMeshProUGUI taskInfo;
-
     public string[] info = new string[]
     {
       "\u3000\u3000新主人，终于等到你啦！我是镇妖剑的剑灵小灵，你被我选中成为新一代镇妖剑主人！",
@@ -54,9 +50,8 @@ public class PlayerGuide : BaseView
     public override void UpdateViewWithArgs(params object[] args)
     {
         base.UpdateViewWithArgs(args);
-        currentIndex = (int)ModuleMgr.Instance.GetModule<PlayerDataModule>().data.guideStep;
+        currentIndex = (int)PlayerDataModule.Instance.data.guideStep;
         bg.gameObject.SetActive(true);
-        taskItem.gameObject.SetActive(false);
         ShowText(info[currentIndex - 1]);
     }
 
@@ -374,8 +369,5 @@ public class PlayerGuide : BaseView
     public void HideContent(string res, string info)
     {
         bg.gameObject.SetActive(false);
-        taskItem.gameObject.SetActive(true);
-        icon.sprite = _assetHandle.Get<Sprite>(res);
-        taskInfo.text = info;
     }
 }

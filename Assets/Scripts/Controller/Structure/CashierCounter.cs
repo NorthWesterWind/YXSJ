@@ -78,7 +78,7 @@ namespace Controller.Structure
         public void Init()
         {
             grid.basePosition = exportTransform.position;
-            PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            PlayerData playerData =PlayerDataModule.Instance.data;
             List<StructureLockData> structureLocks = new();
             switch (playerData.currentMapID)
             {

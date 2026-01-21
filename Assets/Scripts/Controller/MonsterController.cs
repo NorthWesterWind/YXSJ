@@ -75,7 +75,7 @@ namespace Controller
         public MeshRenderer _meshRenderer;
         public CanvasGroup canvasGroup;
         public SkeletonAnimation specialEffect;
-        public int atk; 
+        public int atk;
 
         void Awake()
         {
@@ -131,7 +131,11 @@ namespace Controller
 
             specialEffect.GetComponent<MeshRenderer>().sortingOrder = _meshRenderer.sortingOrder + 1;
             specialEffect.AnimationState.SetAnimation(0, "animation", false);
-            indicatorParent.gameObject.SetActive(false);
+            if (indicatorParent != null)
+            {
+                indicatorParent.gameObject.SetActive(false);
+            }
+
         }
 
         void OnEnable()
@@ -371,7 +375,7 @@ namespace Controller
             {
                 playerTransform = GameObject.Find("Player").transform;
             }
-            if( chargeCoroutine  != null) return;
+            if (chargeCoroutine != null) return;
             float distance = Vector2.Distance(transform.position, playerTransform.position);
             if (distance < detectRadius)
             {
@@ -443,7 +447,7 @@ namespace Controller
             agent.avoidRadius = 0.6f; // 禁用避障
             // 回到巡逻/闲置
             ChangeState(MonsterState.Patrol);
-             chargeCoroutine = null;
+            chargeCoroutine = null;
         }
 
         private IEnumerator RegenerateHealth()

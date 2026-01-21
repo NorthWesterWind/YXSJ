@@ -17,7 +17,6 @@ namespace World.Controller
         public AudioSource bgSource;
         public AudioSource buttonSource;    // 按钮/提示音效播放器
         public AudioClip  inGameAudioClip;
-        public AudioClip  outGameAudioClip;
         public AudioClip buttonClip;
         public float soundVolume = 1;
         public float musicVolume = 1;
@@ -27,28 +26,18 @@ namespace World.Controller
         [Range(1, 30)] public int sfxPoolSize = 15;
         [Range(0, 1)] public float sfxVolume = 1f;
         
-        public void PlaySound(E_ClipType type)
+        public void PlaySound()
         {
-            if (type == E_ClipType.None)
-            {
-                return;
-            }
-            if(currentClipType == type)
-                return;
-            if (type == E_ClipType.InGame)
-            {
-                bgSource.clip = inGameAudioClip;
-               
-            }else if (type == E_ClipType.OutGame)
-            {
-                bgSource.clip = outGameAudioClip;
-            }
-            currentClipType =  type;
+            bgSource.clip = inGameAudioClip;
             // 设置循环
             bgSource.loop = true;
-
             // 播放
             bgSource.Play();
+        }
+        
+        public void StopSound()
+        {
+            bgSource.Stop();
         }
 
 
@@ -64,8 +53,8 @@ namespace World.Controller
 
         private void Start()
         {
-            // bgSource.volume = musicVolume;
-            // buttonSource.volume = soundVolume;
+             bgSource.volume = musicVolume;
+           //  buttonSource.volume = soundVolume;
             // InitSfxPool();
         }
 
@@ -78,7 +67,7 @@ namespace World.Controller
         public void SetSoundVolume(float volume)
         {
             soundVolume = volume;
-            buttonSource.volume = soundVolume;
+           // buttonSource.volume = soundVolume;
         }
         
         

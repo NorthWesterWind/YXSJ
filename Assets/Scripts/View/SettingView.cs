@@ -80,6 +80,7 @@ namespace View
 
             // 用完就移除，防止多次注册
             SceneManager.sceneLoaded -= OnSceneLoaded;
+             AudioSourceController.Instance.StopSound();
         }
         protected override void OnHideComplete()
         {

@@ -31,7 +31,7 @@ namespace View.PopUp
        public override void UpdateViewWithArgs(params object[] args)
        {
            base.UpdateViewWithArgs(args);
-           PlayerData data = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+           PlayerData data = PlayerDataModule.Instance.data;
            atktxt.text = (data.atk + data.addAtk).ToString();
            hptxt.text = (data.hp + data.addHp).ToString();
            bagtxt.text = (data.bagCapacity + data.addBagCapacity).ToString();

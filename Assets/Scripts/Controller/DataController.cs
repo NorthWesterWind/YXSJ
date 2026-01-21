@@ -188,9 +188,9 @@ namespace Controller
 
         public List<TaskData> GetTaskGroupIds()
         {
-            int groupSize = mapDataDic[ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID].taskGroupSize;
-            int mapId = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID;
-            int taskId = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.nowTaskId;
+            int groupSize = mapDataDic[PlayerDataModule.Instance.data.currentMapID].taskGroupSize;
+            int mapId = PlayerDataModule.Instance.data.currentMapID;
+            int taskId = PlayerDataModule.Instance.data.nowTaskId;
             int groupIndex = (taskId - 1) / groupSize;
             int start = groupIndex * groupSize + 1;
             int end = start + groupSize - 1;
@@ -227,7 +227,7 @@ namespace Controller
         public void InitMapLock()
         {
             List<MapLockData> mapLockDatas = new();
-            switch (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID)
+            switch (PlayerDataModule.Instance.data.currentMapID)
             {
                 case 1:
                     mapLockDatas = mapLockDataList_1;

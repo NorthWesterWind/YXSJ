@@ -1,5 +1,6 @@
 using Controller.Structure;
 using Module.Data;
+using Spine.Unity;
 using UnityEngine;
 using Utils;
 using View;
@@ -21,8 +22,7 @@ namespace Controller
 
         public ShowUIType showUIType;
         public BuildingType buildingType;
-
-
+      
         public bool SpeedUp;
         public void Interact()
         {

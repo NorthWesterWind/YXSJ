@@ -28,9 +28,9 @@ namespace Controller.Pickups
         }
         void Update()
         {
-            int order = 30000 - Mathf.RoundToInt(transform.position.y * 100);
+            int order = 30100 - Mathf.RoundToInt(transform.position.y * 100);
 
-            spriteRenderer.sortingOrder = order;
+            spriteRenderer.sortingOrder = order ;
         }
 
         /// <summary>

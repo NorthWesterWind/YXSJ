@@ -50,7 +50,7 @@ namespace Controller
         {
             customerTypeList.Clear();
             mapData = DataController.Instance.mapDataDic[
-                ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID];
+               PlayerDataModule.Instance.data.currentMapID];
 
             customerTypeList = mapData.customerTypeList;
             if (createCustomerCoroutine != null)
@@ -64,7 +64,7 @@ namespace Controller
 
         bool IsStructureUnlocked(BuildingType buildingType)
         {
-            var playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            var playerData =PlayerDataModule.Instance.data;
             return !playerData.structUnLockDataDic[playerData.currentMapID].Contains(buildingType);
         }
 

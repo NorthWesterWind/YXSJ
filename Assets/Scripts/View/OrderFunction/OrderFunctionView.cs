@@ -37,7 +37,7 @@ namespace View.OrderFunction
         public override void UpdateViewWithArgs(params object[] args)
         {
             base.UpdateViewWithArgs(args);
-            playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            playerData = PlayerDataModule.Instance.data;
         
             var orderDataprogressList = playerData.orderDataprogressList;
             Extensions.ClearChildren(content);

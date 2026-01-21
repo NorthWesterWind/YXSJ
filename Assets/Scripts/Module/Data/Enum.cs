@@ -181,6 +181,7 @@ namespace Module.Data
                 ZiJingShiFragment = 14,
                 YueJingShiFragment = 15,
                 YingQian,
+                JingYuanBao
         }
         
         
@@ -375,7 +376,6 @@ namespace Module.Data
                 SilverGiftPack = 4,
                 GoldGiftPack = 5,
                 PlatinumGiftPack = 6 ,
-                DiamondGiftPack = 7
         }
 
         public enum GiftpackLevelType
@@ -390,5 +390,7 @@ namespace Module.Data
         {
                 JingYuanBao,
                 LingJing,
+                TongBi,
+                Speed
         }
 }

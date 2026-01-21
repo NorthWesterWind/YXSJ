@@ -29,6 +29,7 @@ namespace View.EmployeeFunction
         {
             base.UpdateViewWithArgs(args);
             UpdateInfo();
+            ShowContent_1();
         }
 
         protected override void AddEventListener()
@@ -56,7 +57,7 @@ namespace View.EmployeeFunction
 
         public void UpdateInfo()
         {
-            PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            PlayerData playerData = PlayerDataModule.Instance.data;
 
         }
 

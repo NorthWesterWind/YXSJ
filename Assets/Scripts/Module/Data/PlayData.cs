@@ -65,6 +65,8 @@ namespace Module.Data
 
         #region  每日限制数据
         public int todayUseZhuanPanNum = 0; //今日转盘使用次数
+        public int currentUseNum ; //当前累计使用次数
+
         #endregion
 
 
@@ -76,6 +78,7 @@ namespace Module.Data
         public int jingMangZhu = 10000; //金芒珠
         public int currentMapID = 2;
 
+        public float speedTime = 0 ; //生产台加速时长
 
         public int accountLevel = 1;
         public int characterFunction = 1;
@@ -112,8 +115,6 @@ namespace Module.Data
         public int cardLevelMax = 0; //最大升级令等级
         public int useLingJingTotalValue = 0; //累积使用灵晶数
         public int useZhuanPanTotalValue = 0; //累积使用转盘次数
-
-        public int useZhuanPanTodayValue = 0; //今日使用转盘次数
 
         public List<CardUpProgress> cardUpProgressesList = new List<CardUpProgress>();
 
@@ -192,7 +193,7 @@ namespace Module.Data
 
 
         #region 元宝矿洞数据
-        public int remainCount = 0;
+        public int remainCount = 30;
         public string lastRefrashTime = "";
 
 
@@ -323,8 +324,8 @@ namespace Module.Data
     [Serializable]
     public class DeliverData
     {
-        public int workingNum; //正在工作人数
-        public int totalNum = 1;    //总人数
+        public int workingNum = 0; //正在工作人数
+        public int totalNum = 0;    //总人数
         public float currentMoveSpeed = 4f;
         public int capacity = 1;
         public int speedLevel = 1;

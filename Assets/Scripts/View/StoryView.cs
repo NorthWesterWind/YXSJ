@@ -80,7 +80,7 @@ public class StoryView : BaseView
 
     private void NextContent()
     {
-        ModuleMgr.Instance.GetModule<PlayerDataModule>().data.guidIdList.Add(0);
+        PlayerDataModule.Instance.data.guidIdList.Add(0);
         StartCoroutine(LoadNextSceneCoroutine());
     }
 
@@ -89,7 +89,7 @@ public class StoryView : BaseView
     private IEnumerator LoadNextSceneCoroutine()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync($"Game_{ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID}");
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync($"Game_{PlayerDataModule.Instance.data.currentMapID}");
         asyncLoad.allowSceneActivation = false;
         float displayProgress = 0f;
 
@@ -108,7 +108,7 @@ public class StoryView : BaseView
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == $"Game_{ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID}")
+        if (scene.name == $"Game_{PlayerDataModule.Instance.data.currentMapID}")
         {
             // if (!PlayerDataModule.Instance._playerData.guidIdList.Contains(1))
             // {

@@ -32,7 +32,7 @@ namespace View.EmployeeFunction
                 _assetHandle = GetComponent<AssetHandle>();
             }
             this.value = value;
-            playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            playerData = PlayerDataModule.Instance.data;
             if (type is MonsterFamily familyType)
             {
                 monstertype = familyType;

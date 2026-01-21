@@ -30,7 +30,7 @@ namespace View.PopUp
 
         public override void UpdateViewWithArgs(params object[] args)
         {
-            PlayerData playerdata = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            PlayerData playerdata = PlayerDataModule.Instance.data;
             if (args[0] is WeaponData)
             {
                 WeaponData data = args[0] as WeaponData;

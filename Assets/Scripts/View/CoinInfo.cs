@@ -25,7 +25,7 @@ public class CoinInfo : MonoBehaviour
 
     public void UpodatePlayerCoinInfo(params object[] args)
     {
-        PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+        PlayerData playerData = PlayerDataModule.Instance.data;
 
         jingyuanbaotxt.text = Extensions.FormatNumber(playerData.goldIngot);
         lingjingtxt.text = Extensions.FormatNumber(playerData.lingJing);

@@ -55,8 +55,7 @@ public class MapLock : MonoBehaviour
         mapLockData = data;
         monsterType = data.monsterType;
 
-        PlayerData playerData = ModuleMgr.Instance
-            .GetModule<PlayerDataModule>().data;
+        PlayerData playerData = PlayerDataModule.Instance.data;
 
         var progress = GetProgressData();
 
@@ -111,8 +110,7 @@ public class MapLock : MonoBehaviour
 
     private MapLockDataProgress GetProgressData()
     {
-        var playerData = ModuleMgr.Instance
-            .GetModule<PlayerDataModule>().data;
+        var playerData = PlayerDataModule.Instance.data;
 
         return playerData.mapLockDataProgressList.Find(
             x => x.lockId == mapLockData.lockId &&

@@ -30,7 +30,7 @@ public class StructureLock : MonoBehaviour
         _data = data;
         buildType = _data.buildingType;
         structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
-        PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+        PlayerData playerData =PlayerDataModule.Instance.data;
         StructureLockProgressData progressData = playerData.structureLockProgressDataList.Find(s => s.buildType == buildType && s.lockId == data.lockId && s.mapId == playerData.currentMapID);
         if (progressData != null)
         {
@@ -106,7 +106,7 @@ public class StructureLock : MonoBehaviour
     {
         player.InteractionTriggerInRange = false;
         player.InteractionTriggerTransform = null;
-        PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+        PlayerData playerData = PlayerDataModule.Instance.data;
         StructureLockProgressData progressData = playerData.structureLockProgressDataList.Find(s => s.buildType == buildType && s.mapId == playerData.currentMapID);
         float fillWidth = Mathf.Clamp01(progressData.currentOwnMoney / _data.needMoney);
         fill.transform.localScale = new Vector3(fillWidth, 1, 1);
@@ -132,8 +132,7 @@ public class StructureLock : MonoBehaviour
 
     private StructureLockProgressData GetProgressData()
     {
-        var playerData = ModuleMgr.Instance
-            .GetModule<PlayerDataModule>().data;
+        var playerData = PlayerDataModule.Instance.data;
 
         return playerData.structureLockProgressDataList.Find(
             x => x.buildType == _data.buildingType &&

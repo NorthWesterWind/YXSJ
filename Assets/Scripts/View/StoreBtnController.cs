@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Controller;
 using Module;
 using Module.Data;
@@ -40,7 +41,7 @@ namespace View
         {
             _btn = GetComponent<UIButton>();
             _btn.onClick.AddListener((() => { OnClick(); }));
-            playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            playerData = PlayerDataModule.Instance.data;
             if (mask != null)
             {
                 if (rewardType == RewardType.FanPingBaoXia)
@@ -60,7 +61,7 @@ namespace View
         {
             if (purchaseType == PurchaseType.LingJing)
             {
-                if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.lingJing < costValue)
+                if (PlayerDataModule.Instance.data.lingJing < costValue)
                 {
                     UIController.Instance.Show<TipView>("灵晶数量不足！");
                 }
@@ -74,9 +75,11 @@ namespace View
                             _callback = () =>
                             {
                                 UIController.Instance.Show<TipView>("兑换成功！");
-                                ModuleMgr.Instance.GetModule<PlayerDataModule>().data.lingJing -= costValue;
-                               var dic =ModuleMgr.Instance.GetModule<PlayerDataModule>().LotteryCard(DataController.Instance.giftpackDataDic[3]);
-                               UIController.Instance.Show<CardClaimInterface>(dic,CurrencyType.JingYuanBao , DataController.Instance.giftpackDataDic[3].JinYuanBao);
+                               PlayerDataModule.Instance.data.lingJing -= costValue;
+                                PlayerDataModule.Instance.data.goldIngot += DataController.Instance.giftpackDataDic[3].JinYuanBao;
+                                var dic =PlayerDataModule.Instance.LotteryCard(DataController.Instance.giftpackDataDic[3]);
+                                UIController.Instance.Show<RewardConfirmView>(dic, new Dictionary<CurrencyType, int> { { CurrencyType.JingYuanBao, DataController.Instance.giftpackDataDic[3].JinYuanBao } });
+                                EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                             };
                             UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}灵晶兑换仙韵宝匣？", _callback);
                             break;
@@ -84,17 +87,21 @@ namespace View
                             _callback = () =>
                             {
                                 UIController.Instance.Show<TipView>("兑换成功！");
-                                ModuleMgr.Instance.GetModule<PlayerDataModule>().data.lingJing -= costValue;
+                                PlayerDataModule.Instance.data.lingJing -= costValue;
+                                 PlayerDataModule.Instance.data.goldIngot += DataController.Instance.giftpackDataDic[2].JinYuanBao;
+                                var dic = PlayerDataModule.Instance.LotteryCard(DataController.Instance.giftpackDataDic[2]);
+                                UIController.Instance.Show<RewardConfirmView>(dic, new Dictionary<CurrencyType, int> { { CurrencyType.JingYuanBao, DataController.Instance.giftpackDataDic[2].JinYuanBao } });
+                                EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                             };
                             UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}灵晶兑换灵韵宝匣？", _callback);
-                            var dic =ModuleMgr.Instance.GetModule<PlayerDataModule>().LotteryCard(DataController.Instance.giftpackDataDic[2]);
-                            UIController.Instance.Show<CardClaimInterface>(dic,CurrencyType.JingYuanBao , DataController.Instance.giftpackDataDic[2].JinYuanBao);
+
                             break;
                         case RewardType.XuanSuLing:
                             _callback = () =>
                             {
                                 UIController.Instance.Show<TipView>("兑换成功！");
-                                ModuleMgr.Instance.GetModule<PlayerDataModule>().data.lingJing -= costValue;
+                               PlayerDataModule.Instance.data.lingJing -= costValue;
+                                EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                             };
                             UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}灵晶兑换玄速令？", _callback);
                             break;
@@ -102,7 +109,8 @@ namespace View
                             _callback = () =>
                             {
                                 UIController.Instance.Show<TipView>("兑换成功！");
-                                ModuleMgr.Instance.GetModule<PlayerDataModule>().data.lingJing -= costValue;
+                               PlayerDataModule.Instance.data.lingJing -= costValue;
+                                EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                             };
                             UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}灵晶兑换天驰令？", _callback);
                             break;
@@ -110,7 +118,9 @@ namespace View
                             _callback = () =>
                             {
                                 UIController.Instance.Show<TipView>("兑换成功！");
-                                ModuleMgr.Instance.GetModule<PlayerDataModule>().data.lingJing -= costValue;
+                               PlayerDataModule.Instance.data.lingJing -= costValue;
+                               PlayerDataModule.Instance.data.goldIngot += rewardValue;
+                                EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                             };
                             UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}灵晶兑换{rewardValue}金元宝？",
                                 _callback);
@@ -124,7 +134,8 @@ namespace View
                 _callback = () =>
                 {
                     UIController.Instance.Show<TipView>("兑换成功！");
-                    ModuleMgr.Instance.GetModule<PlayerDataModule>().data.lingJing += rewardValue;
+                   PlayerDataModule.Instance.data.lingJing += rewardValue;
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                 };
                 UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}元兑换{rewardValue}灵晶？", _callback);
             }
@@ -136,13 +147,16 @@ namespace View
                         playerData.LingShunLingTime = DateTime.Now.ToString("yyyy-MM-dd");
                         mask?.SetActive(true);
                         UIController.Instance.Show<TipView>("领取成功！");
+                        EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                         break;
                     case RewardType.FanPingBaoXia:
                         playerData.FanPingBaoXiaoTime = DateTime.Now.ToString("yyyy-MM-dd");
                         mask?.SetActive(true);
                         UIController.Instance.Show<TipView>("领取成功！");
-                        var dic =ModuleMgr.Instance.GetModule<PlayerDataModule>().LotteryCard(DataController.Instance.giftpackDataDic[1]);
-                        UIController.Instance.Show<CardClaimInterface>(dic,CurrencyType.JingYuanBao , DataController.Instance.giftpackDataDic[1].JinYuanBao);
+                        var dic = PlayerDataModule.Instance.LotteryCard(DataController.Instance.giftpackDataDic[1]);
+                       PlayerDataModule.Instance.data.goldIngot += DataController.Instance.giftpackDataDic[1].JinYuanBao;
+                        UIController.Instance.Show<RewardConfirmView>(dic, new Dictionary<CurrencyType, int> { { CurrencyType.JingYuanBao, DataController.Instance.giftpackDataDic[1].JinYuanBao } });
+                        EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                         break;
                 }
             }
@@ -151,7 +165,7 @@ namespace View
         void Update()
         {
         }
-        
-        
+
+
     }
 }

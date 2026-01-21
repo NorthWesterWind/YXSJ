@@ -345,6 +345,9 @@ namespace Utils
 				case DropItemType.YueJingShiFragment:
 					resName = "YueJingShi";
 					break;
+				case DropItemType.JingYuanBao:
+					resName = "JingYuanBao";
+					break;
 			}
 			return resName;
 		}

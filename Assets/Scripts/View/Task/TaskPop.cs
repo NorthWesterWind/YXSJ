@@ -33,7 +33,7 @@ namespace View.Task
         {
             base.UpdateViewWithArgs(args);
             StopAllCoroutines();
-            PlayerData tempdata = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            PlayerData tempdata = PlayerDataModule.Instance.data;
             _mapData = DataController.Instance.mapDataDic[tempdata.currentMapID];
             int count  = tempdata.mapTaskRecordDic[_mapData.id].Count;
             mapNameTxt.text = _mapData.name;
@@ -58,7 +58,7 @@ namespace View.Task
         public void UpdateTaskContent()
         {
             Extensions.ClearChildren(taskContent);
-            PlayerData tempdata = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            PlayerData tempdata = PlayerDataModule.Instance.data;
             List<TaskData> dataList = DataController.Instance.GetTaskGroupIds();
             List<TaskData> list1 = new List<TaskData>();
             List<TaskData> list2 = new List<TaskData>();

@@ -67,7 +67,7 @@ namespace View.CardView
            infotxt.text = cardLevelData.description;
           // cardImg.sprite = assetHandle.Get<Sprite>(cardLevelData.resName);
 
-           PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+           PlayerData playerData = PlayerDataModule.Instance.data;
            bool own = false;
          
            foreach (var value in playerData.cardUpProgressesList)
@@ -296,13 +296,13 @@ namespace View.CardView
                    return;
                }
 
-               if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.goldIngot < currentNeedGold)
+               if (PlayerDataModule.Instance.data.goldIngot < currentNeedGold)
                {
                    UIController.Instance.Show<TipView>("金元宝数量不足！");
                    return;
                }
                cardUpProgress.currentNum -= currentNeedCard;
-               ModuleMgr.Instance.GetModule<PlayerDataModule>().data.goldIngot -= currentNeedGold;
+               PlayerDataModule.Instance.data.goldIngot -= currentNeedGold;
                UIController.Instance.Show<TipView>("升级成功！");
                cardUpProgress.level += 1;
                

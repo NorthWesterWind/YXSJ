@@ -20,7 +20,7 @@ namespace Controller
 
         public void Init()
         {
-            var playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            var playerData = PlayerDataModule.Instance.data;
             var lockData = GetLockData(playerData.currentMapID);
             var state = GetStructureState(playerData, lockData);
             for(int i = freightClerkList.Count; i >0; i++)
@@ -80,7 +80,7 @@ namespace Controller
 
         public void UpdateYunDiZheInfo(params object[] args)
         {
-            PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            PlayerData playerData = PlayerDataModule.Instance.data;
             if(playerData.deliverData.workingNum > freightClerkList.Count)
             {
                 for (int i = freightClerkList.Count; i < playerData.deliverData.workingNum; i++)

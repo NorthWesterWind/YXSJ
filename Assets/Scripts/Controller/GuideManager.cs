@@ -35,12 +35,12 @@ public class GuideManager : MonoSingleton<GuideManager>
 
     private void LoadProgress()
     {
-        CurrentStep = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.guideStep;
+        CurrentStep = PlayerDataModule.Instance.data.guideStep;
     }
 
     private void SaveProgress()
     {
-        ModuleMgr.Instance.GetModule<PlayerDataModule>().data.guideStep = CurrentStep;
+        PlayerDataModule.Instance.data.guideStep = CurrentStep;
     }
 
     #endregion

@@ -69,7 +69,7 @@ namespace Controller
 
         public void HandleBeginWorking(params object[] args)
         {
-            warehouseCategory = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.warehouselist.Find(x => x.warehouseCategoryType == categoryType);
+            warehouseCategory = PlayerDataModule.Instance.data.warehouselist.Find(x => x.warehouseCategoryType == categoryType);
             if (infoitem == null)
             {
                 infoitem = Instantiate(_assetHandle.Get<GameObject>("LingChuGeInfo") , GameObject.Find("Canvas").transform,false).GetComponent<LingChuGeInfo>();

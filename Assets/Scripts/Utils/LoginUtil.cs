@@ -174,7 +174,7 @@ namespace Utils
                     callback?.Invoke(response);
                     if(response.state == 1)
                     {
-                       ModuleMgr.Instance.GetModule<PlayerDataModule>().data.user_id = response.res.id;
+                       PlayerDataModule.Instance.data.user_id = response.res.id;
                        SaveToServer();
                     }
                 }
@@ -242,12 +242,12 @@ namespace Utils
         private IEnumerator UploadPlayerDataCoroutine()
         {
             WWWForm form = new WWWForm();
-            form.AddField("user", ModuleMgr.Instance.GetModule<PlayerDataModule>().data.userAccount);
-            form.AddField("password", ModuleMgr.Instance.GetModule<PlayerDataModule>().data.userPassword);
-            form.AddField("user_more", JsonConvert.SerializeObject(ModuleMgr.Instance.GetModule<PlayerDataModule>().data));
-            form.AddField("user_rolename", ModuleMgr.Instance.GetModule<PlayerDataModule>().data.userName);
+            form.AddField("user", PlayerDataModule.Instance.data.userAccount);
+            form.AddField("password", PlayerDataModule.Instance.data.userPassword);
+            form.AddField("user_more", JsonConvert.SerializeObject(PlayerDataModule.Instance.data));
+            form.AddField("user_rolename", PlayerDataModule.Instance.data.userName);
             Debug.Log(
-                $"JsonConvert.SerializeObject( PlayerData) = {JsonConvert.SerializeObject(ModuleMgr.Instance.GetModule<PlayerDataModule>().data)}");
+                $"JsonConvert.SerializeObject( PlayerData) = {JsonConvert.SerializeObject(PlayerDataModule.Instance.data)}");
             using (UnityWebRequest webRequest = UnityWebRequest.Post(saveurl, form))
             {
                 webRequest.timeout = 30;
@@ -275,7 +275,7 @@ namespace Utils
                     Debug.LogError("上传数据失败：" + webRequest.error);
                 }
 
-                ModuleMgr.Instance.GetModule<PlayerDataModule>().FixPlayerData();
+                PlayerDataModule.Instance.FixPlayerData();
             }
         }
 

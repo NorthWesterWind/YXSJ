@@ -34,10 +34,10 @@ namespace View.Task
         {
             if(isCompleted)
                 return;
-            if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.taskProgressDic.ContainsKey(data.taskId)
-                && ModuleMgr.Instance.GetModule<PlayerDataModule>().data.taskProgressDic[data.taskId] == data.keyValue)
+            if (PlayerDataModule.Instance.data.taskProgressDic.ContainsKey(data.taskId)
+                && PlayerDataModule.Instance.data.taskProgressDic[data.taskId] == data.keyValue)
             {
-                ModuleMgr.Instance.GetModule<PlayerDataModule>().GetTaskReward(data.rewardId);
+                PlayerDataModule.Instance.GetTaskReward(data.rewardId);
                 HandleUpdateTaskInfo();
             }
             else
@@ -53,15 +53,15 @@ namespace View.Task
             isCompleted = false;
             data = taskData;
             infotxt.text = data.info;
-            if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.completedTaskIdList.Contains(data.taskId))
+            if (PlayerDataModule.Instance.data.completedTaskIdList.Contains(data.taskId))
             {
                 isCompleted = true;
                 progresstxt.text = "(" + data.keyValue + "/" +  data.keyValue + ")";
                 btnText.text = "完成";
-            }else if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.taskProgressDic.ContainsKey(data.taskId))
+            }else if (PlayerDataModule.Instance.data.taskProgressDic.ContainsKey(data.taskId))
             {
                 btnText.text = "寻找";
-                progresstxt.text = "(" + ModuleMgr.Instance.GetModule<PlayerDataModule>().data.taskProgressDic[data.taskId] + "/" +  data.keyValue + ")";
+                progresstxt.text = "(" + PlayerDataModule.Instance.data.taskProgressDic[data.taskId] + "/" +  data.keyValue + ")";
             }
             else
             {
@@ -91,15 +91,15 @@ namespace View.Task
             {
                 return;
             }
-            if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.completedTaskIdList.Contains(data.taskId))
+            if (PlayerDataModule.Instance.data.completedTaskIdList.Contains(data.taskId))
             {
                 isCompleted = true;
                 progresstxt.text = "(" + data.keyValue + "/" +  data.keyValue + ")";
                 btnText.text = "完成";
-            }else if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.taskProgressDic.ContainsKey(data.taskId))
+            }else if (PlayerDataModule.Instance.data.taskProgressDic.ContainsKey(data.taskId))
             {
                 btnText.text = "寻找";
-                progresstxt.text = "(" + ModuleMgr.Instance.GetModule<PlayerDataModule>().data.taskProgressDic[data.taskId] + "/" +  data.keyValue + ")";
+                progresstxt.text = "(" + PlayerDataModule.Instance.data.taskProgressDic[data.taskId] + "/" +  data.keyValue + ")";
             }
             else
             {

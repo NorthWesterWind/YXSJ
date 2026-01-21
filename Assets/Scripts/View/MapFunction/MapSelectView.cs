@@ -61,7 +61,7 @@ namespace View.MapFunction
 
         private void HandleUpdatePlayerInfo(params object[] args)
         {
-            tongbitxt.text = Extensions.FormatNumber(ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi);
+            tongbitxt.text = Extensions.FormatNumber(PlayerDataModule.Instance.data.tongbi);
         }
     }
 }

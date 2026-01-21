@@ -30,7 +30,7 @@ namespace View
         public void Init(CardLevelData _data)
         {
             data = _data;
-            PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            PlayerData playerData = PlayerDataModule.Instance.data;
 
             CardUpProgress cardUpProgress = null;
             foreach (var value in playerData.cardUpProgressesList)

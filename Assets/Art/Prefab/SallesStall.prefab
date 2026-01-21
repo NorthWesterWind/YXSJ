@@ -428,6 +428,8 @@ MonoBehaviour:
   sprite: {fileID: 8699998325317705365}
   structureLock: {fileID: 4686189359010378815}
   content: {fileID: 8544849729571911181}
+  isLock: 0
+  isCanUnlockState: 0
   receiveTransform: {fileID: 6844809275213141821}
   currentGoodsType: 1
   currentGoodsCount: 0
@@ -518,18 +520,12 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 1.6886024, y: 1.2485342}
-      - {x: 0.893404, y: 1.1072087}
-      - {x: -1.7625957, y: 1.2180493}
-      - {x: -1.796813, y: 0.7616751}
-      - {x: -1.8174357, y: 0.12034178}
-      - {x: -1.4101233, y: -0.28321028}
-      - {x: -1.3382449, y: -1.0591706}
-      - {x: -1.0090957, y: -1.1491432}
-      - {x: 1.3144208, y: -1.0949061}
-      - {x: 1.3369541, y: -0.2503507}
-      - {x: 1.7625113, y: 0.028053045}
-      - {x: 1.6896043, y: 0.7140271}
+    - - {x: 1.2355125, y: 1.5502129}
+      - {x: 1.2419693, y: 1.7696066}
+      - {x: -1.3005543, y: 1.7541926}
+      - {x: -1.2892826, y: 0.13140869}
+      - {x: -0.17786264, y: 0.11631584}
+      - {x: 1.2128887, y: 0.12184453}
   m_UseDelaunayMesh: 0
 --- !u!1 &8544849729571911181
 GameObject:
@@ -556,7 +552,7 @@ Transform:
   m_GameObject: {fileID: 8544849729571911181}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0.99, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -674,7 +670,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7222605320566722230, guid: 4082246de4f07f5479aa38784937f4ef, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.53
+      value: 0.4599998
       objectReference: {fileID: 0}
     - target: {fileID: 7222605320566722230, guid: 4082246de4f07f5479aa38784937f4ef, type: 3}
       propertyPath: m_LocalPosition.z

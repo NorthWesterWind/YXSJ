@@ -32,17 +32,17 @@ namespace View.MapFunction
             unlockBtn.onClick.RemoveAllListeners();
             unlockBtn.onClick.AddListener((() =>
             {
-                if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.accountLevel < mapData.unlockLevel)
+                if (PlayerDataModule.Instance.data.accountLevel < mapData.unlockLevel)
                 {
                     UIController.Instance.Show<TipView>("等级未达到要求！");
 
                 }
                 else
                 {
-                    if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi >= mapData.unlockCost)
+                    if (PlayerDataModule.Instance.data.tongbi >= mapData.unlockCost)
                     {
-                        ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi -= mapData.unlockCost;
-                        ModuleMgr.Instance.GetModule<PlayerDataModule>().data.unlockMapList.Add(mapData.id);
+                        PlayerDataModule.Instance.data.tongbi -= mapData.unlockCost;
+                        PlayerDataModule.Instance.data.unlockMapList.Add(mapData.id);
                         maskImg.SetActive(false);
                         // completedImg.gameObject.SetActive(true);
                         UIController.Instance.Show<TipView>(mapData.name + "解锁成攻！");
@@ -69,7 +69,7 @@ namespace View.MapFunction
             maskImg.GetComponent<Image>().sprite = assetHandle.Get<Sprite>(mapData.name + "灰");
 
 
-            if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.unlockMapList.Contains(mapData.id))
+            if (PlayerDataModule.Instance.data.unlockMapList.Contains(mapData.id))
             {
                 //  completedImg.gameObject.SetActive(true);
                 maskImg.SetActive(false);
@@ -83,7 +83,7 @@ namespace View.MapFunction
                 maskImg.SetActive(true);
                 masktxt.gameObject.SetActive(true);
                 masktxt.text = $"{mapData.unlockLevel}级后解锁";
-                if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.accountLevel < mapData.unlockLevel)
+                if (PlayerDataModule.Instance.data.accountLevel < mapData.unlockLevel)
                 {
                     btntxt.text = "要求等级:" + mapData.unlockLevel;
                 }

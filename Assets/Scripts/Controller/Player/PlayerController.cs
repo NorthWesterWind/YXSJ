@@ -26,6 +26,7 @@ namespace Controller.Player
         public CinemachineVirtualCamera focusCamera;
         private Rigidbody2D _rigidbody;
         public GameObject weapon;
+        public SkeletonAnimation  weaponEffect;
 
         public float detectRadius = 6f; // 怪物检测半径
         public LayerMask monsterLayer;   // 只检测怪物层
@@ -71,7 +72,7 @@ namespace Controller.Player
         {
             if (dataModule == null)
             {
-                dataModule = ModuleMgr.Instance.GetModule<PlayerDataModule>();
+                dataModule = PlayerDataModule.Instance;
             }
 
             camera = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
@@ -131,7 +132,7 @@ namespace Controller.Player
         {
             if (dataModule == null)
             {
-                dataModule = ModuleMgr.Instance.GetModule<PlayerDataModule>();
+                dataModule = PlayerDataModule.Instance;
             }
             currentCarryNum = 0;
             currentHp = dataModule.data.hp;
@@ -224,7 +225,7 @@ namespace Controller.Player
             CheckSaleStall();
             CheckInteractionByDistance();
 
-            if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi < 100)
+            if (PlayerDataModule.Instance.data.tongbi < 100)
             {
                 if (InteractionTriggerInRange && !isMoving)
                 {
@@ -249,10 +250,16 @@ namespace Controller.Player
                 float z = weaponRoot.localEulerAngles.z;
                 if (z > 180f) z -= 360f;
                 weaponRenderer.sortingOrder = renderer.sortingOrder + 1;
+                weaponEffect.GetComponent<MeshRenderer>().sortingOrder = renderer.sortingOrder + 1;
                 float t = Mathf.Abs(Mathf.Cos(z * Mathf.Deg2Rad));
                 float scale = Mathf.Lerp(0.85f, 1.1f, t);
                 weaponRoot.localScale = Vector3.one * scale;
-
+                var state = weaponEffect.AnimationState;
+                var current = state.GetCurrent(0);
+                if (current == null || current.Animation.Name != "animation")
+                {
+                    state.SetAnimation(0, "animation", true);
+                }
             }
 
 
@@ -265,7 +272,7 @@ namespace Controller.Player
             coinObj.transform.position = receiveTransform.position;
             var coinCtrl = coinObj.GetComponent<Production>();
             coinCtrl.Init(GoodsType.TongBi);
-            ModuleMgr.Instance.GetModule<PlayerDataModule>().data.tongbi -= 100;
+            PlayerDataModule.Instance.data.tongbi -= 100;
             coinCtrl.FlyTo(
                InteractionTriggerTransform.position,
                 () =>

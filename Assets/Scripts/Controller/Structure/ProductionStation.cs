@@ -204,7 +204,7 @@ namespace Controller.Structure
             // }
 
 
-            var playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
+            var playerData = PlayerDataModule.Instance.data;
 
             var lockData = GetLockData(playerData.currentMapID);
             var state = GetStructureState(playerData, lockData);

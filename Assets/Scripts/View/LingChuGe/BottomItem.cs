@@ -41,7 +41,7 @@ namespace View.LingChuGe
 
         public void HandleUpdateLingChuGeInfo(params object[] args)
         {
-            WarehouseCategory data = ModuleMgr.Instance.GetModule<PlayerDataModule>().data.warehouselist
+            WarehouseCategory data = PlayerDataModule.Instance.data.warehouselist
                 .Find(x => x.warehouseCategoryType == warehouseCategoryType);
             if (data == null)
             {

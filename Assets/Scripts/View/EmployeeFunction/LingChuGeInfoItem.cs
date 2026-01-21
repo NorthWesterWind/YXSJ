@@ -31,7 +31,7 @@ namespace View.EmployeeFunction
                tiptxt.text = "二号灵储阁";
            }
            peopletxt.text =  ( _data.workingCollectorList.Count) +"/" +  (_data.unworkingCollectorList.Count + _data.workingCollectorList.Count);
-           MapData mapData = DataController.Instance.mapDataDic[ModuleMgr.Instance.GetModule<PlayerDataModule>().data.currentMapID];
+           MapData mapData = DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID];
            Extensions.ClearChildren(content.transform);
            for (int i = 0; i < mapData.monsterFamilyList.Count; i++)
            {

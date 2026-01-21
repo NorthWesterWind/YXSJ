@@ -32,7 +32,7 @@ namespace View.CharacterInfoView
             maskicon.sprite = _assetHandle.Get<Sprite>(data.resName + "灰");
             if (data.id != 1)
             {
-                if (ModuleMgr.Instance.GetModule<PlayerDataModule>().data.talentLevel >= data.id && channelImg != null)
+                if (PlayerDataModule.Instance.data.talentLevel >= data.id && channelImg != null)
                 {
                     channelImg.sprite = _assetHandle.Get<Sprite>("经验条1");
                 }
@@ -41,7 +41,7 @@ namespace View.CharacterInfoView
                     channelImg.sprite = _assetHandle.Get<Sprite>("经验条3");
                 }
             }
-           if(ModuleMgr.Instance.GetModule<PlayerDataModule>().data.talentLevel >= data.id)
+           if(PlayerDataModule.Instance.data.talentLevel >= data.id)
             {
                 mask.gameObject.SetActive(false);
                 levelbg.sprite = _assetHandle.Get<Sprite>("等级框1");
