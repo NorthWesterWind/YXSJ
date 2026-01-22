@@ -161,5 +161,6 @@ public class MapLock : MonoBehaviour
             player.InteractionTriggerTransform = null;
         }
         EventCenter.Instance.TriggerEvent(EventMessages.MapLockUnlocked, mapLockData);
+        EventCenter.Instance.TriggerEvent(EventMessages.UnLockMapTask, monsterType);
     }
 }

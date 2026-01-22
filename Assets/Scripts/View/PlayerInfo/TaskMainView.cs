@@ -54,6 +54,7 @@ namespace View.PlayerInfo
             {
                 //没有监听的任务数据
                 PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
+                PlayerDataModule.Instance.FillStructureLockProgressData();
             }
             List<TaskData> dataList =  PlayerDataModule.Instance.data.listenInTaskList;
              TaskData task = null;

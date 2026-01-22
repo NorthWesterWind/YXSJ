@@ -191,6 +191,7 @@ namespace Controller.Structure
             GameObject productObj = ObjectPoolManager.Instance.GetObject("Production");
             productObj.transform.position = recivePosition.position;
             Production product = productObj.GetComponent<Production>();
+            EventCenter.Instance.TriggerEvent(EventMessages.ProduceTask,goodsType); 
             product.Init(goodsType);
             product.SetStation(this);
             product.spriteRenderer.sortingOrder = grid.currentIndex + 4000;

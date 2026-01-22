@@ -28,6 +28,57 @@ namespace Module
             EventCenter.Instance.AddListener(EventMessages.UnLockMapTask, HandleUnLockMapTask);
         }
 
+        public void FillStructureLockProgressData()
+        {
+            foreach (var task in data.listenInTaskList)
+            {
+                if (task.type == TaskType.Construct)
+                {
+                    BuildingType type = (BuildingType)task.aimId;
+                    var _data = data.structureLockProgressDataList.Find(x => x.buildType == type);
+                    if (_data == null)
+                    {
+                        switch (data.currentMapID)
+                        {
+                            case 1:
+                                StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x=>x.buildingType == type);
+                                StructureLockProgressData progress1 = new StructureLockProgressData(type,
+                                    data1.needMoney, data1.lockId, data.currentMapID);
+                                data.structureLockProgressDataList.Add(progress1);
+                                break;
+                            case 2:
+                                StructureLockData data2 = DataController.Instance.structureLockDataList_2.Find(x=>x.buildingType == type);
+                                StructureLockProgressData progress2 = new StructureLockProgressData(type,
+                                    data2.needMoney, data2.lockId, data.currentMapID);
+                                data.structureLockProgressDataList.Add(progress2);
+                                break;
+                            case 3:
+                                StructureLockData data3 = DataController.Instance.structureLockDataList_3.Find(x => x.buildingType == type);
+                                StructureLockProgressData progress3 = new StructureLockProgressData(type,
+                                    data3.needMoney, data3.lockId, data.currentMapID);
+                                data.structureLockProgressDataList.Add(progress3);
+                                break;
+                            case 4:
+                                StructureLockData data4 = DataController.Instance.structureLockDataList_4.Find(x => x.buildingType == type);
+                                StructureLockProgressData progress4 = new StructureLockProgressData(type,
+                                    data4.needMoney, data4.lockId, data.currentMapID);
+                                data.structureLockProgressDataList.Add(progress4);
+                                break;
+                            case 5:
+                                StructureLockData data5 = DataController.Instance.structureLockDataList_5.Find(x => x.buildingType == type);
+                                StructureLockProgressData progress5 = new StructureLockProgressData(type,
+                                    data5.needMoney, data5.lockId, data.currentMapID);
+                                data.structureLockProgressDataList.Add(progress5);
+                                break;
+                            
+                        }
+                        data.structCanUnLockDataDic[data.currentMapID].Add(type);
+                    }
+                }
+            }
+
+            DataController.Instance.UpdateSturctureLockInfo();
+        }
         public void BeginJugmentRemainTime(params object[] args)
         {
             if (data.age < 18)
@@ -270,8 +321,9 @@ namespace Module
                      {
                          data.monthlyLimitMoney = 0;
                      }
-
+                    
                      callback?.Invoke(respone.fcm);
+                     DataController.Instance.UpdateSturctureLockInfo();
                  }
                  else if (respone.state == 2)
                  {
@@ -576,6 +628,7 @@ namespace Module
         public void HandleSellTask(params object[] args)
         {
             GoodsType goodsType = (GoodsType)args[0];
+            int value = (int)args[1];
             foreach (var _data in data.listenInTaskList)
             {
                 if (_data.type == TaskType.Sell)
@@ -584,11 +637,11 @@ namespace Module
                     {
                         if (data.taskProgressDic.ContainsKey(_data.taskId))
                         {
-                            data.taskProgressDic[_data.taskId]++;
+                            data.taskProgressDic[_data.taskId]+= value;
                         }
                         else
                         {
-                            data.taskProgressDic.Add(_data.taskId, 1);
+                            data.taskProgressDic.Add(_data.taskId, value);
                         }
                     }
                 }

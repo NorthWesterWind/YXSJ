@@ -3,6 +3,7 @@ using Controller.Player;
 using Module;
 using Module.Data;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using Utils;
 
@@ -24,6 +25,7 @@ public class StructureLock : MonoBehaviour
     private PlayerController player;
     public bool isLocked = true;
     public TextMeshPro nametxt;
+    
 
     public void InitInfo(StructureLockData data)
     {
@@ -113,8 +115,12 @@ public class StructureLock : MonoBehaviour
 
         PlayerData playerData = PlayerDataModule.Instance.data;
         StructureLockProgressData progressData = playerData.structureLockProgressDataList.Find(s => s.buildType == buildType && s.mapId == playerData.currentMapID);
-        float fillWidth = Mathf.Clamp01(progressData.currentOwnMoney / _data.needMoney);
-        fill.transform.localScale = new Vector3(fillWidth, 1, 1);
+        if (progressData != null)
+        {
+            float fillWidth = Mathf.Clamp01(progressData.currentOwnMoney / _data.needMoney);
+            fill.transform.localScale = new Vector3(fillWidth, 1, 1);
+        }
+       
     }
 
     public void OnEnter()
@@ -159,7 +165,12 @@ public class StructureLock : MonoBehaviour
             player.InteractionTriggerInRange = false;
             player.InteractionTriggerTransform = null;
         }
+
+        PlayerDataModule.Instance.data.structCanUnLockDataDic[PlayerDataModule.Instance.data.currentMapID]
+            .Remove(data.buildType);
+        PlayerDataModule.Instance.data.structCanUnLockDataDic[PlayerDataModule.Instance.data.currentMapID].Add(data.buildType);
         EventCenter.Instance.TriggerEvent(EventMessages.StructureLockUnlocked, _data);
+        EventCenter.Instance.TriggerEvent(EventMessages.ConstructTask, buildType);
     }
 
 }

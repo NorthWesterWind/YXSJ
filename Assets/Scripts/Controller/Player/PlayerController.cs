@@ -738,6 +738,7 @@ namespace Controller.Player
 
         public void AddDropItem(DropItemType itemType)
         {
+            EventCenter.Instance.TriggerEvent(EventMessages.HarvestTask , itemType);
             switch (itemType)
             {
                 case DropItemType.ShuangYunZhiFragment:
@@ -863,9 +864,9 @@ namespace Controller.Player
                     // case DropItemType.JingYunBao:
                     //     dataModule.AddJinYuanBao(10);
                     //     break;
-                    // case DropItemType.YingQian:
-                    //     dataModule.AddYinQian(100);
-                    //     break;
+                    case DropItemType.YingQian:
+                         dataModule.AddYinQian(100);
+                        break;
             }
 
             playerInfo.UpdateTxt();

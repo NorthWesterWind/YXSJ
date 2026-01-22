@@ -40,7 +40,11 @@ namespace View.Task
             StopAllCoroutines();
             PlayerData tempdata = PlayerDataModule.Instance.data;
             _mapData = DataController.Instance.mapDataDic[tempdata.currentMapID];
-            int count = tempdata.mapCompletedTaskRecordDic[_mapData.id].Count;
+            // if (PlayerDataModule.Instance.data.mapCompletedTaskRecordDic == null)
+            // {
+            //     PlayerDataModule.Instance.data.mapCompletedTaskRecordDic = new() { { 1, new List<int>() }, { 2, new List<int>() }, { 3, new List<int>() }, { 4, new List<int>() }, { 5, new List<int>() } };
+            // }
+            int count = PlayerDataModule.Instance.data.mapCompletedTaskRecordDic[_mapData.id].Count;
             mapNameTxt.text = _mapData.name;
             if (_mapData.id == 1 || _mapData.id == 2)
             {
@@ -152,6 +156,7 @@ namespace View.Task
             if (tempvalue == 0)
             {
                 PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
+                PlayerDataModule.Instance.FillStructureLockProgressData();
                 UpdateTaskContent();
             }
         }

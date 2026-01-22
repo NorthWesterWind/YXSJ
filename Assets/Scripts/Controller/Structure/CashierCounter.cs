@@ -173,6 +173,7 @@ namespace Controller.Structure
             customer.SetNextPosition();
             customer.agent.Stop();
             customer.agent.SetDestination(customer.nextPosition);
+            EventCenter.Instance.TriggerEvent(EventMessages.SellTask , customer.salesStall.currentGoodsType ,customer.data.carryNum );
             PrintingMoney();
         }
 
@@ -191,6 +192,7 @@ namespace Controller.Structure
                 product.canPickup = true;
                 product.state = ItemState.OnWorkbench;
             }));
+            
         }
         public void HandleStructureSpeedUp(params object[] args)
         {

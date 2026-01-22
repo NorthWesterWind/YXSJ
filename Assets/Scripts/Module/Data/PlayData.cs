@@ -92,7 +92,7 @@ namespace Module.Data
         public List<int> realUnlockMapList = new() { 1 };
 
         [Header("key = 地图编号 ， value = 当前地图已完成任务 (奖励已领取)")]
-        public Dictionary<int, List<int>> mapCompletedTaskRecordDic = new() { { 1, new List<int>() }, { 2, new List<int>() }, { 3, new List<int>() }, { 4, new List<int>() }, { 5, new List<int>() } };
+        public  Dictionary<int, List<int>> mapCompletedTaskRecordDic = new() { { 1, new List<int>() }, { 2, new List<int>() }, { 3, new List<int>() }, { 4, new List<int>() }, { 5, new List<int>() } };
         public int nowTaskId = 0; //当前主界面显示的任务信息
         public List<TaskData> listenInTaskList = new();//监听的任务
         public Dictionary<int, int> taskProgressDic = new Dictionary<int, int>() { {0,0} }; //任务Id - 任务进度 地图一初始
@@ -187,7 +187,7 @@ namespace Module.Data
         /// </summary>
         public List<StructureLockProgressData> structureLockProgressDataList = new List<StructureLockProgressData>()
         {
-
+            
         };
         #endregion
 

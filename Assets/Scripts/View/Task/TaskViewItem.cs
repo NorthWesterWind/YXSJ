@@ -70,11 +70,11 @@ namespace View.Task
             data = taskData;
             infotxt.text = data.info;
             RewardData rewardData = DataController.Instance.taskRewardDataDic[data.rewardId];
-            jmztxt.text = rewardData.Jmz.ToString();
+            jmztxt.text = "x"  + rewardData.Jmz.ToString();
             if(rewardData.Tq > 0)
             {
                 TongBiObj.SetActive(true);
-                TongBiTxt.text = rewardData.Tq.ToString();
+                TongBiTxt.text = "x"  + rewardData.Tq.ToString();
             }
             else
             {
@@ -83,7 +83,7 @@ namespace View.Task
             if(rewardData.Jyb > 0)
             {
                 JingYuanBaoObj.SetActive(true);
-                JingYuanBaoTxt.text = rewardData.Jyb.ToString();
+                JingYuanBaoTxt.text =  "x"  + rewardData.Jyb.ToString();
             }
             else
             {

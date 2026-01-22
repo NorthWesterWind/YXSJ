@@ -75,18 +75,17 @@ namespace Controller
             string monstetStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("MonsterData")).text;
             monsterDataDic.Clear();
             monsterDataDic = JsonConvert.DeserializeObject<Dictionary<MonsterType, MonsterData>>(monstetStr);
-            EventCenter.Instance.TriggerEvent(EventMessages.MonsterBeginCreate);
+           
 
             string customerStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("CustomerData")).text;
             customerDataDic.Clear();
             customerDataDic = JsonConvert.DeserializeObject<Dictionary<CustomerType, CustomerData>>(customerStr);
-            EventCenter.Instance.TriggerEvent(EventMessages.CustomerBeginCreate);
-
+           
 
             string mapStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("MapData")).text;
             mapDataDic?.Clear();
             mapDataDic = JsonConvert.DeserializeObject<Dictionary<int, MapData>>(mapStr);
-            EventCenter.Instance.TriggerEvent(EventMessages.MapDataPrepared);
+          
 
             string rewardStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("RewardData")).text;
             taskRewardDataDic.Clear();
@@ -99,8 +98,7 @@ namespace Controller
             string weaponStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("WeaponData")).text;
             weaponDataDic.Clear();
             weaponDataDic = JsonConvert.DeserializeObject<Dictionary<int, WeaponData>>(weaponStr);
-            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
-
+          
             string taskStr1 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("TaskData_1")).text;
             mapTaskDataDic1.Clear();
             mapTaskDataDic1 = JsonConvert.DeserializeObject<Dictionary<int, TaskData>>(taskStr1);
@@ -120,8 +118,7 @@ namespace Controller
             string taskStr5 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("TaskData_5")).text;
             mapTaskDataDic5.Clear();
             mapTaskDataDic5 = JsonConvert.DeserializeObject<Dictionary<int, TaskData>>(taskStr5);
-            EventCenter.Instance.TriggerEvent(EventMessages.MapTaskDataPrepared);
-
+         
             string sevenDataStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("SevenDayReward")).text;
             sevenDayRewardDataDic.Clear();
             sevenDayRewardDataDic = JsonConvert.DeserializeObject<Dictionary<int, SevenDayRewardData>>(sevenDataStr);
@@ -163,10 +160,51 @@ namespace Controller
             mapLockDataList_5 = JsonConvert.DeserializeObject<List<MapLockData>>(mapLockDataStr5);
 
             InitMapLock();
-            PlayerData playerData = PlayerDataModule.Instance.data;
             string structureLockDataStr1 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_1")).text;
             structureLockDataList_1.Clear();
             structureLockDataList_1 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr1);
+           
+
+            string structureLockDataStr2 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_2")).text;
+            structureLockDataList_2.Clear();
+            structureLockDataList_2 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr2);
+
+           
+
+            string structureLockDataStr3 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_3")).text;
+            structureLockDataList_3.Clear();
+            structureLockDataList_3 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr3);
+           
+
+            string structureLockDataStr4 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_4")).text;
+            structureLockDataList_4.Clear();
+            structureLockDataList_4 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr4);
+
+           
+
+
+            string structureLockDataStr5 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_5")).text;
+            structureLockDataList_5.Clear();
+            structureLockDataList_5 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr5);
+            
+            EventCenter.Instance.TriggerEvent(EventMessages.DataPrepared);
+
+            EventCenter.Instance.TriggerEvent(EventMessages.MapDataPrepared);
+            EventCenter.Instance.TriggerEvent(EventMessages.MapTaskDataPrepared);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
+            EventCenter.Instance.TriggerEvent(EventMessages.CustomerBeginCreate);
+            EventCenter.Instance.TriggerEvent(EventMessages.MonsterBeginCreate);
+        }
+
+        /// <summary>
+        /// 更新建筑解锁信息
+        /// </summary>
+        /// <param name="mapId"></param>
+        /// <param name="structureLockDataList"></param>
+        public void UpdateSturctureLockInfo()
+        {
+            ///根据当前解锁的任务数据  进行可解锁建筑数据划分
+            PlayerData playerData = PlayerDataModule.Instance.data;
             for (int i = 0; i < structureLockDataList_1.Count; i++)
             {
                 var list1 = playerData.structLockDataDic[1];
@@ -182,11 +220,6 @@ namespace Controller
                 }
                 list1.Add(structureLockDataList_1[i].buildingType);
             }
-
-            string structureLockDataStr2 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_2")).text;
-            structureLockDataList_2.Clear();
-            structureLockDataList_2 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr2);
-
             for (int i = 0; i < structureLockDataList_2.Count; i++)
             {
                 var list1 = playerData.structLockDataDic[2];
@@ -202,10 +235,6 @@ namespace Controller
                 }
                 list1.Add(structureLockDataList_2[i].buildingType);
             }
-
-            string structureLockDataStr3 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_3")).text;
-            structureLockDataList_3.Clear();
-            structureLockDataList_3 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr3);
             for (int i = 0; i < structureLockDataList_3.Count; i++)
             {
                 var list1 = playerData.structLockDataDic[3];
@@ -221,11 +250,6 @@ namespace Controller
                 }
                 list1.Add(structureLockDataList_3[i].buildingType);
             }
-
-            string structureLockDataStr4 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_4")).text;
-            structureLockDataList_4.Clear();
-            structureLockDataList_4 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr4);
-
             for (int i = 0; i < structureLockDataList_4.Count; i++)
             {
                 var list1 = playerData.structLockDataDic[4];
@@ -241,12 +265,6 @@ namespace Controller
                 }
                 list1.Add(structureLockDataList_4[i].buildingType);
             }
-
-
-            string structureLockDataStr5 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_5")).text;
-            structureLockDataList_5.Clear();
-            structureLockDataList_5 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr5);
-
             for (int i = 0; i < structureLockDataList_5.Count; i++)
             {
                 var list1 = playerData.structLockDataDic[5];
@@ -262,23 +280,8 @@ namespace Controller
                 }
                 list1.Add(structureLockDataList_5[i].buildingType);
             }
-
-            UpdateSturctureLockInfo();
-            EventCenter.Instance.TriggerEvent(EventMessages.DataPrepared);
-
-
-        }
-
-        /// <summary>
-        /// 更新建筑解锁信息
-        /// </summary>
-        /// <param name="mapId"></param>
-        /// <param name="structureLockDataList"></param>
-        public void UpdateSturctureLockInfo()
-        {
-            ///根据当前解锁的任务数据  进行可解锁建筑数据划分
-            List<TaskData> taskDatas = GetTaskGroupIds();
-            PlayerData playerData = PlayerDataModule.Instance.data;
+            
+            List<TaskData> taskDatas = playerData.listenInTaskList;
             for (int i = 0; i < taskDatas.Count; i++)
             {
                 if (taskDatas[i].type == TaskType.Construct)

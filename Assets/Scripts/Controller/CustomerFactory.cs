@@ -76,7 +76,7 @@ namespace Controller
                 var availableStructures = GameController.Instance.goodBuild
                     .Where(pair =>
                     {
-                        if (!IsStructureUnlocked((pair.Value as SalesStall).buildingType))
+                        if (IsStructureUnlocked((pair.Value as SalesStall).buildingType))
                             return false;
                         if (!placeCustomerCount.ContainsKey(pair.Value))
                             return true;
