@@ -5,12 +5,7 @@ using Utils;
 
 namespace Controller.Structure
 {
-    enum StructureState
-    {
-        Unlocked,       // 已解锁
-        Locked,         // 已锁
-        CanUnlock       // 可解锁
-    }
+   
     public class StructureBase : MonoBehaviour
     {
         public BuildingType structureType;

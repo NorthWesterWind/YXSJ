@@ -41,7 +41,7 @@ namespace View
         public UIButton ordenFunctionBtn;
         public Image mask5;
 
-        public InfoItem tongbiInfoItem;
+        public TextMeshProUGUI tongbitxt;
         protected override void Start()
         {
             base.Start();
@@ -53,7 +53,7 @@ namespace View
             HandleUpdateLevelProgress();
             HandleShowPlayerInfoViewCartoon();
             HandleUpdateFunctionState();
-            tongbiInfoItem.Init(player);
+            HandleUpdateMoneyInfo();
         }
 
 
@@ -184,7 +184,7 @@ namespace View
 
         public void HandleUpdateMoneyInfo(params object[] args)
         {
-
+            tongbitxt.text = Extensions.FormatNumber(player.dataModule.data.tongbi);
         }
 
         public void HandleShowPlayerInfoViewCartoon(params object[] args)

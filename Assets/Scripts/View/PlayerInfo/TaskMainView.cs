@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Controller;
 using Module;
 using Module.Data;
@@ -22,11 +23,6 @@ namespace View.PlayerInfo
         {
             _assetHandle = GetComponent<AssetHandle>();
             AddEvent();
-            if(PlayerDataModule.Instance.data.guideStep != GuideStep.Finished)
-            {
-                 content.SetActive(false);
-            }
-
         }
 
         public void AddEvent()
@@ -59,8 +55,35 @@ namespace View.PlayerInfo
                 //没有监听的任务数据
                 PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
             }
-            List<TaskData> dataList = DataController.Instance.GetTaskGroupIds();
-            TaskData task = dataList.Find(x => x.taskId == PlayerDataModule.Instance.data.nowTaskId);
+            List<TaskData> dataList =  PlayerDataModule.Instance.data.listenInTaskList;
+             TaskData task = null;
+            if(PlayerDataModule.Instance.data.nowTaskId == 0)
+            {
+                foreach (var item in PlayerDataModule.Instance.data.listenInTaskList)
+                {
+                    if (PlayerDataModule.Instance.data.taskProgressDic.ContainsKey(item.taskId))
+                    {
+                        if(PlayerDataModule.Instance.data.taskProgressDic[item.taskId] < item.keyValue)
+                        {
+                            PlayerDataModule.Instance.data.nowTaskId = item.taskId;
+                            task = item;
+                            break;
+                        }
+                        continue;
+                    }
+                    else
+                    {
+                        PlayerDataModule.Instance.data.nowTaskId = item.taskId;
+                        task = item;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                task = dataList.Find(x => x.taskId == PlayerDataModule.Instance.data.nowTaskId);
+            }
+         
 
             if (task != null)
             {
@@ -90,6 +113,7 @@ namespace View.PlayerInfo
 
         private void OnClickShowBtn()
         {
+            EventCenter.Instance.TriggerEvent(EventMessages.HidePlayerInfoViewCartoon);
             UIController.Instance.Show<TaskPop>();
         }
 

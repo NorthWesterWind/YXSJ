@@ -4,6 +4,7 @@ using Module;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
+using View;
 
 namespace Utils
 {
@@ -147,7 +148,7 @@ namespace Utils
         {
             if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))
             {
-                // UIController.Instance.Show<TipView>("账号或密码不能为空");
+                 UIController.Instance.Show<TipView>("账号或密码不能为空");
                 return;
             }
 
@@ -275,22 +276,21 @@ namespace Utils
                     Debug.LogError("上传数据失败：" + webRequest.error);
                 }
 
-                PlayerDataModule.Instance.FixPlayerData();
             }
         }
 
 
-        public void RealName(string user, string idnum, string chinese, string fcmLvl,
+        public void RealName( string idnum, string chinese, string fcmLvl,
             Action<ResponseRealName> callback)
         {
-            StartCoroutine(GetRealNameCoroutine(user, idnum, chinese, fcmLvl, callback));
+            StartCoroutine(GetRealNameCoroutine(idnum, chinese, fcmLvl, callback));
         }
 
-        private IEnumerator GetRealNameCoroutine(string user, string idnum, string chinese, string fcmLvl,
+        private IEnumerator GetRealNameCoroutine( string idnum, string chinese, string fcmLvl,
             Action<ResponseRealName> callback)
         {
             WWWForm form = new WWWForm();
-            form.AddField("user", user);
+            form.AddField("user", PlayerDataModule.Instance.data.userName);
             form.AddField("idnum", idnum);
             form.AddField("chinese", chinese);
             form.AddField("fcmLvl", fcmLvl);

@@ -254,12 +254,18 @@ namespace Controller.Player
                 float t = Mathf.Abs(Mathf.Cos(z * Mathf.Deg2Rad));
                 float scale = Mathf.Lerp(0.85f, 1.1f, t);
                 weaponRoot.localScale = Vector3.one * scale;
+                  weaponEffect.gameObject.SetActive(true);
                 var state = weaponEffect.AnimationState;
                 var current = state.GetCurrent(0);
                 if (current == null || current.Animation.Name != "animation")
                 {
                     state.SetAnimation(0, "animation", true);
                 }
+            }
+            else
+            {
+                weaponEffect.AnimationState.ClearTrack (0);
+                weaponEffect.gameObject.SetActive(false);
             }
 
 

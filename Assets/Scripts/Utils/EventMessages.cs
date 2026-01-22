@@ -4,7 +4,7 @@ namespace Utils
 {
     public static class EventMessages
     {
-
+    
         public const string BeginJugmentRemainTime = "BeginJugmentRemainTime";   ///未成年人可游玩时间倒计时
         public const string CameraBeginShaking = "CameraBeginShaking";       //触发镜头晃动
         public const string MonsterDead = "MonsterDead";                     //触发怪物死亡
@@ -33,6 +33,7 @@ namespace Utils
         public const string UpdateTaskMainView = "UpdateTaskMainView"; //更新主界面任务显示
 
         public const string UpdateTaskInfo = "UpdateTaskInfo"; //更新TaskPop中的任务信息
+        public const string HasTaskComplete = "HasTaskComplete"; //有任务结束（指的是领取完奖励的）
 
         public const string TriggerSearch = "Trigger Search"; //触发任务目标寻找
 
@@ -69,5 +70,18 @@ namespace Utils
         public const string ShowOrderDetail = "ShowOrderDetail"; //显示订单详情
 
         public const string HidePlayerGuide  = "HidePlayerGuide"; //玩家引导完成
+
+        public const string DataPrepared = "DataPrepared"; //数据准备完成
+
+        public const string UpdateSturctureLockInfo = "UpdateSturctureLockInfo"; //更新建筑解锁信息
+
+
+        public const string ProduceTask = "ProduceTask"; //生产任务
+        public const string UpGradeStuctureTask = "UpGradeStuctureTask"; //升级建筑任务
+        public const string ConstructTask = "ConstructTask"; //建造任务
+        public const string SellTask = "SellTask"; //出售商品任务
+        public const string HarvestTask = "HarvestTask"; //收集物品任务
+        public const string MakeTongBiTask = "MakeTongBiTask"; //获得铜币任务
+        public const string UnLockMapTask = "UnLockMapTask"; //解锁怪物区域任务
     }
 }

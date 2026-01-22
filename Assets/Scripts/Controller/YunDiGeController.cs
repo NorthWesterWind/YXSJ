@@ -15,10 +15,17 @@ namespace Controller
 
         protected override void Start()
         {
-            Init();
+        }
+        void OnEnable()
+        {
+            EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo, Init);
+        }
+        void OnDisable()
+        {
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateSturctureLockInfo, Init);   
         }
 
-        public void Init()
+        public void Init(params object[] args)
         {
             var playerData = PlayerDataModule.Instance.data;
             var lockData = GetLockData(playerData.currentMapID);

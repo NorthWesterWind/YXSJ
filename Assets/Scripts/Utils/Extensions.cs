@@ -940,25 +940,25 @@ namespace Utils
 			switch (type)
 			{
 				case BuildingType.LingChaJia_1:
-					resName = "LingChaJia_1";
+					resName = "LingChaJia";
 					break;
 				case BuildingType.YuShaHu_1:
 					resName = "YuShaHu_1";
 					break;
 				case BuildingType.LingChaJia_2:
-					resName = "LingChaJia_2";
+					resName = "LingChaJia";
 					break;
 				case BuildingType.YuShaHu_2:
 					resName = "YuShaHu_2";
 					break;
 				case BuildingType.LingChaJia_3:
-					resName = "LingChaJia_3";
+					resName = "LingChaJia";
 					break;
 				case BuildingType.YuShaHu_3:
 					resName = "YuShaHu_3";
 					break;
 				case BuildingType.LingChaJia_4:
-					resName = "LingChaJia_4";
+					resName = "LingChaJia";
 					break;
 				case BuildingType.YuShaHu_4:
 					resName = "YuShaHu_4";
@@ -967,19 +967,19 @@ namespace Utils
 					resName = "LianQiLu_1";
 					break;
 				case BuildingType.LingQiJia_1:
-					resName = "LingQiJia_1";
+					resName = "LingQiJia";
 					break;
 				case BuildingType.LianQiLu_2:
 					resName = "LianQiLu_2";
 					break;
 				case BuildingType.LingQiJia_2:
-					resName = "LingQiJia_2";
+					resName = "LingQiJia";
 					break;
 				case BuildingType.LianQiLu_3:
 					resName = "LianQiLu_3";
 					break;
 				case BuildingType.LingQiJia_3:
-					resName = "LingQiJia_3";
+					resName = "LingQiJia";
 					break;
 				case BuildingType.YuanBaoKuangDong:
 					resName = "YuanBaoKuangDong";

@@ -65,10 +65,12 @@ namespace Module.Data
 
         #region  每日限制数据
         public int todayUseZhuanPanNum = 0; //今日转盘使用次数
-        public int currentUseNum ; //当前累计使用次数
+        public int currentUseNum; //当前累计使用次数
 
         #endregion
 
+        public int monthlyLimitMoney; //每月限制消费金额
+        public DateTime lastTime;  //判断是否跨月
 
         public List<int> unlockMapList = new List<int>() { 1 };
         public Dictionary<int, List<int>> mapPlayRecordDic = new Dictionary<int, List<int>>();
@@ -76,9 +78,9 @@ namespace Module.Data
         public int goldIngot = 5000000;   //金元宝
         public int lingJing = 500000;    //灵晶
         public int jingMangZhu = 10000; //金芒珠
-        public int currentMapID = 2;
+        public int currentMapID = 1;
 
-        public float speedTime = 0 ; //生产台加速时长
+        public float speedTime = 0; //生产台加速时长
 
         public int accountLevel = 1;
         public int characterFunction = 1;
@@ -89,21 +91,19 @@ namespace Module.Data
         public List<int> levelLockMapList = new() { 2, 3, 4, 5 };
         public List<int> realUnlockMapList = new() { 1 };
 
-        [Header("key = 地图编号 ， value = 当前任务进度")]
-        public Dictionary<int, List<int>> mapTaskRecordDic = new() { { 1, new List<int>() }, { 2, new List<int>() }, { 3, new List<int>() }, { 4, new List<int>() }, { 5, new List<int>() } };
-        public int nowTaskId = 1; //当前主界面显示的任务信息
+        [Header("key = 地图编号 ， value = 当前地图已完成任务 (奖励已领取)")]
+        public Dictionary<int, List<int>> mapCompletedTaskRecordDic = new() { { 1, new List<int>() }, { 2, new List<int>() }, { 3, new List<int>() }, { 4, new List<int>() }, { 5, new List<int>() } };
+        public int nowTaskId = 0; //当前主界面显示的任务信息
         public List<TaskData> listenInTaskList = new();//监听的任务
-        public Dictionary<int, int> taskProgressDic = new(); //进行中任务
-        public List<int> completedTaskIdList = new List<int>(); //已完成任务
-
+        public Dictionary<int, int> taskProgressDic = new Dictionary<int, int>() { {0,0} }; //任务Id - 任务进度 地图一初始
+        public int taskPopCompleted = 0; //任务弹窗中用于记录获取的金芒珠 用于宝箱领取
         public string FanPingBaoXiaoTime;
         public string LingShunLingTime;
-        public string PurchaseVipTime;
 
         public List<int> sevenDayRecordList = new List<int>();
         public string sevenDayRecordTime;
         public int GetSevenDayRewardIndex = 0;
-
+        public int SeventRecentlyWeek;
         public int talentLevel;
 
 
@@ -253,8 +253,8 @@ namespace Module.Data
     public class OrderDataProgress
     {
         public int orderId;
-        public Dictionary<GoodsType, int> goodDic = new Dictionary<GoodsType, int>();
-        public Dictionary<DropItemType, int> dropDic = new Dictionary<DropItemType, int>();
+        public Dictionary<GoodsType, int> goodDic = new Dictionary<GoodsType, int>() { { GoodsType.None, 0 } };
+        public Dictionary<DropItemType, int> dropDic = new Dictionary<DropItemType, int>() { { DropItemType.None, 0 } };
 
 
         public OrderDataProgress(int orderId, Dictionary<GoodsType, int> goodDic, Dictionary<DropItemType, int> dropDic)
@@ -330,7 +330,7 @@ namespace Module.Data
         public int capacity = 1;
         public int speedLevel = 1;
         public int peopleLevel = 1;
-        public int maxSpeedLevel = 10;
+        public int maxSpeedLevel = 60;
         public int maxpeopleLevel = 3;
         public List<BuildingType> yunDiZheWorkingBuildList = new List<BuildingType>();
     }
@@ -352,7 +352,7 @@ namespace Module.Data
         public int atkLevel = 1;
         public int maxAtkLevel = 60;
         public int numLevel = 1;
-        public int maxNumLevel = 60;
+        public int maxNumLevel = 3;
         public SerializableIntDictionary<int> ownItemList = new SerializableIntDictionary<int>();
         public WarehouseCategory(WarehouseCategoryType type)
         {
@@ -372,24 +372,26 @@ namespace Module.Data
         public BuildingType buildingType;
         public int price;
         public int priceLevel;
-
+        public int maxPriceLevel = 100;
         public float workingtime;
         public int timelevel;
+         public int maxTimeLevel = 40;
     }
 
 
     /// <summary>
     /// 灵账台数据
     /// </summary>
+    [Serializable]
     public class CashierData
     {
         public int workingNum; //正在工作人数
         public int totalNum = 1;    //总人数
         public float currentWorkingSpeed = 5f;
-        public float earning  = 1f;
+        public float earning = 1f;
         public int workspeedLevel = 1;
         public int peopleLevel = 1;
-        public int maxworkspeedLevel = 10;
+        public int maxworkspeedLevel = 50;
         public int maxpeopleLevel = 3;
     }
 

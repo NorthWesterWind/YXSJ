@@ -43,6 +43,10 @@ public class LoginView : BaseView
     public GameObject setNameContent;
     public TMP_InputField setNameInput;
     public UIButton setNameBtn;
+   protected override void Awake()
+    {
+        StartLoad();
+    }
 
     public override void UpdateViewWithArgs(params object[] args)
     {
@@ -67,7 +71,7 @@ public class LoginView : BaseView
         realNameContent.SetActive(false);
         setNameContent.SetActive(false);
 
-          fillBg.gameObject.SetActive(false);
+        fillBg.gameObject.SetActive(false);
     }
     public void SwitchToLoginPanel()
     {
@@ -127,8 +131,21 @@ public class LoginView : BaseView
 
         setNameBtn.onClick.RemoveAllListeners();
         setNameBtn.onClick.AddListener(OnSetName);
-    }
 
+        ageBtn.onClick.RemoveAllListeners();
+        ageBtn.onClick.AddListener(OnAge);
+    }
+    public void OnAge()
+    {
+        if (fillBg.activeSelf)
+        {
+            return;
+        }
+
+        UIController.Instance.Show<AttentionView>(
+            "\u3000\u30001、本游戏是一款以模拟经营为背景的休闲模拟类手机网络游戏，适用于年满8周岁及以上的用户，建议未成年人在家长监护下使用游戏产品。\n\r\u3000\u30002、本游戏以模拟经营题材，核心玩法包含材料收集、建筑升级、角色养成、商品售卖及资源管理，玩家可通过策略进行模拟经营，激励玩家用心钻研和挑战自我。\n\r\u3000\u30003、根据国家新闻出版署《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》，本游戏已设置实名认证系统和防沉迷系统，并接入国家实名认证系统和防沉迷系统。游戏中部分道具需要付费，规范向未成年人提供付费服务：本游戏不会为未满8周岁的用户提供游戏充值服务；满8周岁未满16周岁的用户，单次充值金额不得超过50元人民币，每月充值金额累计不得超过200元人民币；满16周岁未满18周岁的用户，单次充值金额不得超过100元人民币，每月充值金额累计不得超过400元人民币。\n\r\u3000\u30004、本游戏为模拟经营为主题的休闲模拟类游戏。在游戏中，玩家化身在妖剑世界的一名传奇经营者，提供角色培养、材料收集、资源搭配的过程，有助于玩家日常放松。游戏玩法简单，强化应变决策力，提供放松体验，任务奖励增强玩家自信心与目标感。",
+            "适龄提示");
+    }
 
     private void LoginEvent()
     {
@@ -149,7 +166,7 @@ public class LoginView : BaseView
             return;
         }
 
-       PlayerDataModule.Instance.Login(accountInput.text, passwordInput.text, OnLogin);
+        PlayerDataModule.Instance.Login(accountInput.text, passwordInput.text, OnLogin);
     }
 
     private void OnLogin(int fcm)
@@ -165,7 +182,7 @@ public class LoginView : BaseView
         {
             HideAllPanels();
             SwitchToSetNamePanel();
-            }
+        }
         else
             OnCanLogin();
     }
@@ -176,94 +193,169 @@ public class LoginView : BaseView
         StartCoroutine(No18LoadGame());
     }
 
-       private void RealLogin()
-        {
-            HideAllPanels();
-            fillBg.gameObject.SetActive(true);
-            StartCoroutine(LoadNextSceneCoroutine());
-        }
+    private void RealLogin()
+    {
+        HideAllPanels();
+        fillBg.gameObject.SetActive(true);
+        StartCoroutine(LoadNextSceneCoroutine());
+    }
 
-          #region 🔸 加载场景逻辑
+    #region 🔸 加载场景逻辑
 
-        private IEnumerator LoadNextSceneCoroutine()
-        {
-            SceneManager.sceneLoaded += OnSceneLoaded;
-             AsyncOperation asyncLoad ;
+    private IEnumerator LoadNextSceneCoroutine()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        AsyncOperation asyncLoad;
         if (!PlayerDataModule.Instance.data.guidIdList.Contains(0))
         {
-            asyncLoad= SceneManager.LoadSceneAsync("StoryGuide");
-           
+            asyncLoad = SceneManager.LoadSceneAsync("StoryGuide");
+
         }
         else
         {
             asyncLoad = SceneManager.LoadSceneAsync($"Game_{PlayerDataModule.Instance.data.currentMapID}");
         }
-             asyncLoad.allowSceneActivation = false;
-            float displayProgress = 0f;
+        asyncLoad.allowSceneActivation = false;
+        float displayProgress = 0f;
 
-            while (!asyncLoad.isDone)
+        while (!asyncLoad.isDone)
+        {
+            float targetProgress = Mathf.Clamp01(asyncLoad.progress / 0.9f);
+            displayProgress = Mathf.MoveTowards(displayProgress, targetProgress, Time.deltaTime * 0.3f);
+            fillImage.fillAmount = displayProgress;
+
+            if (asyncLoad.progress >= 0.9f && displayProgress >= 0.99f)
             {
-                float targetProgress = Mathf.Clamp01(asyncLoad.progress / 0.9f);
-                displayProgress = Mathf.MoveTowards(displayProgress, targetProgress, Time.deltaTime * 0.3f);
+                displayProgress = Mathf.MoveTowards(displayProgress, 1f, Time.deltaTime * 0.3f);
                 fillImage.fillAmount = displayProgress;
 
-                if (asyncLoad.progress >= 0.9f && displayProgress >= 0.99f)
+                if (displayProgress >= 1f)
                 {
-                    displayProgress = Mathf.MoveTowards(displayProgress, 1f, Time.deltaTime * 0.3f);
-                     fillImage.fillAmount = displayProgress;
-
-                    if (displayProgress >= 1f)
-                    {
-                        yield return new WaitForSeconds(0.5f);
-                        asyncLoad.allowSceneActivation = true;
-                    }
+                    yield return new WaitForSeconds(0.5f);
+                    asyncLoad.allowSceneActivation = true;
                 }
-
-                yield return null;
             }
-        }
 
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
+            yield return null;
+        }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        PlayerDataModule.Instance.BeginAutoSave();
         if (!PlayerDataModule.Instance.data.guidIdList.Contains(0))
         {
-             if (scene.name == "StoryGuide")
+            if (scene.name == "StoryGuide")
             {
-               UIController.Instance.Show<StoryView>();
+                UIController.Instance.Show<StoryView>();
             }
-           
+
         }
         else
         {
-             if (scene.name == $"Game_{PlayerDataModule.Instance.data.currentMapID}")
+            if (scene.name == $"Game_{PlayerDataModule.Instance.data.currentMapID}")
             {
-                // if (!PlayerDataModule.Instance._playerData.guidIdList.Contains(1))
-                // {
-                //     UIController.Instance.Show<PlotGuidanceView>();
-                // }
-                // else
-                // {
-                //     UIController.Instance.Show<MenuView>(false);
-                // }
+                if ( PlayerDataModule.Instance.data.currentMapID == 1 && !PlayerDataModule.Instance.data.guidIdList.Contains(1))
+                {
+                    //剧情引导
+                    UIController.Instance.Show<PlayerGuide>();
+                }
+                
             }
         }
-            AudioSourceController.Instance.PlaySound();
-            SceneManager.sceneLoaded -= OnSceneLoaded;
-        }
+        AudioSourceController.Instance.PlaySound();
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
 
-        #endregion
+    #endregion
 
 
 
 
     private void OnRegister()
     {
+        string str1 = registerAccountInput.text;
+        string str2 = registerPasswordInput.text;
+        if (string.IsNullOrEmpty(str1) || string.IsNullOrEmpty(str2))
+        {
+            UIController.Instance.Show<TipView>("账号或密码不能为空!");
+            return;
+        }
 
+        if (registerAccountInput.text.Length < 4 || registerPasswordInput.text.Length > 8)
+        {
+            UIController.Instance.Show<TipView>("账号长度应为4到8!");
+            return;
+        }
+
+        if (!IsTextValid(registerAccountInput.text))
+        {
+            UIController.Instance.Show<TipView>("账号包含敏感词!");
+            return;
+        }
+
+        if (registerPasswordInput.text.Length < 4)
+        {
+            UIController.Instance.Show<TipView>("密码长度不能少于4位!");
+            return;
+        }
+
+        PlayerDataModule.Instance.Register(str1, str2,
+            OnRegisterSuccess, OnRegisterFail);
     }
+
+    private void OnRegisterSuccess()
+    {
+        UIController.Instance.Show<TipView>("注册成功!");
+        SwitchToLoginPanel();
+    }
+
+    private void OnRegisterFail(string msg)
+    {
+        UIController.Instance.Show<TipView>(msg);
+    }
+
     private void OnRealName()
     {
 
+        if (string.IsNullOrEmpty(realNameInput.text) || string.IsNullOrEmpty(realAccountInput.text))
+        {
+            UIController.Instance.Show<TipView>("姓名或身份证号不能为空!");
+            return;
+        }
+        if (realAccountInput.text.Length < 18 || realAccountInput.text.Length > 18)
+        {
+            UIController.Instance.Show<TipView>("请输入18位有效身份证号数字！");
+            return;
+        }
+
+        PlayerDataModule.Instance.RealName(realAccountInput.text, realNameInput.text,
+           "0",
+           response =>
+           {
+               switch (response.state)
+               {
+                   case 1:
+                       UIController.Instance.Show<TipView>(response.msg);
+                       int age = response.age;
+                       PlayerDataModule.Instance.data.age = age;
+                       PlayerDataModule.Instance.SavePlayerDataAsync();
+                       PlayerDataModule.Instance.SavePlayerDataToSever();
+                       OnCanLogin();
+                       break;
+                   case 3:
+                       UIController.Instance.Show<TipView>("实名失败输入18位身份证号数字！");
+                       break;
+                   case 4:
+                       UIController.Instance.Show<TipView>("用户不存在！");
+                       break;
+                   default:
+                       UIController.Instance.Show<TipView>("实名失败！");
+                       return;
+               }
+           });
     }
+
     private void OnSetName()
     {
 
@@ -296,8 +388,8 @@ public class LoginView : BaseView
         PlayerData playerData = PlayerDataModule.Instance.data;
         playerData.userName = name;
         playerData.isCreated = true;
-       PlayerDataModule.Instance.SavePlayerData();
-       PlayerDataModule.Instance.SavePlayerDataToSever();
+        PlayerDataModule.Instance.SavePlayerDataAsync();
+        PlayerDataModule.Instance.SavePlayerDataToSever();
         StartCoroutine(No18LoadGame());
 
 

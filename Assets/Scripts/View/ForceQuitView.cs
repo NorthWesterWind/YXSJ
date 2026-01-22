@@ -1,16 +1,28 @@
+using TMPro;
 using Utils;
 
 public class ForceQuitView : BaseView
 {
-    // Start is called before the first frame update
-    void Start()
+    public TextMeshProUGUI infotxt;
+    public UIButton quitBtn;
+
+
+    public override void UpdateViewWithArgs(params object[] args)
     {
-        
+        base.UpdateViewWithArgs(args);
+        infotxt.text = args[0] as string;
     }
 
-    // Update is called once per frame
-    void Update()
+    protected override void AddEventListener()
     {
-        
+        base.AddEventListener();
+        quitBtn.onClick.AddListener((() =>
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false; // 在编辑器中停止播放
+#else
+    Application.Quit(); // 在打包后的应用中退出
+#endif
+        }));
     }
 }

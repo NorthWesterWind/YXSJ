@@ -387,7 +387,6 @@ GameObject:
   - component: {fileID: 257381614802699013}
   - component: {fileID: 6799880837023062262}
   - component: {fileID: 2075059287197475552}
-  - component: {fileID: 7562390374159613006}
   m_Layer: 0
   m_Name: SallesStall
   m_TagString: Untagged
@@ -476,57 +475,6 @@ MonoBehaviour:
   - {fileID: 2800000, guid: b79b67476793b3d429aedd957329215d, type: 3}
   - {fileID: 2800000, guid: e1540ee245cb0454e8f99b6626aa0e7f, type: 3}
   - {fileID: 2800000, guid: 3d0c6bf4b90e17f46934bc2984d9254f, type: 3}
---- !u!60 &7562390374159613006
-PolygonCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7219183874916311500}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: 1.2355125, y: 1.5502129}
-      - {x: 1.2419693, y: 1.7696066}
-      - {x: -1.3005543, y: 1.7541926}
-      - {x: -1.2892826, y: 0.13140869}
-      - {x: -0.17786264, y: 0.11631584}
-      - {x: 1.2128887, y: 0.12184453}
-  m_UseDelaunayMesh: 0
 --- !u!1 &8544849729571911181
 GameObject:
   m_ObjectHideFlags: 0

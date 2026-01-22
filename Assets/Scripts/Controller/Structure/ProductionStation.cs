@@ -39,178 +39,32 @@ namespace Controller.Structure
         public Transform infoTransform;
         public SkeletonAnimation icon;
 
+    
+        void OnEnable()
+        {
+            EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo, Init);
+            EventCenter.Instance.AddListener(EventMessages.ProductionComplete, HandleProductionComplete);
+        }
+        void OnDisable()
+        {
+            EventCenter.Instance.RemoveListener(EventMessages.ProductionComplete, HandleProductionComplete);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateSturctureLockInfo, Init);
+        }
+
         protected override void Start()
         {
             base.Start();
-            EventCenter.Instance.AddListener(EventMessages.ProductionComplete, HandleProductionComplete);
-
-            if (productionInfo == null)
-            {
-                GameObject obj = GameObject.Instantiate(_assetHandle.Get<GameObject>("ProductionInfo"), GameObject.Find("HpCanvas").transform, false);
-                productionInfo = obj.GetComponent<ProductionInfo>();
-                productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
-                if (currentMaterialCount == 0)
-                {
-                    productionInfo.gameObject.SetActive(false);
-                }
-            }
-            Init();
         }
 
-        public void Init()
+        public StructureLockData lockData;
+        public StructureState lockstate;
+        public void Init(params object[] args)
         {
-
-            // PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
-            // List<StructureLockData> structureLocks = new();
-            // switch (playerData.currentMapID)
-            // {
-            //     case 1:
-            //         structureLocks = DataController.Instance.structureLockDataList_1;
-            //         break;
-            //     case 2:
-            //         structureLocks = DataController.Instance.structureLockDataList_2;
-            //         break;
-            //     case 3:
-            //         structureLocks = DataController.Instance.structureLockDataList_3;
-            //         break;
-            //     case 4:
-            //         structureLocks = DataController.Instance.structureLockDataList_4;
-            //         break;
-            //     case 5:
-            //         structureLocks = DataController.Instance.structureLockDataList_5;
-            //         break;
-            // }
-            // var lockData = structureLocks.Find(s => s.buildingType == buildingType);
-            // if (lockData != null)
-            // {
-            //     var list = playerData.structLockDataDic[playerData.currentMapID];
-            //     var list1 = playerData.structUnLockDataDic[playerData.currentMapID];
-            //     var list2 = playerData.structCanUnLockDataDic[playerData.currentMapID];
-            //     if (list2.Contains(buildingType))
-            //     {
-            //         isLock = false;
-            //         isCanUnlockState = false;
-            //     }
-            //     else
-            //     {
-            //         if (list.Contains(buildingType))
-            //         {
-            //             isLock = true;
-            //             isCanUnlockState = false;
-            //         }
-            //         else
-            //         {
-            //             isLock = false;
-            //             isCanUnlockState = true;
-            //         }
-            //     }
-
-
-            //     if (isLock)
-            //     {
-            //         content.SetActive(false);
-            //         structureLock.gameObject.SetActive(true);
-            //         structureLock.InitInfo(lockData);
-            //     }
-            //     else
-            //     {
-            //         if (isCanUnlockState)
-            //         {
-            //             content.SetActive(false);
-            //             structureLock.gameObject.SetActive(true);
-            //             structureLock.InitInfo(lockData);
-            //         }
-            //         else
-            //         {
-            //             content.SetActive(true);
-            //             structureLock.gameObject.SetActive(false);
-            //             productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
-            //             grid.basePosition = productPosition.position;
-            //             ObjectPoolManager.Instance.WarmPool("Production", _productObj, 50);
-            //             productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(goodsType));
-            //             materialIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType(dropItemType));
-            //             icon.sortingOrder = sprite.sortingOrder + 2;
-            //             productIcon.sortingOrder = sprite.sortingOrder + 2;
-            //             materialIcon.sortingOrder = sprite.sortingOrder + 2;
-            //             switch (buildingType)
-            //             {
-            //                 case BuildingType.YuShaHu_1:
-            //                     icon.sprite = _assetHandle.Get<Sprite>("1");
-            //                     break;
-            //                 case BuildingType.YuShaHu_2:
-            //                     icon.sprite = _assetHandle.Get<Sprite>("2");
-            //                     break;
-            //                 case BuildingType.YuShaHu_3:
-            //                     icon.sprite = _assetHandle.Get<Sprite>("3");
-            //                     break;
-            //                 case BuildingType.YuShaHu_4:
-            //                     icon.sprite = _assetHandle.Get<Sprite>("4");
-            //                     break;
-            //                 case BuildingType.LianQiLu_1:
-            //                     icon.sprite = _assetHandle.Get<Sprite>("5");
-            //                     break;
-            //                 case BuildingType.LianQiLu_2:
-            //                     icon.sprite = _assetHandle.Get<Sprite>("6");
-            //                     break;
-            //                 case BuildingType.LianQiLu_3:
-            //                     icon.sprite = _assetHandle.Get<Sprite>("7");
-            //                     break;
-
-            //             }
-            //             grid.basePosition = productPosition.position;
-            //         }
-            //     }
-            // }
-            // else
-            // {
-            //     isLock = false;
-            //     isCanUnlockState = false;
-            //     content.SetActive(true);
-            //     structureLock.gameObject.SetActive(false);
-            //     productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
-            //     grid.basePosition = productPosition.position;
-            //     ObjectPoolManager.Instance.WarmPool("Production", _productObj, 50);
-            //     productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(goodsType));
-            //     materialIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType(dropItemType));
-            //     icon.sortingOrder = sprite.sortingOrder + 2;
-            //     productIcon.sortingOrder = sprite.sortingOrder + 2;
-            //     materialIcon.sortingOrder = sprite.sortingOrder + 2;
-            //     switch (buildingType)
-            //     {
-            //         case BuildingType.YuShaHu_1:
-            //             icon.sprite = _assetHandle.Get<Sprite>("1");
-            //             break;
-            //         case BuildingType.YuShaHu_2:
-            //             icon.sprite = _assetHandle.Get<Sprite>("2");
-            //             break;
-            //         case BuildingType.YuShaHu_3:
-            //             icon.sprite = _assetHandle.Get<Sprite>("3");
-            //             break;
-            //         case BuildingType.YuShaHu_4:
-            //             icon.sprite = _assetHandle.Get<Sprite>("4");
-            //             break;
-            //         case BuildingType.LianQiLu_1:
-            //             icon.sprite = _assetHandle.Get<Sprite>("5");
-            //             break;
-            //         case BuildingType.LianQiLu_2:
-            //             icon.sprite = _assetHandle.Get<Sprite>("6");
-            //             break;
-            //         case BuildingType.LianQiLu_3:
-            //             icon.sprite = _assetHandle.Get<Sprite>("7");
-            //             break;
-
-            //     }
-            //     grid.basePosition = productPosition.position;
-            // }
-
-
             var playerData = PlayerDataModule.Instance.data;
-
-            var lockData = GetLockData(playerData.currentMapID);
-            var state = GetStructureState(playerData, lockData);
-
-            RefreshView(state, lockData);
-
+            lockData = GetLockData(playerData.currentMapID);
+            lockstate = GetStructureState(playerData, lockData);
+            RefreshView(lockstate, lockData);
+           
         }
         public StructureLockData GetLockData(int mapId)
         {
@@ -253,7 +107,16 @@ namespace Controller.Structure
         {
             content.SetActive(true);
             structureLock.gameObject.SetActive(false);
-
+             if (productionInfo == null)
+            {
+                GameObject obj = GameObject.Instantiate(_assetHandle.Get<GameObject>("ProductionInfo"), GameObject.Find("HpCanvas").transform, false);
+                productionInfo = obj.GetComponent<ProductionInfo>();
+                productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
+                if (currentMaterialCount == 0)
+                {
+                    productionInfo.gameObject.SetActive(false);
+                }
+            }
             productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
             grid.basePosition = productPosition.position;
 
@@ -304,7 +167,7 @@ namespace Controller.Structure
                 productionInfo.gameObject.SetActive(true);
             productionInfo.StartProductionLoop(this, structureType, baseProductionTime, productionSpeed);
             icon.AnimationState.SetAnimation(0, "animation", true);
-            
+
         }
 
         public void SetSpeed(float speed)
@@ -352,7 +215,7 @@ namespace Controller.Structure
         {
             if (productionInfo != null)
                 Destroy(productionInfo.gameObject);
-            EventCenter.Instance.RemoveListener(EventMessages.ProductionComplete, HandleProductionComplete);
+
         }
 
 

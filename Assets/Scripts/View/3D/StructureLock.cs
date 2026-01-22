@@ -23,14 +23,18 @@ public class StructureLock : MonoBehaviour
     private bool playerInRange;
     private PlayerController player;
     public bool isLocked = true;
-    public TextMeshPro  nametxt;
+    public TextMeshPro nametxt;
 
     public void InitInfo(StructureLockData data)
     {
         _data = data;
         buildType = _data.buildingType;
+        if (_assetHandle == null)
+        {
+            _assetHandle = GetComponent<AssetHandle>();
+        }
         structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
-        PlayerData playerData =PlayerDataModule.Instance.data;
+        PlayerData playerData = PlayerDataModule.Instance.data;
         StructureLockProgressData progressData = playerData.structureLockProgressDataList.Find(s => s.buildType == buildType && s.lockId == data.lockId && s.mapId == playerData.currentMapID);
         if (progressData != null)
         {
@@ -53,7 +57,7 @@ public class StructureLock : MonoBehaviour
             lockSprite.gameObject.SetActive(true);
             bg.SetActive(false);
         }
-        nametxt.text =  Extensions.GetStructureNameByType(buildType) ;
+        nametxt.text = Extensions.GetStructureNameByType(buildType);
 
     }
 
@@ -74,6 +78,8 @@ public class StructureLock : MonoBehaviour
         if (!other.CompareTag("Player")) return;
 
         playerInRange = false;
+        player.InteractionTriggerInRange = false;
+        player.InteractionTriggerTransform = null;
         player = null;
         OnExit();
 
@@ -104,8 +110,7 @@ public class StructureLock : MonoBehaviour
 
     public void OnExit()
     {
-        player.InteractionTriggerInRange = false;
-        player.InteractionTriggerTransform = null;
+
         PlayerData playerData = PlayerDataModule.Instance.data;
         StructureLockProgressData progressData = playerData.structureLockProgressDataList.Find(s => s.buildType == buildType && s.mapId == playerData.currentMapID);
         float fillWidth = Mathf.Clamp01(progressData.currentOwnMoney / _data.needMoney);

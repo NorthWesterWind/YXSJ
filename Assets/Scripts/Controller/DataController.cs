@@ -50,7 +50,7 @@ namespace Controller
         {
 
         }
-        public  List<StructureLockData> GetStructureLockList(int mapID)
+        public List<StructureLockData> GetStructureLockList(int mapID)
         {
             switch (mapID)
             {
@@ -162,35 +162,156 @@ namespace Controller
             mapLockDataList_5.Clear();
             mapLockDataList_5 = JsonConvert.DeserializeObject<List<MapLockData>>(mapLockDataStr5);
 
-           InitMapLock();
-
+            InitMapLock();
+            PlayerData playerData = PlayerDataModule.Instance.data;
             string structureLockDataStr1 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_1")).text;
             structureLockDataList_1.Clear();
             structureLockDataList_1 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr1);
+            for (int i = 0; i < structureLockDataList_1.Count; i++)
+            {
+                var list1 = playerData.structLockDataDic[1];
+                var list2 = playerData.structUnLockDataDic[1];
+                var list3 = playerData.structCanUnLockDataDic[1];
+                if (list3.Contains(structureLockDataList_1[i].buildingType) || list2.Contains(structureLockDataList_1[i].buildingType))
+                {
+                    continue;
+                }
+                if (list1.Contains(structureLockDataList_1[i].buildingType))
+                {
+                    continue;
+                }
+                list1.Add(structureLockDataList_1[i].buildingType);
+            }
 
             string structureLockDataStr2 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_2")).text;
             structureLockDataList_2.Clear();
             structureLockDataList_2 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr2);
 
+            for (int i = 0; i < structureLockDataList_2.Count; i++)
+            {
+                var list1 = playerData.structLockDataDic[2];
+                var list2 = playerData.structUnLockDataDic[2];
+                var list3 = playerData.structCanUnLockDataDic[2];
+                if (list3.Contains(structureLockDataList_2[i].buildingType) || list2.Contains(structureLockDataList_2[i].buildingType))
+                {
+                    continue;
+                }
+                if (list1.Contains(structureLockDataList_2[i].buildingType))
+                {
+                    continue;
+                }
+                list1.Add(structureLockDataList_2[i].buildingType);
+            }
+
             string structureLockDataStr3 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_3")).text;
             structureLockDataList_3.Clear();
             structureLockDataList_3 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr3);
+            for (int i = 0; i < structureLockDataList_3.Count; i++)
+            {
+                var list1 = playerData.structLockDataDic[3];
+                var list2 = playerData.structUnLockDataDic[3];
+                var list3 = playerData.structCanUnLockDataDic[3];
+                if (list3.Contains(structureLockDataList_3[i].buildingType) || list2.Contains(structureLockDataList_3[i].buildingType))
+                {
+                    continue;
+                }
+                if (list1.Contains(structureLockDataList_3[i].buildingType))
+                {
+                    continue;
+                }
+                list1.Add(structureLockDataList_3[i].buildingType);
+            }
 
             string structureLockDataStr4 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_4")).text;
             structureLockDataList_4.Clear();
             structureLockDataList_4 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr4);
 
+            for (int i = 0; i < structureLockDataList_4.Count; i++)
+            {
+                var list1 = playerData.structLockDataDic[4];
+                var list2 = playerData.structUnLockDataDic[4];
+                var list3 = playerData.structCanUnLockDataDic[4];
+                if (list3.Contains(structureLockDataList_4[i].buildingType) || list2.Contains(structureLockDataList_4[i].buildingType))
+                {
+                    continue;
+                }
+                if (list1.Contains(structureLockDataList_4[i].buildingType))
+                {
+                    continue;
+                }
+                list1.Add(structureLockDataList_4[i].buildingType);
+            }
+
+
             string structureLockDataStr5 = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("StructureLockData_5")).text;
             structureLockDataList_5.Clear();
             structureLockDataList_5 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr5);
+
+            for (int i = 0; i < structureLockDataList_5.Count; i++)
+            {
+                var list1 = playerData.structLockDataDic[5];
+                var list2 = playerData.structUnLockDataDic[5];
+                var list3 = playerData.structCanUnLockDataDic[5];
+                if (list3.Contains(structureLockDataList_5[i].buildingType) || list2.Contains(structureLockDataList_5[i].buildingType))
+                {
+                    continue;
+                }
+                if (list1.Contains(structureLockDataList_5[i].buildingType))
+                {
+                    continue;
+                }
+                list1.Add(structureLockDataList_5[i].buildingType);
+            }
+
+            UpdateSturctureLockInfo();
+            EventCenter.Instance.TriggerEvent(EventMessages.DataPrepared);
+
+
         }
 
+        /// <summary>
+        /// 更新建筑解锁信息
+        /// </summary>
+        /// <param name="mapId"></param>
+        /// <param name="structureLockDataList"></param>
+        public void UpdateSturctureLockInfo()
+        {
+            ///根据当前解锁的任务数据  进行可解锁建筑数据划分
+            List<TaskData> taskDatas = GetTaskGroupIds();
+            PlayerData playerData = PlayerDataModule.Instance.data;
+            for (int i = 0; i < taskDatas.Count; i++)
+            {
+                if (taskDatas[i].type == TaskType.Construct)
+                {
+                    BuildingType buildingType = (BuildingType)taskDatas[i].aimId;
+                    if (playerData.structUnLockDataDic[playerData.currentMapID].Contains(buildingType))
+                    {
+                        //该建筑已经解锁
+                        continue;
+                    }
+                    if (!playerData.structCanUnLockDataDic[playerData.currentMapID].Contains(buildingType))
+                    {
+                        //该建筑没有在可解锁列表中  添加
+                        playerData.structCanUnLockDataDic[playerData.currentMapID].Add(buildingType);
+
+                        //从锁定容器中移除
+                        playerData.structLockDataDic[playerData.currentMapID].Remove(buildingType);
+                    }
+
+                }
+            }
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateSturctureLockInfo);
+        }
 
         public List<TaskData> GetTaskGroupIds()
         {
             int groupSize = mapDataDic[PlayerDataModule.Instance.data.currentMapID].taskGroupSize;
             int mapId = PlayerDataModule.Instance.data.currentMapID;
             int taskId = PlayerDataModule.Instance.data.nowTaskId;
+            if(taskId == 0)
+            {
+                taskId = 1;
+            }
             int groupIndex = (taskId - 1) / groupSize;
             int start = groupIndex * groupSize + 1;
             int end = start + groupSize - 1;

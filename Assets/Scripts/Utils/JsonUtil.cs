@@ -9,10 +9,6 @@ namespace Utils
     public static class JsonFileName
     {
         public const string PlayerData = "PlayerData";
-        public const string PlayerChapterData = "PlayerChapterData";
-        public const string PlayerTeamData = "PlayerTeamData";
-        public const string DailyRewardClaimData = "DailyRewardClaimData";
-
     }
 
     public class JsonUtil : SingletonBase<JsonUtil>
@@ -49,7 +45,26 @@ namespace Utils
                 return default;
             }
         }
-        
+         public static async Task SaveDataAsync<T>(T data, string filePath)
+        {
+            var json = JsonConvert.SerializeObject(data, Formatting.Indented);
+            var path = filePath ;
+            if (File.Exists(filePath))
+            {
+                File.Delete(filePath);
+                Debug.Log($"原数据已删除: {path}");
+            }
+            try
+            {
+                await File.WriteAllTextAsync(path, json);
+                Debug.Log($"数据已保存到: {path}");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"保存数据失败: {ex.Message}");
+            }
+        }
+
         public static void DeleteData(string fileName)
         {
             var path = Path.Combine(Application.persistentDataPath, fileName);

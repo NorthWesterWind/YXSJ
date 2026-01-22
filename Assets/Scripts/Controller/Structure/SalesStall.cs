@@ -24,11 +24,18 @@ namespace Controller.Structure
 
         protected override void Start()
         {
-            base.Start();
-            Init();
+            base.Start();    
+        }
+        void OnEnable()
+        {
+             EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo, Init);
+        }
+        void OnDisable()
+        {
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateSturctureLockInfo, Init);
         }
 
-        public void Init()
+        public void Init(params object[] args)
         {
             // PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
             // List<StructureLockData> structureLocks = new();

@@ -17,7 +17,7 @@ namespace Module.Data
                 YuHuiHeBig = 12,
                 XingWenGuo = 13,
                 XingWenGuoGolden = 14,
-                XingWenGuoBig = 15 ,
+                XingWenGuoBig = 15,
                 WuRongJun = 16,
                 WuRongJunGolden = 17,
                 WuRongJunBig = 18,
@@ -33,7 +33,7 @@ namespace Module.Data
                 JingRuiCao = 28,
                 JingRuiCaoGolden = 29,
                 JingRuiCaoBig = 30,
-                
+
                 //矿石
                 TieKuangShi = 31,
                 TieKuangShiGolden = 32,
@@ -80,7 +80,7 @@ namespace Module.Data
                 ZiJingShi = 14,
                 YueJingShi = 15,
         }
-        
+
         /// <summary>
         /// 建筑物枚举类
         /// </summary>
@@ -90,7 +90,7 @@ namespace Module.Data
                 LingZhangTai = 1, //灵账台
                 LingChuGe_1 = 2,  //一号灵储阁
                 YunDiGe = 3,    //云递阁
-                LingChaJia_1 =4,  //一号灵茶架
+                LingChaJia_1 = 4,  //一号灵茶架
                 YuShaHu_1 = 5,     //一号玉砂壶
                 LingChaJia_2 = 6,   //二号灵茶架
                 YuShaHu_2 = 7,      //二号玉砂壶
@@ -113,20 +113,20 @@ namespace Module.Data
                 LingChuGe_1 = 1,  //一号灵储阁
                 LingChuGe_2 = 2, //二号灵储阁
         }
-        
-        
-        
+
+
+
         /// <summary>
         /// 助手枚举类
         /// </summary>
         public enum EmployeeType
         {
-               LingZhangShi,
-               XunCaiTu,
-               YunDiZhe,
-               
-        }   
-        
+                LingZhangShi,
+                XunCaiTu,
+                YunDiZhe,
+
+        }
+
         /// <summary>
         /// 商品枚举类
         /// </summary>
@@ -144,19 +144,19 @@ namespace Module.Data
                 XueBanCha = 8,
                 MuLingCha = 9,
                 JingRuiCha = 10,
-                
+
                 //灵器
                 QingYanJian = 11,
                 YinSiDao = 12,
                 TongWenDao = 13,
                 ZiWuJian = 14,
                 YueXinJing = 15,
-                
-                
+
+
                 JingYunBao = 16,
                 TongBi = 17,
         }
-        
+
         /// <summary>
         /// 掉落物枚举类
         /// </summary>
@@ -173,7 +173,7 @@ namespace Module.Data
                 XueBanHuaFragment = 8,
                 MuLingYaFragment = 9,
                 JingRuiCaoFragment = 10,
-                
+
                 //灵器
                 TieKuangShiFragment = 11,
                 YinKuangShiFragment = 12,
@@ -183,9 +183,14 @@ namespace Module.Data
                 YingQian,
                 JingYuanBao
         }
-        
-        
-        
+
+       public enum StructureState
+        {
+                Unlocked,       // 已解锁
+                Locked,         // 已锁
+                CanUnlock       // 可解锁
+        }
+
         public enum MonsterState
         {
                 None,
@@ -197,7 +202,7 @@ namespace Module.Data
 
         public enum MapType
         {
-                None = 0 , 
+                None = 0,
                 ChunHuiGu = 1,
                 BiLanGu = 2,
                 JinLuGu = 3,
@@ -207,7 +212,7 @@ namespace Module.Data
 
         public enum CustomerType
         {
-                None = 0 ,
+                None = 0,
                 YunZhiTangDiZi,
                 YunZhiTangZhangLao,
                 QingLanGuDiZi,
@@ -217,10 +222,10 @@ namespace Module.Data
                 CangYunGeDiZi,
                 CangYunGeZhangLao,
         }
-        
+
         public enum InteractionType
         {
-                None = 0, 
+                None = 0,
                 FactoryA,
                 FactoryB,
                 SellA,
@@ -242,11 +247,11 @@ namespace Module.Data
         {
                 Atk = 1,
                 Hp = 2,
-                BackpackCapacity=3,
-                Movespeed=4,
-                Weaponsize=5,
-                Pickuprange=6,
-                Atkhp=7,
+                BackpackCapacity = 3,
+                Movespeed = 4,
+                Weaponsize = 5,
+                Pickuprange = 6,
+                Atkhp = 7,
         }
 
         // public enum StructureType
@@ -270,7 +275,7 @@ namespace Module.Data
         //       
         //      
         // }
-        
+
         /// <summary>
         /// 任务类型
         /// </summary>
@@ -288,7 +293,7 @@ namespace Module.Data
 
         public enum AreaType
         {
-                
+
         }
 
         public enum InfoType
@@ -298,23 +303,23 @@ namespace Module.Data
                 LingJing,
                 TongBi,
                 ShuangYunZhiFragment,
-                YueLuCaoFragment ,
-                ZiXinHuaFragment ,
-                YuHuiHeFragment ,
-                XingWenGuoFragment ,
+                YueLuCaoFragment,
+                ZiXinHuaFragment,
+                YuHuiHeFragment,
+                XingWenGuoFragment,
                 WuRongJunFragment,
                 LingXuShengFragment,
-                XueBanHuaFragment ,
-                MuLingYaFragment ,
+                XueBanHuaFragment,
+                MuLingYaFragment,
                 JingRuiCaoFragment,
                 TieKuangShiFragment,
                 YinKuangShiFragment,
                 TongKuangShiFragment,
                 ZiJingShiFragment,
                 YueJingShiFragment,
-                
-                YunZhiCha ,
-                YueLuCha ,
+
+                YunZhiCha,
+                YueLuCha,
                 ZiXinCha,
                 YuHeCha,
                 XingWenCha,
@@ -323,10 +328,10 @@ namespace Module.Data
                 XueBanCha,
                 MuLingCha,
                 JingRuiCha,
-                QingYanJian ,
-                YinSiDao ,
-                TongWenDao ,
-                ZiWuJian ,
+                QingYanJian,
+                YinSiDao,
+                TongWenDao,
+                ZiWuJian,
                 YueXinJing,
         }
 
@@ -343,9 +348,9 @@ namespace Module.Data
 
         public enum CardLevelType
         {
-                FanPing=1,
-                LingYun=2,
-                XianYun=3
+                FanPing = 1,
+                LingYun = 2,
+                XianYun = 3
         }
 
 
@@ -366,7 +371,7 @@ namespace Module.Data
                 UpgradeCharacterWithXuanCaiTuHp = 13,
                 UpgradeGetLingJingShu = 14
         }
-        
+
         public enum GiftpackType
         {
                 None = 0,
@@ -375,12 +380,12 @@ namespace Module.Data
                 LuxuryGiftPack = 3,
                 SilverGiftPack = 4,
                 GoldGiftPack = 5,
-                PlatinumGiftPack = 6 ,
+                PlatinumGiftPack = 6,
         }
 
         public enum GiftpackLevelType
         {
-                None= 0 ,
+                None = 0,
                 Normal = 1,
                 Intermediate = 2,
                 Advanced = 3

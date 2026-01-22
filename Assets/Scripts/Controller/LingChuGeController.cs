@@ -28,6 +28,12 @@ namespace Controller
         private bool isDelivering = false;
         private List<DropController> deliveringDrops = new();
         
+        public void Init(params object[] args)
+        {
+            
+        }
+
+
         protected override void Start()
         {
             base.Start();
@@ -44,6 +50,7 @@ namespace Controller
             EventCenter.Instance.AddListener(EventMessages.LingChuGeBeginWorking , HandleBeginWorking);
             EventCenter.Instance.AddListener(EventMessages.LingChuGeDelivery , HandleLingChuGeDelivery);
             EventCenter.Instance.AddListener(EventMessages.LingChuGeStopDelivery , HandleLingChuGeStopDelivery);
+            EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo, Init);
         }
 
         private void OnDisable()
@@ -51,6 +58,7 @@ namespace Controller
             EventCenter.Instance.RemoveListener(EventMessages.LingChuGeBeginWorking , HandleBeginWorking);
             EventCenter.Instance.RemoveListener(EventMessages.LingChuGeDelivery , HandleLingChuGeDelivery);
             EventCenter.Instance.RemoveListener(EventMessages.LingChuGeStopDelivery , HandleLingChuGeStopDelivery);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateSturctureLockInfo, Init);
         }
 
 

@@ -35,7 +35,6 @@ namespace Controller.Structure
         protected override void Start()
         {
             base.Start();
-            Init();
         }
 
         private void OnEnable()
@@ -43,6 +42,7 @@ namespace Controller.Structure
             EventCenter.Instance.AddListener(EventMessages.CustomerArrived, HandleCustomerArrived);
             EventCenter.Instance.AddListener(EventMessages.StructureSpeedUp, HandleStructureSpeedUp);
             EventCenter.Instance.AddListener(EventMessages.StructureSpeedDown, HandleStructureSpeedDown);
+            EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo, Init);
         }
 
         private void OnDisable()
@@ -50,6 +50,7 @@ namespace Controller.Structure
             EventCenter.Instance.RemoveListener(EventMessages.CustomerArrived, HandleCustomerArrived);
             EventCenter.Instance.RemoveListener(EventMessages.StructureSpeedUp, HandleStructureSpeedUp);
             EventCenter.Instance.RemoveListener(EventMessages.StructureSpeedDown, HandleStructureSpeedDown);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateSturctureLockInfo, Init);
         }
         void Update()
         {
@@ -75,7 +76,8 @@ namespace Controller.Structure
             }
         }
 
-        public void Init()
+
+        public void Init(params object[] args)
         {
             grid.basePosition = exportTransform.position;
             PlayerData playerData =PlayerDataModule.Instance.data;
