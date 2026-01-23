@@ -173,7 +173,7 @@ public class YunDiGePop : BaseView
             {
                 nextspeedtxt.text = (deliverData.currentMoveSpeed + 0.5).ToString();
             }
-
+            EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask , BuildingType.YunDiGe);
             UIController.Instance.Show<TipView>("升级成功。");
         }
     }

@@ -75,9 +75,9 @@ namespace View
                             _callback = () =>
                             {
                                 UIController.Instance.Show<TipView>("兑换成功！");
-                               PlayerDataModule.Instance.data.lingJing -= costValue;
+                                PlayerDataModule.Instance.data.lingJing -= costValue;
                                 PlayerDataModule.Instance.data.goldIngot += DataController.Instance.giftpackDataDic[3].JinYuanBao;
-                                var dic =PlayerDataModule.Instance.LotteryCard(DataController.Instance.giftpackDataDic[3]);
+                                var dic = PlayerDataModule.Instance.LotteryCard(DataController.Instance.giftpackDataDic[3]);
                                 UIController.Instance.Show<RewardConfirmView>(dic, new Dictionary<CurrencyType, int> { { CurrencyType.JingYuanBao, DataController.Instance.giftpackDataDic[3].JinYuanBao } });
                                 EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                             };
@@ -88,7 +88,7 @@ namespace View
                             {
                                 UIController.Instance.Show<TipView>("兑换成功！");
                                 PlayerDataModule.Instance.data.lingJing -= costValue;
-                                 PlayerDataModule.Instance.data.goldIngot += DataController.Instance.giftpackDataDic[2].JinYuanBao;
+                                PlayerDataModule.Instance.data.goldIngot += DataController.Instance.giftpackDataDic[2].JinYuanBao;
                                 var dic = PlayerDataModule.Instance.LotteryCard(DataController.Instance.giftpackDataDic[2]);
                                 UIController.Instance.Show<RewardConfirmView>(dic, new Dictionary<CurrencyType, int> { { CurrencyType.JingYuanBao, DataController.Instance.giftpackDataDic[2].JinYuanBao } });
                                 EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
@@ -100,7 +100,7 @@ namespace View
                             _callback = () =>
                             {
                                 UIController.Instance.Show<TipView>("兑换成功！");
-                               PlayerDataModule.Instance.data.lingJing -= costValue;
+                                PlayerDataModule.Instance.data.lingJing -= costValue;
                                 EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                             };
                             UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}灵晶兑换玄速令？", _callback);
@@ -109,7 +109,7 @@ namespace View
                             _callback = () =>
                             {
                                 UIController.Instance.Show<TipView>("兑换成功！");
-                               PlayerDataModule.Instance.data.lingJing -= costValue;
+                                PlayerDataModule.Instance.data.lingJing -= costValue;
                                 EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                             };
                             UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}灵晶兑换天驰令？", _callback);
@@ -118,8 +118,8 @@ namespace View
                             _callback = () =>
                             {
                                 UIController.Instance.Show<TipView>("兑换成功！");
-                               PlayerDataModule.Instance.data.lingJing -= costValue;
-                               PlayerDataModule.Instance.data.goldIngot += rewardValue;
+                                PlayerDataModule.Instance.data.lingJing -= costValue;
+                                PlayerDataModule.Instance.data.goldIngot += rewardValue;
                                 EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                             };
                             UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}灵晶兑换{rewardValue}金元宝？",
@@ -133,9 +133,12 @@ namespace View
                 _callback = null;
                 _callback = () =>
                 {
-                    UIController.Instance.Show<TipView>("兑换成功！");
-                   PlayerDataModule.Instance.data.lingJing += rewardValue;
-                    EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
+                    if (PlayerDataModule.Instance.AddRecordMoney(costValue))
+                    {
+                        UIController.Instance.Show<TipView>("兑换成功！");
+                        PlayerDataModule.Instance.data.lingJing += rewardValue;
+                        EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
+                    }
                 };
                 UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}元兑换{rewardValue}灵晶？", _callback);
             }
@@ -154,7 +157,7 @@ namespace View
                         mask?.SetActive(true);
                         UIController.Instance.Show<TipView>("领取成功！");
                         var dic = PlayerDataModule.Instance.LotteryCard(DataController.Instance.giftpackDataDic[1]);
-                       PlayerDataModule.Instance.data.goldIngot += DataController.Instance.giftpackDataDic[1].JinYuanBao;
+                        PlayerDataModule.Instance.data.goldIngot += DataController.Instance.giftpackDataDic[1].JinYuanBao;
                         UIController.Instance.Show<RewardConfirmView>(dic, new Dictionary<CurrencyType, int> { { CurrencyType.JingYuanBao, DataController.Instance.giftpackDataDic[1].JinYuanBao } });
                         EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                         break;

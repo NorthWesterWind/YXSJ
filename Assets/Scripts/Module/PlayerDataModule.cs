@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Controller;
 using Module.Data;
 using Newtonsoft.Json;
+using Unity.VisualScripting;
 using UnityEngine;
 using Utils;
 using View;
@@ -32,6 +33,75 @@ namespace Module
         {
             foreach (var task in data.listenInTaskList)
             {
+                if (task.type == TaskType.Upgrade)
+                {
+                    BuildingType type = (BuildingType)task.aimId;
+                    if (data.ProductStationDataList.Find(x => x.buildingType == type) != null)
+                    {
+                        if (data.taskProgressDic.ContainsKey(task.taskId))
+                        {
+                            data.taskProgressDic[task.taskId] += data.ProductStationDataList.Find(x => x.buildingType == type).priceLevel;
+                        }
+                        else
+                        {
+                            data.taskProgressDic.Add(task.taskId, data.ProductStationDataList.Find(x => x.buildingType == type).priceLevel);
+                        }
+
+                    }
+                    if (type == BuildingType.LingZhangTai)
+                    {
+                        if (data.taskProgressDic.ContainsKey(task.taskId))
+                        {
+                            data.taskProgressDic[task.taskId] += data.cashierData.workspeedLevel;
+                        }
+                        else
+                        {
+                            data.taskProgressDic.Add(task.taskId, data.cashierData.workspeedLevel);
+                        }
+                    }
+                    if (type == BuildingType.YunDiGe)
+                    {
+                        if (data.taskProgressDic.ContainsKey(task.taskId))
+                        {
+                            data.taskProgressDic[task.taskId] += data.deliverData.speedLevel;
+                        }
+                        else
+                        {
+                            data.taskProgressDic.Add(task.taskId, data.deliverData.speedLevel);
+                        }
+                    }
+                    if (type == BuildingType.LingChuGe_1)
+                    {
+                        if (data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1) != null)
+                        {
+                            WarehouseCategory warehouse = data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1);
+                            if (data.taskProgressDic.ContainsKey(task.taskId))
+                            {
+                                data.taskProgressDic[task.taskId] += warehouse.atkLevel;
+                            }
+                            else
+                            {
+                                data.taskProgressDic.Add(task.taskId, warehouse.atkLevel);
+                            }
+                        }
+                    }
+                    if (type == BuildingType.LingChuGe_2)
+                    {
+                        if (data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2) != null)
+                        {
+                            WarehouseCategory warehouse = data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2);
+                            if (data.taskProgressDic.ContainsKey(task.taskId))
+                            {
+                                data.taskProgressDic[task.taskId] += warehouse.atkLevel;
+                            }
+                            else
+                            {
+                                data.taskProgressDic.Add(task.taskId, warehouse.atkLevel);
+                            }
+                        }
+                    }
+                }
+
                 if (task.type == TaskType.Construct)
                 {
                     BuildingType type = (BuildingType)task.aimId;
@@ -41,13 +111,13 @@ namespace Module
                         switch (data.currentMapID)
                         {
                             case 1:
-                                StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x=>x.buildingType == type);
+                                StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x => x.buildingType == type);
                                 StructureLockProgressData progress1 = new StructureLockProgressData(type,
                                     data1.needMoney, data1.lockId, data.currentMapID);
                                 data.structureLockProgressDataList.Add(progress1);
                                 break;
                             case 2:
-                                StructureLockData data2 = DataController.Instance.structureLockDataList_2.Find(x=>x.buildingType == type);
+                                StructureLockData data2 = DataController.Instance.structureLockDataList_2.Find(x => x.buildingType == type);
                                 StructureLockProgressData progress2 = new StructureLockProgressData(type,
                                     data2.needMoney, data2.lockId, data.currentMapID);
                                 data.structureLockProgressDataList.Add(progress2);
@@ -70,9 +140,38 @@ namespace Module
                                     data5.needMoney, data5.lockId, data.currentMapID);
                                 data.structureLockProgressDataList.Add(progress5);
                                 break;
-                            
+
                         }
                         data.structCanUnLockDataDic[data.currentMapID].Add(type);
+                    }
+                }
+                if (task.type == TaskType.Unlock)
+                {
+                    MonsterType monster = (MonsterType)task.aimId;
+                    MapLockData data1 = null;
+                    switch (data.currentMapID)
+                    {
+                        case 1:
+                            data1 = DataController.Instance.mapLockDataList_1.Find(x => x.monsterType == monster);
+                            break;
+                        case 2:
+                            data1 = DataController.Instance.mapLockDataList_2.Find(x => x.monsterType == monster);
+                            break;
+                        case 3:
+                            data1 = DataController.Instance.mapLockDataList_3.Find(x => x.monsterType == monster);
+                            break;
+                        case 4:
+                            data1 = DataController.Instance.mapLockDataList_4.Find(x => x.monsterType == monster);
+                            break;
+                        case 5:
+                            data1 = DataController.Instance.mapLockDataList_5.Find(x => x.monsterType == monster);
+                            break;
+                    }
+                    var _data = data.mapLockDataProgressList.Find(x => x.monsterType == monster);
+                    if (_data == null)
+                    {
+                        data.mapLockDataProgressList.Add(new MapLockDataProgress(monster, data.currentMapID, data1.lockId, false, 0, true));
+                        EventCenter.Instance.TriggerEvent(EventMessages.UpdateMapLockState, monster);
                     }
                 }
             }
@@ -306,9 +405,13 @@ namespace Module
                          data = new PlayerData();
                          data.userAccount = user;
                          data.userPassword = password;
+
+                         FiilOrderData();
                          SavePlayerDataAsync();
                          SavePlayerDataToSever();
+
                      }
+
                      if (data.SeventRecentlyWeek != Extensions.GetCurrentWeekNumber())
                      {
                          data.sevenDayRecordList.Clear();
@@ -321,7 +424,7 @@ namespace Module
                      {
                          data.monthlyLimitMoney = 0;
                      }
-                    
+
                      callback?.Invoke(respone.fcm);
                      DataController.Instance.UpdateSturctureLockInfo();
                  }
@@ -340,7 +443,26 @@ namespace Module
              });
         }
 
-
+        public void FiilOrderData()
+        {
+            for (int i = 0; i < data.orderDataprogressList.Count - 4; i++)
+            {
+                var randomKey = DataController.Instance.orderDataDic.Keys.ElementAt(UnityEngine.Random.Range(0, DataController.Instance.orderDataDic.Count));
+                var randomValue = DataController.Instance.orderDataDic[randomKey];
+                var list = data.mapLockDataProgressList.FindAll(x => x.isUnlock == true);
+                List<GoodsType> goodsTypeList = new List<GoodsType>();
+                List<DropItemType> dropItemTypeList = new List<DropItemType>();
+                foreach (var item in list)
+                {
+                    goodsTypeList.Add(Extensions.GetGoodsTypeByMonsterType(item.monsterType));
+                    dropItemTypeList.Add(Extensions.GetDropTypeByMonsterType(item.monsterType));
+                }
+                data.orderDataprogressList.Add(new OrderDataProgress(randomKey,
+                    new Dictionary<GoodsType, (int,int)>() { { goodsTypeList[UnityEngine.Random.Range(0, goodsTypeList.Count)], (0,randomValue.needNum) } },
+                     new Dictionary<DropItemType, (int,int)>() { { dropItemTypeList[UnityEngine.Random.Range(0, dropItemTypeList.Count)], (0,randomValue.needNum) } }
+                           ));
+            }
+        }
 
         public void AddJinYuanBao(int value)
         {
@@ -606,6 +728,7 @@ namespace Module
         public void HandleConstructTask(params object[] args)
         {
             BuildingType buildingType = (BuildingType)args[0];
+
             foreach (var _data in data.listenInTaskList)
             {
                 if (_data.type == TaskType.Construct)
@@ -623,6 +746,44 @@ namespace Module
                     }
                 }
             }
+            if (buildingType == BuildingType.YuShaHu_1 || buildingType == BuildingType.YuShaHu_2 || buildingType == BuildingType.YuShaHu_3 || buildingType == BuildingType.YuShaHu_4
+             || buildingType == BuildingType.LianQiLu_1 || buildingType == BuildingType.LianQiLu_2 || buildingType == BuildingType.LianQiLu_3)
+            {
+                if (data.ProductStationDataList.Find(x => x.buildingType == buildingType) != null)
+                {
+                    Debug.LogError(" yj ==>  重复添加生产台数据");
+                }
+                data.ProductStationDataList.Add(new ProductStationData(buildingType));
+            }
+            if (buildingType == BuildingType.YunDiGe)
+            {
+                if (data.deliverData == null)
+                {
+                    data.deliverData = new DeliverData();
+                }
+            }
+            if (buildingType == BuildingType.LingZhangTai)
+            {
+                if (data.deliverData == null)
+                {
+                    data.deliverData = new DeliverData();
+                }
+            }
+            if (buildingType == BuildingType.LingChuGe_1)
+            {
+                if (data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1) == null)
+                {
+                    data.warehouselist.Add(new WarehouseCategory(WarehouseCategoryType.LingChuGe_1));
+                }
+            }
+            if (buildingType == BuildingType.LingChuGe_2)
+            {
+                if (data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2) == null)
+                {
+                    data.warehouselist.Add(new WarehouseCategory(WarehouseCategoryType.LingChuGe_2));
+                }
+            }
+
         }
 
         public void HandleSellTask(params object[] args)
@@ -637,7 +798,7 @@ namespace Module
                     {
                         if (data.taskProgressDic.ContainsKey(_data.taskId))
                         {
-                            data.taskProgressDic[_data.taskId]+= value;
+                            data.taskProgressDic[_data.taskId] += value;
                         }
                         else
                         {

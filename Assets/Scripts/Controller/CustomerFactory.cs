@@ -72,6 +72,10 @@ namespace Controller
         {
             while (true)
             {
+                if(!PlayerDataModule.Instance.data.structUnLockDataDic[PlayerDataModule.Instance.data.currentMapID].Contains(BuildingType.LingZhangTai))
+                {
+                    continue;
+                }
                 // 过滤出还能继续排队的地点
                 var availableStructures = GameController.Instance.goodBuild
                     .Where(pair =>

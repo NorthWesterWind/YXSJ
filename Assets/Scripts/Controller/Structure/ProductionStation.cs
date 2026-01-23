@@ -22,8 +22,7 @@ namespace Controller.Structure
 
 
         public int currentMaterialCount;  //当前材料数量
-        public float baseProductionTime = 2.5f; // 基础生产时间
-        public float productionSpeed = 1f;    // 外部可修改的速度倍率
+        public float baseProductionTime ; // 基础生产时间
         [Header("进度条信息类")]
         public ProductionInfo productionInfo;
         public DropItemType dropItemType;
@@ -107,17 +106,18 @@ namespace Controller.Structure
         {
             content.SetActive(true);
             structureLock.gameObject.SetActive(false);
+            baseProductionTime = WorldData.productStationWorkingTimeDic[ PlayerDataModule.Instance.data.ProductStationDataList.Find(x => x.buildingType == buildingType).timelevel];
              if (productionInfo == null)
             {
                 GameObject obj = GameObject.Instantiate(_assetHandle.Get<GameObject>("ProductionInfo"), GameObject.Find("HpCanvas").transform, false);
                 productionInfo = obj.GetComponent<ProductionInfo>();
-                productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
+                productionInfo.Init(baseProductionTime, currentMaterialCount, this);
                 if (currentMaterialCount == 0)
                 {
                     productionInfo.gameObject.SetActive(false);
                 }
             }
-            productionInfo.Init(baseProductionTime, productionSpeed, currentMaterialCount, this);
+            productionInfo.Init(baseProductionTime, currentMaterialCount, this);
             grid.basePosition = productPosition.position;
 
             ObjectPoolManager.Instance.WarmPool("Production", _productObj, 50);
@@ -165,15 +165,9 @@ namespace Controller.Structure
             // 强制激活 UI
             if (!productionInfo.gameObject.activeSelf)
                 productionInfo.gameObject.SetActive(true);
-            productionInfo.StartProductionLoop(this, structureType, baseProductionTime, productionSpeed);
+            productionInfo.StartProductionLoop(this, structureType, baseProductionTime);
             icon.AnimationState.SetAnimation(0, "animation", true);
 
-        }
-
-        public void SetSpeed(float speed)
-        {
-            productionSpeed = speed;
-            productionInfo.UpdateSpeed(speed);
         }
         public void OnProductionFinished()
         {

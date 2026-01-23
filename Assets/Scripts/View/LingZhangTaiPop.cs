@@ -176,6 +176,7 @@ public class LingZhangTaiPop : BaseView
             }
 
             UIController.Instance.Show<TipView>("升级成功。");
+            EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask , BuildingType.LingZhangTai);
         }
     }
     private void OnClickUpgradePeopleBtn()

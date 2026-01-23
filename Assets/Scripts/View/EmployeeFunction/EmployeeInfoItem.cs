@@ -25,7 +25,7 @@ namespace View.EmployeeFunction
         public int value;
         PlayerData playerData;
 
-        public void Init(System.Object type, int value)
+        public void Init(MonsterFamily type, int value)
         {
             if (_assetHandle == null)
             {
@@ -33,10 +33,10 @@ namespace View.EmployeeFunction
             }
             this.value = value;
             playerData = PlayerDataModule.Instance.data;
-            if (type is MonsterFamily familyType)
-            {
-                monstertype = familyType;
-                image.sprite = _assetHandle.Get<Sprite>(Extensions.GetMonsterPictureNameByType(monstertype));
+            // if (type is MonsterFamily familyType)
+            // {
+                monstertype =  type;
+                image.sprite = _assetHandle.Get<Sprite>(Extensions.GetMonsterPictureNameByType(type));
                 switch (type)
                 {
                     case MonsterFamily.ShuangYunZhi:
@@ -99,45 +99,45 @@ namespace View.EmployeeFunction
                         break;
 
                 }
-            }
-            else
-            {
-                buildingType = (BuildingType)type;
-                if (buildingType == BuildingType.LingChaJia_1 || buildingType == BuildingType.LingChaJia_2 ||
-                    buildingType == BuildingType.LingChaJia_3 || buildingType == BuildingType.LingChaJia_4)
-                {
-                    image.sprite = _assetHandle.Get<Sprite>("LingChaJia");
-                }
-                else
-                {
-                    image.sprite = _assetHandle.Get<Sprite>("LianQiJia");
-                }
-                switch (buildingType)
-                {
-                    case BuildingType.LingChaJia_1:
-                        nametxt.text = "一号灵茶架";
-                        break;
-                    case BuildingType.LingChaJia_2:
-                        nametxt.text = "二号灵茶架";
-                        break;
-                    case BuildingType.LingChaJia_3:
-                        nametxt.text = "三号灵茶架";
-                        break;
-                    case BuildingType.LingChaJia_4:
-                        nametxt.text = "四号灵茶架";
-                        break;
-                    case BuildingType.LingQiJia_1:
-                        nametxt.text = "一号灵器架";
-                        break;
-                    case BuildingType.LingQiJia_2:
-                        nametxt.text = "二号炼器炉";
-                        break;
-                    case BuildingType.LingQiJia_3:
-                        nametxt.text = "三号炼器炉";
-                        break;
-                }
+            //}
+            // else
+            // {
+            //     buildingType = (BuildingType)type;
+            //     if (buildingType == BuildingType.LingChaJia_1 || buildingType == BuildingType.LingChaJia_2 ||
+            //         buildingType == BuildingType.LingChaJia_3 || buildingType == BuildingType.LingChaJia_4)
+            //     {
+            //         image.sprite = _assetHandle.Get<Sprite>("LingChaJia");
+            //     }
+            //     else
+            //     {
+            //         image.sprite = _assetHandle.Get<Sprite>("LianQiJia");
+            //     }
+            //     switch (buildingType)
+            //     {
+            //         case BuildingType.LingChaJia_1:
+            //             nametxt.text = "一号灵茶架";
+            //             break;
+            //         case BuildingType.LingChaJia_2:
+            //             nametxt.text = "二号灵茶架";
+            //             break;
+            //         case BuildingType.LingChaJia_3:
+            //             nametxt.text = "三号灵茶架";
+            //             break;
+            //         case BuildingType.LingChaJia_4:
+            //             nametxt.text = "四号灵茶架";
+            //             break;
+            //         case BuildingType.LingQiJia_1:
+            //             nametxt.text = "一号灵器架";
+            //             break;
+            //         case BuildingType.LingQiJia_2:
+            //             nametxt.text = "二号炼器炉";
+            //             break;
+            //         case BuildingType.LingQiJia_3:
+            //             nametxt.text = "三号炼器炉";
+            //             break;
+            //     }
 
-            }
+            // }
             UpdateInfo();
         }
 
@@ -320,7 +320,7 @@ namespace View.EmployeeFunction
                         else
                         {
                             addBtnMask.gameObject.SetActive(true);
-                            removeBtnMask.gameObject.SetActive(true);
+                            removeBtnMask.gameObject.SetActive(false);
                         }
                     }
                     break;
@@ -344,7 +344,7 @@ namespace View.EmployeeFunction
                         else
                         {
                             addBtnMask.gameObject.SetActive(true);
-                            removeBtnMask.gameObject.SetActive(true);
+                            removeBtnMask.gameObject.SetActive(false);
                         }
                     }
                     break;

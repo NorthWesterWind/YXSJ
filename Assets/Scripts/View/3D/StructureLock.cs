@@ -168,8 +168,8 @@ public class StructureLock : MonoBehaviour
 
         PlayerDataModule.Instance.data.structCanUnLockDataDic[PlayerDataModule.Instance.data.currentMapID]
             .Remove(data.buildType);
-        PlayerDataModule.Instance.data.structCanUnLockDataDic[PlayerDataModule.Instance.data.currentMapID].Add(data.buildType);
-        EventCenter.Instance.TriggerEvent(EventMessages.StructureLockUnlocked, _data);
+        PlayerDataModule.Instance.data.structUnLockDataDic[PlayerDataModule.Instance.data.currentMapID].Add(data.buildType);
+        EventCenter.Instance.TriggerEvent(EventMessages.UpdateSturctureLockInfo, _data);
         EventCenter.Instance.TriggerEvent(EventMessages.ConstructTask, buildType);
     }
 

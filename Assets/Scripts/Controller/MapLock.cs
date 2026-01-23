@@ -27,19 +27,21 @@ public class MapLock : MonoBehaviour
     void OnEnable()
     {
         EventCenter.Instance.AddListener(EventMessages.ThrowOutTongBi, OnPlayerThrowTongBi);
-    
+        EventCenter.Instance.AddListener(EventMessages.UpdateMapLockState, HandleUpdateState);
+
     }
     void OnDisable()
     {
         EventCenter.Instance.RemoveListener(EventMessages.ThrowOutTongBi, OnPlayerThrowTongBi);
+        EventCenter.Instance.RemoveListener(EventMessages.UpdateMapLockState, HandleUpdateState);
     }
 
     private void OnPlayerThrowTongBi(params object[] args)
     {
-        Transform t = (Transform) args[0];
+        Transform t = (Transform)args[0];
         if (t != receiveTransform)
             return;
-       var progress = GetProgressData();
+        var progress = GetProgressData();
         progress.currentOwnMoney += 100;
         UpdateProgress(progress.currentOwnMoney);
     }
@@ -49,20 +51,41 @@ public class MapLock : MonoBehaviour
         if (!playerInRange || interactStrategy == null || !isLocked)
             return;
     }
+    public void HandleUpdateState(params object[] args)
+    {
+        if ((MonsterType)args[0] != monsterType)
+            return;
+        var progress = GetProgressData();
+        if (progress != null)
+        {
+            isLocked = !progress.isUnlock;
+            if (!isLocked)
+            {
+                lockObject.SetActive(false);
+                bg.SetActive(false);
+            }
+            else
+            {
+                lockObject.SetActive(true);
+                bg.SetActive(progress.canShowBg);
+                UpdateProgress(progress.currentOwnMoney);
+            }
+        }
+        else
+        {
+            lockObject.SetActive(true);
+            bg.SetActive(false);
+        }
+    }
 
     public void Init(MapLockData data)
     {
         mapLockData = data;
         monsterType = data.monsterType;
-
-        PlayerData playerData = PlayerDataModule.Instance.data;
-
         var progress = GetProgressData();
-
         if (progress != null)
         {
             isLocked = !progress.isUnlock;
-
             if (!isLocked)
             {
                 lockObject.SetActive(false);
@@ -102,7 +125,7 @@ public class MapLock : MonoBehaviour
         float percent = value / mapLockData.needMoney;
         fill.transform.localScale = new Vector3(percent, 1, 1);
         needText.text = $"{mapLockData.needMoney - Mathf.CeilToInt(value)}";
-        if(percent >= 1f && isLocked)
+        if (percent >= 1f && isLocked)
         {
             Unlock();
         }
@@ -128,7 +151,7 @@ public class MapLock : MonoBehaviour
         playerInRange = true;
         player = other.GetComponent<PlayerController>();
         interactStrategy?.OnEnter(this, player, receiveTransform);
-       
+
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -138,7 +161,7 @@ public class MapLock : MonoBehaviour
         playerInRange = false;
         player = null;
         interactStrategy?.OnExit();
-       
+
     }
 
     #endregion
@@ -155,7 +178,7 @@ public class MapLock : MonoBehaviour
             data.isUnlock = true;
             data.currentOwnMoney = mapLockData.needMoney;
         }
-        if(player.InteractionTriggerTransform == receiveTransform)
+        if (player.InteractionTriggerTransform == receiveTransform)
         {
             player.InteractionTriggerInRange = false;
             player.InteractionTriggerTransform = null;

@@ -87,8 +87,8 @@ public class LingChuGePop : BaseView
         }
 
         gradefreeTxt_2.text = (warehouse.numLevel * 20000).ToString();
-        atkLevelTxt.text = warehouse.atkLevel+ "级";
-        numLevelTxt.text = warehouse.numLevel+ "级";
+        atkLevelTxt.text = warehouse.atkLevel + "级";
+        numLevelTxt.text = warehouse.numLevel + "级";
         currentAtkTxt.text = warehouse.atk.ToString();
         nextAtkTxt.text = (warehouse.atk + 1.5).ToString();
 
@@ -192,18 +192,26 @@ public class LingChuGePop : BaseView
             PlayerDataModule.Instance.data.tongbi -= warehouse.atkLevel * 3000;
             warehouse.atkLevel += 1;
             warehouse.atk += 1.5f;
-            atkLevelTxt.text = warehouse.atkLevel+ "级";
+            atkLevelTxt.text = warehouse.atkLevel + "级";
             atktxt.text = warehouse.atk.ToString();
             currentAtkTxt.text = warehouse.atk.ToString();
-            if(warehouse.atkLevel < warehouse.maxAtkLevel)
+            if (warehouse.atkLevel < warehouse.maxAtkLevel)
             {
-                 nextAtkTxt.text = (warehouse.atk + 1.5).ToString();
+                nextAtkTxt.text = (warehouse.atk + 1.5).ToString();
             }
             else
             {
-                 nextAtkTxt.text = "";
+                nextAtkTxt.text = "";
             }
-           
+            if (warehouse.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1)
+            {
+                EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask, BuildingType.LingChuGe_1);
+            }
+            else
+            {
+                EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask, BuildingType.LingChuGe_2);
+            }
+    
             UIController.Instance.Show<TipView>("升级成功。");
         }
     }
@@ -225,15 +233,15 @@ public class LingChuGePop : BaseView
             numLevelTxt.text = warehouse.numLevel + "级";
             numtxt.text = warehouse.peopleNum.ToString();
             currentNumTxt.text = warehouse.peopleNum.ToString();
-            if(warehouse.peopleNum < 3)
+            if (warehouse.peopleNum < 3)
             {
-                 nextNumTxt.text = (warehouse.peopleNum + 1).ToString();
+                nextNumTxt.text = (warehouse.peopleNum + 1).ToString();
             }
             else
             {
-                 nextNumTxt.text = "";
+                nextNumTxt.text = "";
             }
-           
+
             UIController.Instance.Show<TipView>("升级成功。");
         }
     }

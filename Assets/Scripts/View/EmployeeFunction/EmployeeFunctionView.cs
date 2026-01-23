@@ -29,7 +29,10 @@ namespace View.EmployeeFunction
         {
             base.UpdateViewWithArgs(args);
             UpdateInfo();
-            ShowContent_1();
+            if (yundizheObj.activeSelf)
+            {
+                 ShowContent_1();
+            }
         }
 
         protected override void AddEventListener()
@@ -58,7 +61,18 @@ namespace View.EmployeeFunction
         public void UpdateInfo()
         {
             PlayerData playerData = PlayerDataModule.Instance.data;
-
+            if(playerData.deliverData == null)
+            {
+                yundizheObj.SetActive(false);
+            }
+            if(playerData.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1) == null)
+            {
+                xuancaituObj_1.SetActive(false);
+            }
+            if(playerData.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2) == null)
+            {
+                xuancaituObj_2.SetActive(false);
+            }
         }
 
         public void ShowContent_1()
@@ -83,7 +97,7 @@ namespace View.EmployeeFunction
             yundizheBtnMask.SetActive(true);
             xuancaituBtn_1Mask.SetActive(false);
             xuancaituBtn_2Mask.SetActive(true);
-            employeeContent_1.Init(EmployeeType.XuanCaiTu, BuildingType.LingChuGe_1);
+            employeeContent_2.Init(EmployeeType.XuanCaiTu, BuildingType.LingChuGe_1);
         }
 
         public void ShowContent_3()
@@ -96,7 +110,7 @@ namespace View.EmployeeFunction
             yundizheBtnMask.SetActive(true);
             xuancaituBtn_1Mask.SetActive(true);
             xuancaituBtn_2Mask.SetActive(false);
-            employeeContent_1.Init(EmployeeType.XuanCaiTu, BuildingType.LingChuGe_2);
+            employeeContent_3.Init(EmployeeType.XuanCaiTu, BuildingType.LingChuGe_2);
         }
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Controller;
 using Module.Data;
 using TMPro;
@@ -33,7 +34,6 @@ public class OrderItem : MonoBehaviour
         OrderData data = DataController.Instance.orderDataDic[orderDataProgress.orderId];   
         peopleIcon.sprite = _assetHandle.Get<Sprite>(data.elderType.ToString());
         info.text = "来点上好的货物。";
-       
 
 
     }

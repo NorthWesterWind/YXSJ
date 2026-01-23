@@ -24,11 +24,11 @@ namespace Controller.Structure
 
         protected override void Start()
         {
-            base.Start();    
+            base.Start();
         }
         void OnEnable()
         {
-             EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo, Init);
+            EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo, Init);
         }
         void OnDisable()
         {
@@ -37,56 +37,10 @@ namespace Controller.Structure
 
         public void Init(params object[] args)
         {
-            // PlayerData playerData = ModuleMgr.Instance.GetModule<PlayerDataModule>().data;
-            // List<StructureLockData> structureLocks = new();
-            // switch (playerData.currentMapID)
-            // {
-            //     case 1:
-            //         structureLocks = DataController.Instance.structureLockDataList_1;
-            //         break;
-            //     case 2:
-            //         structureLocks = DataController.Instance.structureLockDataList_2;
-            //         break;
-            //     case 3:
-            //         structureLocks = DataController.Instance.structureLockDataList_3;
-            //         break;
-            //     case 4:
-            //         structureLocks = DataController.Instance.structureLockDataList_4;
-            //         break;
-            //     case 5:
-            //         structureLocks = DataController.Instance.structureLockDataList_5;
-            //         break;
-            // }
-            // var lockData = structureLocks.Find(s => s.buildingType == buildingType);
-            // if (lockData != null)
-            // {
-            //     var progressData = playerData.structureLockProgressDataList.Find(s => s.buildType == buildingType && s.lockId == lockData.lockId && s.mapId == playerData.currentMapID);
-            //     if (progressData != null && progressData.isUnlock)
-            //     {
-            //         content.SetActive(true);
-            //         structureLock.gameObject.SetActive(false);
-            //         grid.basePosition = baseTransform.position;
-            //         GameController.Instance.goodBuild.Add(currentGoodsType, this);
-            //     }
-            //     else
-            //     {
-            //         content.SetActive(false);
-            //         structureLock.gameObject.SetActive(true);
-            //         structureLock.InitInfo(lockData);
-            //     }
-            // }
-            // productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(currentGoodsType));
-            // productIcon.sortingOrder = sprite.sortingOrder+2;
-            // productIconbg.sortingOrder = sprite.sortingOrder+1;
-            // grid.basePosition = baseTransform.position;
-
-
 
             var playerData = PlayerDataModule.Instance.data;
-
             var lockData = GetLockData(playerData.currentMapID);
             var state = GetStructureState(playerData, lockData);
-
             RefreshView(state, lockData);
         }
 
@@ -111,8 +65,8 @@ namespace Controller.Structure
             structureLock.gameObject.SetActive(false);
             grid.basePosition = baseTransform.position;
             productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(currentGoodsType));
-            productIcon.sortingOrder = sprite.sortingOrder+2;
-            productIconbg.sortingOrder = sprite.sortingOrder+1;
+            productIcon.sortingOrder = sprite.sortingOrder + 2;
+            productIconbg.sortingOrder = sprite.sortingOrder + 1;
         }
 
         public StructureLockData GetLockData(int mapId)

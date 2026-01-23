@@ -18,15 +18,20 @@ namespace Module.Data
         public static Dictionary<GoodsType, int> goodsPriceDic = new Dictionary<GoodsType, int>()
         {
             { GoodsType.YunZhiCha  , 100},
-            { GoodsType.YueLuCha  , 150},
+            { GoodsType.YueLuCha  , 200},
             { GoodsType.ZiXinCha  , 200},
-            { GoodsType.YuHeCha  , 250},
+            { GoodsType.YuHuiCha  , 300},
             { GoodsType.XingWenCha  , 300},
-            { GoodsType.WuRongCha  , 350},
-            { GoodsType.LingXuCha  , 350},
+            { GoodsType.WuRongCha  , 300},
+            { GoodsType.LingXuCha  , 400},
             { GoodsType.XueBanCha  , 400},
-            { GoodsType.MuLingCha  , 450},
+            { GoodsType.MuLingCha  , 500},
             { GoodsType.JingRuiCha  , 500},
+            { GoodsType.QingYanJian  , 500},
+            { GoodsType.YinSiDao  , 600},
+            { GoodsType.TongWenDao  , 600},
+            { GoodsType.ZiWuJian  , 600},
+            { GoodsType.YueXinJing  , 700},
         };
         
         /// <summary>

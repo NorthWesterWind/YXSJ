@@ -288,7 +288,7 @@ namespace View
                 case GoodsType.ZiXinCha:
                     result = InfoType.ZiXinCha;
                     break;
-                case GoodsType.YuHeCha:
+                case GoodsType.YuHuiCha:
                     result = InfoType.YuHeCha;
                     break;
                 case GoodsType.XingWenCha:

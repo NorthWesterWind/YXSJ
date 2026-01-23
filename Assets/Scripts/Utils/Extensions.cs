@@ -249,7 +249,7 @@ namespace Utils
 				case GoodsType.ZiXinCha:
 					resName = "ZiXinCha";
 					break;
-				case GoodsType.YuHeCha:
+				case GoodsType.YuHuiCha:
 					resName = "YuHeCha";
 					break;
 				case GoodsType.XingWenCha:
@@ -434,7 +434,7 @@ namespace Utils
 				case MonsterFamily.ZiXinHua:
 					resultype = DropItemType.ZiXinHuaFragment;
 					break;
-			
+
 				case MonsterFamily.YuHuiHe:
 					resultype = DropItemType.YuHuiHeFragment;
 					break;
@@ -473,6 +473,202 @@ namespace Utils
 					break;
 			}
 			return resultype;
+		}
+
+		public static GoodsType GetGoodsTypeByMonsterType(MonsterType type)
+		{
+			switch (type)
+			{
+				case MonsterType.ShuangYunZhi:
+					return GoodsType.YunZhiCha;
+				case MonsterType.ShuangYunZhiGolden:
+					return GoodsType.YunZhiCha;
+				case MonsterType.ShuangYunZhiBig:
+					return GoodsType.YunZhiCha;
+				case MonsterType.YueLuCao:
+					return GoodsType.YueLuCha;
+				case MonsterType.YueLuCaoGolden:
+					return GoodsType.YueLuCha;
+				case MonsterType.YueLuCaoBig:
+					return GoodsType.YueLuCha;
+				case MonsterType.ZiXinHua:
+					return GoodsType.ZiXinCha;
+				case MonsterType.ZiXinHuaGolden:
+					return GoodsType.ZiXinCha;
+				case MonsterType.ZiXinHuaBig:
+					return GoodsType.ZiXinCha;
+				case MonsterType.YuHuiHe:
+					return GoodsType.YuHuiCha;
+				case MonsterType.YuHuiHeGolden:
+					return GoodsType.YuHuiCha;
+				case MonsterType.YuHuiHeBig:
+					return GoodsType.YuHuiCha;
+				case MonsterType.XingWenGuo:
+					return GoodsType.XingWenCha;
+				case MonsterType.XingWenGuoGolden:
+					return GoodsType.XingWenCha;
+				case MonsterType.XingWenGuoBig:
+					return GoodsType.XingWenCha;
+				case MonsterType.WuRongJun:
+					return GoodsType.WuRongCha;
+				case MonsterType.WuRongJunBig:
+					return GoodsType.WuRongCha;
+				case MonsterType.WuRongJunGolden:
+					return GoodsType.WuRongCha;
+				case MonsterType.LingXuSheng:
+					return GoodsType.LingXuCha;
+				case MonsterType.LingXuShengGolden:
+					return GoodsType.LingXuCha;
+				case MonsterType.LingXuShengBig:
+					return GoodsType.LingXuCha;
+				case MonsterType.XueBanHua:
+					return GoodsType.XueBanCha;
+				case MonsterType.XueBanHuaGolden:
+					return GoodsType.XueBanCha;
+				case MonsterType.XueBanHuaBig:
+					return GoodsType.XueBanCha;
+				case MonsterType.MuLingYa:
+					return GoodsType.MuLingCha;
+				case MonsterType.MuLingYaGolden:
+					return GoodsType.MuLingCha;
+				case MonsterType.MuLingYaBig:
+					return GoodsType.MuLingCha;
+				case MonsterType.JingRuiCao:
+					return GoodsType.JingRuiCha;
+				case MonsterType.JingRuiCaoGolden:
+					return GoodsType.JingRuiCha;
+				case MonsterType.JingRuiCaoBig:
+					return GoodsType.JingRuiCha;
+				case MonsterType.TieKuangShi:
+					return GoodsType.QingYanJian;
+				case MonsterType.TieKuangShiGolden:
+					return GoodsType.QingYanJian;
+				case MonsterType.TieKuangShiBig:
+					return GoodsType.QingYanJian;
+				case MonsterType.YinKuangShi:
+					return GoodsType.YinSiDao;
+				case MonsterType.YinKuangShiGolden:
+					return GoodsType.YinSiDao;
+				case MonsterType.YinKuangShiBig:
+					return GoodsType.YinSiDao;
+				case MonsterType.TongKuangShi:
+					return GoodsType.TongWenDao;
+				case MonsterType.TongKuangShiGolden:
+					return GoodsType.TongWenDao;
+				case MonsterType.TongKuangShiBig:
+					return GoodsType.TongWenDao;
+				case MonsterType.ZiJingShi:
+					return GoodsType.ZiWuJian;
+				case MonsterType.ZiJingShiGolden:
+					return GoodsType.ZiWuJian;
+				case MonsterType.ZiJingShiBig:
+					return GoodsType.ZiWuJian;
+				case MonsterType.YueJingShi:
+					return GoodsType.YueXinJing;
+				case MonsterType.YueJingShiGolden:
+					return GoodsType.YueXinJing;
+				case MonsterType.YueJingShiBig:
+					return GoodsType.YueXinJing;
+			}
+			return GoodsType.None;
+		}
+
+		public static DropItemType GetDropTypeByMonsterType(MonsterType type)
+		{
+			switch (type)
+			{
+				case MonsterType.ShuangYunZhi:
+					return DropItemType.ShuangYunZhiFragment;
+				case MonsterType.ShuangYunZhiGolden:
+					return DropItemType.ShuangYunZhiFragment;
+				case MonsterType.ShuangYunZhiBig:
+					return DropItemType.ShuangYunZhiFragment;
+				case MonsterType.YueLuCao:
+					return DropItemType.YueLuCaoFragment;
+				case MonsterType.YueLuCaoGolden:
+					return DropItemType.YueLuCaoFragment;
+				case MonsterType.YueLuCaoBig:
+					return DropItemType.YueLuCaoFragment;
+				case MonsterType.ZiXinHua:
+					return DropItemType.ZiXinHuaFragment;
+				case MonsterType.ZiXinHuaGolden:
+					return DropItemType.ZiXinHuaFragment;
+				case MonsterType.ZiXinHuaBig:
+					return DropItemType.ZiXinHuaFragment;
+				case MonsterType.YuHuiHe:
+					return DropItemType.YuHuiHeFragment;
+				case MonsterType.YuHuiHeGolden:
+					return DropItemType.YuHuiHeFragment;
+				case MonsterType.YuHuiHeBig:
+					return DropItemType.YuHuiHeFragment;
+				case MonsterType.XingWenGuo:
+					return DropItemType.XingWenGuoFragment;
+				case MonsterType.XingWenGuoGolden:
+					return DropItemType.XingWenGuoFragment;
+				case MonsterType.XingWenGuoBig:
+					return DropItemType.XingWenGuoFragment;
+				case MonsterType.WuRongJun:
+					return DropItemType.WuRongJunFragment;
+				case MonsterType.WuRongJunBig:
+					return DropItemType.WuRongJunFragment;
+				case MonsterType.WuRongJunGolden:
+					return DropItemType.WuRongJunFragment;
+				case MonsterType.LingXuSheng:
+					return DropItemType.LingXuShengFragment;
+				case MonsterType.LingXuShengGolden:
+					return DropItemType.LingXuShengFragment;
+				case MonsterType.LingXuShengBig:
+					return DropItemType.LingXuShengFragment;
+				case MonsterType.XueBanHua:
+					return DropItemType.XueBanHuaFragment;
+				case MonsterType.XueBanHuaGolden:
+					return DropItemType.XueBanHuaFragment;
+				case MonsterType.XueBanHuaBig:
+					return DropItemType.XueBanHuaFragment;
+				case MonsterType.MuLingYa:
+					return DropItemType.MuLingYaFragment;
+				case MonsterType.MuLingYaGolden:
+					return DropItemType.MuLingYaFragment;
+				case MonsterType.MuLingYaBig:
+					return DropItemType.MuLingYaFragment;
+				case MonsterType.JingRuiCao:
+					return DropItemType.JingRuiCaoFragment;
+				case MonsterType.JingRuiCaoGolden:
+					return DropItemType.JingRuiCaoFragment;
+				case MonsterType.JingRuiCaoBig:
+					return DropItemType.JingRuiCaoFragment;
+				case MonsterType.TieKuangShi:
+					return DropItemType.TieKuangShiFragment;
+				case MonsterType.TieKuangShiGolden:
+					return DropItemType.TieKuangShiFragment;
+				case MonsterType.TieKuangShiBig:
+					return DropItemType.TieKuangShiFragment;
+				case MonsterType.YinKuangShi:
+					return DropItemType.YinKuangShiFragment;
+				case MonsterType.YinKuangShiGolden:
+					return DropItemType.YinKuangShiFragment;
+				case MonsterType.YinKuangShiBig:
+					return DropItemType.YinKuangShiFragment;
+				case MonsterType.TongKuangShi:
+					return DropItemType.TongKuangShiFragment;
+				case MonsterType.TongKuangShiGolden:
+					return DropItemType.TongKuangShiFragment;
+				case MonsterType.TongKuangShiBig:
+					return DropItemType.TongKuangShiFragment;
+				case MonsterType.ZiJingShi:
+					return DropItemType.ZiJingShiFragment;
+				case MonsterType.ZiJingShiGolden:
+					return DropItemType.ZiJingShiFragment;
+				case MonsterType.ZiJingShiBig:
+					return DropItemType.ZiJingShiFragment;
+				case MonsterType.YueJingShi:
+					return DropItemType.YueJingShiFragment;
+				case MonsterType.YueJingShiGolden:
+					return DropItemType.YueJingShiFragment;
+				case MonsterType.YueJingShiBig:
+					return DropItemType.YueJingShiFragment;
+			}
+			return DropItemType.None;
 		}
 
 		public static string GetMonsterResNameByType(MonsterType type)

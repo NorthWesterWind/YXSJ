@@ -87,15 +87,15 @@ namespace Module.Data
         public int cardFunction = 1;
         public int mapFunction = 1;
         public int employeeFunction = 1;
-        public int ordenFunction = 0;
+        public int ordenFunction = 1;
         public List<int> levelLockMapList = new() { 2, 3, 4, 5 };
         public List<int> realUnlockMapList = new() { 1 };
 
         [Header("key = 地图编号 ， value = 当前地图已完成任务 (奖励已领取)")]
-        public  Dictionary<int, List<int>> mapCompletedTaskRecordDic = new() { { 1, new List<int>() }, { 2, new List<int>() }, { 3, new List<int>() }, { 4, new List<int>() }, { 5, new List<int>() } };
+        public Dictionary<int, List<int>> mapCompletedTaskRecordDic = new() { { 1, new List<int>() }, { 2, new List<int>() }, { 3, new List<int>() }, { 4, new List<int>() }, { 5, new List<int>() } };
         public int nowTaskId = 0; //当前主界面显示的任务信息
         public List<TaskData> listenInTaskList = new();//监听的任务
-        public Dictionary<int, int> taskProgressDic = new Dictionary<int, int>() { {0,0} }; //任务Id - 任务进度 地图一初始
+        public Dictionary<int, int> taskProgressDic = new Dictionary<int, int>() { { 0, 0 } }; //任务Id - 任务进度 地图一初始
         public int taskPopCompleted = 0; //任务弹窗中用于记录获取的金芒珠 用于宝箱领取
         public string FanPingBaoXiaoTime;
         public string LingShunLingTime;
@@ -142,10 +142,10 @@ namespace Module.Data
             {1, new List<BuildingType>(){}},{2,new List<BuildingType>()},{3,new List<BuildingType>()},{4,new List<BuildingType>()},{5,new List<BuildingType>()}
         };
 
-        public CashierData cashierData = new CashierData();
+        public CashierData cashierData ;
 
         #region 云递者数据
-        public DeliverData deliverData = new DeliverData();
+        public DeliverData deliverData ;
 
         #endregion
 
@@ -187,7 +187,7 @@ namespace Module.Data
         /// </summary>
         public List<StructureLockProgressData> structureLockProgressDataList = new List<StructureLockProgressData>()
         {
-            
+
         };
         #endregion
 
@@ -230,14 +230,16 @@ namespace Module.Data
 
     public class MapLockDataProgress
     {
+        public MonsterType monsterType;
         public int mapId;
         public int lockId;
         public bool isUnlock;
         public float currentOwnMoney;
         public bool canShowBg;
 
-        public MapLockDataProgress(int mapId, int lockId, bool isUnlock, float currentOwnMoney, bool canShowBg)
+        public MapLockDataProgress( MonsterType monsterType, int mapId, int lockId, bool isUnlock, float currentOwnMoney, bool canShowBg)
         {
+            this.monsterType = monsterType;
             this.mapId = mapId;
             this.lockId = lockId;
             this.isUnlock = isUnlock;
@@ -253,11 +255,11 @@ namespace Module.Data
     public class OrderDataProgress
     {
         public int orderId;
-        public Dictionary<GoodsType, int> goodDic = new Dictionary<GoodsType, int>() { { GoodsType.None, 0 } };
-        public Dictionary<DropItemType, int> dropDic = new Dictionary<DropItemType, int>() { { DropItemType.None, 0 } };
+        public Dictionary<GoodsType, (int,int)> goodDic = new Dictionary<GoodsType, (int,int)>() { { GoodsType.None, (0,0) } };
+        public Dictionary<DropItemType, (int,int)> dropDic = new Dictionary<DropItemType, (int,int)>() { { DropItemType.None,(0,0) } };
 
 
-        public OrderDataProgress(int orderId, Dictionary<GoodsType, int> goodDic, Dictionary<DropItemType, int> dropDic)
+        public OrderDataProgress(int orderId, Dictionary<GoodsType,(int,int)> goodDic, Dictionary<DropItemType,(int,int)> dropDic)
         {
             this.orderId = orderId;
             this.goodDic = goodDic;
@@ -370,14 +372,17 @@ namespace Module.Data
     public class ProductStationData
     {
         public BuildingType buildingType;
-        public int price;
         public int priceLevel;
         public int maxPriceLevel = 100;
-        public float workingtime;
         public int timelevel;
-         public int maxTimeLevel = 40;
+        public int maxTimeLevel = 40;
+        public ProductStationData(BuildingType buildingType)
+        {
+            this.buildingType = buildingType;
+            priceLevel = 1;
+            timelevel = 1;
+        }
     }
-
 
     /// <summary>
     /// 灵账台数据

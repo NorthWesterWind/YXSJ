@@ -175,7 +175,7 @@ namespace View.PlayerInfo
                 case InfoType.YuHeCha:
                     infoText.text =
                         //"玉禾茶:" + 
-                        Extensions.FormatNumber(_cc.goodsDic[GoodsType.YuHeCha]);
+                        Extensions.FormatNumber(_cc.goodsDic[GoodsType.YuHuiCha]);
                     itemIcon.sprite = _assetHandle.Get<Sprite>("YuHeCha");
                     break;
                 case InfoType.XingWenCha:

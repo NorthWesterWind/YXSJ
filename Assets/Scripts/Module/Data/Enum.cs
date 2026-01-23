@@ -137,7 +137,7 @@ namespace Module.Data
                 YunZhiCha = 1,
                 YueLuCha = 2,
                 ZiXinCha = 3,
-                YuHeCha = 4,
+                YuHuiCha = 4,
                 XingWenCha = 5,
                 WuRongCha = 6,
                 LingXuCha = 7,

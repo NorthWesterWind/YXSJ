@@ -872,11 +872,11 @@ namespace Controller.Player
             playerInfo.UpdateTxt();
         }
 
-        public void AddGoods(GoodsType goodsType)
+        public void AddGoods(GoodsType goodsType , int value = 0)
         {
             if (goodsType == GoodsType.TongBi)
             {
-                dataModule.AddYinQian(100);
+                dataModule.AddYinQian(value);
                 EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
             }
             else if (goodsType == GoodsType.JingYunBao)

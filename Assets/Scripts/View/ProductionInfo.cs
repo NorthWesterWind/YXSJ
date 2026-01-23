@@ -1,5 +1,6 @@
 using System.Collections;
 using Controller.Structure;
+using Module;
 using Module.Data;
 using TMPro;
 using UnityEngine;
@@ -17,15 +18,12 @@ namespace View
 
         private Coroutine loopRoutine;
 
-        private float speed = 1f;
-
         private float baseTime;
         public ProductionStation container;
 
-        public void Init(float baseTime, float speed, int currentMaterialCount, StructureBase structureBase)
+        public void Init(float baseTime, int currentMaterialCount, StructureBase structureBase)
         {
             this.baseTime = baseTime;
-            this.speed = speed;
             productionText.text = currentMaterialCount.ToString();
             // 生产循环不在 Init 自动开始（由 StartProductionLoop 控制）
             if (loopRoutine != null)
@@ -72,21 +70,14 @@ namespace View
 
         public void StartProductionLoop(ProductionStation container,
             BuildingType type,
-            float baseTime,
-            float speed)
+            float baseTime)
         {
-            this.speed = speed;
             this.baseTime = baseTime;
 
             if (loopRoutine != null)
                 return;
 
             loopRoutine = StartCoroutine(ProductionLoop(container, type));
-        }
-
-        public void UpdateSpeed(float newSpeed)
-        {
-            speed = newSpeed;
         }
 
         private IEnumerator ProductionLoop(ProductionStation container, BuildingType type)
@@ -107,10 +98,13 @@ namespace View
         private IEnumerator PlayProgressBar(BuildingType type)
         {
             float t = 0f;
-            float productionTime = baseTime / speed;
-
+            float productionTime;
+            if(PlayerDataModule.Instance.data.speedTime > 0)
+            {
+                productionTime = 0.1f;
+            }
+            productionTime = baseTime ;
             fillImage.fillAmount = 0;
-
             while (t < productionTime)
             {
                 t += Time.deltaTime;
@@ -118,7 +112,6 @@ namespace View
                 fillImage.fillAmount = 1f * value;
                 yield return null;
             }
-
             fillImage.fillAmount = 1f;
             EventCenter.Instance.TriggerEvent(EventMessages.ProductionComplete, type);
         }

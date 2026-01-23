@@ -66,8 +66,8 @@ public class EmployeeContent : MonoBehaviour
         if (employeeType == EmployeeType.YunDiZhe)
         {
             progressTxt.text = playerData.deliverData.workingNum + "/" + playerData.deliverData.totalNum;
-            Debug.LogError($"playerData.deliverData.workingNum = {playerData.deliverData.workingNum} + playerData.deliverData.totalNum = {playerData.deliverData.totalNum}" );
-            if (playerData.deliverData.totalNum > playerData.deliverData.workingNum)
+           
+           if (playerData.deliverData.totalNum > playerData.deliverData.workingNum)
             {
                 addMask.gameObject.SetActive(false);
             }
@@ -120,7 +120,7 @@ public class EmployeeContent : MonoBehaviour
     {
         if (employeeType == EmployeeType.YunDiZhe)
         {
-            peopleCountTxt.text = "空闲人数: " + (PlayerDataModule.Instance.data.deliverData.totalNum - PlayerDataModule.Instance.data.deliverData.workingNum) + "/" + PlayerDataModule.Instance.data.deliverData.totalNum;
+            peopleCountTxt.text = "空闲人数: " + (PlayerDataModule.Instance.data.deliverData.totalNum - PlayerDataModule.Instance.data.deliverData.workingNum);
         }
         else
         {

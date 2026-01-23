@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Controller.Pickups;
 using Controller.Structure;
+using Module;
 using Module.Data;
 using PolyNav;
 using Sirenix.OdinInspector;
@@ -18,7 +19,6 @@ namespace Controller
         public MeshRenderer renderer;
         private PolyNavAgent _agent;
         public int currentCapacity;
-        public int currentMove;
         public int pickUpRange;
         private AssetHandle _assetHandle;
 
@@ -46,7 +46,7 @@ namespace Controller
             _agent.map = GameObject.Find("Map").transform.GetComponent<PolyNavMap>();
             normalPos = productionStationList[0].transferPoint;
             _agent.SetDestination(normalPos.position);
-            _agent.maxSpeed = currentMove;
+            _agent.maxSpeed = PlayerDataModule.Instance.data.deliverData.currentMoveSpeed;
             StartCoroutine(WorkerLoop());
         }
 

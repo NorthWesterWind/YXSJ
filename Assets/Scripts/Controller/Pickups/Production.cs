@@ -36,6 +36,7 @@ namespace Controller.Pickups
        public GoodsType  goodsType;
        public StructureBase station;
        public AssetHandle assetHandle;
+       public int value ;
        public void SetState(ItemState newState)
        {
            state = newState;
@@ -45,9 +46,10 @@ namespace Controller.Pickups
        {
            station = _station;
        }
-       public void Init(GoodsType type)
+       public void Init(GoodsType type , int _value = 0)
        {
            goodsType = type;
+           value = _value;
            canPickup = false;
            ScenePickupController.Instance.products.Add(this);
            itemName = "Production";
@@ -96,7 +98,7 @@ namespace Controller.Pickups
        public void OnPicked(GameObject picker)
        {
            
-           picker.GetComponent<PlayerController>().AddGoods(goodsType);
+           picker.GetComponent<PlayerController>().AddGoods(goodsType , value);
        }
     }
 }

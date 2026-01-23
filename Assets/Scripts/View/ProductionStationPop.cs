@@ -26,11 +26,11 @@ namespace View
         public Image cardIcon;
         public Image productionIcon;
         public Image cardprogressfill;
+        public GameObject fillContent;
         public TextMeshProUGUI bottomleveltxt1;
         public TextMeshProUGUI bottomleveltxt2;
         public TextMeshProUGUI bottompreviewtxt1;
         public TextMeshProUGUI bottompreviewtxt2;
-        public Image bottomprogressfill;
 
         public UIButton bootomBtn1;
         public TextMeshProUGUI bootomBtntxt1;
@@ -70,7 +70,7 @@ namespace View
                 case GoodsType.ZiXinCha:
                     productiontxt.text = "栀心茶";
                     break;
-                case GoodsType.YuHeCha:
+                case GoodsType.YuHuiCha:
                     productiontxt.text = "玉禾茶";
                     break;
                 case GoodsType.XingWenCha:
@@ -128,10 +128,38 @@ namespace View
         {
             base.AddEventListener();
             bootomBtn1.onClick.RemoveAllListeners();
-            bootomBtn1.onClick.AddListener((() => { }));
+            bootomBtn1.onClick.AddListener((() =>
+            {
+                if(productStationdata.priceLevel == productStationdata.maxPriceLevel)
+                {
+                    UIController.Instance.Show<TipView>("等级已满。");
+                    return;
+                }
+                if(PlayerDataModule.Instance.data.tongbi < productStationdata.priceLevel * 1000)
+                {
+                     UIController.Instance.Show<TipView>("铜币不足。");
+                    return;
+                }
+                PlayerDataModule.Instance.data.tongbi -= productStationdata.priceLevel * 1000;
+                productStationdata.priceLevel++;
+               UpdateStationInfo(productStationdata);
+               EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask, productStationdata.buildingType);
+            }));
 
             bootomBtn2.onClick.RemoveAllListeners();
-            bootomBtn2.onClick.AddListener((() => { }));
+            bootomBtn2.onClick.AddListener((() =>
+            {
+                if( productStationdata.timelevel == productStationdata.maxTimeLevel)
+                {
+                     UIController.Instance.Show<TipView>("等级已满。");
+                    return;
+                }
+                 if(PlayerDataModule.Instance.data.tongbi < productStationdata.priceLevel * 1000)
+                {
+                     UIController.Instance.Show<TipView>("铜币不足。");
+                    return;
+                }
+            }));
 
             cardBtn.onClick.RemoveAllListeners();
             cardBtn.onClick.AddListener((() =>
@@ -175,24 +203,32 @@ namespace View
             yield return new WaitForSeconds(0.4f);
             Hide();
         }
+         ProductStationData productStationdata;
 
         public void UpdateInfo()
         {
             PlayerData player = PlayerDataModule.Instance.data;
-            ProductStationData productStationdata = player.ProductStationDataList.Find(x => x.buildingType == type);
+            productStationdata = player.ProductStationDataList.Find(x => x.buildingType == type);
+            CardLevelData cardLevelData;
+            InitBaseInfo(player, out cardLevelData);
+            UpdateStationInfo(productStationdata);
+            UpdateCardInfo(cardLevelData);
+        }
+        private void InitBaseInfo(PlayerData player, out CardLevelData cardLevelData)
+        {
+            cardLevelData = null;
 
-            CardLevelData cardLevelData = DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_1); ;
             switch (type)
             {
                 case BuildingType.YuShaHu_1:
                     cardData = player.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_1);
-
                     cardnametxt.text = "一号玉砂壶";
                     nametxt.text = "一号玉砂壶";
                     iconBg.sprite = _assetHandle.Get<Sprite>("白卡");
                     mask.GetComponent<Image>().sprite = _assetHandle.Get<Sprite>("白卡");
                     cardLevelData = DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_1);
                     break;
+
                 case BuildingType.YuShaHu_2:
                     cardData = player.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_2);
                     cardnametxt.text = "二号玉砂壶";
@@ -201,6 +237,7 @@ namespace View
                     mask.GetComponent<Image>().sprite = _assetHandle.Get<Sprite>("白卡");
                     cardLevelData = DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_2);
                     break;
+
                 case BuildingType.YuShaHu_3:
                     cardData = player.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_3);
                     cardnametxt.text = "三号玉砂壶";
@@ -209,6 +246,7 @@ namespace View
                     mask.GetComponent<Image>().sprite = _assetHandle.Get<Sprite>("白卡");
                     cardLevelData = DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_3);
                     break;
+
                 case BuildingType.YuShaHu_4:
                     cardData = player.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_4);
                     cardnametxt.text = "四号玉砂壶";
@@ -217,27 +255,27 @@ namespace View
                     mask.GetComponent<Image>().sprite = _assetHandle.Get<Sprite>("白卡");
                     cardLevelData = DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_4);
                     break;
+
                 case BuildingType.LianQiLu_1:
-                    cardData = player.cardUpProgressesList.Find(x =>
-                        x.developType == CardDevelopType.UpgradeLianQiLu_1);
+                    cardData = player.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_1);
                     cardnametxt.text = "一号炼器炉";
                     nametxt.text = "一号炼器炉";
                     iconBg.sprite = _assetHandle.Get<Sprite>("紫卡");
                     mask.GetComponent<Image>().sprite = _assetHandle.Get<Sprite>("紫卡");
                     cardLevelData = DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_1);
                     break;
+
                 case BuildingType.LianQiLu_2:
-                    cardData = player.cardUpProgressesList.Find(x =>
-                        x.developType == CardDevelopType.UpgradeLianQiLu_2);
+                    cardData = player.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_2);
                     cardnametxt.text = "二号炼器炉";
                     nametxt.text = "二号炼器炉";
                     iconBg.sprite = _assetHandle.Get<Sprite>("紫卡");
                     mask.GetComponent<Image>().sprite = _assetHandle.Get<Sprite>("紫卡");
                     cardLevelData = DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_2);
                     break;
+
                 case BuildingType.LianQiLu_3:
-                    cardData = player.cardUpProgressesList.Find(x =>
-                        x.developType == CardDevelopType.UpgradeLianQiLu_3);
+                    cardData = player.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_3);
                     cardnametxt.text = "三号炼器炉";
                     nametxt.text = "三号炼器炉";
                     iconBg.sprite = _assetHandle.Get<Sprite>("紫卡");
@@ -245,90 +283,77 @@ namespace View
                     cardLevelData = DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_3);
                     break;
             }
+        }
 
-            if (productStationdata == null)
+
+        private void UpdateStationInfo(ProductStationData productStationdata)
+        {
+            if (cardData == null)
             {
-                if (cardData == null)
-                {
-                    pricetxt.text = WorldData.goodsPriceDic[goodsType] * DataController.Instance
-                        .mapDataDic[PlayerDataModule.Instance.data.currentMapID].price * 3 + "";
-                    lockObj.SetActive(true);
-                }
-                else
-                {
-                    pricetxt.text = WorldData.goodsPriceDic[goodsType] * DataController.Instance
-                            .mapDataDic[PlayerDataModule.Instance.data.currentMapID].price *
-                        Mathf.Pow(3, cardData.level) + "";
-                    lockObj.SetActive(false);
-                }
-
-                workingtimetxt.text = "5";
-                bottomleveltxt1.text = "1级";
-                bottomleveltxt2.text = "1级";
-                bottompreviewtxt1.text = "x3   <color=green>X9</color>";
-                bottompreviewtxt2.text = "5秒   <color=green>4秒</color>";
-                bottomprogressfill.fillAmount = 0f;
-
-                bootomBtntxt1.text = "1000";
-                bootomBtntxt2.text = "1000";
+                pricetxt.text =
+                    (WorldData.goodsPriceDic[goodsType] *
+                     DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price +
+                     (productStationdata.priceLevel - 1) * 25).ToString();
             }
             else
             {
-                if (cardData == null)
-                {
-                    pricetxt.text =
-                        (WorldData.goodsPriceDic[goodsType] * DataController.Instance
-                             .mapDataDic[PlayerDataModule.Instance.data.currentMapID].price +
-                         (productStationdata.priceLevel - 1) * 25).ToString();
-                }
-                else
-                {
-                    pricetxt.text =
-                        (WorldData.goodsPriceDic[goodsType] * DataController.Instance
-                             .mapDataDic[PlayerDataModule.Instance.data.currentMapID].price *
-                         Mathf.Pow(3, cardData.level) +
-                         (productStationdata.priceLevel - 1) * 25).ToString();
-                }
-
-                bootomBtntxt1.text = (1000 * productStationdata.priceLevel).ToString();
-                bootomBtntxt2.text = (1000 * productStationdata.timelevel).ToString();
-
-                workingtimetxt.text = WorldData.productStationWorkingTimeDic[productStationdata.priceLevel] + "秒";
-                bottomleveltxt1.text = productStationdata.priceLevel + "级";
-                bottomleveltxt2.text = productStationdata.timelevel + "级";
-                bottompreviewtxt1.text = "x" + (WorldData.goodsPriceDic[goodsType] * DataController.Instance
-                                                    .mapDataDic[
-                                                        PlayerDataModule.Instance.data
-                                                            .currentMapID].price +
-                                                (productStationdata.priceLevel - 1) * 25) + "  " +
-                                         $" <color=green>{(WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price + (productStationdata.priceLevel) * 25)}</color>";
-                if (productStationdata.timelevel < 10)
-                {
-                    bottompreviewtxt2.text = WorldData.productStationWorkingTimeDic[productStationdata.timelevel] +
-                                             "秒  " +
-                                             $"  <color=green>{WorldData.productStationWorkingTimeDic[productStationdata.timelevel + 1]}</color>";
-                }
-                else
-                {
-                    bottompreviewtxt2.text = WorldData.productStationWorkingTimeDic[productStationdata.timelevel] + "秒";
-                }
-
-                float tempvalue = productStationdata.priceLevel % 10 / 10;
-                bottomprogressfill.fillAmount = tempvalue;
-
+                pricetxt.text =
+                    (WorldData.goodsPriceDic[goodsType] *
+                     DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price *
+                     Mathf.Pow(3, cardData.level) +
+                     (productStationdata.priceLevel - 1) * 25).ToString();
             }
 
+         
+         
+            workingtimetxt.text = WorldData.productStationWorkingTimeDic[ productStationdata.timelevel]+ "秒";
+            bottomleveltxt1.text = productStationdata.priceLevel + "级";
+            bottomleveltxt2.text = productStationdata.timelevel + "级";
 
+            if(productStationdata.priceLevel < productStationdata.maxPriceLevel)
+            {
+                 bottompreviewtxt1.text =
+                "x" + (WorldData.goodsPriceDic[goodsType] *
+                       DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price +
+                       productStationdata.priceLevel * 25) +
+                $" <color=green>{WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price + (productStationdata.priceLevel + 1) * 25}</color>";
+                   bootomBtntxt1.text = (1000 * productStationdata.priceLevel).ToString();
+            }
+            else
+            {
+                  bottompreviewtxt1.text =
+                "x" + (WorldData.goodsPriceDic[goodsType] *
+                       DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price +
+                       productStationdata.priceLevel * 25);
+                          bootomBtntxt1.text = "已满级";
+            }
+          
+            if (productStationdata.timelevel < productStationdata.maxTimeLevel)
+            {
+                bottompreviewtxt2.text =
+                    WorldData.productStationWorkingTimeDic[productStationdata.timelevel] + "秒  " +
+                    $"<color=green>{WorldData.productStationWorkingTimeDic[productStationdata.timelevel + 1]}</color>";
+                       bootomBtntxt2.text = (2000 * productStationdata.timelevel).ToString();
+            }
+            else
+            {
+                bottompreviewtxt2.text =
+                    WorldData.productStationWorkingTimeDic[productStationdata.timelevel] + "秒";
+                       bootomBtntxt2.text = "已满级";
+            }
+        }
+
+        private void UpdateCardInfo(CardLevelData cardLevelData)
+        {
             if (cardData == null)
             {
+                fillContent.SetActive(false);
                 cardleveltxt.text = "0";
-                cardprogressfill.fillAmount = 0;
-                cardprogresstxt.text = "0";
                 lockObj.SetActive(true);
                 if (PlayerDataModule.Instance.data.accountLevel < cardLevelData.unlockLevel)
                 {
                     mask.SetActive(true);
-                    masktxt.text = cardLevelData.unlockLevel + "";
+                    masktxt.text = cardLevelData.unlockLevel.ToString();
                 }
                 else
                 {
@@ -340,6 +365,7 @@ namespace View
                 lockObj.SetActive(false);
                 mask.SetActive(false);
                 cardleveltxt.text = cardData.level.ToString();
+
                 if (cardData.level == 10)
                 {
                     cardprogressfill.fillAmount = 1;
@@ -349,8 +375,8 @@ namespace View
                 {
                     cardprogressfill.fillAmount =
                         cardData.currentNum * 1f / WorldData.cardUpLevelArr[cardData.level + 1];
-                    cardprogresstxt.text = cardData.currentNum + "/" + WorldData.cardUpLevelArr[cardData.level + 1];
-
+                    cardprogresstxt.text =
+                        cardData.currentNum + "/" + WorldData.cardUpLevelArr[cardData.level + 1];
                 }
             }
         }

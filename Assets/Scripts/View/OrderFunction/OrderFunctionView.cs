@@ -3,6 +3,7 @@ using Controller;
 using Module;
 using Module.Data;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using Utils;
 
@@ -11,9 +12,6 @@ namespace View.OrderFunction
     public class OrderFunctionView : BaseView
     {
         public UIButton closeBtn;
-        public TextMeshProUGUI goldtxt;
-        public TextMeshProUGUI  slivertxt;
-    
         public DetailPop detailPop;
         public HuoQuPop huoQuPop;
         public  OrderData orderData;
@@ -31,6 +29,7 @@ namespace View.OrderFunction
             {
                 Hide();
             }));
+
         }
 
        
@@ -47,17 +46,6 @@ namespace View.OrderFunction
             }
             else
             {
-            //     //订单已满
-            // }
-            // else
-            // {
-            //     //有订单
-            //     int orderIndex = orderDataprogressList.Count -1;
-            //     var currentOrderData = orderDataprogressList[orderIndex];
-            //    // orderData = DataController.Instance.orderDataDic[currentOrderData.id];
-            //     goldtxt.text = "金元宝奖励: " + orderData.rewardGold;
-            //     slivertxt.text = "银钱奖励: " + orderData.rewardCoin;
-
                 for(int i = 0 ; i < orderDataprogressList.Count; i++)
                 {
                     GameObject obj = Instantiate(_assetHandle.Get<GameObject>("OrderItem"), content, false);

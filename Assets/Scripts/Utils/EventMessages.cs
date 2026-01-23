@@ -62,20 +62,15 @@ namespace Utils
         public const string  ThrowOutTongBi = "ThrowOutTongBi"; //玩家抛出铜币
 
         public const string MapLockUnlocked = "MapLockUnlocked"; //地图区域锁解锁
+        public const string UpdateMapLockState= "UpdateMapLockState"; //更新地图锁定区域状态
         public const string StructureLockUnlocked = "StructureLockUnlocked"; //建筑区域锁解锁
         public const string JingYuanBaoDead = "JingYuanBaoDead"; //金元宝死亡
-
-        public const string MapLockDataPrepareded = "MapLockDataPrepareded"; //地图区域锁数据准备完成\
-        
         public const string ShowOrderDetail = "ShowOrderDetail"; //显示订单详情
-
+        public const string  UpdateOrderItem = " UpdateOrderItem"; //更新订单界面
+       
         public const string HidePlayerGuide  = "HidePlayerGuide"; //玩家引导完成
-
         public const string DataPrepared = "DataPrepared"; //数据准备完成
-
         public const string UpdateSturctureLockInfo = "UpdateSturctureLockInfo"; //更新建筑解锁信息
-
-
         public const string ProduceTask = "ProduceTask"; //生产任务
         public const string UpGradeStuctureTask = "UpGradeStuctureTask"; //升级建筑任务
         public const string ConstructTask = "ConstructTask"; //建造任务
