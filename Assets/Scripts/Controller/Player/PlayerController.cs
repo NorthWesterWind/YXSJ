@@ -735,7 +735,7 @@ namespace Controller.Player
         //         trigger2.TriggerExit();
         //     }
         // }
-
+        
         public void AddDropItem(DropItemType itemType)
         {
             EventCenter.Instance.TriggerEvent(EventMessages.HarvestTask , itemType);
@@ -871,7 +871,6 @@ namespace Controller.Player
 
             playerInfo.UpdateTxt();
         }
-
         public void AddGoods(GoodsType goodsType , int value = 0)
         {
             if (goodsType == GoodsType.TongBi)
@@ -890,6 +889,12 @@ namespace Controller.Player
                 goodsDic.TryAdd(goodsType, 0);
                 goodsDic[goodsType]++;
                 playerInfo.UpdateTxt();
+            }
+
+            if (goodsType == GoodsType.YunZhiCha && PlayerDataModule.Instance.data.guideStep == GuideStep.TakeTea)
+            {
+                PlayerDataModule.Instance.data.guideStep = GuideStep.SellTea;
+                UIController.Instance.Show<PlayerGuide>();
             }
         }
 

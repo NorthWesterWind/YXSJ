@@ -4,6 +4,7 @@ using Controller;
 using Module;
 using Module.Data;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
@@ -23,6 +24,7 @@ namespace View.PlayerInfo
         {
             _assetHandle = GetComponent<AssetHandle>();
             AddEvent();
+            HandleUpdateTaskMainView();
         }
 
         public void AddEvent()

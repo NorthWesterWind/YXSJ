@@ -22,22 +22,22 @@ public class PlayerGuide : BaseView
 
     public string[] info = new string[]
     {
-      "\u3000\u3000新主人，终于等到你啦！我是镇妖剑的剑灵小灵，你被我选中成为新一代镇妖剑主人！",
-      "\u3000\u3000镇妖剑？新主人…我该怎么做？",
-      "\u3000\u3000主人，别慌呀，有我在！现在我们先去建造一号玉砂壶。",
-      "\u3000\u3000太棒啦！接下来我们建一号灵茶售卖架——你还记得吗？以前街上的灵茶坊都摆满了这种架子，可以用来售卖灵茶获得多多的银钱哦！",
-      "\u3000\u3000接下来，我们就要进入获取灵材区域。前面不远处就是采集霜云芝的区域了，只要拿起“我”攻击它们，就能自动散掉妖气，把灵材变纯净，就可以轻易获取了。要是遇到那种比人还高的巨型灵体也别怕，“我”也能驱散它的妖气获取它哦！",
-      "\u3000\u3000好了，我们快把霜云芝送到一号玉砂壶凝炼吧！",
-      "\u3000\u3000小灵，接下来应该怎么做？",
-      "\u3000\u3000制作灵茶需要时间，我们先去建造灵账台吧！",
-      "\u3000\u3000主人你看！灵账使姐姐超靠谱的！以后你去远处采集灵材，店里的灵茶售卖、银钱结算她都能打理。",
-      "\u3000\u3000有客人来啦，我们快回去一号玉砂壶取灵茶，然后将灵茶送到一号灵茶售卖架上售卖吧！",
-      "\u3000\u3000我们快把云芝茶送到一号灵茶售卖架上售卖吧！",
-      "\u3000\u3000移动到灵账台，尝试一下给客人结账吧！",
-      "\u3000\u3000好耶好耶！主人你看灵账台里的银钱——这可是咱们靠纯净灵茶赚的第一笔钱！",
-      "\u3000\u3000不过主人，就靠现在这壶煮的灵茶，收益还不够呀——你想，以前的灵茶都是用高阶玉砂壶煮的，茶香能飘三条街！咱们升级这壶，能让灵茶的灵气更足、口感更好，自然能卖更高的价钱，攒钱更快，才能做更多复苏灵艺的事呀！",
-      "\u3000\u3000我们去升级玉砂壶，用更高的价格卖出灵茶吧！",
-      "\u3000\u3000好了，基本的操作主人你已经学会了！接下来呀，就要靠主人自己去探索这片妖力弥漫的妖剑世界，一步步靠近“驱散妖力、复苏灵艺”的使命啦！",
+      "1\u3000\u3000新主人，终于等到你啦！我是镇妖剑的剑灵小灵，你被我选中成为新一代镇妖剑主人！",
+      "2\u3000\u3000镇妖剑？新主人…我该怎么做？",
+      "3\u3000\u3000主人，别慌呀，有我在！现在我们先去建造一号玉砂壶。",
+      "4\u3000\u3000太棒啦！接下来我们建一号灵茶售卖架——你还记得吗？以前街上的灵茶坊都摆满了这种架子，可以用来售卖灵茶获得多多的银钱哦！",
+      "5\u3000\u3000接下来，我们就要进入获取灵材区域。前面不远处就是采集霜云芝的区域了，只要拿起“我”攻击它们，就能自动散掉妖气，把灵材变纯净，就可以轻易获取了。要是遇到那种比人还高的巨型灵体也别怕，“我”也能驱散它的妖气获取它哦！",
+      "6\u3000\u3000好了，我们快把霜云芝送到一号玉砂壶凝炼吧！",
+      "7\u3000\u3000小灵，接下来应该怎么做？",
+      "8\u3000\u3000制作灵茶需要时间，我们先去建造灵账台吧！",
+      "9\u3000\u3000主人你看！灵账使姐姐超靠谱的！以后你去远处采集灵材，店里的灵茶售卖、银钱结算她都能打理。",
+      "10\u3000\u3000有客人来啦，我们快回去一号玉砂壶取灵茶，然后将灵茶送到一号灵茶售卖架上售卖吧！",
+      "11\u3000\u3000我们快把云芝茶送到一号灵茶售卖架上售卖吧！",
+      "12\u3000\u3000移动到灵账台，尝试一下给客人结账吧！",
+      "13\u3000\u3000好耶好耶！主人你看灵账台里的铜币——这可是咱们靠纯净灵茶赚的第一笔钱！",
+      "14\u3000\u3000不过主人，就靠现在这壶煮的灵茶，收益还不够呀——你想，以前的灵茶都是用高阶玉砂壶煮的，茶香能飘三条街！咱们升级这壶，能让灵茶的灵气更足、口感更好，自然能卖更高的价钱，攒钱更快，才能做更多复苏灵艺的事呀！",
+      "15\u3000\u3000我们去升级玉砂壶，用更高的价格卖出灵茶吧！",
+      "16\u3000\u3000好了，基本的操作主人你已经学会了！接下来呀，就要靠主人自己去探索这片妖力弥漫的妖剑世界，一步步靠近“驱散妖力、复苏灵艺”的使命啦！",
     };
 
     private Coroutine typingCoroutine;
@@ -205,6 +205,12 @@ public class PlayerGuide : BaseView
                 case 9:
                 case 10:
                 case 11:
+                    case 12:
+                    case 13:
+                    case 14:
+                    case 15:
+                    case 16:
+                        
                     infotxt_1.maxVisibleCharacters = i;
                     yield return new WaitForSeconds(0.1f);
                     break;
@@ -228,6 +234,11 @@ public class PlayerGuide : BaseView
             case 9:
             case 10:
             case 11:
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+            case 16:
                 infotxt_1.maxVisibleCharacters = text.Length;
                 break;
             case 2:
@@ -248,7 +259,7 @@ public class PlayerGuide : BaseView
         }
         else
         {
-            currentIndex++;
+          
             if (currentIndex - 1 < info.Length)
             {
                 switch (currentIndex)
@@ -273,7 +284,7 @@ public class PlayerGuide : BaseView
                         break;
                     case 11:
                         TriggerGuide_7();
-
+           
                         break;
                     case 12:
                         TriggerGuide_8();
@@ -283,9 +294,12 @@ public class PlayerGuide : BaseView
                         TriggerGuide_9();
 
                         break;
+                    default:
+                        currentIndex++;
+                        ShowText(info[currentIndex - 1]);
+                        break;
                 }
-
-                ShowText(info[currentIndex - 1]);
+               
             }
             else
             {
@@ -306,49 +320,65 @@ public class PlayerGuide : BaseView
         //建造一号玉砂壶
         Transform collectPoint = GameController.Instance.buildings[BuildingType.YuShaHu_1].transform;
         GuideManager.Instance.StartStep(GuideStep.BuildYushaPot, collectPoint);
-        HideContent("YuShaHu_1", "建造一号玉砂壶。");
+      
+        StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x => x.buildingType ==BuildingType.YuShaHu_1);
+        StructureLockProgressData progress1 = new StructureLockProgressData(BuildingType.YuShaHu_1,
+            data1.needMoney, data1.lockId, PlayerDataModule.Instance.data.currentMapID);
+        PlayerDataModule.Instance.data.structureLockProgressDataList.Add(progress1);
+        DataController.Instance.UpdateSturctureLockInfo();
+        Hide();
     }
     private void TriggerGuide_2()
     {
         //建造一号灵茶架
         Transform collectPoint = GameController.Instance.buildings[BuildingType.LingChaJia_1].transform;
         GuideManager.Instance.StartStep(GuideStep.BuildTeaStand, collectPoint);
-        HideContent("LingChaJia", "建造一号灵茶架。");
+        StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x => x.buildingType ==BuildingType.LingChaJia_1);
+        StructureLockProgressData progress1 = new StructureLockProgressData(BuildingType.LingChaJia_1,
+            data1.needMoney, data1.lockId, PlayerDataModule.Instance.data.currentMapID);
+        PlayerDataModule.Instance.data.structureLockProgressDataList.Add(progress1);
+        DataController.Instance.UpdateSturctureLockInfo();
+        Hide();
     }
     private void TriggerGuide_3()
     {
         //收集霜云芝
         Transform collectPoint = GameController.Instance.factoryControllers[Module.Data.MonsterType.ShuangYunZhi].transform;
         GuideManager.Instance.StartStep(GuideStep.CollectMaterial, collectPoint);
-        HideContent("ShuangYunZhi", "收集3个霜云芝。");
+        Hide();
     }
     private void TriggerGuide_4()
     {
         //运送霜云芝
         Transform collectPoint = GameController.Instance.buildings[BuildingType.YuShaHu_1].transform;
         GuideManager.Instance.StartStep(GuideStep.DeliverMaterial, collectPoint);
-        HideContent("YuShaHu_1", "将霜云芝放入一号玉砂壶。");
+        Hide();
     }
     private void TriggerGuide_5()
     {
         //建造灵账台
         Transform collectPoint = GameController.Instance.buildings[BuildingType.LingZhangTai].transform;
         GuideManager.Instance.StartStep(GuideStep.BuildAccountDesk, collectPoint);
-        HideContent("LingZhangTai", "建造灵账台。");
+        StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x => x.buildingType ==BuildingType.LingZhangTai);
+        StructureLockProgressData progress1 = new StructureLockProgressData(BuildingType.LingZhangTai,
+            data1.needMoney, data1.lockId, PlayerDataModule.Instance.data.currentMapID);
+        PlayerDataModule.Instance.data.structureLockProgressDataList.Add(progress1);
+        DataController.Instance.UpdateSturctureLockInfo();
+        Hide();
     }
     private void TriggerGuide_6()
     {
         //取灵茶
         Transform collectPoint = GameController.Instance.buildings[BuildingType.YuShaHu_1].transform;
         GuideManager.Instance.StartStep(GuideStep.TakeTea, collectPoint);
-        HideContent("ShuangYunCha", "取得霜云茶。");
+        Hide();
     }
     private void TriggerGuide_7()
     {
         //上架灵茶
         Transform collectPoint = GameController.Instance.buildings[BuildingType.LingChaJia_1].transform;
         GuideManager.Instance.StartStep(GuideStep.TakeTea, collectPoint);
-        HideContent("LingChaJia_1", "上架霜云茶。");
+        Hide();
     }
 
     private void TriggerGuide_8()
@@ -356,14 +386,14 @@ public class PlayerGuide : BaseView
         //进行结账
         Transform collectPoint = GameController.Instance.buildings[BuildingType.LingZhangTai].transform;
         GuideManager.Instance.StartStep(GuideStep.TakeTea, collectPoint);
-        HideContent("LingZhangTai", "前往收银台结账。");
+        Hide();
     }
     private void TriggerGuide_9()
     {
         //升级一号玉砂壶
         Transform collectPoint = GameController.Instance.buildings[BuildingType.YuShaHu_1].transform;
         GuideManager.Instance.StartStep(GuideStep.TakeTea, collectPoint);
-        HideContent("YuShaHu_1", "升级一号玉砂壶。");
+        Hide();
     }
 
     public void HideContent(string res, string info)

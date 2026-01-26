@@ -5,16 +5,17 @@ using Utils;
 public enum GuideStep
 {
     BuildYushaPot = 1,
-    BuildTeaStand = 2,
-    CollectMaterial = 3,
-    DeliverMaterial = 4,
-    BuildAccountDesk = 5,
-    TakeTea = 6,
-    SellTea = 7,
-    Checkout = 8,
-    UpgradePot = 9,
+    BuildTeaStand = 4,
+    CollectMaterial = 5,
+    DeliverMaterial = 6,
+    BuildAccountDesk = 8,
+    TakeTea = 10,
+    SellTea = 12,
+    Checkout = 13,
+    UpgradePot = 15,
 
-    Finished = 100
+    Finished = 16,
+    Over =17,
 }
 
 public class GuideManager : MonoSingleton<GuideManager>

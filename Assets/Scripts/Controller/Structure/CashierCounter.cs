@@ -347,6 +347,11 @@ namespace Controller.Structure
             PrintingMoney(totalNum);
             workingWaiters--;
             TryProcessNextCustomer();
+            if (PlayerDataModule.Instance.data.guideStep == GuideStep.SellTea)
+            {
+                PlayerDataModule.Instance.data.guideStep =  GuideStep.Checkout;
+                UIController.Instance.Show<PlayerGuide>();
+            }
         }
 
 

@@ -110,10 +110,14 @@ namespace Module
                         switch (data.currentMapID)
                         {
                             case 1:
-                                StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x => x.buildingType == type);
-                                StructureLockProgressData progress1 = new StructureLockProgressData(type,
-                                    data1.needMoney, data1.lockId, data.currentMapID);
-                                data.structureLockProgressDataList.Add(progress1);
+                                if (type != BuildingType.LingZhangTai && type != BuildingType.YuShaHu_1 &&
+                                    type != BuildingType.LingChaJia_1)
+                                {
+                                    StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x => x.buildingType == type);
+                                    StructureLockProgressData progress1 = new StructureLockProgressData(type,
+                                        data1.needMoney, data1.lockId, data.currentMapID);
+                                    data.structureLockProgressDataList.Add(progress1);
+                                }
                                 break;
                             case 2:
                                 StructureLockData data2 = DataController.Instance.structureLockDataList_2.Find(x => x.buildingType == type);
@@ -841,7 +845,24 @@ namespace Module
         public void HandleConstructTask(params object[] args)
         {
             BuildingType buildingType = (BuildingType)args[0];
-
+            if (PlayerDataModule.Instance.data.currentMapID == 1)
+            {
+                if (buildingType == BuildingType.YuShaHu_1 && data.guideStep == GuideStep.BuildYushaPot )
+                {
+                    PlayerDataModule.Instance.data.guideStep = GuideStep.BuildTeaStand;
+                    UIController.Instance.Show<PlayerGuide>();
+                }
+                else if (buildingType == BuildingType.LingChaJia_1 && data.guideStep == GuideStep.BuildTeaStand )
+                {
+                    PlayerDataModule.Instance.data.guideStep = GuideStep.CollectMaterial;
+                    UIController.Instance.Show<PlayerGuide>();
+                }
+                else if(buildingType == BuildingType.LingZhangTai && data.guideStep == GuideStep.BuildAccountDesk)
+                {
+                    PlayerDataModule.Instance.data.guideStep = GuideStep.TakeTea;
+                    UIController.Instance.Show<PlayerGuide>();
+                }
+            }
             foreach (var _data in data.listenInTaskList)
             {
                 if (_data.type == TaskType.Construct)
@@ -940,6 +961,16 @@ namespace Module
                             data.taskProgressDic.Add(_data.taskId, 1);
                         }
 
+                        if (data.taskProgressDic[_data.taskId] > _data.keyValue)
+                        {
+                            if (dropItemType == DropItemType.ShuangYunZhiFragment && data.currentMapID == 1 &&
+                                data.guideStep == GuideStep.CollectMaterial)
+                            {
+                                data.guideStep = GuideStep.DeliverMaterial;
+                                UIController.Instance.Show<PlayerGuide>();
+                            }
+                        }
+                        
                     }
                 }
             }

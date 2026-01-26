@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Controller.Pickups;
 using Module;
@@ -157,7 +158,6 @@ namespace Controller.Structure
         {
 
         }
-
         public void AddMaterial(int count)
         {
             currentMaterialCount += count;
@@ -167,7 +167,12 @@ namespace Controller.Structure
                 productionInfo.gameObject.SetActive(true);
             productionInfo.StartProductionLoop(this, structureType, baseProductionTime);
             icon.AnimationState.SetAnimation(0, "animation", true);
-
+            if (dropItemType == DropItemType.ShuangYunZhiFragment &&
+                PlayerDataModule.Instance.data.guideStep == GuideStep.DeliverMaterial)
+            {
+                PlayerDataModule.Instance.data.guideStep =  GuideStep.BuildAccountDesk;
+                UIController.Instance.Show<PlayerGuide>();
+            }
         }
         public void OnProductionFinished()
         {
