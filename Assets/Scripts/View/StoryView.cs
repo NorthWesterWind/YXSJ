@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Controller;
 using Module;
 using TMPro;
 using UnityEngine;
@@ -51,8 +52,8 @@ public class StoryView : BaseView
             if (isSkipping)
                 break;
             infotxt.maxVisibleCharacters = i;
+            yield return new WaitForSeconds(typingSpeed);
         }
-        yield return new WaitForSeconds(typingSpeed);
         infotxt.maxVisibleCharacters = text.Length;
         showAll = true;
         isSkipping = false;
@@ -110,14 +111,19 @@ public class StoryView : BaseView
     {
         if (scene.name == $"Game_{PlayerDataModule.Instance.data.currentMapID}")
         {
-            // if (!PlayerDataModule.Instance._playerData.guidIdList.Contains(1))
-            // {
-            //     UIController.Instance.Show<PlotGuidanceView>();
-            // }
-            // else
-            // {
-            //     UIController.Instance.Show<MenuView>(false);
-            // }
+            if (!PlayerDataModule.Instance.data.guidIdList.Contains(1))
+            {
+                UIController.Instance.Show<PlayerGuide>();
+            }
+            EventCenter.Instance.TriggerEvent(EventMessages.DataPrepared);
+             EventCenter.Instance.TriggerEvent(EventMessages.MapDataPrepared);
+             EventCenter.Instance.TriggerEvent(EventMessages.MapTaskDataPrepared);
+             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
+             EventCenter.Instance.TriggerEvent(EventMessages.CustomerBeginCreate);
+             EventCenter.Instance.TriggerEvent(EventMessages.MonsterBeginCreate);
+             DataController.Instance.InitMapLock();
+             DataController.Instance.UpdateSturctureLockInfo();
+             EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
         }
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }

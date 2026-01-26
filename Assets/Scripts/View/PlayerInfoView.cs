@@ -189,14 +189,14 @@ namespace View
 
         public void HandleShowPlayerInfoViewCartoon(params object[] args)
         {
-            leftSideContent.transform.position = new Vector3(-200, leftSideContent.transform.position.y, 0);
-            leftSideContent.transform.DOMove(new Vector3(40, leftSideContent.transform.position.y, 0), 0.3f);
+            this.leftSideContent.transform.position = new Vector3(-200, this.leftSideContent.transform.position.y, 0);
+            this.leftSideContent.transform.DOMove(new Vector3(40, this.leftSideContent.transform.position.y, 0), 0.3f);
         }
 
         public void HandleHidePlayerInfoViewCartoon(params object[] args)
         {
-            leftSideContent.transform.position = new Vector3(40, leftSideContent.transform.position.y, 0);
-            leftSideContent.transform.DOMove(new Vector3(-200, leftSideContent.transform.position.y, 0), 0.3f);
+            this.leftSideContent.transform.position = new Vector3(40, this.leftSideContent.transform.position.y, 0);
+            this.leftSideContent.transform.DOMove(new Vector3(-200, this.leftSideContent.transform.position.y, 0), 0.3f);
         }
 
         public void HandleUpdateLevelProgress(params object[] args)

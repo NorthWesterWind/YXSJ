@@ -157,8 +157,6 @@ namespace Controller.Structure
         public void Init(params object[] args)
         {
             PlayerData playerData = PlayerDataModule.Instance.data;
-            baseTime = playerData.cashierData.currentWorkingSpeed;
-            maxWaiters = playerData.cashierData.totalNum;
             lockData = GetLockData(playerData.currentMapID);
             lockstate = GetStructureState(playerData, lockData);
             RefreshView(lockstate, lockData);
@@ -205,7 +203,9 @@ namespace Controller.Structure
                     {
                         ShowContent_1();
                     }
-
+                    PlayerData playerData = PlayerDataModule.Instance.data;
+                    baseTime = playerData.cashierData.currentWorkingSpeed;
+                    maxWaiters = playerData.cashierData.totalNum;
                     break;
             }
         }

@@ -44,7 +44,24 @@ namespace View.Task
             // {
             //     PlayerDataModule.Instance.data.mapCompletedTaskRecordDic = new() { { 1, new List<int>() }, { 2, new List<int>() }, { 3, new List<int>() }, { 4, new List<int>() }, { 5, new List<int>() } };
             // }
-            int count = PlayerDataModule.Instance.data.mapCompletedTaskRecordDic[_mapData.id].Count;
+            var list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_1;
+            if (PlayerDataModule.Instance.data.currentMapID == 2)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_2;
+            }
+            else if (PlayerDataModule.Instance.data.currentMapID == 3)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_3;
+            }
+            else if (PlayerDataModule.Instance.data.currentMapID == 4)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_4;
+            }
+            else if (PlayerDataModule.Instance.data.currentMapID == 5)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_5;
+            }
+            int count = list.Count;
             mapNameTxt.text = _mapData.name;
             if (_mapData.id == 1 || _mapData.id == 2)
             {
@@ -97,20 +114,24 @@ namespace View.Task
             {
                 if (PlayerDataModule.Instance.data.currentMapID < 3)
                 {
+                    PlayerDataModule.Instance.data.goldIngot += DataController.Instance.giftpackDataDic[4].JinYuanBao;
                     var dic = PlayerDataModule.Instance.LotteryCard(DataController.Instance.giftpackDataDic[4]);
-                    UIController.Instance.Show<RewardConfirmView>(dic, new Dictionary<CurrencyType, int> { { CurrencyType.JingYuanBao, DataController.Instance.giftpackDataDic[2].JinYuanBao } });
-
+                    UIController.Instance.Show<RewardConfirmView>(dic, new Dictionary<CurrencyType, int> { { CurrencyType.JingYuanBao, DataController.Instance.giftpackDataDic[4].JinYuanBao } });
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                 }
                 else if (PlayerDataModule.Instance.data.currentMapID < 3)
                 {
+                    PlayerDataModule.Instance.data.goldIngot += DataController.Instance.giftpackDataDic[5].JinYuanBao;
                     var dic = PlayerDataModule.Instance.LotteryCard(DataController.Instance.giftpackDataDic[5]);
                     UIController.Instance.Show<RewardConfirmView>(dic, new Dictionary<CurrencyType, int> { { CurrencyType.JingYuanBao, DataController.Instance.giftpackDataDic[2].JinYuanBao } });
-
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                 }
                 else
                 {
+                    PlayerDataModule.Instance.data.goldIngot += DataController.Instance.giftpackDataDic[6].JinYuanBao;
                     var dic = PlayerDataModule.Instance.LotteryCard(DataController.Instance.giftpackDataDic[6]);
                     UIController.Instance.Show<RewardConfirmView>(dic, new Dictionary<CurrencyType, int> { { CurrencyType.JingYuanBao, DataController.Instance.giftpackDataDic[2].JinYuanBao } });
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                 }
                 PlayerDataModule.Instance.data.taskPopCompleted -= WorldData.taskboxNeedDic[PlayerDataModule.Instance.data.currentMapID];
 
@@ -131,7 +152,24 @@ namespace View.Task
         public void HandleHasTaskComplete(params object[] args)
         {
             _mapData = DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID];
-            int count = PlayerDataModule.Instance.data.mapCompletedTaskRecordDic[_mapData.id].Count;
+            var list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_1;
+            if (PlayerDataModule.Instance.data.currentMapID == 2)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_2;
+            }
+            else if (PlayerDataModule.Instance.data.currentMapID == 3)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_3;
+            }
+            else if (PlayerDataModule.Instance.data.currentMapID == 4)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_4;
+            }
+            else if (PlayerDataModule.Instance.data.currentMapID == 5)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_5;
+            }
+            int count = list.Count;
             int tempvalue1 = count / _mapData.taskGroupSize;
             mapprogressTxt.text = tempvalue1 + "/" + _mapData.taskGroupNum;
             sliderText.text = PlayerDataModule.Instance.data.taskPopCompleted + "/" + WorldData.taskboxNeedDic[PlayerDataModule.Instance.data.currentMapID];
@@ -148,7 +186,7 @@ namespace View.Task
             int tempvalue = 0;
             foreach (var _data in PlayerDataModule.Instance.data.listenInTaskList)
             {
-                if (!PlayerDataModule.Instance.data.mapCompletedTaskRecordDic[_mapData.id].Contains(_data.taskId))
+                if (!list.Contains(_data.taskId))
                 {
                     tempvalue += 1;
                 }
@@ -168,9 +206,26 @@ namespace View.Task
             List<TaskData> dataList = tempdata.listenInTaskList;
             List<TaskData> list1 = new List<TaskData>();
             List<TaskData> list2 = new List<TaskData>();
+            var list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_1;
+            if (PlayerDataModule.Instance.data.currentMapID == 2)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_2;
+            }
+            else if (PlayerDataModule.Instance.data.currentMapID == 3)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_3;
+            }
+            else if (PlayerDataModule.Instance.data.currentMapID == 4)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_4;
+            }
+            else if (PlayerDataModule.Instance.data.currentMapID == 5)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_5;
+            }
             foreach (TaskData data in dataList)
             {
-                if (tempdata.mapCompletedTaskRecordDic[_mapData.id].Contains(data.taskId))
+                if (list.Contains(data.taskId))
                 {
                     list2.Add(data);
                 }

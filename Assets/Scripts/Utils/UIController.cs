@@ -51,6 +51,10 @@ namespace Utils
 
                 Transform _canvas = GameObject.Find("Canvas")?.transform;
                 Transform _popCanvas = GameObject.Find("PopupCanvas")?.transform;
+                if(_popCanvas  == null)
+                {
+                    _popCanvas = _canvas;
+                }
                 if (_canvas != null || _popCanvas != null)
                 {
                     var go = _canvas.GetComponentsInChildren<Transform>(true) // ✅ true = 包含失活物体

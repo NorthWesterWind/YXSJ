@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using Controller;
 using Module;
 using Module.Data;
 using TMPro;
@@ -43,11 +44,11 @@ public class LoginView : BaseView
     public GameObject setNameContent;
     public TMP_InputField setNameInput;
     public UIButton setNameBtn;
-   protected override void Awake()
+    protected override void Awake()
     {
-        StartLoad();
+        base.Awake();
+        StartCoroutine(LoadSensitiveWordsCoroutine());
     }
-
     public override void UpdateViewWithArgs(params object[] args)
     {
         base.UpdateViewWithArgs(args);
@@ -105,7 +106,9 @@ public class LoginView : BaseView
     {
         base.AddEventListener();
 
-
+        accountInput.onValidateInput += ValidateAlphaNumeric;
+        accountInput.onValueChanged.AddListener(OnAccountValueChanged);
+        registerAccountInput.onValueChanged.AddListener(OnRegisterAccountValueChanged);
         passwordInput.onValidateInput += ValidateAlphaNumeric;
         passwordInput.onValueChanged.AddListener(OnPasswordValueChanged);
         registerPasswordInput.onValidateInput += ValidateAlphaNumeric;
@@ -197,6 +200,7 @@ public class LoginView : BaseView
     {
         HideAllPanels();
         fillBg.gameObject.SetActive(true);
+        fillImage.fillAmount = 0f;
         StartCoroutine(LoadNextSceneCoroutine());
     }
 
@@ -255,12 +259,20 @@ public class LoginView : BaseView
         {
             if (scene.name == $"Game_{PlayerDataModule.Instance.data.currentMapID}")
             {
-                if ( PlayerDataModule.Instance.data.currentMapID == 1 && !PlayerDataModule.Instance.data.guidIdList.Contains(1))
+                if (PlayerDataModule.Instance.data.currentMapID == 1 && !PlayerDataModule.Instance.data.guidIdList.Contains(1))
                 {
                     //剧情引导
                     UIController.Instance.Show<PlayerGuide>();
                 }
-                
+                EventCenter.Instance.TriggerEvent(EventMessages.DataPrepared);
+                EventCenter.Instance.TriggerEvent(EventMessages.MapDataPrepared);
+                EventCenter.Instance.TriggerEvent(EventMessages.MapTaskDataPrepared);
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
+                EventCenter.Instance.TriggerEvent(EventMessages.CustomerBeginCreate);
+                EventCenter.Instance.TriggerEvent(EventMessages.MonsterBeginCreate);
+                DataController.Instance.InitMapLock();
+                DataController.Instance.UpdateSturctureLockInfo();
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
             }
         }
         AudioSourceController.Instance.PlaySound();
@@ -341,7 +353,14 @@ public class LoginView : BaseView
                        PlayerDataModule.Instance.data.age = age;
                        PlayerDataModule.Instance.SavePlayerDataAsync();
                        PlayerDataModule.Instance.SavePlayerDataToSever();
-                       OnCanLogin();
+
+                       if (!PlayerDataModule.Instance.data.isCreated)
+                       {
+                           HideAllPanels();
+                           SwitchToSetNamePanel();
+                       }
+                       else
+                           OnCanLogin();
                        break;
                    case 3:
                        UIController.Instance.Show<TipView>("实名失败输入18位身份证号数字！");
@@ -401,6 +420,41 @@ public class LoginView : BaseView
     {
         return char.IsLetterOrDigit(addedChar) ? addedChar : '\0';
     }
+
+
+
+    private void OnRegisterAccountValueChanged(string text)
+    {
+        string filtered = RemoveNonAlphaNumeric(text);
+        if (Input.compositionString.Length > 0)
+        {
+            filtered = "";
+            return;
+        }
+
+        if (filtered != text)
+        {
+            realAccountInput.text = filtered;
+            realAccountInput.caretPosition = filtered.Length; // 保持光标在最后
+        }
+    }
+
+    private void OnAccountValueChanged(string text)
+    {
+        string filtered = RemoveNonAlphaNumeric(text);
+        if (Input.compositionString.Length > 0)
+        {
+            filtered = "";
+            return;
+        }
+
+        if (filtered != text)
+        {
+            accountInput.text = filtered;
+            accountInput.caretPosition = filtered.Length; // 保持光标在最后
+        }
+    }
+
 
     private void OnPasswordValueChanged(string text)
     {
@@ -488,10 +542,7 @@ public class LoginView : BaseView
     private List<string> sensitiveWords = new List<string>();
     private bool isInitialized = false;
 
-    private IEnumerator StartLoad()
-    {
-        yield return LoadSensitiveWordsCoroutine();
-    }
+
 
     private IEnumerator LoadSensitiveWordsCoroutine()
     {

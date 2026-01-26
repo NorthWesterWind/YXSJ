@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Controller;
 using Module;
 using Module.Data;
@@ -48,7 +49,24 @@ namespace View.Task
                 return;
             if (canGetReward)
             {
-                PlayerDataModule.Instance.data.mapCompletedTaskRecordDic[PlayerDataModule.Instance.data.currentMapID].Add(data.taskId);
+                List<int> list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_1;
+                if (PlayerDataModule.Instance.data.currentMapID == 2)
+                {
+                    list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_2;
+                }
+                else if (PlayerDataModule.Instance.data.currentMapID == 3)
+                {
+                    list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_3;
+                }
+                else if (PlayerDataModule.Instance.data.currentMapID == 4)
+                {
+                    list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_4;
+                }
+                else if (PlayerDataModule.Instance.data.currentMapID == 5)
+                {
+                    list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_5;
+                }
+                list.Add(data.taskId);
                 PlayerDataModule.Instance.GetTaskReward(data.rewardId);
                 HandleUpdateTaskInfo();
                 EventCenter.Instance.TriggerEvent(EventMessages.HasTaskComplete , data);
@@ -90,7 +108,24 @@ namespace View.Task
                 JingYuanBaoObj.SetActive(false);
             }
             PlayerData playerdata = PlayerDataModule.Instance.data;
-            if (playerdata.mapCompletedTaskRecordDic[playerdata.currentMapID].Contains(data.taskId))
+            List<int> list = playerdata.mapCompletedTaskRecordList_1;
+            if (playerdata.currentMapID == 2)
+            {
+                list = playerdata.mapCompletedTaskRecordList_2;
+            }
+            else if (playerdata.currentMapID == 3)
+            {
+                list = playerdata.mapCompletedTaskRecordList_3;
+            }
+            else if (playerdata.currentMapID == 4)
+            {
+                list = playerdata.mapCompletedTaskRecordList_4;
+            }
+            else if (playerdata.currentMapID == 5)
+            {
+                list = playerdata.mapCompletedTaskRecordList_5;
+            }
+            if (list.Contains(data.taskId))
             {
                 isCompleted = true;
 
@@ -138,7 +173,25 @@ namespace View.Task
             {
                 return;
             }
-            if (PlayerDataModule.Instance.data.mapCompletedTaskRecordDic[PlayerDataModule.Instance.data.currentMapID].Contains(data.taskId))
+            var list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_1;
+            if (PlayerDataModule.Instance.data.currentMapID == 2)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_2;
+            }
+            else if (PlayerDataModule.Instance.data.currentMapID == 3)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_3;
+            }
+            else if (PlayerDataModule.Instance.data.currentMapID == 4)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_4;
+            }
+            else if (PlayerDataModule.Instance.data.currentMapID == 5)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_5;
+            }
+
+            if (list.Contains(data.taskId))
             {
                 isCompleted = true;
                 progresstxt.text = "(" + data.keyValue + "/" + data.keyValue + ")";

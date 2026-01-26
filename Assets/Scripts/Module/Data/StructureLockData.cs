@@ -1,5 +1,6 @@
 using Module.Data;
 
+[System.Serializable]
 public class StructureLockData
 {
 	public int  lockId; // 编号

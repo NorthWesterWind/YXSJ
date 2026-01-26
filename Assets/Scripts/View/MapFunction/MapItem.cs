@@ -1,10 +1,12 @@
 
 using System;
+using System.Collections;
 using JetBrains.Annotations;
 using Module;
 using Module.Data;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Utils;
 
@@ -32,25 +34,26 @@ namespace View.MapFunction
             unlockBtn.onClick.RemoveAllListeners();
             unlockBtn.onClick.AddListener((() =>
             {
-                if (PlayerDataModule.Instance.data.accountLevel < mapData.unlockLevel)
+                if (PlayerDataModule.Instance.data.levelLockMapList.Contains(mapData.id))
                 {
                     UIController.Instance.Show<TipView>("等级未达到要求！");
 
                 }
                 else
                 {
+
                     if (PlayerDataModule.Instance.data.tongbi >= mapData.unlockCost)
                     {
                         PlayerDataModule.Instance.data.tongbi -= mapData.unlockCost;
-                        PlayerDataModule.Instance.data.unlockMapList.Add(mapData.id);
+                        PlayerDataModule.Instance.data.realUnlockMapList.Add(mapData.id);
+                        PlayerDataModule.Instance.data.currentMapID = mapData.id;
                         maskImg.SetActive(false);
-                        // completedImg.gameObject.SetActive(true);
-                        UIController.Instance.Show<TipView>(mapData.name + "解锁成攻！");
-
+                        UIController.Instance.Show<TipView>(mapData.name + "解锁成功！");
+                        StartCoroutine(LoadNextSceneCoroutine());
                     }
                     else
                     {
-                        UIController.Instance.Show<TipView>("银币数量不足！");
+                        UIController.Instance.Show<TipView>("铜币数量不足！");
                     }
                 }
             }));
@@ -69,17 +72,22 @@ namespace View.MapFunction
             maskImg.GetComponent<Image>().sprite = assetHandle.Get<Sprite>(mapData.name + "灰");
 
 
-            if (PlayerDataModule.Instance.data.unlockMapList.Contains(mapData.id))
+            if (PlayerDataModule.Instance.data.realUnlockMapList.Contains(mapData.id))
             {
-                //  completedImg.gameObject.SetActive(true);
                 maskImg.SetActive(false);
                 masktxt.gameObject.SetActive(false);
                 unlockBtn.gameObject.SetActive(false);
             }
             else
             {
-                unlockBtn.gameObject.SetActive(true);
-                // completedImg.gameObject.SetActive(false);
+                if (!PlayerDataModule.Instance.data.levelLockMapList.Contains(mapData.id) && PlayerDataModule.Instance.data.realUnlockMapList.Contains(mapData.id - 1))
+                {
+                    unlockBtn.gameObject.SetActive(true);
+                }
+                else
+                {
+                    unlockBtn.gameObject.SetActive(false);
+                }
                 maskImg.SetActive(true);
                 masktxt.gameObject.SetActive(true);
                 masktxt.text = $"{mapData.unlockLevel}级后解锁";
@@ -89,7 +97,7 @@ namespace View.MapFunction
                 }
                 else
                 {
-                    btntxt.text = "银币:" + mapData.unlockCost;
+                    btntxt.text = "铜币:" + mapData.unlockCost;
                 }
             }
             pricetxt.text = "x" + mapData.price;
@@ -97,7 +105,7 @@ namespace View.MapFunction
             Extensions.ClearChildren(content_2);
             if (mapData.monsterFamilyList.Count > 0)
             {
-               fruit.gameObject.SetActive(true);
+                fruit.gameObject.SetActive(true);
                 for (int i = 0; i < mapData.monsterFamilyList.Count; i++)
                 {
                     GameObject obj = GameObject.Instantiate(assetHandle.Get<GameObject>("mapinfoitem"), content_1.transform, false);
@@ -124,5 +132,53 @@ namespace View.MapFunction
             }
 
         }
+
+
+
+
+        #region 🔸 加载场景逻辑
+
+        private IEnumerator LoadNextSceneCoroutine()
+        {
+            SceneManager.sceneLoaded += OnSceneLoaded;
+            AsyncOperation asyncLoad;
+
+            asyncLoad = SceneManager.LoadSceneAsync($"Game_{PlayerDataModule.Instance.data.currentMapID}");
+
+            asyncLoad.allowSceneActivation = false;
+            float displayProgress = 0f;
+
+            while (!asyncLoad.isDone)
+            {
+                float targetProgress = Mathf.Clamp01(asyncLoad.progress / 0.9f);
+                displayProgress = Mathf.MoveTowards(displayProgress, targetProgress, Time.deltaTime * 0.3f);
+
+                if (asyncLoad.progress >= 0.9f && displayProgress >= 0.99f)
+                {
+                    displayProgress = Mathf.MoveTowards(displayProgress, 1f, Time.deltaTime * 0.3f);
+                    if (displayProgress >= 1f)
+                    {
+                        yield return new WaitForSeconds(0.5f);
+                        asyncLoad.allowSceneActivation = true;
+                    }
+                }
+
+                yield return null;
+            }
+        }
+
+        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            PlayerDataModule.Instance.BeginAutoSave();
+
+            if (scene.name == $"Game_{PlayerDataModule.Instance.data.currentMapID}")
+            {
+               
+            }
+
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+        }
+
+        #endregion
     }
 }

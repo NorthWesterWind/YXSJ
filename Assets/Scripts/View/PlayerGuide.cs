@@ -206,16 +206,16 @@ public class PlayerGuide : BaseView
                 case 10:
                 case 11:
                     infotxt_1.maxVisibleCharacters = i;
+                    yield return new WaitForSeconds(0.1f);
                     break;
                 case 2:
                 case 7:
                     infotxt_2.maxVisibleCharacters = i;
+                    yield return new WaitForSeconds(0.1f);
                     break;
-
-
             }
 
-            yield return new WaitForSeconds(0.1f);
+
         }
         switch (currentIndex)
         {

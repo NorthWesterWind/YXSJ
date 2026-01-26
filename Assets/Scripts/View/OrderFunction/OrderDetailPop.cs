@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Controller;
@@ -6,7 +5,6 @@ using Controller.Player;
 using Module;
 using Module.Data;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using Utils;
 using View;

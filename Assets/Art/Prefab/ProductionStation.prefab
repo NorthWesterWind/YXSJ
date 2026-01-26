@@ -812,7 +812,6 @@ MonoBehaviour:
   transferPoint: {fileID: 6039938227021536917}
   currentMaterialCount: 0
   baseProductionTime: 2.5
-  productionSpeed: 1
   productionInfo: {fileID: 0}
   dropItemType: 1
   goodsType: 1
@@ -831,6 +830,11 @@ MonoBehaviour:
   materialIcon: {fileID: 6945014533502360411}
   infoTransform: {fileID: 3924665771825620014}
   icon: {fileID: 1704198591813315762}
+  lockData:
+    lockId: 0
+    buildingType: 0
+    needMoney: 0
+  lockstate: 0
 --- !u!114 &2956722690473947273
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -967,7 +971,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1383778926247635649, guid: 4082246de4f07f5479aa38784937f4ef, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7222605320566722230, guid: 4082246de4f07f5479aa38784937f4ef, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7222605320566722230, guid: 4082246de4f07f5479aa38784937f4ef, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.5
       objectReference: {fileID: 0}
     - target: {fileID: 7222605320566722230, guid: 4082246de4f07f5479aa38784937f4ef, type: 3}
       propertyPath: m_LocalPosition.x

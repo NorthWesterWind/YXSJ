@@ -1,9 +1,7 @@
-using Controller;
 using Controller.Player;
 using Module;
 using Module.Data;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using Utils;
 
@@ -18,14 +16,14 @@ public class StructureLock : MonoBehaviour
     private AssetHandle _assetHandle;
 
     public Transform receiveTransform;
-    private StructureLockData _data;
+    public StructureLockData _data;
 
     public GameObject bg;
     private bool playerInRange;
     private PlayerController player;
     public bool isLocked = true;
     public TextMeshPro nametxt;
-    
+
 
     public void InitInfo(StructureLockData data)
     {
@@ -35,7 +33,89 @@ public class StructureLock : MonoBehaviour
         {
             _assetHandle = GetComponent<AssetHandle>();
         }
-        structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
+
+        switch (buildType)
+        {
+            case BuildingType.LingChuGe_1:
+            case BuildingType.LingChuGe_2:
+                if (PlayerDataModule.Instance.data.currentMapID == 1 || PlayerDataModule.Instance.data.currentMapID == 2)
+                    structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) + "_1");
+                else if (PlayerDataModule.Instance.data.currentMapID == 3)
+                {
+                    structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) + "_3");
+                }
+                else if (PlayerDataModule.Instance.data.currentMapID == 4)
+                {
+                    structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) + "_4");
+                }
+                else
+                {
+                    structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) + "_5");
+                }
+                break;
+            case BuildingType.LingZhangTai:
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
+                break;
+            case BuildingType.YuShaHu_1:
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
+                break;
+            case BuildingType.LingChaJia_1:
+
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
+
+                break;
+            case BuildingType.YuShaHu_2:
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
+                break;
+            case BuildingType.LingChaJia_2:
+
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
+
+                break;
+            case BuildingType.YuShaHu_3:
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
+                break;
+            case BuildingType.LingChaJia_3:
+
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
+
+                break;
+            case BuildingType.YuShaHu_4:
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
+                break;
+            case BuildingType.LingChaJia_4:
+
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) );
+
+                break;
+            case BuildingType.LianQiLu_1:
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
+                break;
+            case BuildingType.LingQiJia_1:
+
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) );
+
+                break;
+            case BuildingType.LianQiLu_2:
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
+                break;
+            case BuildingType.LingQiJia_2:
+
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) );
+
+                break;
+            case BuildingType.LianQiLu_3:
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
+                break;
+            case BuildingType.LingQiJia_3:
+
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) );
+
+                break;
+            case BuildingType.YunDiGe:
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
+                break;
+        }
         PlayerData playerData = PlayerDataModule.Instance.data;
         StructureLockProgressData progressData = playerData.structureLockProgressDataList.Find(s => s.buildType == buildType && s.lockId == data.lockId && s.mapId == playerData.currentMapID);
         if (progressData != null)
@@ -43,16 +123,8 @@ public class StructureLock : MonoBehaviour
             float fillWidth = Mathf.Clamp01(progressData.currentOwnMoney / _data.needMoney);
             fill.transform.localScale = new Vector3(fillWidth, 1, 1);
             needText.text = $"{_data.needMoney - (int)progressData.currentOwnMoney}";
-            if (progressData.isUnlock)
-            {
-                lockSprite.gameObject.SetActive(false);
-                bg.SetActive(false);
-            }
-            else
-            {
-                lockSprite.gameObject.SetActive(true);
-                bg.SetActive(true);
-            }
+            lockSprite.gameObject.SetActive(false);
+            bg.SetActive(true);
         }
         else
         {
@@ -120,7 +192,7 @@ public class StructureLock : MonoBehaviour
             float fillWidth = Mathf.Clamp01(progressData.currentOwnMoney / _data.needMoney);
             fill.transform.localScale = new Vector3(fillWidth, 1, 1);
         }
-       
+
     }
 
     public void OnEnter()

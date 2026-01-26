@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.ComponentModel;
 using Module;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -14,6 +15,9 @@ namespace Utils
         public int account_level;
         public int age;
         public int fcm;
+
+        [JsonProperty("id", DefaultValueHandling = DefaultValueHandling.Populate)]
+        [DefaultValue(0)]
         public int id;
         public string more;
         public string msg;
@@ -139,10 +143,10 @@ namespace Utils
     }
     public class LoginUtil : MonoSingleton<LoginUtil>
     {
-        private string registerurl = "http://game.zikunhh.com/php/zhuce.php?app_name=Yxsj";
-        private string Loginurl = "http://game.zikunhh.com/php/denglu.php?app_name=Yxsj";
-        private string realnameurl = "http://game.zikunhh.com/php/shiming.php?app_name=Yxsj";
-        private string saveurl = "http://game.zikunhh.com/php/cunchu.php?app_name=Yxsj";
+        private string registerurl = "http://game.zikunhh.com/php/zhuce.php?app_name=Yjsj";
+        private string Loginurl = "http://game.zikunhh.com/php/denglu.php?app_name=Yjsj";
+        private string realnameurl = "http://game.zikunhh.com/php/shiming.php?app_name=Yjsj";
+        private string saveurl = "http://game.zikunhh.com/php/cunchu.php?app_name=Yjsj";
 
         public void RegisterCheck(string user, string password, Action<ResponseRegister> callback)
         {
@@ -173,11 +177,11 @@ namespace Utils
                     Debug.Log("注册请求成功：" + webRequest.downloadHandler.text);
                     ResponseRegister response = JsonUtility.FromJson<ResponseRegister>(webRequest.downloadHandler.text);
                     callback?.Invoke(response);
-                    if(response.state == 1)
-                    {
-                       PlayerDataModule.Instance.data.user_id = response.res.id;
-                       SaveToServer();
-                    }
+                    // if(response.state == 1)
+                    // {
+                    //    PlayerDataModule.Instance.data.user_id = response.res.id;
+                    //    SaveToServer();
+                    // }
                 }
                 else
                 {
@@ -217,19 +221,20 @@ namespace Utils
                         }
                         else
                         {
-                            callback?.Invoke(null);
+                            UIController.Instance.Show<TipView>("登录失败!");
                         }
+                         PlayerDataModule.Instance.data.user_id = responseLogin.id;
                     }
                     catch (Exception ex)
                     {
                         Debug.LogError($"JSON解析错误: {ex.Message}");
-                        callback?.Invoke(null);
+                       UIController.Instance.Show<TipView>("登录失败!");
                     }
                 }
                 else
                 {
                     Debug.LogError($"登录失败: {webRequest.error}, URL: {Loginurl}");
-                    callback?.Invoke(null);
+                    UIController.Instance.Show<TipView>("登录失败!");
                 }
             }
         }
@@ -290,7 +295,7 @@ namespace Utils
             Action<ResponseRealName> callback)
         {
             WWWForm form = new WWWForm();
-            form.AddField("user", PlayerDataModule.Instance.data.userName);
+            form.AddField("user", PlayerDataModule.Instance.data.userAccount);
             form.AddField("idnum", idnum);
             form.AddField("chinese", chinese);
             form.AddField("fcmLvl", fcmLvl);

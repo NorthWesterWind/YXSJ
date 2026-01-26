@@ -158,9 +158,9 @@ namespace Controller
                     }
                     else
                     {
-                         SpawnMonster();
+                        SpawnMonster();
                     }
-                   
+
                 }
                 else
                 {
@@ -342,9 +342,12 @@ namespace Controller
             RemoveMonster(target);
         }
 
+        private Coroutine spawnCoroutine;
+
         private void HandleMonsterCreate(params object[] args)
         {
-            StartCoroutine(SpawnLoop());
+            if (spawnCoroutine != null) return;
+            spawnCoroutine = StartCoroutine(SpawnLoop());
         }
 
         Dictionary<DropItemType, int> dropDict = new();

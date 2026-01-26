@@ -1,10 +1,8 @@
-using System.Collections.Generic;
-using Controller;
+
 using Module;
 using Module.Data;
-using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 using Utils;
 
 namespace View.OrderFunction
@@ -12,13 +10,17 @@ namespace View.OrderFunction
     public class OrderFunctionView : BaseView
     {
         public UIButton closeBtn;
-        public DetailPop detailPop;
+        public UIButton huoquBtn;
         public HuoQuPop huoQuPop;
-        public  OrderData orderData;
+        public OrderData orderData;
         private PlayerData playerData;
         public OrderDetailPop orderDetailPop;
+        public GameObject orderDetailPopObj;
 
         public Transform content;
+
+        public GameObject fillContent;
+        public Image fill;
 
 
         protected override void AddEventListener()
@@ -30,27 +32,78 @@ namespace View.OrderFunction
                 Hide();
             }));
 
+            EventCenter.Instance.AddListener(EventMessages.ShowOrderDetail, ShowDetailPop);
+            EventCenter.Instance.AddListener(EventMessages.UpdateOrderItem, HandleUpdateOrderItem);
+            huoquBtn.onClick.RemoveAllListeners();
+            huoquBtn.onClick.AddListener(() =>
+            {
+                huoQuPop.gameObject.SetActive(true);
+            });
+        }
+        public override void RemoveEventListener()
+        {
+            base.RemoveEventListener();
+            EventCenter.Instance.RemoveListener(EventMessages.ShowOrderDetail, ShowDetailPop);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateOrderItem, HandleUpdateOrderItem);
         }
 
-       
+        public void UpdateFillAmount(params object[] args)
+        {
+            {
+               
+            }
+        }
+
+        void Update()
+        {
+            if(playerData.orderDataprogressList.Count <4)
+            {
+               fillContent.SetActive(true);
+                fill.fillAmount = PlayerDataModule.Instance.orderRefreshProgress;
+            }
+            else
+            {
+                fillContent.SetActive(false);
+            }
+        }
+
         public override void UpdateViewWithArgs(params object[] args)
         {
             base.UpdateViewWithArgs(args);
             playerData = PlayerDataModule.Instance.data;
-        
+
             var orderDataprogressList = playerData.orderDataprogressList;
             Extensions.ClearChildren(content);
-            if(orderDataprogressList.Count < 1)
+            if (orderDataprogressList.Count < 1)
             {
                 //没有订单
             }
             else
             {
-                for(int i = 0 ; i < orderDataprogressList.Count; i++)
+                for (int i = 0; i < orderDataprogressList.Count; i++)
                 {
                     GameObject obj = Instantiate(_assetHandle.Get<GameObject>("OrderItem"), content, false);
-                    
-                    obj.GetComponent<OrderItem>().Init( orderDataprogressList[i]);
+
+                    obj.GetComponent<OrderItem>().Init(orderDataprogressList[i]);
+                }
+            }
+        }
+        public void HandleUpdateOrderItem(params object[] args)
+        {
+            playerData = PlayerDataModule.Instance.data;
+            var orderDataprogressList = playerData.orderDataprogressList;
+            Extensions.ClearChildren(content);
+            if (orderDataprogressList.Count < 1)
+            {
+                //没有订单
+            }
+            else
+            {
+                for (int i = 0; i < orderDataprogressList.Count; i++)
+                {
+                    GameObject obj = Instantiate(_assetHandle.Get<GameObject>("OrderItem"), content, false);
+
+                    obj.GetComponent<OrderItem>().Init(orderDataprogressList[i]);
                 }
             }
         }
@@ -58,13 +111,15 @@ namespace View.OrderFunction
 
         private void ShowDetailPop(params object[] args)
         {
-            OrderDataProgress dataProgress = args[0] as  OrderDataProgress;
+            orderDetailPopObj.SetActive(true);
+            OrderDataProgress dataProgress = args[0] as OrderDataProgress;
+            orderDetailPop.Init(dataProgress);
         }
 
         protected override void OnHideComplete()
         {
             base.OnHideComplete();
-             EventCenter.Instance.TriggerEvent(EventMessages.ShowPlayerInfoViewCartoon);
+            EventCenter.Instance.TriggerEvent(EventMessages.ShowPlayerInfoViewCartoon);
         }
     }
 }

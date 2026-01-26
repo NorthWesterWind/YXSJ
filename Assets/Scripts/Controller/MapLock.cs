@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using Controller;
 using Controller.Player;
 using Module;
 using Module.Data;
@@ -183,6 +185,10 @@ public class MapLock : MonoBehaviour
             player.InteractionTriggerInRange = false;
             player.InteractionTriggerTransform = null;
         }
+        PlayerDataModule.Instance.data.goldIngot += DataController.Instance.giftpackDataDic[4].JinYuanBao;
+        var dic = PlayerDataModule.Instance.LotteryCard(DataController.Instance.giftpackDataDic[4]);
+        UIController.Instance.Show<RewardConfirmView>(dic, new Dictionary<CurrencyType, int> { { CurrencyType.JingYuanBao, DataController.Instance.giftpackDataDic[4].JinYuanBao } });
+        EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
         EventCenter.Instance.TriggerEvent(EventMessages.MapLockUnlocked, mapLockData);
         EventCenter.Instance.TriggerEvent(EventMessages.UnLockMapTask, monsterType);
     }

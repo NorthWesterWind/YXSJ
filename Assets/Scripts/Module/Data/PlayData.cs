@@ -46,7 +46,7 @@ namespace Module.Data
 
         #region 账号信息
 
-        public string userName;
+        public string userName  ;
         public string userAccount;
         public string userPassword;
         public int age;
@@ -71,13 +71,10 @@ namespace Module.Data
 
         public int monthlyLimitMoney; //每月限制消费金额
         public DateTime lastTime;  //判断是否跨月
-
-        public List<int> unlockMapList = new List<int>() { 1 };
-        public Dictionary<int, List<int>> mapPlayRecordDic = new Dictionary<int, List<int>>();
         public int tongbi = 5000000;  //铜币
         public int goldIngot = 5000000;   //金元宝
         public int lingJing = 500000;    //灵晶
-        public int jingMangZhu = 10000; //金芒珠
+        public int jingMangZhu = 0; //金芒珠
         public int currentMapID = 1;
 
         public float speedTime = 0; //生产台加速时长
@@ -92,10 +89,16 @@ namespace Module.Data
         public List<int> realUnlockMapList = new() { 1 };
 
         [Header("key = 地图编号 ， value = 当前地图已完成任务 (奖励已领取)")]
-        public Dictionary<int, List<int>> mapCompletedTaskRecordDic = new() { { 1, new List<int>() }, { 2, new List<int>() }, { 3, new List<int>() }, { 4, new List<int>() }, { 5, new List<int>() } };
+      //  public Dictionary<int, List<int>> mapCompletedTaskRecordDic = new() { { 1, new List<int>() }, { 2, new List<int>() }, { 3, new List<int>() }, { 4, new List<int>() }, { 5, new List<int>() } };
+        public List<int> mapCompletedTaskRecordList_1 = new List<int>() { };
+        public List<int> mapCompletedTaskRecordList_2 = new List<int>() { };
+        public List<int> mapCompletedTaskRecordList_3 = new List<int>() { };
+        public List<int> mapCompletedTaskRecordList_4 = new List<int>() { };
+        public List<int> mapCompletedTaskRecordList_5 = new List<int>() { };
+
         public int nowTaskId = 0; //当前主界面显示的任务信息
         public List<TaskData> listenInTaskList = new();//监听的任务
-        public Dictionary<int, int> taskProgressDic = new Dictionary<int, int>() { { 0, 0 } }; //任务Id - 任务进度 地图一初始
+        public Dictionary<int, int> taskProgressDic = new Dictionary<int, int>() { { 1000000, 1000000 } }; //任务Id - 任务进度 地图一初始
         public int taskPopCompleted = 0; //任务弹窗中用于记录获取的金芒珠 用于宝箱领取
         public string FanPingBaoXiaoTime;
         public string LingShunLingTime;
@@ -195,6 +198,7 @@ namespace Module.Data
         #region 元宝矿洞数据
         public int remainCount = 30;
         public string lastRefrashTime = "";
+        internal object mapCompletedTaskRecordDic;
 
 
         #endregion

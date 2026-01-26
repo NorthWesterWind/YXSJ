@@ -1189,6 +1189,9 @@ namespace Utils
 				case BuildingType.YunDiGe:
 					resName = "YunDiGe";
 					break;
+				case BuildingType.LingZhangTai:
+					resName = "LingZhangTai";
+					break;
 
 			}
 			return resName;
@@ -1254,7 +1257,9 @@ namespace Utils
 				case BuildingType.YunDiGe:
 					resName = "云递阁                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        ";
 					break;
-
+				case BuildingType.LingZhangTai:
+					resName = "灵账台";
+					break;
 			}
 			return resName;
 		}

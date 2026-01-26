@@ -6,7 +6,7 @@ using Utils;
 
 namespace Controller
 {
-    public class GameController : MonoSingleton<GameController>
+    public class GameController : MonoUtil<GameController>
     {
         [Header("每种怪物的出生点")]
         public Dictionary<MonsterType, Transform> monsterBornPositions = new ();

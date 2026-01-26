@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Controller;
 using Module.Data;
 using Newtonsoft.Json;
-using Unity.VisualScripting;
 using UnityEngine;
 using Utils;
 using View;
@@ -229,7 +228,7 @@ namespace Module
 
         public async Task SavePlayerDataAsync()
         {
-            var path = Path.Combine(Application.persistentDataPath, JsonFileName.PlayerData + "." + data.userName);
+            var path = Path.Combine(Application.persistentDataPath, JsonFileName.PlayerData + "." + data.userAccount);
             await JsonUtil.SaveDataAsync(data, path);
         }
         public void SavePlayerDataToSever()
@@ -427,6 +426,7 @@ namespace Module
 
                      callback?.Invoke(respone.fcm);
                      DataController.Instance.UpdateSturctureLockInfo();
+                     StartOrderAutoCheck();
                  }
                  else if (respone.state == 2)
                  {
@@ -458,11 +458,124 @@ namespace Module
                     dropItemTypeList.Add(Extensions.GetDropTypeByMonsterType(item.monsterType));
                 }
                 data.orderDataprogressList.Add(new OrderDataProgress(randomKey,
-                    new Dictionary<GoodsType, (int,int)>() { { goodsTypeList[UnityEngine.Random.Range(0, goodsTypeList.Count)], (0,randomValue.needNum) } },
-                     new Dictionary<DropItemType, (int,int)>() { { dropItemTypeList[UnityEngine.Random.Range(0, dropItemTypeList.Count)], (0,randomValue.needNum) } }
+                    new Dictionary<GoodsType, (int, int)>() { { goodsTypeList[UnityEngine.Random.Range(0, goodsTypeList.Count)], (0, randomValue.needNum) } },
+                     new Dictionary<DropItemType, (int, int)>() { { dropItemTypeList[UnityEngine.Random.Range(0, dropItemTypeList.Count)], (0, randomValue.needNum) } }
                            ));
             }
         }
+        public void AddOrderData()
+        {
+            if (data.orderDataprogressList.Count < 4)
+            {
+                var randomKey = DataController.Instance.orderDataDic.Keys.ElementAt(UnityEngine.Random.Range(0, DataController.Instance.orderDataDic.Count));
+                var randomValue = DataController.Instance.orderDataDic[randomKey];
+                var list = data.mapLockDataProgressList.FindAll(x => x.isUnlock == true);
+                List<GoodsType> goodsTypeList = new List<GoodsType>();
+                List<DropItemType> dropItemTypeList = new List<DropItemType>();
+                foreach (var item in list)
+                {
+                    goodsTypeList.Add(Extensions.GetGoodsTypeByMonsterType(item.monsterType));
+                    dropItemTypeList.Add(Extensions.GetDropTypeByMonsterType(item.monsterType));
+                }
+                data.orderDataprogressList.Add(new OrderDataProgress(randomKey,
+                    new Dictionary<GoodsType, (int, int)>() { { goodsTypeList[UnityEngine.Random.Range(0, goodsTypeList.Count)], (0, randomValue.needNum) } },
+                     new Dictionary<DropItemType, (int, int)>() { { dropItemTypeList[UnityEngine.Random.Range(0, dropItemTypeList.Count)], (0, randomValue.needNum) } }
+                           ));
+            }
+        }
+
+        private Coroutine orderRefreshCoroutine;
+        private Coroutine orderAutoCheckCoroutine;
+        public int maxOrderCount = 4;
+        public float refreshInterval = 180f;
+        public float checkInterval = 5f; // 每 1 秒检测一次
+        public float orderRefreshProgress;
+        private float refreshTimer;
+        public void StartOrderAutoCheck()
+        {
+            if (orderAutoCheckCoroutine == null)
+            {
+                orderAutoCheckCoroutine = StartCoroutine(OrderAutoCheckLoop());
+            }
+        }
+        private bool IsOrderFull()
+        {
+            return data.orderDataprogressList.Count >= maxOrderCount;
+        }
+
+        public void TryStartOrderRefresh()
+        {
+            if (IsOrderFull())
+                return;
+
+            if (orderRefreshCoroutine == null)
+            {
+                orderRefreshCoroutine = StartCoroutine(OrderRefreshLoop());
+            }
+        }
+        public void StopOrderRefresh()
+        {
+            if (orderRefreshCoroutine != null)
+            {
+                StopCoroutine(orderRefreshCoroutine);
+                orderRefreshCoroutine = null;
+            }
+        }
+        private IEnumerator OrderRefreshLoop()
+        {
+            refreshTimer = 0f;
+            orderRefreshProgress = 0f;
+
+            while (data.orderDataprogressList.Count < maxOrderCount)
+            {
+                refreshTimer = 0f;
+
+                while (refreshTimer < refreshInterval)
+                {
+                    refreshTimer += Time.deltaTime;
+                    orderRefreshProgress = Mathf.Clamp01(refreshTimer / refreshInterval);
+
+                    yield return null; // 每帧更新进度
+                }
+
+                // 时间到了，生成一个订单
+                if (data.orderDataprogressList.Count < maxOrderCount)
+                {
+                    AddOrderData();
+                }
+
+                // 重置进度，准备下一次
+                refreshTimer = 0f;
+                orderRefreshProgress = 0f;
+            }
+
+            orderRefreshProgress = 0f;
+            orderRefreshCoroutine = null;
+        }
+
+
+        private IEnumerator OrderAutoCheckLoop()
+        {
+            while (true)
+            {
+                // 没满 → 确保刷新协程在跑
+                if (data.orderDataprogressList.Count < maxOrderCount)
+                {
+                    TryStartOrderRefresh();
+                }
+                else
+                {
+                    // 满了 → 停止刷新
+                    StopOrderRefresh();
+                }
+
+                // 关键！！必须让出时间
+                yield return new WaitForSeconds(checkInterval);
+            }
+        }
+
+
+
 
         public void AddJinYuanBao(int value)
         {
@@ -869,6 +982,11 @@ namespace Module
                 }
 
             }
+        }
+
+        internal void Login(string text1, string text2)
+        {
+            throw new NotImplementedException();
         }
     }
 

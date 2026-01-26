@@ -48,11 +48,13 @@ namespace Controller
 
         public void HandleCustomerCreat(params object[] args)
         {
+
+
             customerTypeList.Clear();
             mapData = DataController.Instance.mapDataDic[
                PlayerDataModule.Instance.data.currentMapID];
 
-            customerTypeList = mapData.customerTypeList;
+            customerTypeList = new List<int>(mapData.customerTypeList);
             if (createCustomerCoroutine != null)
             {
                 StopCoroutine(createCustomerCoroutine);
@@ -64,7 +66,7 @@ namespace Controller
 
         bool IsStructureUnlocked(BuildingType buildingType)
         {
-            var playerData =PlayerDataModule.Instance.data;
+            var playerData = PlayerDataModule.Instance.data;
             return !playerData.structUnLockDataDic[playerData.currentMapID].Contains(buildingType);
         }
 
@@ -72,8 +74,9 @@ namespace Controller
         {
             while (true)
             {
-                if(!PlayerDataModule.Instance.data.structUnLockDataDic[PlayerDataModule.Instance.data.currentMapID].Contains(BuildingType.LingZhangTai))
+                if (!PlayerDataModule.Instance.data.structUnLockDataDic[PlayerDataModule.Instance.data.currentMapID].Contains(BuildingType.LingZhangTai))
                 {
+                    yield return new WaitForSeconds(0.5f);
                     continue;
                 }
                 // 过滤出还能继续排队的地点
