@@ -92,6 +92,8 @@ namespace Controller.Structure
 
         private void ShowContent()
         {
+            if(content.activeSelf)
+                return;
             content.SetActive(true);
             structureLock.gameObject.SetActive(false);
             grid.basePosition = baseTransform.position;

@@ -159,11 +159,22 @@ namespace Controller.Structure
 
         public void Init(params object[] args)
         {
-            Debug.LogError("CashierCounter Init");
-            PlayerData playerData = PlayerDataModule.Instance.data;
-            lockData = GetLockData(playerData.currentMapID);
-            lockstate = GetStructureState(playerData, lockData);
-            RefreshView(lockstate, lockData);
+            try
+            {
+                Debug.LogError("Init begin");
+
+                var playerData = PlayerDataModule.Instance?.data;
+                lockData = GetLockData(playerData.currentMapID);
+                lockstate = GetStructureState(playerData, lockData);
+                RefreshView(lockstate, lockData);
+
+                Debug.LogError("Init end");
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogError("Init EXCEPTION !!!");
+                Debug.LogException(e);
+            }
         }
 
         public StructureLockData GetLockData(int mapId)
@@ -198,6 +209,7 @@ namespace Controller.Structure
                     break;
 
                 case StructureState.Unlocked:
+                    content.SetActive(true);
                     if (PlayerDataModule.Instance.data.ordenFunction == 1)
                     {
                         ShowContent_2();
@@ -216,6 +228,7 @@ namespace Controller.Structure
 
         public void ShowContent_1()
         {
+           
             content_1.SetActive(true);
             content_2.SetActive(false);
             structureLock.gameObject.SetActive(false);
@@ -263,7 +276,6 @@ namespace Controller.Structure
         public void ShowContent_2()
         {
             parchaseTransform = parchaseTransform2;
-        
             content_1.SetActive(false);
             content_2.SetActive(true);
             structureLock.gameObject.SetActive(false);

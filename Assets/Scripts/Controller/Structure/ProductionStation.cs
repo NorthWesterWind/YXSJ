@@ -41,7 +41,7 @@ namespace Controller.Structure
         public Transform infoTransform;
         public SkeletonAnimation icon;
 
-    
+            
         void OnEnable()
         {
             EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo, Init);
@@ -107,6 +107,10 @@ namespace Controller.Structure
 
         private void ShowContent()
         {
+            if (content.activeSelf)
+            {
+                return;
+            }
             content.SetActive(true);
             structureLock.gameObject.SetActive(false);
             if(_assetHandle == null)

@@ -936,81 +936,100 @@ namespace Module
         }
         public void HandleConstructTask(params object[] args)
         {
-            BuildingType buildingType = (BuildingType)args[0];
-            if (PlayerDataModule.Instance.data.currentMapID == 1)
+            try
             {
-                if (buildingType == BuildingType.YuShaHu_1 && data.guideStep == GuideStep.BuildYushaPot )
+                BuildingType buildingType = (BuildingType)args[0];
+                if (PlayerDataModule.Instance.data.currentMapID == 1)
                 {
-                    PlayerDataModule.Instance.data.guideStep = GuideStep.BuildTeaStand;
-                    UIController.Instance.Show<PlayerGuide>();
-                }
-                else if (buildingType == BuildingType.LingChaJia_1 && data.guideStep == GuideStep.BuildTeaStand)
-                {
-                    PlayerDataModule.Instance.data.guideStep = GuideStep.CollectMaterial;
-                    UIController.Instance.Show<PlayerGuide>();
-                }
-                else if (buildingType == BuildingType.LingZhangTai && data.guideStep == GuideStep.BuildAccountDesk)
-                {
-                    PlayerDataModule.Instance.data.guideStep = GuideStep.TakeTea;
-                    UIController.Instance.Show<PlayerGuide>();
-                }
-            }
-            foreach (var _data in data.listenInTaskList)
-            {
-                if (_data.type == TaskType.Construct)
-                {
-                    if ((BuildingType)_data.aimId == buildingType)
+                    if (buildingType == BuildingType.YuShaHu_1 && data.guideStep == GuideStep.BuildYushaPot)
                     {
-                        if (data.taskProgressDic.ContainsKey(_data.taskId))
+                        PlayerDataModule.Instance.data.guideStep = GuideStep.BuildTeaStand;
+                        UIController.Instance.Show<PlayerGuide>();
+                    }
+                    else if (buildingType == BuildingType.LingChaJia_1 && data.guideStep == GuideStep.BuildTeaStand)
+                    {
+                        PlayerDataModule.Instance.data.guideStep = GuideStep.CollectMaterial;
+                        UIController.Instance.Show<PlayerGuide>();
+                    }
+                    else if (buildingType == BuildingType.LingZhangTai && data.guideStep == GuideStep.BuildAccountDesk)
+                    {
+                        PlayerDataModule.Instance.data.guideStep = GuideStep.TakeTea;
+                        UIController.Instance.Show<PlayerGuide>();
+                    }
+                }
+
+                foreach (var _data in data.listenInTaskList)
+                {
+                    if (_data.type == TaskType.Construct)
+                    {
+                        if ((BuildingType)_data.aimId == buildingType)
                         {
-                            data.taskProgressDic[_data.taskId]++;
-                        }
-                        else
-                        {
-                            data.taskProgressDic.Add(_data.taskId, 1);
+                            if (data.taskProgressDic.ContainsKey(_data.taskId))
+                            {
+                                data.taskProgressDic[_data.taskId]++;
+                            }
+                            else
+                            {
+                                data.taskProgressDic.Add(_data.taskId, 1);
+                            }
                         }
                     }
                 }
-            }
-            if (buildingType == BuildingType.YuShaHu_1 || buildingType == BuildingType.YuShaHu_2 || buildingType == BuildingType.YuShaHu_3 || buildingType == BuildingType.YuShaHu_4
-             || buildingType == BuildingType.LianQiLu_1 || buildingType == BuildingType.LianQiLu_2 || buildingType == BuildingType.LianQiLu_3)
-            {
-                if (data.ProductStationDataList.Find(x => x.buildingType == buildingType) != null)
+
+                if (buildingType == BuildingType.YuShaHu_1 || buildingType == BuildingType.YuShaHu_2 ||
+                    buildingType == BuildingType.YuShaHu_3 || buildingType == BuildingType.YuShaHu_4
+                    || buildingType == BuildingType.LianQiLu_1 || buildingType == BuildingType.LianQiLu_2 ||
+                    buildingType == BuildingType.LianQiLu_3)
                 {
-                    Debug.LogError(" yj ==>  重复添加生产台数据");
+                    if (data.ProductStationDataList.Find(x => x.buildingType == buildingType) != null)
+                    {
+                        Debug.LogError(" yj ==>  重复添加生产台数据");
+                    }
+
+                    data.ProductStationDataList.Add(new ProductStationData(buildingType));
                 }
-                data.ProductStationDataList.Add(new ProductStationData(buildingType));
-            }
-            if (buildingType == BuildingType.YunDiGe)
-            {
-                if (data.deliverData == null)
+
+                if (buildingType == BuildingType.YunDiGe)
                 {
-                    data.deliverData = new DeliverData();
+                    if (data.deliverData == null)
+                    {
+                        data.deliverData = new DeliverData();
+                    }
                 }
-            }
-            if (buildingType == BuildingType.LingZhangTai)
-            {
-                if (data.deliverData == null)
+
+                if (buildingType == BuildingType.LingZhangTai)
                 {
-                    data.deliverData = new DeliverData();
+                    if (data.deliverData == null)
+                    {
+                        data.deliverData = new DeliverData();
+                    }
                 }
-            }
-            if (buildingType == BuildingType.LingChuGe_1)
-            {
-                if (data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1) == null)
+
+                if (buildingType == BuildingType.LingChuGe_1)
                 {
-                    data.warehouselist.Add(new WarehouseCategory(WarehouseCategoryType.LingChuGe_1));
+                    if (data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1) ==
+                        null)
+                    {
+                        data.warehouselist.Add(new WarehouseCategory(WarehouseCategoryType.LingChuGe_1));
+                    }
                 }
-            }
-            if (buildingType == BuildingType.LingChuGe_2)
-            {
-                if (data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2) == null)
+
+                if (buildingType == BuildingType.LingChuGe_2)
                 {
-                    data.warehouselist.Add(new WarehouseCategory(WarehouseCategoryType.LingChuGe_2));
+                    if (data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2) ==
+                        null)
+                    {
+                        data.warehouselist.Add(new WarehouseCategory(WarehouseCategoryType.LingChuGe_2));
+                    }
                 }
+
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdateSturctureLockInfo);
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
+            }  catch (System.Exception e)
+            {
+                Debug.LogError( e);
+                Debug.LogException(e);
             }
-            EventCenter.Instance.TriggerEvent(EventMessages.UpdateSturctureLockInfo);
-            EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
         }
 
         public void HandleSellTask(params object[] args)
