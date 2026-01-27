@@ -111,7 +111,6 @@ GameObject:
   - component: {fileID: 7998480578005145968}
   - component: {fileID: 2569660435835029261}
   - component: {fileID: 8792172346392172086}
-  - component: {fileID: 1150047774042844673}
   m_Layer: 3
   m_Name: "\u6D1B\u7720\u67AB"
   m_TagString: Player
@@ -244,6 +243,7 @@ MonoBehaviour:
   maxCarryNum: 0
   currentPinkUpRange: 0
   isDead: 0
+  InteractionTriggerInRange: 0
   InteractionTriggerTransform: {fileID: 0}
   weaponRoot: {fileID: 9125713213876222166}
   speed: 540
@@ -279,7 +279,7 @@ MonoBehaviour:
   detectRadiu: 1.5
   interactionLayer:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 2048
 --- !u!222 &6108397800056542576
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -340,6 +340,8 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 5f78afbe99574e84785d771250b7d3c1, type: 3}
   - {fileID: 2800000, guid: b1789838de84e754c9645335caef93ed, type: 3}
   - {fileID: 2800000, guid: dd088992ab31e1747a21a461e81a0886, type: 3}
+  - {fileID: 6728240818630394814, guid: 516e7d2f5e1ecdc458374d4d9b7587a1, type: 3}
+  - {fileID: 845777481163941341, guid: 5001ecaeea02e894a84a60685735423f, type: 3}
 --- !u!60 &2569660435835029261
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -429,20 +431,6 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
---- !u!114 &1150047774042844673
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4927850551870375662}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dbd0eeb6b6e50754585437a157455cd2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 0}
-  canInput: 1
 --- !u!1 &5849672847030141213
 GameObject:
   m_ObjectHideFlags: 0

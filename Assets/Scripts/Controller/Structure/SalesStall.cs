@@ -22,17 +22,42 @@ namespace Controller.Structure
         public SpriteRenderer productIcon;
         public SpriteRenderer productIconbg;
 
+        public List<CustomerController> customerQueue = new();
+
         protected override void Start()
         {
             base.Start();
         }
         void OnEnable()
         {
-            EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo, Init);
+            EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo,Init);
+            EventCenter.Instance.AddListener(EventMessages.CustomerArrivedSell, HandleCustomerArrived);
+            EventCenter.Instance.AddListener(EventMessages.  CustomerLeave, HandleCustomerLeft);
+          
         }
         void OnDisable()
         {
             EventCenter.Instance.RemoveListener(EventMessages.UpdateSturctureLockInfo, Init);
+            EventCenter.Instance.RemoveListener(EventMessages.CustomerArrivedSell, HandleCustomerArrived);
+              EventCenter.Instance.RemoveListener(EventMessages.CustomerLeave, HandleCustomerLeft);
+        }
+        
+        public void HandleCustomerLeft(params object[] args)
+        {
+            if(args[0 ]as SalesStall  != this) return;
+            CustomerController c = args[1] as CustomerController;
+            if (customerQueue.Contains(c))
+            {
+                customerQueue.Remove(c);
+            }
+        }
+        private void HandleCustomerArrived(params object[] args)
+        {
+            if (args.Length < 1) return;
+
+            CustomerController c = args[0] as CustomerController;
+            customerQueue.Add(c);
+            TryServeNextCustomer();
         }
 
         public void Init(params object[] args)
@@ -42,6 +67,12 @@ namespace Controller.Structure
             var lockData = GetLockData(playerData.currentMapID);
             var state = GetStructureState(playerData, lockData);
             RefreshView(state, lockData);
+        }
+
+        public Vector2 GetPurchasePosition()
+        {
+            Vector2 pos = new Vector2(parchaseTransform.position.x + Random.Range(-1f, 1f), parchaseTransform.position.y + Random.Range(-1f, 0f));
+            return pos;
         }
 
         private void RefreshView(StructureState state, StructureLockData lockData)
@@ -65,8 +96,9 @@ namespace Controller.Structure
             structureLock.gameObject.SetActive(false);
             grid.basePosition = baseTransform.position;
             productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(currentGoodsType));
-            productIcon.sortingOrder = sprite.sortingOrder + 2;
-            productIconbg.sortingOrder = sprite.sortingOrder + 1;
+            int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
+            productIcon.sortingOrder = newOrder + 2;
+            productIconbg.sortingOrder = newOrder + 1;
         }
 
         public StructureLockData GetLockData(int mapId)
@@ -98,12 +130,42 @@ namespace Controller.Structure
             p.canPickup = true;
             productList.Add(p);
             currentGoodsCount++;
+            TryServeNextCustomer();
+            if (PlayerDataModule.Instance.data.guideStep == GuideStep.SellTea)
+            {
+                PlayerDataModule.Instance.data.guideStep = GuideStep.ToLingZhangTai;
+                UIController.Instance.Show<PlayerGuide>();
+            }
         }
+
+        private void TryServeNextCustomer()
+        {
+            
+            // 没顾客
+            if (customerQueue.Count == 0)
+                return;
+
+            // 没商品
+            if (productList.Count == 0)
+                return;
+
+            CustomerController customer = customerQueue[0];
+            if (customer.data.carryNum > productList.Count)
+                return;
+
+            if (TryPurchase(customer, customer.data.carryNum, customer.purchaseList))
+            {
+                 customerQueue.RemoveAt(0);
+                // 继续服务下一个
+                 TryServeNextCustomer();
+            }
+        }
+
 
         /// <summary>
         /// 尝试购买指定数量商品，成功返回实际商品列表，失败返回空列表
         /// </summary>
-        public bool TryPurchase(int count, List<Production> outList)
+        public bool TryPurchase( CustomerController customer ,int count, List<Production> outList)
         {
             if (productList.Count < count)
                 return false;
@@ -116,7 +178,7 @@ namespace Controller.Structure
                 int lastIndex = productList.Count - 1;
                 Production p = productList[lastIndex];
                 productList.RemoveAt(lastIndex);
-
+                p.FlyTo(customer.receiveTransform.position);
                 grid.ReleaseOne();
                 outList.Add(p);
                 currentGoodsCount--;

@@ -44,6 +44,7 @@ public class LoginView : BaseView
     public GameObject setNameContent;
     public TMP_InputField setNameInput;
     public UIButton setNameBtn;
+    public UIButton ZhuXiaoBtn;
     protected override void Awake()
     {
         base.Awake();
@@ -137,6 +138,7 @@ public class LoginView : BaseView
 
         ageBtn.onClick.RemoveAllListeners();
         ageBtn.onClick.AddListener(OnAge);
+
     }
     public void OnAge()
     {
@@ -271,7 +273,7 @@ public class LoginView : BaseView
                 EventCenter.Instance.TriggerEvent(EventMessages.CustomerBeginCreate);
                 EventCenter.Instance.TriggerEvent(EventMessages.MonsterBeginCreate);
                 DataController.Instance.InitMapLock();
-                DataController.Instance.UpdateSturctureLockInfo();
+                DataController.Instance.UpdateStructureLockInfo();
                 EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
             }
         }
@@ -425,45 +427,39 @@ public class LoginView : BaseView
 
     private void OnRegisterAccountValueChanged(string text)
     {
-        string filtered = RemoveNonAlphaNumeric(text);
         if (Input.compositionString.Length > 0)
-        {
-            filtered = "";
-            return;
-        }
+            return; // 等输入法结束
+
+        string filtered = Regex.Replace(text, @"[^a-zA-Z0-9]", "");
 
         if (filtered != text)
         {
-            realAccountInput.text = filtered;
-            realAccountInput.caretPosition = filtered.Length; // 保持光标在最后
+            registerAccountInput.text = filtered;
+            registerAccountInput.caretPosition = filtered.Length; // 保持光标在最后
         }
     }
 
     private void OnAccountValueChanged(string text)
     {
-        string filtered = RemoveNonAlphaNumeric(text);
         if (Input.compositionString.Length > 0)
-        {
-            filtered = "";
-            return;
-        }
+            return; // 等输入法结束
+
+        string filtered = Regex.Replace(text, @"[^a-zA-Z0-9]", "");
 
         if (filtered != text)
         {
             accountInput.text = filtered;
-            accountInput.caretPosition = filtered.Length; // 保持光标在最后
+            accountInput.caretPosition = filtered.Length;
         }
     }
 
 
     private void OnPasswordValueChanged(string text)
     {
-        string filtered = RemoveNonAlphaNumeric(text);
         if (Input.compositionString.Length > 0)
-        {
-            filtered = "";
-            return;
-        }
+            return; // 等输入法结束
+
+        string filtered = Regex.Replace(text, @"[^a-zA-Z0-9]", "");
 
         if (filtered != text)
         {
@@ -480,11 +476,10 @@ public class LoginView : BaseView
 
     private void OnPassword2ValueChanged(string text)
     {
-        string filtered = RemoveNonAlphaNumeric(text);
         if (Input.compositionString.Length > 0)
-        {
-            return;
-        }
+            return; // 等输入法结束
+
+        string filtered = Regex.Replace(text, @"[^a-zA-Z0-9]", "");
 
         if (filtered != text)
         {

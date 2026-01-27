@@ -26,7 +26,7 @@ namespace Controller.Player
         public CinemachineVirtualCamera focusCamera;
         private Rigidbody2D _rigidbody;
         public GameObject weapon;
-        public SkeletonAnimation  weaponEffect;
+        public SkeletonAnimation weaponEffect;
 
         public float detectRadius = 6f; // 怪物检测半径
         public LayerMask monsterLayer;   // 只检测怪物层
@@ -58,7 +58,7 @@ namespace Controller.Player
         /// <summary>
         /// 角色是否处于交互范围内（解锁）
         /// </summary>
-        public bool InteractionTriggerInRange { get; set; } = false;
+        public bool InteractionTriggerInRange = false;
         public Transform InteractionTriggerTransform;
 
         public Transform weaponRoot;
@@ -164,7 +164,7 @@ namespace Controller.Player
                 isMoving = true;
                 if (_dirValue.x < 0)
                 {
-                    _skeletonAnimation.transform.localScale = new Vector3(-0.6f,0.6f, 0.6f);
+                    _skeletonAnimation.transform.localScale = new Vector3(-0.6f, 0.6f, 0.6f);
                 }
                 else
                 {
@@ -223,9 +223,9 @@ namespace Controller.Player
             CheckProductStation();
             CheckProduct();
             CheckSaleStall();
-            CheckInteractionByDistance();
 
-            if (PlayerDataModule.Instance.data.tongbi < 100)
+
+            if (PlayerDataModule.Instance.data.tongbi >= 100)
             {
                 if (InteractionTriggerInRange && !isMoving)
                 {
@@ -254,7 +254,7 @@ namespace Controller.Player
                 float t = Mathf.Abs(Mathf.Cos(z * Mathf.Deg2Rad));
                 float scale = Mathf.Lerp(0.85f, 1.1f, t);
                 weaponRoot.localScale = Vector3.one * scale;
-                  weaponEffect.gameObject.SetActive(true);
+                weaponEffect.gameObject.SetActive(true);
                 var state = weaponEffect.AnimationState;
                 var current = state.GetCurrent(0);
                 if (current == null || current.Animation.Name != "animation")
@@ -264,7 +264,7 @@ namespace Controller.Player
             }
             else
             {
-                weaponEffect.AnimationState.ClearTrack (0);
+                weaponEffect.AnimationState.ClearTrack(0);
                 weaponEffect.gameObject.SetActive(false);
             }
 
@@ -273,11 +273,12 @@ namespace Controller.Player
         private Coroutine coroutine;
         private IEnumerator ThrowOutTongBi()
         {
-
-            GameObject coinObj = _assetHandle.Get<GameObject>("Production");
+            Debug.Log("投掷铜币");
+            GameObject coinObj = GameObject.Instantiate(_assetHandle.Get<GameObject>("Production"));
             coinObj.transform.position = receiveTransform.position;
             var coinCtrl = coinObj.GetComponent<Production>();
-            coinCtrl.Init(GoodsType.TongBi);
+            coinCtrl.Init(GoodsType.TongBi, 100);
+            coinCtrl.spriteRenderer.sortingOrder = renderer.sortingOrder + 2;
             PlayerDataModule.Instance.data.tongbi -= 100;
             coinCtrl.FlyTo(
                InteractionTriggerTransform.position,
@@ -446,7 +447,7 @@ namespace Controller.Player
 
 
         public AnimationCurve scatterCurve;
-        private float scatterDuration = 0.1f;
+        private float scatterDuration = 0.3f;
         private Dictionary<string, Coroutine> deliverCoroutines = new();
 
         public void CheckProductStation()
@@ -513,7 +514,7 @@ namespace Controller.Player
                 var dropCtrl = drop.GetComponent<DropController>();
                 dropCtrl.canPickup = false;
                 dropCtrl.Init(station.dropItemType);
-
+                dropCtrl.spriteRenderer.sortingOrder = station.sprite.sortingOrder + 2;
                 Vector2 start = receiveTransform.position;
                 Vector2 target = station.recivePosition.position;
                 Vector2 control = Vector2.Lerp(start, target, 0.5f) + Vector2.up * 1.5f;
@@ -568,7 +569,7 @@ namespace Controller.Player
                 dropCtrl.Init(station.currentGoodsType);
                 dropCtrl.SetStation(station);
                 Vector2 start = receiveTransform.position;
-                dropCtrl.spriteRenderer.sortingOrder = station.grid.currentIndex + 4000;
+                dropCtrl.spriteRenderer.sortingOrder = station.sprite.sortingOrder + 2;
                 Vector2 target = station.grid.GetNextPosition();
                 Vector2 control = Vector2.Lerp(start, target, 0.5f) + Vector2.up * 1.5f;
 
@@ -615,82 +616,73 @@ namespace Controller.Player
             }
         }
 
-        [SerializeField] private float detectRadiu = 1.5f;
-        [SerializeField] private LayerMask interactionLayer;
+     
+        private InteractionController currentInteraction;
+        private InteractionTrigger currentInteractionTrigger;
+        private Coroutine stayCoroutine;
 
-        private readonly List<InteractionController> overlappTrigger = new();
-        private readonly List<InteractionTrigger> overlappingTrigger2 = new();
-
-        private void CheckInteractionByDistance()
+        private void OnTriggerEnter2D(Collider2D other)
         {
-            Vector2 center = transform.position;
+            var interaction = other.GetComponent<InteractionController>();
+            var interactionTrigger = other.GetComponent<InteractionTrigger>();
+            if (interaction == null && interactionTrigger == null) return;
 
-            // 找范围内的 Collider
-            Collider2D[] hits = Physics2D.OverlapCircleAll(
-                center,
-                detectRadius,
-                interactionLayer
-            );
-
-            HashSet<InteractionController> currentControllers = new();
-            HashSet<InteractionTrigger> currentTriggers = new();
-
-            foreach (var hit in hits)
+            currentInteraction = interaction;
+            currentInteractionTrigger = interactionTrigger;
+             currentInteractionTrigger.TriggerEnter();
+            if (stayCoroutine == null)
             {
-                // InteractionController
-                var controller = hit.GetComponent<InteractionController>();
-                if (controller != null)
+                stayCoroutine = StartCoroutine(StayCheck());
+            }
+        }
+        private IEnumerator StayCheck()
+        {
+            float stayTime = 0f;
+
+            while (currentInteraction != null)
+            {
+                if (!isMoving)   // ⭐ 核心判断
                 {
-                    currentControllers.Add(controller);
+                    stayTime += Time.deltaTime;
 
-                    // 进入
-                    if (!overlappTrigger.Contains(controller))
+                    if (stayTime >= 0.5f) // 停 0.5 秒
                     {
-                        overlappTrigger.Add(controller);
-
-                        if (controller.interactionType == InteractionType.Immediate)
-                        {
-                            controller.Interact();
-                        }
+                        currentInteraction.Interact();
+                        yield break;
                     }
                 }
-
-                // InteractionTrigger
-                var trigger = hit.GetComponent<InteractionTrigger>();
-                if (trigger != null)
+                else
                 {
-                    currentTriggers.Add(trigger);
-
-                    if (!overlappingTrigger2.Contains(trigger))
-                    {
-                        overlappingTrigger2.Add(trigger);
-                        trigger.TriggerEnter();
-                    }
+                    stayTime = 0f; // 一动就清零
                 }
+
+                yield return null;
             }
 
-            // 处理离开（InteractionController）
-            for (int i = overlappTrigger.Count - 1; i >= 0; i--)
-            {
-                var item = overlappTrigger[i];
-                if (!currentControllers.Contains(item))
-                {
-                    item.CloseInteract();
-                    overlappTrigger.RemoveAt(i);
-                }
-            }
+            stayCoroutine = null;
+        }
 
-            // 处理离开（InteractionTrigger）
-            for (int i = overlappingTrigger2.Count - 1; i >= 0; i--)
+
+        private void OnTriggerExit2D(Collider2D other)
+        {
+            var interaction = other.GetComponent<InteractionController>();
+            var interactionTrigger = other.GetComponent<InteractionTrigger>();
+            if (interaction == null && interactionTrigger == null) return;
+            interactionTrigger.TriggerExit();
+            if (interaction == currentInteraction)
             {
-                var item = overlappingTrigger2[i];
-                if (!currentTriggers.Contains(item))
+                currentInteraction.CloseInteract();
+                currentInteraction = null;
+
+                if (stayCoroutine != null)
                 {
-                    item.TriggerExit();
-                    overlappingTrigger2.RemoveAt(i);
+                    StopCoroutine(stayCoroutine);
+                    stayCoroutine = null;
                 }
             }
         }
+
+
 
 
         // private void OnTriggerEnter2D(Collider2D other)
@@ -735,10 +727,10 @@ namespace Controller.Player
         //         trigger2.TriggerExit();
         //     }
         // }
-        
+
         public void AddDropItem(DropItemType itemType)
         {
-            EventCenter.Instance.TriggerEvent(EventMessages.HarvestTask , itemType);
+            EventCenter.Instance.TriggerEvent(EventMessages.HarvestTask, itemType);
             switch (itemType)
             {
                 case DropItemType.ShuangYunZhiFragment:
@@ -861,17 +853,17 @@ namespace Controller.Player
                         dropDic[itemType]++;
                     }
                     break;
-                    // case DropItemType.JingYunBao:
-                    //     dataModule.AddJinYuanBao(10);
-                    //     break;
-                    case DropItemType.YingQian:
-                         dataModule.AddYinQian(100);
-                        break;
+                // case DropItemType.JingYunBao:
+                //     dataModule.AddJinYuanBao(10);
+                //     break;
+                case DropItemType.YingQian:
+                    dataModule.AddYinQian(100);
+                    break;
             }
 
             playerInfo.UpdateTxt();
         }
-        public void AddGoods(GoodsType goodsType , int value = 0)
+        public void AddGoods(GoodsType goodsType, int value = 0)
         {
             if (goodsType == GoodsType.TongBi)
             {

@@ -75,13 +75,13 @@ namespace Controller
                     UIController.Instance.Hide<ProductionStationPop>();
                     break;
                 case ShowUIType.LingZhangTai:
-                    // UIController.Instance.Hide<LingZhangTaiPop>();
+                   UIController.Instance.Hide<LingZhangTaiPop>();
                     break;
                 case ShowUIType.YunDiGe:
-                    // UIController.Instance.Hide<YunDiGePop>();
+                   UIController.Instance.Hide<YunDiGePop>();
                     break;
                 case ShowUIType.LingChuGe:
-                    // UIController.Instance.Hide<LingChuGePop>();
+                     UIController.Instance.Hide<LingChuGePop>();
                     break;
             }
         }

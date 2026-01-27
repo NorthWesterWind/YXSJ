@@ -21,8 +21,8 @@ namespace Utils
         public int id;
         public string more;
         public string msg;
-        public int users;
-        public int password;
+        public string users;
+        public string password;
         public int recharge;
         public int state;
         public string user_uuid;
@@ -211,8 +211,7 @@ namespace Utils
                     try
                     {
                         string responseText = webRequest.downloadHandler.text;
-                        Debug.Log(
-                            $"登录信息 ：user = {user} ,  password = {password} , webRequest.result = {webRequest.result} ");
+                        Debug.Log($"登录信息 ：user = {user} ,  password = {password} , webRequest.result = {webRequest.result} ");
                         ResponseLogin responseLogin = JsonConvert.DeserializeObject<ResponseLogin>(responseText);
                         Debug.Log($"responseLogin = {responseText}");
                         if (responseLogin != null)

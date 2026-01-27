@@ -191,12 +191,12 @@ namespace View.Task
                 list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_5;
             }
 
-            if (list.Contains(data.taskId))
+             if (list.Contains(data.taskId))
             {
                 isCompleted = true;
+
                 progresstxt.text = "(" + data.keyValue + "/" + data.keyValue + ")";
                 btntxt.text = "已完成";
-                return;
             }
             else if (PlayerDataModule.Instance.data.taskProgressDic.ContainsKey(data.taskId))
             {
@@ -212,6 +212,11 @@ namespace View.Task
                     btntxt.text = "进行中";
                     progresstxt.text = "(" + PlayerDataModule.Instance.data.taskProgressDic[data.taskId] + "/" + data.keyValue + ")";
                 }
+            }
+            else
+            {
+                btntxt.text = "进行中";
+                progresstxt.text = "(0/" + data.keyValue + ")";
             }
         }
     }

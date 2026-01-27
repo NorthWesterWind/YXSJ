@@ -6,6 +6,7 @@ using Module;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Utils;
 
 public class StoryView : BaseView
@@ -20,6 +21,7 @@ public class StoryView : BaseView
     private bool isSkipping = false;
     private bool showAll = false;
     private float typingSpeed = 0.1f;
+    public VerticalLayoutGroup verticalLayoutGroup;
     public override void UpdateViewWithArgs(params object[] args)
     {
         base.UpdateViewWithArgs(args);
@@ -45,6 +47,11 @@ public class StoryView : BaseView
     {
 
         infotxt.text = text;
+        yield return null;
+        Canvas.ForceUpdateCanvases();
+        LayoutRebuilder.ForceRebuildLayoutImmediate(
+            verticalLayoutGroup.GetComponent<RectTransform>()
+        );
         infotxt.maxVisibleCharacters = 0;
         showAll = false;
         for (int i = 0; i <= text.Length; i++)
@@ -116,14 +123,14 @@ public class StoryView : BaseView
                 UIController.Instance.Show<PlayerGuide>();
             }
             EventCenter.Instance.TriggerEvent(EventMessages.DataPrepared);
-             EventCenter.Instance.TriggerEvent(EventMessages.MapDataPrepared);
-             EventCenter.Instance.TriggerEvent(EventMessages.MapTaskDataPrepared);
-             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
-             EventCenter.Instance.TriggerEvent(EventMessages.CustomerBeginCreate);
-             EventCenter.Instance.TriggerEvent(EventMessages.MonsterBeginCreate);
-             DataController.Instance.InitMapLock();
-             DataController.Instance.UpdateSturctureLockInfo();
-             EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
+            EventCenter.Instance.TriggerEvent(EventMessages.MapDataPrepared);
+            EventCenter.Instance.TriggerEvent(EventMessages.MapTaskDataPrepared);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
+            EventCenter.Instance.TriggerEvent(EventMessages.CustomerBeginCreate);
+            EventCenter.Instance.TriggerEvent(EventMessages.MonsterBeginCreate);
+            DataController.Instance.InitMapLock();
+            DataController.Instance.UpdateStructureLockInfo();
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
         }
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }

@@ -46,7 +46,7 @@ namespace Module.Data
 
         #region 账号信息
 
-        public string userName  ;
+        public string userName = "未定义";
         public string userAccount;
         public string userPassword;
         public int age;
@@ -71,25 +71,23 @@ namespace Module.Data
 
         public int monthlyLimitMoney; //每月限制消费金额
         public DateTime lastTime;  //判断是否跨月
-        public int tongbi = 5000000;  //铜币
-        public int goldIngot = 5000000;   //金元宝
-        public int lingJing = 500000;    //灵晶
+        public int tongbi = 3000;  //铜币
+        public int goldIngot = 0;   //金元宝
+        public int lingJing = 0;    //灵晶
         public int jingMangZhu = 0; //金芒珠
         public int currentMapID = 1;
 
         public float speedTime = 0; //生产台加速时长
 
         public int accountLevel = 1;
-        public int characterFunction = 1;
-        public int cardFunction = 1;
-        public int mapFunction = 1;
-        public int employeeFunction = 1;
-        public int ordenFunction = 1;
+        public int characterFunction = 0;
+        public int cardFunction = 0;
+        public int mapFunction = 0;
+        public int employeeFunction = 0;
+        public int ordenFunction = 0;
         public List<int> levelLockMapList = new() { 2, 3, 4, 5 };
         public List<int> realUnlockMapList = new() { 1 };
 
-        [Header("key = 地图编号 ， value = 当前地图已完成任务 (奖励已领取)")]
-      //  public Dictionary<int, List<int>> mapCompletedTaskRecordDic = new() { { 1, new List<int>() }, { 2, new List<int>() }, { 3, new List<int>() }, { 4, new List<int>() }, { 5, new List<int>() } };
         public List<int> mapCompletedTaskRecordList_1 = new List<int>() { };
         public List<int> mapCompletedTaskRecordList_2 = new List<int>() { };
         public List<int> mapCompletedTaskRecordList_3 = new List<int>() { };
@@ -135,7 +133,11 @@ namespace Module.Data
         /// </summary>
         public Dictionary<int, List<BuildingType>> structUnLockDataDic = new Dictionary<int, List<BuildingType>>()
         {
-            {1, new List<BuildingType>(){}},{2,new List<BuildingType>()},{3,new List<BuildingType>()},{4,new List<BuildingType>()},{5,new List<BuildingType>()}
+            {1, new List<BuildingType>(){}},
+            {2,new List<BuildingType>(){BuildingType.LingZhangTai , BuildingType.LingChaJia_1 , BuildingType.YuShaHu_1 }},
+            {3,new List<BuildingType>(){BuildingType.LianQiLu_1 , BuildingType.LingQiJia_1 , BuildingType.LingZhangTai ,BuildingType.YunDiGe , BuildingType.LingChuGe_1}},
+            {4,new List<BuildingType>(){BuildingType.LianQiLu_1 , BuildingType.LingQiJia_1 , BuildingType.LingZhangTai ,BuildingType.YunDiGe , BuildingType.LingChuGe_1 , BuildingType.LingChuGe_2 }},
+            {5,new List<BuildingType>(){BuildingType.LianQiLu_1 , BuildingType.LingQiJia_1 , BuildingType.LingZhangTai ,BuildingType.YunDiGe, BuildingType.LingChuGe_1 , BuildingType.LingChuGe_2 }}
         };
         /// <summary>
         /// 每个地图中处于可解锁状态的建筑
@@ -145,10 +147,10 @@ namespace Module.Data
             {1, new List<BuildingType>(){}},{2,new List<BuildingType>()},{3,new List<BuildingType>()},{4,new List<BuildingType>()},{5,new List<BuildingType>()}
         };
 
-        public CashierData cashierData ;
+        public CashierData cashierData;
 
         #region 云递者数据
-        public DeliverData deliverData ;
+        public DeliverData deliverData;
 
         #endregion
 
@@ -198,7 +200,7 @@ namespace Module.Data
         #region 元宝矿洞数据
         public int remainCount = 30;
         public string lastRefrashTime = "";
-        internal object mapCompletedTaskRecordDic;
+
 
 
         #endregion
@@ -241,7 +243,7 @@ namespace Module.Data
         public float currentOwnMoney;
         public bool canShowBg;
 
-        public MapLockDataProgress( MonsterType monsterType, int mapId, int lockId, bool isUnlock, float currentOwnMoney, bool canShowBg)
+        public MapLockDataProgress(MonsterType monsterType, int mapId, int lockId, bool isUnlock, float currentOwnMoney, bool canShowBg)
         {
             this.monsterType = monsterType;
             this.mapId = mapId;
@@ -259,11 +261,11 @@ namespace Module.Data
     public class OrderDataProgress
     {
         public int orderId;
-        public Dictionary<GoodsType, (int,int)> goodDic = new Dictionary<GoodsType, (int,int)>() { { GoodsType.None, (0,0) } };
-        public Dictionary<DropItemType, (int,int)> dropDic = new Dictionary<DropItemType, (int,int)>() { { DropItemType.None,(0,0) } };
+        public Dictionary<GoodsType, (int, int)> goodDic = new Dictionary<GoodsType, (int, int)>() { { GoodsType.None, (0, 0) } };
+        public Dictionary<DropItemType, (int, int)> dropDic = new Dictionary<DropItemType, (int, int)>() { { DropItemType.None, (0, 0) } };
 
 
-        public OrderDataProgress(int orderId, Dictionary<GoodsType,(int,int)> goodDic, Dictionary<DropItemType,(int,int)> dropDic)
+        public OrderDataProgress(int orderId, Dictionary<GoodsType, (int, int)> goodDic, Dictionary<DropItemType, (int, int)> dropDic)
         {
             this.orderId = orderId;
             this.goodDic = goodDic;
@@ -402,6 +404,10 @@ namespace Module.Data
         public int peopleLevel = 1;
         public int maxworkspeedLevel = 50;
         public int maxpeopleLevel = 3;
+        public CashierData()
+        {
+            
+        }
     }
 
 }

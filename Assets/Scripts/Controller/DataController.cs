@@ -188,7 +188,7 @@ namespace Controller
             structureLockDataList_5.Clear();
             structureLockDataList_5 = JsonConvert.DeserializeObject<List<StructureLockData>>(structureLockDataStr5);
 
-          
+
         }
 
         /// <summary>
@@ -196,7 +196,7 @@ namespace Controller
         /// </summary>
         /// <param name="mapId"></param>
         /// <param name="structureLockDataList"></param>
-        public void UpdateSturctureLockInfo()
+        public void UpdateStructureLockInfo()
         {
             ///根据当前解锁的任务数据  进行可解锁建筑数据划分
             PlayerData playerData = PlayerDataModule.Instance.data;
@@ -276,6 +276,31 @@ namespace Controller
                 list1.Add(structureLockDataList_5[i].buildingType);
             }
 
+            //已解锁建筑物，进行建筑数据判断
+            switch (playerData.currentMapID)
+            {
+                case 1:
+                    var list1 = playerData.structUnLockDataDic[1];
+                    FillStructureData(list1);
+                    break;
+                case 2:
+                    var list2 = playerData.structUnLockDataDic[2];
+                    FillStructureData(list2);
+                    break;
+                case 3:
+                    var list3 = playerData.structUnLockDataDic[3];
+                    FillStructureData(list3);
+                    break;
+                case 4:
+                    var list4 = playerData.structUnLockDataDic[4];
+                    FillStructureData(list4);
+                    break;
+                case 5:
+                    var list5 = playerData.structUnLockDataDic[5];
+                    break;
+            }
+
+
             List<TaskData> taskDatas = playerData.listenInTaskList;
             for (int i = 0; i < taskDatas.Count; i++)
             {
@@ -287,18 +312,76 @@ namespace Controller
                         //该建筑已经解锁
                         continue;
                     }
+
                     if (!playerData.structCanUnLockDataDic[playerData.currentMapID].Contains(buildingType))
                     {
+                        if (PlayerDataModule.Instance.data.currentMapID == 1 &&
+                        (buildingType == BuildingType.YuShaHu_1 || buildingType == BuildingType.LingChaJia_1 || buildingType == BuildingType.LingZhangTai))
+                        {
+                            continue;
+                        }
                         //该建筑没有在可解锁列表中  添加
-                        playerData.structCanUnLockDataDic[playerData.currentMapID].Add(buildingType);
+                        if (!playerData.structCanUnLockDataDic[playerData.currentMapID].Contains(buildingType))
+                        {
+                            playerData.structCanUnLockDataDic[playerData.currentMapID].Add(buildingType);
+                        }
 
                         //从锁定容器中移除
-                        playerData.structLockDataDic[playerData.currentMapID].Remove(buildingType);
+                        if (playerData.structLockDataDic[playerData.currentMapID].Contains(buildingType))
+                        {
+                            playerData.structLockDataDic[playerData.currentMapID].Remove(buildingType);
+                        }
+
                     }
 
                 }
             }
             EventCenter.Instance.TriggerEvent(EventMessages.UpdateSturctureLockInfo);
+        }
+
+        public void FillStructureData(List<BuildingType> buildingTypes)
+        {
+            foreach (var buildingType in buildingTypes)
+            {
+                if (buildingType == BuildingType.YuShaHu_1)
+                {
+                    var productionData = PlayerDataModule.Instance.data.ProductStationDataList.Find(x => x.buildingType == BuildingType.YuShaHu_1);
+                    if (productionData == null)
+                    {
+                        PlayerDataModule.Instance.data.ProductStationDataList.Add(new ProductStationData(BuildingType.YuShaHu_1));
+                    }
+                }
+                if (buildingType == BuildingType.LingZhangTai)
+                {
+                    if (PlayerDataModule.Instance.data.cashierData == null)
+                    {
+                        PlayerDataModule.Instance.data.cashierData = new CashierData();
+                    }
+                }
+                if (buildingType == BuildingType.YunDiGe)
+                {
+                    if (PlayerDataModule.Instance.data.deliverData == null)
+                    {
+                        PlayerDataModule.Instance.data.deliverData = new DeliverData();
+                    }
+                }
+                if (buildingType == BuildingType.LingChuGe_1)
+                {
+                    var warehouseCategory = PlayerDataModule.Instance.data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1);
+                    if (warehouseCategory == null)
+                    {
+                        PlayerDataModule.Instance.data.warehouselist.Add(new WarehouseCategory(WarehouseCategoryType.LingChuGe_1));
+                    }
+                    if (buildingType == BuildingType.LingChuGe_2)
+                    {
+                        var warehouseCategory1 = PlayerDataModule.Instance.data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2);
+                        if (warehouseCategory1 == null)
+                        {
+                            PlayerDataModule.Instance.data.warehouselist.Add(new WarehouseCategory(WarehouseCategoryType.LingChuGe_2));
+                        }
+                    }
+                }
+            }
         }
 
         public List<TaskData> GetTaskGroupIds()

@@ -61,11 +61,6 @@ namespace Controller.Pickups
            StartCoroutine(FlyRoutine(target , callback));
        }
 
-        private void Update()
-        {
-            spriteRenderer.sortingOrder = 35000 - Mathf.RoundToInt(transform.position.y * 100);
-        }
-
        IEnumerator FlyRoutine(Vector3 target , Action callback = null)
        {
            SetState(ItemState.Flying);

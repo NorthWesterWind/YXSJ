@@ -47,9 +47,12 @@ namespace Controller.Structure
 
         public SpriteRenderer speedPoint_1;
         public SpriteRenderer uiPoint_1;
+        public MeshRenderer meshRenderer_1;
         public SpriteRenderer speedPoint_2;
         public SpriteRenderer orderPoint;
+         public MeshRenderer meshRenderer_2;
         public SpriteRenderer uiPoint_2;
+         public MeshRenderer meshRenderer_3;
 
         [SerializeField] private int maxWaiters; // 最多服务员
         private int workingWaiters = 0;              // 当前忙的服务员数
@@ -156,6 +159,7 @@ namespace Controller.Structure
 
         public void Init(params object[] args)
         {
+            Debug.LogError("CashierCounter Init");
             PlayerData playerData = PlayerDataModule.Instance.data;
             lockData = GetLockData(playerData.currentMapID);
             lockstate = GetStructureState(playerData, lockData);
@@ -194,7 +198,6 @@ namespace Controller.Structure
                     break;
 
                 case StructureState.Unlocked:
-                    content_1.SetActive(true);
                     if (PlayerDataModule.Instance.data.ordenFunction == 1)
                     {
                         ShowContent_2();
@@ -253,6 +256,7 @@ namespace Controller.Structure
             rend3.sortingOrder = newOrder + 1;
             speedPoint_1.sortingOrder = newOrder + 2;
             uiPoint_1.sortingOrder = newOrder + 2;
+            meshRenderer_1.sortingOrder = newOrder + 2;
             grid.basePosition = exportTransform.position;
         }
 
@@ -289,6 +293,8 @@ namespace Controller.Structure
             speedPoint_2.sortingOrder = newOrder + 2;
             uiPoint_2.sortingOrder = newOrder + 2;
             orderPoint.sortingOrder = newOrder + 2;
+            meshRenderer_2.sortingOrder = newOrder + 2;
+            meshRenderer_3.sortingOrder = newOrder + 2;
         }
 
         private void HandleCustomerArrived(params object[] args)
@@ -347,7 +353,7 @@ namespace Controller.Structure
             PrintingMoney(totalNum);
             workingWaiters--;
             TryProcessNextCustomer();
-            if (PlayerDataModule.Instance.data.guideStep == GuideStep.SellTea)
+            if (PlayerDataModule.Instance.data.guideStep == GuideStep.ToLingZhangTai)
             {
                 PlayerDataModule.Instance.data.guideStep =  GuideStep.Checkout;
                 UIController.Instance.Show<PlayerGuide>();
@@ -362,7 +368,7 @@ namespace Controller.Structure
             Production product = productObj.GetComponent<Production>();
             product.Init(GoodsType.TongBi, (int)value);
             product.SetStation(this);
-
+            product.spriteRenderer.sortingOrder = sprite.sortingOrder + 3;
             product.FlyTo(grid.GetNextPosition(), (() =>
             {
                 product.canPickup = true;

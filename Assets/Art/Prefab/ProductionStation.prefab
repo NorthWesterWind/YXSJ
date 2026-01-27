@@ -109,7 +109,7 @@ Transform:
   m_GameObject: {fileID: 1243381780730255363}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.04, y: 0.889, z: 0}
+  m_LocalPosition: {x: 1.29, y: -0.09, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -190,7 +190,7 @@ MeshRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 146
+  m_SortingOrder: 2017
   m_AdditionalVertexStreams: {fileID: 0}
 --- !u!114 &1704198591813315762
 MonoBehaviour:
@@ -475,7 +475,7 @@ PolygonCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -828,6 +828,7 @@ MonoBehaviour:
   productionList: []
   productIcon: {fileID: 7767453805260308067}
   materialIcon: {fileID: 6945014533502360411}
+  turnIcon: {fileID: 7637896560513538027}
   infoTransform: {fileID: 3924665771825620014}
   icon: {fileID: 1704198591813315762}
   lockData:
@@ -901,7 +902,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 529204814586842149, guid: 44e4abe168375d349990ea5f641c9945, type: 3}
       propertyPath: m_Layer
-      value: 8
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 2499676439301972725, guid: 44e4abe168375d349990ea5f641c9945, type: 3}
       propertyPath: m_LocalPosition.x

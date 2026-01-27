@@ -20,6 +20,7 @@ namespace Utils
         public const string UpdatePlayerMoneyInfo = "UpdatePlayerMoneyInfo"; //更新玩家货币信息
         public const string ProductionComplete = "ProductionComplete";       //产品生产完成
         public const string CustomerArrived = "CustomerArrived";             //顾客到达收银台
+        public const string CustomerArrivedSell = "CustomerArrivedSell";             //顾客到达收银台
         public const string FocusNewPosition = "FocusNewPosition";           //让相机平移查看指定物体
 
         public const string UpdateInfoItem = "UpdateInfoItem"; //更新InfoItem信息

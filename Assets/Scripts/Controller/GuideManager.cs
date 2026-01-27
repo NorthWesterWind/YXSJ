@@ -10,7 +10,8 @@ public enum GuideStep
     DeliverMaterial = 6,
     BuildAccountDesk = 8,
     TakeTea = 10,
-    SellTea = 12,
+    SellTea = 11,
+    ToLingZhangTai = 12,
     Checkout = 13,
     UpgradePot = 15,
 

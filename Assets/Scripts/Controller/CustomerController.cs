@@ -14,11 +14,12 @@ namespace Controller
     { None, QianWangGouMai, WaitGouMaiWanCheng, QianWangShouYinTai, JieZhangChengGong, Angry, }
     public class CustomerController : MonoBehaviour
     {
-        public PolyNavAgent agent; public CustomerData data;
+        public PolyNavAgent agent;
+        public CustomerData data;
         public NpcState state;
         public Vector2 bornPosition;
         public Vector2 nextPosition;
-        private Rigidbody2D _rigidbody2D;
+        public Vector2 purchasePosition;
         public GoodsType goodsType;
         public SkeletonAnimation skeletonAnimation;
         public SpriteRenderer shadow;
@@ -32,14 +33,7 @@ namespace Controller
         public GameObject fill;
         void Start()
         {
-            skeletonAnimation.state.Complete += HandleAnimationComplete;
-        }
-        private void HandleAnimationComplete(TrackEntry trackEntry)
-        {
-            if (trackEntry.TrackIndex == 1 && trackEntry.Animation.Name == "angry")
-            {
-                OnPurchaseTimeout();
-            }
+
         }
         void Update()
         {
@@ -60,17 +54,13 @@ namespace Controller
                 }
             }
 
-            if (state == NpcState.QianWangGouMai && Vector2.Distance(transform.position, salesStall.parchaseTransform.position) < 1f && currentAnimation.Animation.Name == "idle")
-            {
-                WaitPurchase();
-            }
-
             Vector2 dir = agent.movingDirection;
             if (dir == Vector2.zero) return;
             if (Mathf.Abs(dir.x) > 0.01f)
             {
                 skeletonAnimation.skeleton.ScaleX = dir.x < 0 ? -1 : 1;
             }
+
 
         }
         public void UpdateQueueTarget(Vector2 pos)
@@ -108,49 +98,66 @@ namespace Controller
         {
             agent.OnDestinationReached -= OnReachDestination;
         }
+
         void OnReachDestination()
         {
-            if (Vector2.Distance(new Vector2(transform.position.x, transform.position.y), bornPosition) < 1f && (state == NpcState.Angry || state == NpcState.JieZhangChengGong))
+            // 回家后销毁
+            if (Vector2.Distance(transform.position, bornPosition) < 1f &&
+                (state == NpcState.Angry || state == NpcState.JieZhangChengGong))
             {
                 Destroy(gameObject);
+                return;
             }
-            if (nextPosition == (Vector2)((CashierCounter)GameController.Instance.buildings[BuildingType.LingZhangTai]).parchaseTransform.position
-            && state == NpcState.QianWangShouYinTai
-            && agent.remainingDistance <= 1f)
+
+            // 到达购买点
+            if (state == NpcState.QianWangGouMai)
+            {
+                WaitPurchase();
+                EventCenter.Instance.TriggerEvent(EventMessages.CustomerArrivedSell, this);
+                return;
+            }
+
+            // 到达收银台
+            if (state == NpcState.QianWangShouYinTai)
             {
                 EventCenter.Instance.TriggerEvent(EventMessages.CustomerArrived, this);
+                return;
             }
         }
-        private Coroutine coroutine;
+
+        private Coroutine coroutine = null;
         public void WaitPurchase()
         {
-            if (coroutine == null)
-            {
-                state = NpcState.WaitGouMaiWanCheng;
-                coroutine = StartCoroutine(PurchaseRoutine());
-            }
+            Debug.LogError($"{name} 到达购买点，开始等待购买");
+            state = NpcState.WaitGouMaiWanCheng;
+            coroutine = StartCoroutine(PurchaseRoutine());
+
         }
         private IEnumerator PurchaseRoutine()
         {
             float timer = 0f;
             bool purchased = false;
             while (timer < data.waitTime)
-            { // 判断摊位商品是否满足顾客需求 
-                if (salesStall.TryPurchase(data.carryNum, purchaseList))
+            {
+                if (purchaseList.Count >= data.carryNum)
                 {
-                    Purchase(); purchased = true;
-                    EventCenter.Instance.TriggerEvent(EventMessages.CustomerLeave, salesStall);
+                    Purchase();
+                    purchased = true;
+                    coroutine = null;
                     break;
                 }
                 timer += Time.deltaTime;
                 Debug.Log($"{name} 正在等待购买商品，已等待时间: {timer:F2}s");
                 yield return null;
-                if (!purchased)
-                {
-                    skeletonAnimation.AnimationState.SetAnimation(1, "angry", false);
-                }
-                coroutine = null;
             }
+            if (!purchased)
+            {
+                skeletonAnimation.AnimationState.SetAnimation(0, "angry", false);
+                yield return new WaitForSeconds(1f);
+                OnPurchaseTimeout();
+            }
+
+            coroutine = null;
         }
         private void Purchase()
         {
@@ -163,30 +170,28 @@ namespace Controller
         }
         private void OnPurchaseTimeout()
         {
-            state = NpcState.Angry; SetNextPosition();
+            state = NpcState.Angry;
+            SetNextPosition();
             agent.Stop();
             agent.SetDestination(nextPosition);
-            var _state = skeletonAnimation.AnimationState;
-            _state.ClearTrack(1);
-            EventCenter.Instance.TriggerEvent(EventMessages.CustomerLeave, salesStall);
+            EventCenter.Instance.TriggerEvent(EventMessages.CustomerLeave, salesStall ,this);
         }
         public void SetNextPosition()
         {
             if (state == NpcState.QianWangGouMai)
             {
-                var pos = GameController.Instance.AddCustomerToQueue(salesStall, this);
+                var pos = salesStall.GetPurchasePosition();
                 nextPosition = pos;
             }
             else if (state == NpcState.QianWangShouYinTai)
             {
-                GameController.Instance.RemoveCustomerFromQueue(salesStall, this);
-                var pos = GameController.Instance.AddCustomerToQueue((CashierCounter)GameController.Instance.buildings[BuildingType.LingZhangTai], this);
-                nextPosition = pos;
+                // GameController.Instance.RemoveCustomerFromQueue(salesStall, this);
+                purchasePosition = (GameController.Instance.buildings[BuildingType.LingZhangTai] as CashierCounter).parchaseTransform.position;
+                nextPosition = purchasePosition;
             }
             else if (state is NpcState.JieZhangChengGong or NpcState.Angry)
             {
-                GameController.Instance.RemoveCustomerFromQueue(salesStall, this);
-                GameController.Instance.RemoveCustomerFromQueue((CashierCounter)GameController.Instance.buildings[BuildingType.LingZhangTai], this);
+                //GameController.Instance.RemoveCustomerFromQueue(salesStall, this);
                 nextPosition = bornPosition;
             }
         }

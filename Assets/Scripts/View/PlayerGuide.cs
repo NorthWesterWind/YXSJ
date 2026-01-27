@@ -1,5 +1,6 @@
 using System.Collections;
 using Controller;
+using Controller.Structure;
 using Module;
 using Module.Data;
 using Spine.Unity;
@@ -19,8 +20,10 @@ public class PlayerGuide : BaseView
     public TextMeshProUGUI infotxt_2;
     public SkeletonGraphic jianling;
     public SkeletonGraphic character;
+    public VerticalLayoutGroup verticalLayoutGroup1;
+    public VerticalLayoutGroup verticalLayoutGroup2;
 
-    public string[] info = new string[]
+    private string[] info = new string[]
     {
       "1\u3000\u3000新主人，终于等到你啦！我是镇妖剑的剑灵小灵，你被我选中成为新一代镇妖剑主人！",
       "2\u3000\u3000镇妖剑？新主人…我该怎么做？",
@@ -43,7 +46,7 @@ public class PlayerGuide : BaseView
     private Coroutine typingCoroutine;
     private bool isSkipping = false;
     private bool showAll = false;
-    private int currentIndex = 0;
+    public int currentIndex = 0;
 
 
 
@@ -77,20 +80,38 @@ public class PlayerGuide : BaseView
                 infoContent_1.gameObject.SetActive(true);
                 infoContent_2.gameObject.SetActive(false);
                 infotxt_1.text = info[0];
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(
+                    verticalLayoutGroup1.GetComponent<RectTransform>()
+                );
                 infotxt_1.maxVisibleCharacters = 0;
                 jianling.AnimationState.SetAnimation(0, "idle", true);
                 break;
             case 2:
-                infoContent_2.gameObject.SetActive(true);
+
                 infoContent_1.gameObject.SetActive(false);
+                infoContent_2.gameObject.SetActive(true);
                 infotxt_2.text = info[1];
+                yield return null;
+
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(
+                    verticalLayoutGroup2.GetComponent<RectTransform>()
+                );
                 infotxt_2.maxVisibleCharacters = 0;
                 character.AnimationState.SetAnimation(0, "待机", true);
                 break;
             case 3:
-                infoContent_1.gameObject.SetActive(true);
+
                 infoContent_2.gameObject.SetActive(false);
+                infoContent_1.gameObject.SetActive(true);
                 infotxt_1.text = info[2];
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(
+                    verticalLayoutGroup1.GetComponent<RectTransform>()
+                );
                 infotxt_1.maxVisibleCharacters = 0;
                 jianling.AnimationState.SetAnimation(0, "idle", true);
                 break;
@@ -98,6 +119,11 @@ public class PlayerGuide : BaseView
                 infoContent_1.gameObject.SetActive(true);
                 infoContent_2.gameObject.SetActive(false);
                 infotxt_1.text = info[3];
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(
+                    verticalLayoutGroup1.GetComponent<RectTransform>()
+                );
                 infotxt_1.maxVisibleCharacters = 0;
                 jianling.AnimationState.SetAnimation(0, "idle", true);
                 break;
@@ -105,6 +131,11 @@ public class PlayerGuide : BaseView
                 infoContent_1.gameObject.SetActive(true);
                 infoContent_2.gameObject.SetActive(false);
                 infotxt_1.text = info[4];
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(
+                    verticalLayoutGroup1.GetComponent<RectTransform>()
+                );
                 infotxt_1.maxVisibleCharacters = 0;
                 jianling.AnimationState.SetAnimation(0, "idle", true);
                 break;
@@ -112,6 +143,11 @@ public class PlayerGuide : BaseView
                 infoContent_1.gameObject.SetActive(true);
                 infoContent_2.gameObject.SetActive(false);
                 infotxt_1.text = info[5];
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(
+                    verticalLayoutGroup1.GetComponent<RectTransform>()
+                );
                 infotxt_1.maxVisibleCharacters = 0;
                 jianling.AnimationState.SetAnimation(0, "idle", true);
                 break;
@@ -119,6 +155,11 @@ public class PlayerGuide : BaseView
                 infoContent_2.gameObject.SetActive(true);
                 infoContent_1.gameObject.SetActive(false);
                 infotxt_2.text = info[6];
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(
+                    verticalLayoutGroup2.GetComponent<RectTransform>()
+                );
                 infotxt_2.maxVisibleCharacters = 0;
                 character.AnimationState.SetAnimation(0, "待机", true);
                 break;
@@ -126,6 +167,12 @@ public class PlayerGuide : BaseView
                 infoContent_1.gameObject.SetActive(true);
                 infoContent_2.gameObject.SetActive(false);
                 infotxt_1.text = info[7];
+                yield return null;
+
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(
+                    verticalLayoutGroup1.GetComponent<RectTransform>()
+                );
                 infotxt_1.maxVisibleCharacters = 0;
                 jianling.AnimationState.SetAnimation(0, "idle", true);
                 break;
@@ -133,6 +180,12 @@ public class PlayerGuide : BaseView
                 infoContent_1.gameObject.SetActive(true);
                 infoContent_2.gameObject.SetActive(false);
                 infotxt_1.text = info[8];
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(
+                    verticalLayoutGroup1.GetComponent<RectTransform>()
+                );
+
                 infotxt_1.maxVisibleCharacters = 0;
                 jianling.AnimationState.SetAnimation(0, "idle", true);
                 break;
@@ -140,6 +193,12 @@ public class PlayerGuide : BaseView
                 infoContent_1.gameObject.SetActive(true);
                 infoContent_2.gameObject.SetActive(false);
                 infotxt_1.text = info[9];
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(
+                    verticalLayoutGroup1.GetComponent<RectTransform>()
+                );
+
                 infotxt_1.maxVisibleCharacters = 0;
                 jianling.AnimationState.SetAnimation(0, "idle", true);
                 break;
@@ -147,6 +206,12 @@ public class PlayerGuide : BaseView
                 infoContent_1.gameObject.SetActive(true);
                 infoContent_2.gameObject.SetActive(false);
                 infotxt_1.text = info[10];
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(
+                    verticalLayoutGroup1.GetComponent<RectTransform>()
+                );
+
                 infotxt_1.maxVisibleCharacters = 0;
                 jianling.AnimationState.SetAnimation(0, "idle", true);
                 break;
@@ -154,6 +219,11 @@ public class PlayerGuide : BaseView
                 infoContent_1.gameObject.SetActive(true);
                 infoContent_2.gameObject.SetActive(false);
                 infotxt_1.text = info[11];
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(
+                    verticalLayoutGroup1.GetComponent<RectTransform>()
+                );
                 infotxt_1.maxVisibleCharacters = 0;
                 jianling.AnimationState.SetAnimation(0, "idle", true);
                 break;
@@ -161,6 +231,11 @@ public class PlayerGuide : BaseView
                 infoContent_1.gameObject.SetActive(true);
                 infoContent_2.gameObject.SetActive(false);
                 infotxt_1.text = info[12];
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(
+                    verticalLayoutGroup1.GetComponent<RectTransform>()
+                );
                 infotxt_1.maxVisibleCharacters = 0;
                 jianling.AnimationState.SetAnimation(0, "idle", true);
                 break;
@@ -168,6 +243,12 @@ public class PlayerGuide : BaseView
                 infoContent_1.gameObject.SetActive(true);
                 infoContent_2.gameObject.SetActive(false);
                 infotxt_1.text = info[13];
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(
+                    verticalLayoutGroup1.GetComponent<RectTransform>()
+                );
+
                 infotxt_1.maxVisibleCharacters = 0;
                 jianling.AnimationState.SetAnimation(0, "idle", true);
                 break;
@@ -175,6 +256,12 @@ public class PlayerGuide : BaseView
                 infoContent_1.gameObject.SetActive(true);
                 infoContent_2.gameObject.SetActive(false);
                 infotxt_1.text = info[14];
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(
+                    verticalLayoutGroup1.GetComponent<RectTransform>()
+                );
+
                 infotxt_1.maxVisibleCharacters = 0;
                 jianling.AnimationState.SetAnimation(0, "idle", true);
                 break;
@@ -182,6 +269,11 @@ public class PlayerGuide : BaseView
                 infoContent_1.gameObject.SetActive(true);
                 infoContent_2.gameObject.SetActive(false);
                 infotxt_1.text = info[15];
+                yield return null;
+                Canvas.ForceUpdateCanvases();
+                LayoutRebuilder.ForceRebuildLayoutImmediate(
+                    verticalLayoutGroup1.GetComponent<RectTransform>()
+                );
                 infotxt_1.maxVisibleCharacters = 0;
                 jianling.AnimationState.SetAnimation(0, "idle", true);
                 break;
@@ -205,12 +297,12 @@ public class PlayerGuide : BaseView
                 case 9:
                 case 10:
                 case 11:
-                    case 12:
-                    case 13:
-                    case 14:
-                    case 15:
-                    case 16:
-                        
+                case 12:
+                case 13:
+                case 14:
+                case 15:
+                case 16:
+
                     infotxt_1.maxVisibleCharacters = i;
                     yield return new WaitForSeconds(0.1f);
                     break;
@@ -259,7 +351,7 @@ public class PlayerGuide : BaseView
         }
         else
         {
-          
+
             if (currentIndex - 1 < info.Length)
             {
                 switch (currentIndex)
@@ -284,22 +376,26 @@ public class PlayerGuide : BaseView
                         break;
                     case 11:
                         TriggerGuide_7();
-           
                         break;
                     case 12:
-                        TriggerGuide_8();
-
+                        Hide();
                         break;
+                    // case 13:
+                    //     TriggerGuide_8();
+                        //break;
                     case 15:
                         TriggerGuide_9();
 
+                        break;
+                    case 16:
+                        NextContent();
                         break;
                     default:
                         currentIndex++;
                         ShowText(info[currentIndex - 1]);
                         break;
                 }
-               
+
             }
             else
             {
@@ -310,8 +406,8 @@ public class PlayerGuide : BaseView
 
     private void NextContent()
     {
-        EventCenter.Instance.TriggerEvent(EventMessages.HidePlayerGuide);
         Hide();
+        PlayerDataModule.Instance.data.guideStep = GuideStep.Over;
     }
 
 
@@ -319,80 +415,113 @@ public class PlayerGuide : BaseView
     {
         //建造一号玉砂壶
         Transform collectPoint = GameController.Instance.buildings[BuildingType.YuShaHu_1].transform;
-        GuideManager.Instance.StartStep(GuideStep.BuildYushaPot, collectPoint);
-      
-        StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x => x.buildingType ==BuildingType.YuShaHu_1);
+
+
+        StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x => x.buildingType == BuildingType.YuShaHu_1);
         StructureLockProgressData progress1 = new StructureLockProgressData(BuildingType.YuShaHu_1,
             data1.needMoney, data1.lockId, PlayerDataModule.Instance.data.currentMapID);
-        PlayerDataModule.Instance.data.structureLockProgressDataList.Add(progress1);
-        DataController.Instance.UpdateSturctureLockInfo();
+        if (PlayerDataModule.Instance.data.structureLockProgressDataList.Find(x => x.buildType == BuildingType.YuShaHu_1) == null)
+        {
+            PlayerDataModule.Instance.data.structureLockProgressDataList.Add(progress1);
+            PlayerDataModule.Instance.data.structLockDataDic[1].Remove(BuildingType.YuShaHu_1);
+            PlayerDataModule.Instance.data.structCanUnLockDataDic[1].Add(BuildingType.YuShaHu_1);
+            DataController.Instance.UpdateStructureLockInfo();
+        }
         Hide();
     }
     private void TriggerGuide_2()
     {
         //建造一号灵茶架
         Transform collectPoint = GameController.Instance.buildings[BuildingType.LingChaJia_1].transform;
-        GuideManager.Instance.StartStep(GuideStep.BuildTeaStand, collectPoint);
-        StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x => x.buildingType ==BuildingType.LingChaJia_1);
+        // GuideManager.Instance.StartStep(GuideStep.BuildTeaStand, collectPoint);
+
+
+        StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x => x.buildingType == BuildingType.LingChaJia_1);
         StructureLockProgressData progress1 = new StructureLockProgressData(BuildingType.LingChaJia_1,
-            data1.needMoney, data1.lockId, PlayerDataModule.Instance.data.currentMapID);
-        PlayerDataModule.Instance.data.structureLockProgressDataList.Add(progress1);
-        DataController.Instance.UpdateSturctureLockInfo();
+        data1.needMoney, data1.lockId, PlayerDataModule.Instance.data.currentMapID);
+
+        if (PlayerDataModule.Instance.data.structureLockProgressDataList.Find(x => x.buildType == BuildingType.LingChaJia_1) == null)
+        {
+            PlayerDataModule.Instance.data.structureLockProgressDataList.Add(progress1);
+            PlayerDataModule.Instance.data.structLockDataDic[1].Remove(BuildingType.LingChaJia_1);
+            PlayerDataModule.Instance.data.structCanUnLockDataDic[1].Add(BuildingType.LingChaJia_1);
+            DataController.Instance.UpdateStructureLockInfo();
+        }
         Hide();
     }
     private void TriggerGuide_3()
     {
         //收集霜云芝
         Transform collectPoint = GameController.Instance.factoryControllers[Module.Data.MonsterType.ShuangYunZhi].transform;
-        GuideManager.Instance.StartStep(GuideStep.CollectMaterial, collectPoint);
+        //  GuideManager.Instance.StartStep(GuideStep.CollectMaterial, collectPoint);
         Hide();
     }
     private void TriggerGuide_4()
     {
         //运送霜云芝
         Transform collectPoint = GameController.Instance.buildings[BuildingType.YuShaHu_1].transform;
-        GuideManager.Instance.StartStep(GuideStep.DeliverMaterial, collectPoint);
+        //  GuideManager.Instance.StartStep(GuideStep.DeliverMaterial, collectPoint);
         Hide();
     }
     private void TriggerGuide_5()
     {
         //建造灵账台
         Transform collectPoint = GameController.Instance.buildings[BuildingType.LingZhangTai].transform;
-        GuideManager.Instance.StartStep(GuideStep.BuildAccountDesk, collectPoint);
-        StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x => x.buildingType ==BuildingType.LingZhangTai);
+        // GuideManager.Instance.StartStep(GuideStep.BuildAccountDesk, collectPoint);
+        StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x => x.buildingType == BuildingType.LingZhangTai);
         StructureLockProgressData progress1 = new StructureLockProgressData(BuildingType.LingZhangTai,
-            data1.needMoney, data1.lockId, PlayerDataModule.Instance.data.currentMapID);
-        PlayerDataModule.Instance.data.structureLockProgressDataList.Add(progress1);
-        DataController.Instance.UpdateSturctureLockInfo();
+        data1.needMoney, data1.lockId, PlayerDataModule.Instance.data.currentMapID);
+        if (PlayerDataModule.Instance.data.structureLockProgressDataList.Find(x => x.buildType == BuildingType.LingZhangTai) == null)
+        {
+            PlayerDataModule.Instance.data.structureLockProgressDataList.Add(progress1);
+            PlayerDataModule.Instance.data.structLockDataDic[1].Remove(BuildingType.LingZhangTai);
+            PlayerDataModule.Instance.data.structCanUnLockDataDic[1].Add(BuildingType.LingZhangTai);
+            DataController.Instance.UpdateStructureLockInfo();
+            if (PlayerDataModule.Instance.data.cashierData == null)
+            {
+                PlayerDataModule.Instance.data.cashierData = new CashierData();
+            }
+        }
         Hide();
     }
     private void TriggerGuide_6()
     {
         //取灵茶
         Transform collectPoint = GameController.Instance.buildings[BuildingType.YuShaHu_1].transform;
-        GuideManager.Instance.StartStep(GuideStep.TakeTea, collectPoint);
+        // GuideManager.Instance.StartStep(GuideStep.TakeTea, collectPoint);
+        if (GameController.Instance.buildings[BuildingType.YuShaHu_1].GetComponent<ProductionStation>().currentMaterialCount == 0)
+        {
+            GameController.Instance.buildings[BuildingType.YuShaHu_1].GetComponent<ProductionStation>().AddMaterial(3);
+        }
+
         Hide();
     }
     private void TriggerGuide_7()
     {
         //上架灵茶
         Transform collectPoint = GameController.Instance.buildings[BuildingType.LingChaJia_1].transform;
-        GuideManager.Instance.StartStep(GuideStep.TakeTea, collectPoint);
+        //GuideManager.Instance.StartStep(GuideStep.SellTea, collectPoint);
+           if (GameController.Instance.buildings[BuildingType.YuShaHu_1].GetComponent<ProductionStation>().currentMaterialCount == 0)
+        {
+            GameController.Instance.buildings[BuildingType.YuShaHu_1].GetComponent<ProductionStation>().AddMaterial(3);
+        }
+
         Hide();
     }
 
-    private void TriggerGuide_8()
-    {
-        //进行结账
-        Transform collectPoint = GameController.Instance.buildings[BuildingType.LingZhangTai].transform;
-        GuideManager.Instance.StartStep(GuideStep.TakeTea, collectPoint);
-        Hide();
-    }
+    // private void TriggerGuide_8()
+    // {
+    //     //进行结账
+    //     Transform collectPoint = GameController.Instance.buildings[BuildingType.LingZhangTai].transform;
+    //     // GuideManager.Instance.StartStep(GuideStep.Checkout, collectPoint);
+    //     Hide();
+    // }
     private void TriggerGuide_9()
     {
         //升级一号玉砂壶
         Transform collectPoint = GameController.Instance.buildings[BuildingType.YuShaHu_1].transform;
-        GuideManager.Instance.StartStep(GuideStep.TakeTea, collectPoint);
+        // GuideManager.Instance.StartStep(GuideStep.UpgradePot, collectPoint);
+        PlayerDataModule.Instance.data.guideStep = GuideStep.UpgradePot;
         Hide();
     }
 

@@ -44,16 +44,16 @@ namespace Controller
         public override void Awake()
         {
             base.Awake();
-        }
-
-        private void Start()
-        {
             _assetHandle = GetComponent<AssetHandle>();
             foreach (var temp in goodBuild.Values)
             {
                 SalesStall  sale = temp as SalesStall;
                 RegisterQueue(temp , new Vector2(sale.parchaseTransform.position.x, sale.parchaseTransform.position.y)  );
             }
+        }
+
+        private void Start()
+        {
           //  var position = ((CashierCounter)buildings[BuildingType.LingZhangTai]).parchaseTransform.position;
            // RegisterQueue(buildings[BuildingType.LingZhangTai] , new Vector2(position.x, position.y));
         }

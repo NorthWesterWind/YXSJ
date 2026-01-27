@@ -117,6 +117,14 @@ namespace Module
                                     StructureLockProgressData progress1 = new StructureLockProgressData(type,
                                         data1.needMoney, data1.lockId, data.currentMapID);
                                     data.structureLockProgressDataList.Add(progress1);
+                                    if (!data.structCanUnLockDataDic[data.currentMapID].Contains(type))
+                                    {
+                                        data.structCanUnLockDataDic[data.currentMapID].Add(type);
+                                    }
+                                    if (data.structLockDataDic[data.currentMapID].Contains(type))
+                                    {
+                                        data.structLockDataDic[data.currentMapID].Remove(type);
+                                    }
                                 }
                                 break;
                             case 2:
@@ -124,28 +132,60 @@ namespace Module
                                 StructureLockProgressData progress2 = new StructureLockProgressData(type,
                                     data2.needMoney, data2.lockId, data.currentMapID);
                                 data.structureLockProgressDataList.Add(progress2);
+                                if (!data.structCanUnLockDataDic[data.currentMapID].Contains(type))
+                                {
+                                    data.structCanUnLockDataDic[data.currentMapID].Add(type);
+                                }
+                                if (data.structLockDataDic[data.currentMapID].Contains(type))
+                                {
+                                    data.structLockDataDic[data.currentMapID].Remove(type);
+                                }
                                 break;
                             case 3:
                                 StructureLockData data3 = DataController.Instance.structureLockDataList_3.Find(x => x.buildingType == type);
                                 StructureLockProgressData progress3 = new StructureLockProgressData(type,
                                     data3.needMoney, data3.lockId, data.currentMapID);
                                 data.structureLockProgressDataList.Add(progress3);
+                                if (!data.structCanUnLockDataDic[data.currentMapID].Contains(type))
+                                {
+                                    data.structCanUnLockDataDic[data.currentMapID].Add(type);
+                                }
+                                if (data.structLockDataDic[data.currentMapID].Contains(type))
+                                {
+                                    data.structLockDataDic[data.currentMapID].Remove(type);
+                                }
                                 break;
                             case 4:
                                 StructureLockData data4 = DataController.Instance.structureLockDataList_4.Find(x => x.buildingType == type);
                                 StructureLockProgressData progress4 = new StructureLockProgressData(type,
                                     data4.needMoney, data4.lockId, data.currentMapID);
                                 data.structureLockProgressDataList.Add(progress4);
+                                if (!data.structCanUnLockDataDic[data.currentMapID].Contains(type))
+                                {
+                                    data.structCanUnLockDataDic[data.currentMapID].Add(type);
+                                }
+                                if (data.structLockDataDic[data.currentMapID].Contains(type))
+                                {
+                                    data.structLockDataDic[data.currentMapID].Remove(type);
+                                }
                                 break;
                             case 5:
                                 StructureLockData data5 = DataController.Instance.structureLockDataList_5.Find(x => x.buildingType == type);
                                 StructureLockProgressData progress5 = new StructureLockProgressData(type,
                                     data5.needMoney, data5.lockId, data.currentMapID);
                                 data.structureLockProgressDataList.Add(progress5);
+                                if (!data.structCanUnLockDataDic[data.currentMapID].Contains(type))
+                                {
+                                    data.structCanUnLockDataDic[data.currentMapID].Add(type);
+                                }
+                                if (data.structLockDataDic[data.currentMapID].Contains(type))
+                                {
+                                    data.structLockDataDic[data.currentMapID].Remove(type);
+                                }
                                 break;
 
                         }
-                        data.structCanUnLockDataDic[data.currentMapID].Add(type);
+
                     }
                 }
                 if (task.type == TaskType.Unlock)
@@ -179,7 +219,7 @@ namespace Module
                 }
             }
 
-            DataController.Instance.UpdateSturctureLockInfo();
+            DataController.Instance.UpdateStructureLockInfo();
         }
         public void BeginJugmentRemainTime(params object[] args)
         {
@@ -429,7 +469,7 @@ namespace Module
                      }
 
                      callback?.Invoke(respone.fcm);
-                     DataController.Instance.UpdateSturctureLockInfo();
+                     DataController.Instance.UpdateStructureLockInfo();
                      StartOrderAutoCheck();
                  }
                  else if (respone.state == 2)
@@ -473,13 +513,58 @@ namespace Module
             {
                 var randomKey = DataController.Instance.orderDataDic.Keys.ElementAt(UnityEngine.Random.Range(0, DataController.Instance.orderDataDic.Count));
                 var randomValue = DataController.Instance.orderDataDic[randomKey];
-                var list = data.mapLockDataProgressList.FindAll(x => x.isUnlock == true);
+                var list = data.mapLockDataProgressList.FindAll(x => x.isUnlock == false);
+                List<MonsterType>result = new List<MonsterType>();
+                MapData mapData = DataController.Instance.mapDataDic[data.currentMapID];
+                 List<MapLockData> mapLockDataList = null ;
+                switch (data.currentMapID)
+                {
+                    case 1:
+                        mapLockDataList = DataController.Instance.mapLockDataList_1;
+                        break;
+                    case 2:
+                        mapLockDataList = DataController.Instance.mapLockDataList_2;
+                        break;
+                    case 3:
+                         mapLockDataList = DataController.Instance.mapLockDataList_3;
+                        break;
+                    case 4:
+                       mapLockDataList = DataController.Instance.mapLockDataList_4;
+                        break;
+                    case 5:
+                        mapLockDataList = DataController.Instance.mapLockDataList_5;
+                        break;
+                }
+                for(int i = 0; i <mapData .monsterTypeList.Count; i++)
+                {
+                    if (list.Find(x => x.monsterType == (MonsterType) mapData.monsterTypeList[i]) != null)
+                    {
+                       result.Add((MonsterType)mapData.monsterTypeList[i]);
+                    }
+                    else
+                    {
+                        var lockdata = mapLockDataList.Find(x => x.monsterType == (MonsterType)mapData.monsterTypeList[i]);
+                        if (lockdata == null)
+                        {
+                            result.Add((MonsterType)mapData.monsterTypeList[i]);
+                        }
+                    }
+                }
+
                 List<GoodsType> goodsTypeList = new List<GoodsType>();
                 List<DropItemType> dropItemTypeList = new List<DropItemType>();
-                foreach (var item in list)
+                foreach (var item in result)
                 {
-                    goodsTypeList.Add(Extensions.GetGoodsTypeByMonsterType(item.monsterType));
-                    dropItemTypeList.Add(Extensions.GetDropTypeByMonsterType(item.monsterType));
+                        GoodsType goodsType  = Extensions.GetGoodsTypeByMonsterType(item);
+                        if(goodsTypeList.Contains(goodsType)==false)
+                        {
+                            goodsTypeList.Add(goodsType);
+                        }
+                        DropItemType dropItemType = Extensions.GetDropTypeByMonsterType(item);
+                        if (dropItemTypeList.Contains(dropItemType) == false)
+                        {
+                            dropItemTypeList.Add(dropItemType);
+                        }
                 }
                 data.orderDataprogressList.Add(new OrderDataProgress(randomKey,
                     new Dictionary<GoodsType, (int, int)>() { { goodsTypeList[UnityEngine.Random.Range(0, goodsTypeList.Count)], (0, randomValue.needNum) } },
@@ -819,6 +904,7 @@ namespace Module
                     }
                 }
             }
+              EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
         }
 
         public void HandleUpGradeStuctureTask(params object[] args)
@@ -839,8 +925,14 @@ namespace Module
                             data.taskProgressDic.Add(_data.taskId, 1);
                         }
                     }
+                    if (buildingType == BuildingType.YuShaHu_1 && data.guideStep == GuideStep.UpgradePot)
+                    {
+                        data.guideStep = GuideStep.Finished;
+                        UIController.Instance.Show<PlayerGuide>();
+                    }
                 }
             }
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
         }
         public void HandleConstructTask(params object[] args)
         {
@@ -852,12 +944,12 @@ namespace Module
                     PlayerDataModule.Instance.data.guideStep = GuideStep.BuildTeaStand;
                     UIController.Instance.Show<PlayerGuide>();
                 }
-                else if (buildingType == BuildingType.LingChaJia_1 && data.guideStep == GuideStep.BuildTeaStand )
+                else if (buildingType == BuildingType.LingChaJia_1 && data.guideStep == GuideStep.BuildTeaStand)
                 {
                     PlayerDataModule.Instance.data.guideStep = GuideStep.CollectMaterial;
                     UIController.Instance.Show<PlayerGuide>();
                 }
-                else if(buildingType == BuildingType.LingZhangTai && data.guideStep == GuideStep.BuildAccountDesk)
+                else if (buildingType == BuildingType.LingZhangTai && data.guideStep == GuideStep.BuildAccountDesk)
                 {
                     PlayerDataModule.Instance.data.guideStep = GuideStep.TakeTea;
                     UIController.Instance.Show<PlayerGuide>();
@@ -917,7 +1009,8 @@ namespace Module
                     data.warehouselist.Add(new WarehouseCategory(WarehouseCategoryType.LingChuGe_2));
                 }
             }
-
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateSturctureLockInfo);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
         }
 
         public void HandleSellTask(params object[] args)
@@ -941,6 +1034,7 @@ namespace Module
                     }
                 }
             }
+              EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
         }
 
         public void HandleHarvestTask(params object[] args)
@@ -970,10 +1064,11 @@ namespace Module
                                 UIController.Instance.Show<PlayerGuide>();
                             }
                         }
-                        
+
                     }
                 }
             }
+              EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
         }
 
         public void HandleMakeTongBiTask(params object[] args)
@@ -994,6 +1089,7 @@ namespace Module
                     }
                 }
             }
+              EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
         }
         public void HandleUnLockMapTask(params object[] args)
         {
@@ -1013,6 +1109,7 @@ namespace Module
                 }
 
             }
+              EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
         }
 
         internal void Login(string text1, string text2)

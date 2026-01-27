@@ -5,6 +5,7 @@ using Module;
 using Module.Data;
 using Spine;
 using Spine.Unity;
+using Unity.VisualScripting;
 using UnityEngine;
 using Utils;
 using View;
@@ -36,6 +37,7 @@ namespace Controller.Structure
 
         public SpriteRenderer productIcon;
         public SpriteRenderer materialIcon;
+        public SpriteRenderer  turnIcon;
         public Transform infoTransform;
         public SkeletonAnimation icon;
 
@@ -107,6 +109,8 @@ namespace Controller.Structure
         {
             content.SetActive(true);
             structureLock.gameObject.SetActive(false);
+            if(_assetHandle == null)
+                _assetHandle = GetComponent<AssetHandle>();
             baseProductionTime = WorldData.productStationWorkingTimeDic[ PlayerDataModule.Instance.data.ProductStationDataList.Find(x => x.buildingType == buildingType).timelevel];
              if (productionInfo == null)
             {
@@ -125,11 +129,13 @@ namespace Controller.Structure
 
             productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(goodsType));
             materialIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType(dropItemType));
-
-            int order = sprite.sortingOrder + 2;
+            
+            int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
+            int order = newOrder + 2;
             icon.GetComponent<MeshRenderer>().sortingOrder = order;
             productIcon.sortingOrder = order;
             materialIcon.sortingOrder = order;
+            turnIcon.sortingOrder = order;
 
             icon.initialSkinName = GetBuildingIcon().ToString();
         }
@@ -193,7 +199,7 @@ namespace Controller.Structure
             EventCenter.Instance.TriggerEvent(EventMessages.ProduceTask,goodsType); 
             product.Init(goodsType);
             product.SetStation(this);
-            product.spriteRenderer.sortingOrder = grid.currentIndex + 4000;
+            product.spriteRenderer.sortingOrder = sprite.sortingOrder + 3;
             productionList.Add(product);
             product.FlyTo(grid.GetNextPosition(), (() =>
             {

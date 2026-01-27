@@ -31,7 +31,8 @@ namespace View
         public TextMeshProUGUI bottomleveltxt2;
         public TextMeshProUGUI bottompreviewtxt1;
         public TextMeshProUGUI bottompreviewtxt2;
-
+       public TextMeshProUGUI bottompreviewtxt1_1;
+        public TextMeshProUGUI bottompreviewtxt2_2;
         public UIButton bootomBtn1;
         public TextMeshProUGUI bootomBtntxt1;
         public UIButton bootomBtn2;
@@ -143,6 +144,11 @@ namespace View
                 PlayerDataModule.Instance.data.tongbi -= productStationdata.priceLevel * 1000;
                 productStationdata.priceLevel++;
                UpdateStationInfo(productStationdata);
+               if(PlayerDataModule.Instance.data.guideStep == GuideStep.UpgradePot)
+               {
+                   PlayerDataModule.Instance.data.guideStep = GuideStep.Finished;
+                   UIController.Instance.Show<PlayerGuide>();
+               }
                EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask, productStationdata.buildingType);
             }));
 
@@ -315,8 +321,10 @@ namespace View
                  bottompreviewtxt1.text =
                 "x" + (WorldData.goodsPriceDic[goodsType] *
                        DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price +
-                       productStationdata.priceLevel * 25) +
-                $" <color=green>{WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price + (productStationdata.priceLevel + 1) * 25}</color>";
+                       productStationdata.priceLevel * 25);
+              
+                   bottompreviewtxt2.text =  "x" + $"{WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price + (productStationdata.priceLevel + 1) * 25}";
+                  
                    bootomBtntxt1.text = (1000 * productStationdata.priceLevel).ToString();
             }
             else
@@ -325,20 +333,22 @@ namespace View
                 "x" + (WorldData.goodsPriceDic[goodsType] *
                        DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price +
                        productStationdata.priceLevel * 25);
+                         bottompreviewtxt2.text = "";
                           bootomBtntxt1.text = "已满级";
             }
           
             if (productStationdata.timelevel < productStationdata.maxTimeLevel)
             {
-                bottompreviewtxt2.text =
-                    WorldData.productStationWorkingTimeDic[productStationdata.timelevel] + "秒  " +
-                    $"<color=green>{WorldData.productStationWorkingTimeDic[productStationdata.timelevel + 1]}</color>";
-                       bootomBtntxt2.text = (2000 * productStationdata.timelevel).ToString();
+                bottompreviewtxt1_1.text =
+                    WorldData.productStationWorkingTimeDic[productStationdata.timelevel] + "秒  " ;
+                   bottompreviewtxt2_2.text = $"{WorldData.productStationWorkingTimeDic[productStationdata.timelevel + 1]}秒 ";
+                    bootomBtntxt2.text = (2000 * productStationdata.timelevel).ToString();
             }
             else
             {
                 bottompreviewtxt2.text =
                     WorldData.productStationWorkingTimeDic[productStationdata.timelevel] + "秒";
+                    bottompreviewtxt2_2.text = "";
                        bootomBtntxt2.text = "已满级";
             }
         }

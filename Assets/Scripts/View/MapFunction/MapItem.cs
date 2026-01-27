@@ -1,6 +1,8 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
+using Controller;
 using JetBrains.Annotations;
 using Module;
 using Module.Data;
@@ -19,7 +21,6 @@ namespace View.MapFunction
         public Image mapImg;
         public GameObject maskImg;
         public TextMeshProUGUI masktxt;
-        // public Image completedImg;
         public TextMeshProUGUI pricetxt;
         public Transform content_1;
         public Transform content_2;
@@ -173,7 +174,27 @@ namespace View.MapFunction
 
             if (scene.name == $"Game_{PlayerDataModule.Instance.data.currentMapID}")
             {
-               
+                PlayerData playerData = PlayerDataModule.Instance.data;
+                playerData.taskProgressDic = new Dictionary<int, int>() { { 10000, 10000 } };
+                playerData.listenInTaskList.Clear();
+                playerData.cashierData = null;
+                playerData.deliverData = null;
+                playerData.warehouselist.Clear();
+                playerData.ProductStationDataList.Clear();
+                playerData.orderDataprogressList.Clear();
+                playerData.mapLockDataProgressList.Clear();
+                playerData.structureLockProgressDataList.Clear();
+
+
+                playerData.remainCount = 30;
+                playerData.lastRefrashTime = "";
+                playerData.nowTaskId = 0;
+                PlayerDataModule.Instance.data.taskPopCompleted = 0;
+                playerData.listenInTaskList = DataController.Instance.GetTaskGroupIds();
+                PlayerDataModule.Instance.FiilOrderData();
+                PlayerDataModule.Instance.FillStructureLockProgressData();
+                DataController.Instance.UpdateStructureLockInfo();
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
             }
 
             SceneManager.sceneLoaded -= OnSceneLoaded;

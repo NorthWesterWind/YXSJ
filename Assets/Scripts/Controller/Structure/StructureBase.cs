@@ -15,15 +15,20 @@ namespace Controller.Structure
         public GameObject content;
         public bool isLock;
         public bool isCanUnlockState;
+        void Awake()
+        {
+             _assetHandle = GetComponent<AssetHandle>();
+        }
         protected virtual void Start()
         {
             int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
             sprite.sortingOrder = newOrder;
-            _assetHandle = GetComponent<AssetHandle>();
+         
         }
 
         void OnEnable()
         {
+           
             AddEvent();
         }
 

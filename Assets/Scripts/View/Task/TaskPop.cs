@@ -119,7 +119,7 @@ namespace View.Task
                     UIController.Instance.Show<RewardConfirmView>(dic, new Dictionary<CurrencyType, int> { { CurrencyType.JingYuanBao, DataController.Instance.giftpackDataDic[4].JinYuanBao } });
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                 }
-                else if (PlayerDataModule.Instance.data.currentMapID < 3)
+                else if (PlayerDataModule.Instance.data.currentMapID < 5)
                 {
                     PlayerDataModule.Instance.data.goldIngot += DataController.Instance.giftpackDataDic[5].JinYuanBao;
                     var dic = PlayerDataModule.Instance.LotteryCard(DataController.Instance.giftpackDataDic[5]);
@@ -193,9 +193,58 @@ namespace View.Task
             }
             if (tempvalue == 0)
             {
-                PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
-                PlayerDataModule.Instance.FillStructureLockProgressData();
-                UpdateTaskContent();
+                int id = 0;
+                for (int i = 0; i < PlayerDataModule.Instance.data.listenInTaskList.Count; i++)
+                {
+                    id = Mathf.Max(id, PlayerDataModule.Instance.data.listenInTaskList[i].taskId);
+                }
+                if (PlayerDataModule.Instance.data.currentMapID == 1)
+                {
+                    if (id < 30)
+                    {
+                        PlayerDataModule.Instance.data.nowTaskId = id + 1;
+                        PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
+                        PlayerDataModule.Instance.FillStructureLockProgressData();
+                        UpdateTaskContent();
+                    }
+                }else if(PlayerDataModule.Instance.data.currentMapID == 2)
+                {
+                     if (id < 60)
+                    {
+                        PlayerDataModule.Instance.data.nowTaskId = id + 1;
+                        PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
+                        PlayerDataModule.Instance.FillStructureLockProgressData();
+                        UpdateTaskContent();
+                    }
+                }else if(PlayerDataModule.Instance.data.currentMapID == 3)
+                {
+                     if (id < 90)
+                    {
+                        PlayerDataModule.Instance.data.nowTaskId = id + 1;
+                        PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
+                        PlayerDataModule.Instance.FillStructureLockProgressData();
+                        UpdateTaskContent();
+                    }
+                }else if(PlayerDataModule.Instance.data.currentMapID == 4)
+                {
+                        if (id < 100)
+                        {
+                            PlayerDataModule.Instance.data.nowTaskId = id + 1;
+                            PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
+                            PlayerDataModule.Instance.FillStructureLockProgressData();
+                            UpdateTaskContent();
+                        }
+                }
+                else if(PlayerDataModule.Instance.data.currentMapID == 5)
+                {
+                        if (id < 110)
+                        {
+                            PlayerDataModule.Instance.data.nowTaskId = id + 1;
+                            PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
+                            PlayerDataModule.Instance.FillStructureLockProgressData();
+                            UpdateTaskContent();
+                        }
+                }
             }
         }
 

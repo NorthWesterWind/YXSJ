@@ -26,12 +26,7 @@ namespace Controller.Pickups
 
 
         }
-        void Update()
-        {
-            int order = 30100 - Mathf.RoundToInt(transform.position.y * 100);
-
-            spriteRenderer.sortingOrder = order ;
-        }
+       
 
         /// <summary>
         /// 对外唯一入口：让物品飞向目标

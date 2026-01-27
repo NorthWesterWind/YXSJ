@@ -85,7 +85,7 @@ public class StructureLock : MonoBehaviour
                 break;
             case BuildingType.LingChaJia_4:
 
-                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) );
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
 
                 break;
             case BuildingType.LianQiLu_1:
@@ -93,7 +93,7 @@ public class StructureLock : MonoBehaviour
                 break;
             case BuildingType.LingQiJia_1:
 
-                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) );
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
 
                 break;
             case BuildingType.LianQiLu_2:
@@ -101,7 +101,7 @@ public class StructureLock : MonoBehaviour
                 break;
             case BuildingType.LingQiJia_2:
 
-                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) );
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
 
                 break;
             case BuildingType.LianQiLu_3:
@@ -109,7 +109,7 @@ public class StructureLock : MonoBehaviour
                 break;
             case BuildingType.LingQiJia_3:
 
-                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) );
+                structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType));
 
                 break;
             case BuildingType.YunDiGe:
@@ -139,8 +139,11 @@ public class StructureLock : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        bool canUnlock = PlayerDataModule.Instance.data.structCanUnLockDataDic[PlayerDataModule.Instance.data.currentMapID].Contains(buildType);
+        if (!canUnlock)
+            return;
         if (!other.CompareTag("Player")) return;
-
+        Debug.Log("进入建筑解锁范围");
         playerInRange = true;
         player = other.GetComponent<PlayerController>();
         OnEnter();
@@ -149,8 +152,11 @@ public class StructureLock : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D other)
     {
+        bool canUnlock = PlayerDataModule.Instance.data.structCanUnLockDataDic[PlayerDataModule.Instance.data.currentMapID].Contains(buildType);
+        if (!canUnlock)
+            return;
         if (!other.CompareTag("Player")) return;
-
+        Debug.Log("离开建筑解锁范围");
         playerInRange = false;
         player.InteractionTriggerInRange = false;
         player.InteractionTriggerTransform = null;
@@ -241,8 +247,9 @@ public class StructureLock : MonoBehaviour
         PlayerDataModule.Instance.data.structCanUnLockDataDic[PlayerDataModule.Instance.data.currentMapID]
             .Remove(data.buildType);
         PlayerDataModule.Instance.data.structUnLockDataDic[PlayerDataModule.Instance.data.currentMapID].Add(data.buildType);
-        EventCenter.Instance.TriggerEvent(EventMessages.UpdateSturctureLockInfo, _data);
         EventCenter.Instance.TriggerEvent(EventMessages.ConstructTask, buildType);
+
+
     }
 
 }

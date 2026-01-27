@@ -48,8 +48,6 @@ namespace Controller
 
         public void HandleCustomerCreat(params object[] args)
         {
-
-
             customerTypeList.Clear();
             mapData = DataController.Instance.mapDataDic[
                PlayerDataModule.Instance.data.currentMapID];
@@ -72,6 +70,7 @@ namespace Controller
 
         public IEnumerator CreatCustomer()
         {
+            yield return new WaitForSeconds(2f);
             while (true)
             {
                 if (!PlayerDataModule.Instance.data.structUnLockDataDic[PlayerDataModule.Instance.data.currentMapID].Contains(BuildingType.LingZhangTai))
@@ -85,6 +84,38 @@ namespace Controller
                     {
                         if (IsStructureUnlocked((pair.Value as SalesStall).buildingType))
                             return false;
+                        switch ((pair.Value as SalesStall).buildingType)
+                        {
+                            case BuildingType.LingChaJia_1:
+                                if (IsStructureUnlocked(BuildingType.YuShaHu_1))
+                                    return false;
+                                break;
+                            case BuildingType.LingChaJia_2:
+                                if (IsStructureUnlocked(BuildingType.YuShaHu_2))
+                                    return false;
+                                break;
+                            case BuildingType.LingChaJia_3:
+                                if (IsStructureUnlocked(BuildingType.YuShaHu_3))
+                                    return false;
+                                break;
+                            case BuildingType.LingChaJia_4:
+                                if (IsStructureUnlocked(BuildingType.YuShaHu_4))
+                                    return false;
+                                break;
+
+                            case BuildingType.LingQiJia_1:
+                                if (IsStructureUnlocked(BuildingType.LianQiLu_1))
+                                    return false;
+                                break;
+                            case BuildingType.LingQiJia_2:
+                                if (IsStructureUnlocked(BuildingType.LianQiLu_2))
+                                    return false;
+                                break;
+                            case BuildingType.LingQiJia_3:
+                                if (IsStructureUnlocked(BuildingType.LianQiLu_3))
+                                    return false;
+                                break;
+                        }
                         if (!placeCustomerCount.ContainsKey(pair.Value))
                             return true;
 
@@ -107,6 +138,10 @@ namespace Controller
                 // 随机顾客类型
                 var tempData = DataController.Instance.customerDataDic[(CustomerType)Extensions.RandomOne(customerTypeList)];
 
+                if (_assetHandle == null)
+                {
+                    _assetHandle = GetComponent<AssetHandle>();
+                }
                 // 生成顾客
                 GameObject obj = Instantiate(_assetHandle.Get<GameObject>(Extensions.GetCustomerResNameByType(tempData.type)));
 
