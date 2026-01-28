@@ -22,7 +22,7 @@ namespace Controller.Structure
         public SpriteRenderer productIcon;
         public SpriteRenderer productIconbg;
 
-        public List<CustomerController> customerQueue = new();
+        public List<CustomerController> customerList = new();
 
         protected override void Start()
         {
@@ -30,25 +30,26 @@ namespace Controller.Structure
         }
         void OnEnable()
         {
-            EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo,Init);
+            EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo, Init);
             EventCenter.Instance.AddListener(EventMessages.CustomerArrivedSell, HandleCustomerArrived);
-            EventCenter.Instance.AddListener(EventMessages.  CustomerLeave, HandleCustomerLeft);
-          
+            EventCenter.Instance.AddListener(EventMessages.CustomerLeave, HandleCustomerLeft);
+
         }
         void OnDisable()
         {
             EventCenter.Instance.RemoveListener(EventMessages.UpdateSturctureLockInfo, Init);
             EventCenter.Instance.RemoveListener(EventMessages.CustomerArrivedSell, HandleCustomerArrived);
-              EventCenter.Instance.RemoveListener(EventMessages.CustomerLeave, HandleCustomerLeft);
+            EventCenter.Instance.RemoveListener(EventMessages.CustomerLeave, HandleCustomerLeft);
         }
-        
+
         public void HandleCustomerLeft(params object[] args)
         {
-            if(args[0 ]as SalesStall  != this) return;
+            if (args[0] as SalesStall != this) return;
             CustomerController c = args[1] as CustomerController;
-            if (customerQueue.Contains(c))
+            customerList.RemoveAll(c => c == null); 
+            if (customerList.Contains(c))
             {
-                customerQueue.Remove(c);
+                customerList.Remove(c);
             }
         }
         private void HandleCustomerArrived(params object[] args)
@@ -56,13 +57,18 @@ namespace Controller.Structure
             if (args.Length < 1) return;
 
             CustomerController c = args[0] as CustomerController;
-            customerQueue.Add(c);
+            if(args[1] as SalesStall != this) return;
+            customerList.RemoveAll(c => c == null); 
+            customerList.Add(c);
             TryServeNextCustomer();
         }
 
         public void Init(params object[] args)
         {
-
+            if (GameController.Instance.unlockedBuildingTypes.Contains(buildingType))
+            {
+                return;
+            }
             var playerData = PlayerDataModule.Instance.data;
             var lockData = GetLockData(playerData.currentMapID);
             var state = GetStructureState(playerData, lockData);
@@ -92,7 +98,7 @@ namespace Controller.Structure
 
         private void ShowContent()
         {
-            if(content.activeSelf)
+            if (content.activeSelf)
                 return;
             content.SetActive(true);
             structureLock.gameObject.SetActive(false);
@@ -101,6 +107,7 @@ namespace Controller.Structure
             int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
             productIcon.sortingOrder = newOrder + 2;
             productIconbg.sortingOrder = newOrder + 1;
+            GameController.Instance.unlockedBuildingTypes.Add(buildingType);
         }
 
         public StructureLockData GetLockData(int mapId)
@@ -142,24 +149,25 @@ namespace Controller.Structure
 
         private void TryServeNextCustomer()
         {
-            
             // 没顾客
-            if (customerQueue.Count == 0)
+            customerList.RemoveAll(c => c == null); 
+            if (customerList.Count == 0)
                 return;
 
             // 没商品
             if (productList.Count == 0)
                 return;
 
-            CustomerController customer = customerQueue[0];
+            CustomerController customer = customerList[0];
             if (customer.data.carryNum > productList.Count)
                 return;
 
             if (TryPurchase(customer, customer.data.carryNum, customer.purchaseList))
             {
-                 customerQueue.RemoveAt(0);
+                
+                customerList.RemoveAt(0);
                 // 继续服务下一个
-                 TryServeNextCustomer();
+                TryServeNextCustomer();
             }
         }
 
@@ -167,14 +175,15 @@ namespace Controller.Structure
         /// <summary>
         /// 尝试购买指定数量商品，成功返回实际商品列表，失败返回空列表
         /// </summary>
-        public bool TryPurchase( CustomerController customer ,int count, List<Production> outList)
+        public bool TryPurchase(CustomerController customer, int count, List<Production> outList)
         {
             if (productList.Count < count)
                 return false;
-
+            if(customer.state != NpcState.WaitGouMaiWanCheng)
+            {
+                 return false;
+            }
             outList.Clear();
-
-            // 循环 count 次，每次移除尾部元素
             for (int i = 0; i < count; i++)
             {
                 int lastIndex = productList.Count - 1;

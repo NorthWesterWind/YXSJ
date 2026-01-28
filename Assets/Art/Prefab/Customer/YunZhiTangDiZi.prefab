@@ -111,7 +111,7 @@ Transform:
   m_GameObject: {fileID: 2983182319035440970}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.02, y: 2.145, z: 0}
+  m_LocalPosition: {x: -0.02, y: 2.29, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 0.6342}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -182,6 +182,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a5a0dc5d6e43cb4dbd1c7332b86cdde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fillImage: {fileID: 0}
   productionText: {fileID: 0}
   container: {fileID: 0}
 --- !u!1 &3328352651401298933
@@ -481,7 +482,7 @@ MonoBehaviour:
   stoppingDistance: 0.1
   slowingDistance: 1
   lookAheadDistance: 1
-  avoidRadius: 0.5
+  avoidRadius: 0.1
   avoidanceConsiderStuckedTime: 3
   avoidanceConsiderReachedDistance: 1
   rotateTransform: 0
@@ -512,6 +513,7 @@ MonoBehaviour:
   state: 0
   bornPosition: {x: 0, y: 0}
   nextPosition: {x: 0, y: 0}
+  purchasePosition: {x: 0, y: 0}
   goodsType: 0
   skeletonAnimation: {fileID: 4664604696385776873}
   shadow: {fileID: 2715512388170195213}

@@ -184,11 +184,17 @@ namespace View.Task
                 redPoint.SetActive(false);
             }
             int tempvalue = 0;
+            bool isSet = false;
             foreach (var _data in PlayerDataModule.Instance.data.listenInTaskList)
             {
                 if (!list.Contains(_data.taskId))
                 {
                     tempvalue += 1;
+                    if(!isSet)
+                    {
+                        PlayerDataModule.Instance.data.nowTaskId = _data.taskId;
+                        isSet = true;
+                    }
                 }
             }
             if (tempvalue == 0)

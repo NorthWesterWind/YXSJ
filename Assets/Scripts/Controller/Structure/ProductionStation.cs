@@ -62,6 +62,10 @@ namespace Controller.Structure
         public StructureState lockstate;
         public void Init(params object[] args)
         {
+            if( GameController.Instance.unlockedBuildingTypes.Contains(buildingType))
+            {
+                return;
+            }
             var playerData = PlayerDataModule.Instance.data;
             lockData = GetLockData(playerData.currentMapID);
             lockstate = GetStructureState(playerData, lockData);
@@ -107,10 +111,6 @@ namespace Controller.Structure
 
         private void ShowContent()
         {
-            if (content.activeSelf)
-            {
-                return;
-            }
             content.SetActive(true);
             structureLock.gameObject.SetActive(false);
             if(_assetHandle == null)
@@ -120,13 +120,13 @@ namespace Controller.Structure
             {
                 GameObject obj = GameObject.Instantiate(_assetHandle.Get<GameObject>("ProductionInfo"), GameObject.Find("HpCanvas").transform, false);
                 productionInfo = obj.GetComponent<ProductionInfo>();
-                productionInfo.Init(baseProductionTime, currentMaterialCount, this);
+                productionInfo.Init( currentMaterialCount, this);
                 if (currentMaterialCount == 0)
                 {
                     productionInfo.gameObject.SetActive(false);
                 }
             }
-            productionInfo.Init(baseProductionTime, currentMaterialCount, this);
+            productionInfo.Init( currentMaterialCount, this);
             grid.basePosition = productPosition.position;
 
             ObjectPoolManager.Instance.WarmPool("Production", _productObj, 50);
@@ -142,6 +142,7 @@ namespace Controller.Structure
             turnIcon.sortingOrder = order;
 
             icon.initialSkinName = GetBuildingIcon().ToString();
+            GameController.Instance.unlockedBuildingTypes.Add(buildingType);
         }
 
 
@@ -175,7 +176,7 @@ namespace Controller.Structure
             // 强制激活 UI
             if (!productionInfo.gameObject.activeSelf)
                 productionInfo.gameObject.SetActive(true);
-            productionInfo.StartProductionLoop(this, structureType, baseProductionTime);
+            productionInfo.StartProductionLoop(this, structureType);
             icon.AnimationState.SetAnimation(0, "animation", true);
             if (dropItemType == DropItemType.ShuangYunZhiFragment &&
                 PlayerDataModule.Instance.data.guideStep == GuideStep.DeliverMaterial)

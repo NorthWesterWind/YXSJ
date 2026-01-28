@@ -59,6 +59,9 @@ namespace View.CardView
                case CardDevelopType.UpgradeLingChuGe_2:
                    contenttxt.text = "储物容量";
                    break;
+                case CardDevelopType.UpgradeYunDiGe:
+                   contenttxt.text = "云递者人数";
+                   break;
                default:
                    contenttxt.text = "收益";
                    break;
@@ -86,59 +89,59 @@ namespace View.CardView
                {
                    case CardDevelopType.UpgradeCharacterWithXuanCaiTuAtk:
                        float percent = (cardUpProgress.level + 1) * 0.5f; //+ 50%
-                       nexttxt.text = $"<color=#00FF00>x{percent * 100f}%</color>";
+                       nexttxt.text = $"x{percent * 100f}%";
                        currenttxt.text = "x" + $" {cardUpProgress.level * 0.5f* 100f}%";
                        break;
                    case CardDevelopType.UpgradeCharacterWithXuanCaiTuHp:
-                       nexttxt.text = $"<color=#00FF00>x{(cardUpProgress.level + 1) * 30}</color>"; //+ 30
+                       nexttxt.text = $"x{(cardUpProgress.level + 1) * 30}"; //+ 30
                        currenttxt.text = "x" + $" {cardUpProgress.level * 30}";
                        break;
                    case CardDevelopType.UpgradeGetLingJingShu:
-                       nexttxt.text = $"<color=#00FF00>x{(cardUpProgress.level + 1) * 10}</color>"; //+ 10
+                       nexttxt.text = $"<color=#00FF00>x{(cardUpProgress.level + 1) * 10}"; //+ 10
                        currenttxt.text = "x" + $" {cardUpProgress.level *10}";
                        break;
                    case CardDevelopType.UpgradeLingZhangTai:
-                       nexttxt.text = $"<color=#00FF00>x{(cardUpProgress.level + 1) * 0.2f* 100f}%</color>"; //+ 20%
+                       nexttxt.text = $"x{(cardUpProgress.level + 1) * 0.2f* 100f}%"; //+ 20%
                        currenttxt.text = "x" + $" {cardUpProgress.level * 0.2f* 100f}%";
                        break;
                    case CardDevelopType.UpgradeLingChuGe_1:
-                       nexttxt.text = $"<color=#00FF00>x{(cardUpProgress.level + 1) * 10}</color>"; //+ 10
+                       nexttxt.text = $"x{(cardUpProgress.level + 1) * 10}"; //+ 10
                        currenttxt.text = "x" + $" {cardUpProgress.level * 10f}";
                        break;
                    case CardDevelopType.UpgradeLingChuGe_2:
-                       nexttxt.text = $"<color=#00FF00>x{(cardUpProgress.level + 1) * 10}</color>"; //+ 10
+                       nexttxt.text = $"x{(cardUpProgress.level + 1) * 10}"; //+ 10
                        currenttxt.text = "x" + $" {cardUpProgress.level * 10f}";
                        break;
                    case CardDevelopType.UpgradeYunDiGe:
-                       nexttxt.text = $"<color=#00FF00>x{(cardUpProgress.level + 1) * 1}</color>"; //+ 1
+                       nexttxt.text = $"x{(cardUpProgress.level + 1) * 1}"; //+ 1
                        currenttxt.text = "x" + $" {cardUpProgress.level}";
                        break;
                    case CardDevelopType.UpgradeYuShaHu_1:
-                       nexttxt.text = $"<color=#00FF00>x{Mathf.Pow(3f, cardUpProgress.level + 1)}</color>"; 
+                       nexttxt.text = $"x{Mathf.Pow(3f, cardUpProgress.level + 1)}"; 
                        currenttxt.text = "x" + $" {Mathf.Pow(3f, cardUpProgress.level )}";
                        break;
                    case CardDevelopType.UpgradeYuShaHu_2:
-                       nexttxt.text = $"<color=#00FF00>x{Mathf.Pow(3f, cardUpProgress.level + 1)}</color>"; 
+                       nexttxt.text = $"x{Mathf.Pow(3f, cardUpProgress.level + 1)}"; 
                        currenttxt.text = "x" + $" {Mathf.Pow(3f, cardUpProgress.level )}";
                        break;
                    case CardDevelopType.UpgradeYuShaHu_3:
-                       nexttxt.text = $"<color=#00FF00>x{Mathf.Pow(3f, cardUpProgress.level + 1)}</color>"; 
+                       nexttxt.text = $"x{Mathf.Pow(3f, cardUpProgress.level + 1)}"; 
                        currenttxt.text = "x" + $" {Mathf.Pow(3f, cardUpProgress.level )}";
                        break;
                    case CardDevelopType.UpgradeYuShaHu_4:
-                       nexttxt.text = $"<color=#00FF00>x{Mathf.Pow(3f, cardUpProgress.level + 1)}</color>"; 
+                       nexttxt.text = $"x{Mathf.Pow(3f, cardUpProgress.level + 1)}"; 
                        currenttxt.text = "x" + $" {Mathf.Pow(3f, cardUpProgress.level )}";
                        break;
                    case CardDevelopType.UpgradeLianQiLu_1:
-                       nexttxt.text = $"<color=#00FF00>x{Mathf.Pow(3f, cardUpProgress.level + 1)}</color>"; 
+                       nexttxt.text = $"x{Mathf.Pow(3f, cardUpProgress.level + 1)}"; 
                        currenttxt.text = "x" + $" {Mathf.Pow(3f, cardUpProgress.level )}";
                        break;
                    case CardDevelopType.UpgradeLianQiLu_2:
-                       nexttxt.text = $"<color=#00FF00>x{Mathf.Pow(3f, cardUpProgress.level + 1)}</color>"; 
+                       nexttxt.text = $"x{Mathf.Pow(3f, cardUpProgress.level + 1)}"; 
                        currenttxt.text = "x" + $" {Mathf.Pow(3f, cardUpProgress.level )}";
                        break;
                    case CardDevelopType.UpgradeLianQiLu_3:
-                       nexttxt.text = $"<color=#00FF00>x{Mathf.Pow(3f, cardUpProgress.level + 1)}</color>"; 
+                       nexttxt.text = $"x{Mathf.Pow(3f, cardUpProgress.level + 1)}"; 
                        currenttxt.text = "x" + $" {Mathf.Pow(3f, cardUpProgress.level )}";
                        break;
                }
@@ -152,11 +155,13 @@ namespace View.CardView
                {
                    fillContent.SetActive(false);
                    filltxt.text = "已满级";
+                   fillImg.fillAmount = 1f;
                }
                else
                {
                    fillContent.SetActive(true);
-                   fillImg.fillAmount = cardUpProgress.currentNum * 1f /WorldData.cardUpLevelArr[cardUpProgress.level+1];
+                   fillImg.fillAmount = cardUpProgress.currentNum * 1f /WorldData.cardUpLevelArr[cardUpProgress.level-1];
+                   filltxt.text = $"{cardUpProgress.currentNum}/{WorldData.cardUpLevelArr[cardUpProgress.level-1]}";
                }
                upgradeBtn.gameObject.SetActive(true);
            }
@@ -324,6 +329,89 @@ namespace View.CardView
                }
                
                goldneedtxt.text = currentNeedGold.ToString();
+
+
+
+               switch (cardLevelData.developType)
+               {
+                   case CardDevelopType.UpgradeCharacterWithXuanCaiTuAtk:
+                       float percent = (cardUpProgress.level + 1) * 0.5f; //+ 50%
+                       nexttxt.text = $"x{percent * 100f}%";
+                       currenttxt.text = "x" + $" {cardUpProgress.level * 0.5f* 100f}%";
+                       break;
+                   case CardDevelopType.UpgradeCharacterWithXuanCaiTuHp:
+                       nexttxt.text = $"x{(cardUpProgress.level + 1) * 30}"; //+ 30
+                       currenttxt.text = "x" + $" {cardUpProgress.level * 30}";
+                       break;
+                   case CardDevelopType.UpgradeGetLingJingShu:
+                       nexttxt.text = $"<color=#00FF00>x{(cardUpProgress.level + 1) * 10}"; //+ 10
+                       currenttxt.text = "x" + $" {cardUpProgress.level *10}";
+                       break;
+                   case CardDevelopType.UpgradeLingZhangTai:
+                       nexttxt.text = $"x{(cardUpProgress.level + 1) * 0.2f* 100f}%"; //+ 20%
+                       currenttxt.text = "x" + $" {cardUpProgress.level * 0.2f* 100f}%";
+                       break;
+                   case CardDevelopType.UpgradeLingChuGe_1:
+                       nexttxt.text = $"x{(cardUpProgress.level + 1) * 10}"; //+ 10
+                       currenttxt.text = "x" + $" {cardUpProgress.level * 10f}";
+                       break;
+                   case CardDevelopType.UpgradeLingChuGe_2:
+                       nexttxt.text = $"x{(cardUpProgress.level + 1) * 10}"; //+ 10
+                       currenttxt.text = "x" + $" {cardUpProgress.level * 10f}";
+                       break;
+                   case CardDevelopType.UpgradeYunDiGe:
+                       nexttxt.text = $"x{(cardUpProgress.level + 1) * 1}"; //+ 1
+                       currenttxt.text = "x" + $" {cardUpProgress.level}";
+                       break;
+                   case CardDevelopType.UpgradeYuShaHu_1:
+                       nexttxt.text = $"x{Mathf.Pow(3f, cardUpProgress.level + 1)}"; 
+                       currenttxt.text = "x" + $" {Mathf.Pow(3f, cardUpProgress.level )}";
+                       break;
+                   case CardDevelopType.UpgradeYuShaHu_2:
+                       nexttxt.text = $"x{Mathf.Pow(3f, cardUpProgress.level + 1)}"; 
+                       currenttxt.text = "x" + $" {Mathf.Pow(3f, cardUpProgress.level )}";
+                       break;
+                   case CardDevelopType.UpgradeYuShaHu_3:
+                       nexttxt.text = $"x{Mathf.Pow(3f, cardUpProgress.level + 1)}"; 
+                       currenttxt.text = "x" + $" {Mathf.Pow(3f, cardUpProgress.level )}";
+                       break;
+                   case CardDevelopType.UpgradeYuShaHu_4:
+                       nexttxt.text = $"x{Mathf.Pow(3f, cardUpProgress.level + 1)}"; 
+                       currenttxt.text = "x" + $" {Mathf.Pow(3f, cardUpProgress.level )}";
+                       break;
+                   case CardDevelopType.UpgradeLianQiLu_1:
+                       nexttxt.text = $"x{Mathf.Pow(3f, cardUpProgress.level + 1)}"; 
+                       currenttxt.text = "x" + $" {Mathf.Pow(3f, cardUpProgress.level )}";
+                       break;
+                   case CardDevelopType.UpgradeLianQiLu_2:
+                       nexttxt.text = $"x{Mathf.Pow(3f, cardUpProgress.level + 1)}"; 
+                       currenttxt.text = "x" + $" {Mathf.Pow(3f, cardUpProgress.level )}";
+                       break;
+                   case CardDevelopType.UpgradeLianQiLu_3:
+                       nexttxt.text = $"x{Mathf.Pow(3f, cardUpProgress.level + 1)}"; 
+                       currenttxt.text = "x" + $" {Mathf.Pow(3f, cardUpProgress.level )}";
+                       break;
+               }
+               
+               
+               levelTxt.text = cardUpProgress.level.ToString();
+               levelTxt.gameObject.SetActive(true);
+               mask.gameObject.SetActive(false);
+               topleftLock.gameObject.SetActive(false);
+               if (cardUpProgress.level == 10)
+               {
+                   fillContent.SetActive(false);
+                   filltxt.text = "已满级";
+                   fillImg.fillAmount = 1f;
+               }
+               else
+               {
+                   fillContent.SetActive(true);
+                   fillImg.fillAmount = cardUpProgress.currentNum * 1f /WorldData.cardUpLevelArr[cardUpProgress.level-1];
+                   filltxt.text = $"{cardUpProgress.currentNum}/{WorldData.cardUpLevelArr[cardUpProgress.level-1]}";
+               }
+
+               EventCenter.Instance.TriggerEvent(EventMessages.UpdateCardInfo , cardLevelData.developType);
            }));
            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
        }

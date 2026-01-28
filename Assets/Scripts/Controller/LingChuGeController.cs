@@ -27,13 +27,87 @@ namespace Controller
         
         private bool isDelivering = false;
         private List<DropController> deliveringDrops = new();
+        public  MeshRenderer meshRenderer;
+        public Transform bornTransform;
         
         public void Init(params object[] args)
         {
-            
+            if( GameController.Instance.unlockedBuildingTypes.Contains(structureType))
+            {
+                return;
+            }   
+            var playerData = PlayerDataModule.Instance.data;
+            var lockData = GetLockData(playerData.currentMapID);
+            var state = GetStructureState(playerData, lockData);
+            for (int i = collectorControllerList.Count; i > 0; i++)
+            {
+                Destroy(collectorControllerList[i - 1].gameObject);
+                collectorControllerList.RemoveAt(i - 1);
+            }
+            RefreshView(state, lockData);
+            UpdateCollectorInfo();
+        }
+
+          private void RefreshView(StructureState state, StructureLockData lockData)
+        {
+            switch (state)
+            {
+                case StructureState.Locked:
+                case StructureState.CanUnlock:
+                    ShowLock(lockData);
+                    break;
+
+                case StructureState.Unlocked:
+                    ShowContent();
+                    break;
+            }
+        }
+        private void ShowContent()
+        {
+            content.SetActive(true);
+            meshRenderer.sortingOrder = sprite.sortingOrder + 1;
+            structureLock.gameObject.SetActive(false);
+            GameController.Instance.unlockedBuildingTypes.Add(structureType);
         }
 
 
+       public void UpdateCollectorInfo(params object[] args)
+        {
+              PlayerData playerData = PlayerDataModule.Instance.data;
+              var warehouseCategory = playerData.warehouselist.Find(x => x.warehouseCategoryType == categoryType);
+            if (warehouseCategory.workingCollectorList.Count > collectorControllerList.Count)
+            {
+                for (int i = collectorControllerList.Count; i < warehouseCategory.workingCollectorList.Count; i++)
+                {
+                   CollectorController cc = Instantiate(_assetHandle.Get<GameObject>("Collector"), bornTransform, false).GetComponent<CollectorController>();
+                    cc.Init( warehouseCategory.workingCollectorList[i] , this);
+                    collectorControllerList.Add(cc);
+                }
+            }
+        }
+
+          public StructureLockData GetLockData(int mapId)
+        {
+            var list = DataController.Instance.GetStructureLockList(mapId);
+            return list?.Find(s => s.buildingType == structureType);
+        }
+        private StructureState GetStructureState(PlayerData playerData, StructureLockData lockData)
+        {
+            if (lockData == null)
+                return StructureState.Unlocked;
+
+            var locked = playerData.structLockDataDic[playerData.currentMapID];
+            var unlocked = playerData.structUnLockDataDic[playerData.currentMapID];
+            var canUnlock = playerData.structCanUnLockDataDic[playerData.currentMapID];
+
+            if (unlocked.Contains(structureType))
+                return StructureState.Unlocked;
+
+            if (locked.Contains(structureType))
+                return StructureState.Locked;
+
+            return StructureState.CanUnlock;
+        }
         protected override void Start()
         {
             base.Start();

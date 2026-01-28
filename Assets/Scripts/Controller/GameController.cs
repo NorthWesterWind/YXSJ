@@ -39,6 +39,7 @@ namespace Controller
         /// </summary>
         public List<SalesStall> salesStallList = new();
 
+        public List<BuildingType> unlockedBuildingTypes = new();
         
 
         public override void Awake()
@@ -67,21 +68,7 @@ namespace Controller
                 queues.Add(building, new QueueGroup(queueOrigin));
         }
 
-        /// <summary>
-        /// 顾客加入队伍，返回其排队点位
-        /// </summary>
-        public Vector2 AddCustomerToQueue(StructureBase building, CustomerController customer)
-        {
-            return queues[building].AddCustomer(customer);
-        }
-
-        /// <summary>
-        /// 顾客离开队伍
-        /// </summary>
-        public void RemoveCustomerFromQueue(StructureBase building, CustomerController customer)
-        {
-            queues[building].RemoveCustomer(customer);
-        }
+        
     }
     
     
@@ -98,66 +85,7 @@ namespace Controller
         public QueueGroup(Vector2 origin)
         {
             this.origin = origin;
-        }
-
-        /// 顾客加入队伍
-        public Vector2 AddCustomer(CustomerController customer)
-        {
-            customers.Add(customer);
-            RebuildPoints();
-            return queuePoints[customers.Count - 1];
-        }
-
-        /// 顾客离开队伍
-        public void RemoveCustomer(CustomerController customer)
-        { 
-            // 1. 空保护
-            if (customer == null) 
-            {
-                Debug.LogWarning("RemoveCustomer: customer is null");
-                return;
-            }
-
-            // 2. 队列为空保护
-            if (customers.Count == 0)
-            {
-                Debug.LogWarning("RemoveCustomer: customers is empty");
-                return;
-            }
-
-            // 3. 不在队列中保护
-            int index = customers.IndexOf(customer);
-            if (index < 0)
-            {
-                Debug.LogWarning("RemoveCustomer: customer not in list");
-                return;
-            }
-
-            // 4. 删除
-            customers.RemoveAt(index);
-
-            // 5. 重新构建队列点
-            RebuildPoints();
-
-            // 6. 队列点数量不足保护
-            if (queuePoints.Count < customers.Count)
-            {
-                Debug.LogError($"queuePoints 不够！queuePoints: {queuePoints.Count} customers: {customers.Count}");
-                return;
-            }
-
-            // 7. 安全更新所有顾客目标点
-            for (int i = 0; i < customers.Count; i++)
-            {
-                if (customers[i] == null)
-                {
-                    Debug.LogWarning($"Customer {i} is null in customers list.");
-                    continue;
-                }
-
-                customers[i].UpdateQueueTarget(queuePoints[i]);
-            }
-        }
+        }    
 
         /// 重建队伍点位（核心）
         private void RebuildPoints()

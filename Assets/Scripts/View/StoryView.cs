@@ -22,9 +22,14 @@ public class StoryView : BaseView
     private bool showAll = false;
     private float typingSpeed = 0.1f;
     public VerticalLayoutGroup verticalLayoutGroup;
+    public GameObject fillContent;
+    public Image fillImg;
+    public GameObject Content;
     public override void UpdateViewWithArgs(params object[] args)
     {
         base.UpdateViewWithArgs(args);
+        Content.SetActive(true);
+        fillContent.SetActive(false);
         ShowText(str[currentIndex]);
     }
     protected override void AddEventListener()
@@ -40,6 +45,7 @@ public class StoryView : BaseView
     {
         if (typingCoroutine != null)
             StopCoroutine(typingCoroutine);
+
         typingCoroutine = StartCoroutine(TypeEffect(text));
     }
 
@@ -88,6 +94,10 @@ public class StoryView : BaseView
 
     private void NextContent()
     {
+        if (PlayerDataModule.Instance.data.guidIdList.Contains(0))
+            return;
+        fillContent.SetActive(true);
+        Content.SetActive(false);
         PlayerDataModule.Instance.data.guidIdList.Add(0);
         StartCoroutine(LoadNextSceneCoroutine());
     }
@@ -96,11 +106,12 @@ public class StoryView : BaseView
 
     private IEnumerator LoadNextSceneCoroutine()
     {
+
         SceneManager.sceneLoaded += OnSceneLoaded;
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync($"Game_{PlayerDataModule.Instance.data.currentMapID}");
         asyncLoad.allowSceneActivation = false;
         float displayProgress = 0f;
-
+        fillImg.fillAmount = 0f;
         while (!asyncLoad.isDone)
         {
             float targetProgress = Mathf.Clamp01(asyncLoad.progress / 0.9f);
@@ -109,7 +120,9 @@ public class StoryView : BaseView
             {
                 yield return new WaitForSeconds(0.5f);
                 asyncLoad.allowSceneActivation = true;
+                  fillImg.fillAmount = 1f;
             }
+            fillImg.fillAmount = displayProgress;
             yield return null;
         }
     }

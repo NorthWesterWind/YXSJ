@@ -23,8 +23,6 @@ public class StayProgressStrategy : ILockInteractStrategy
     {
         interacting = false;
         lockView.SaveProgress(currentProgress);
-        player.InteractionTriggerInRange = false;
-        player.InteractionTriggerTransform = null;
     }
 
     public void OnEnter(object lockView, PlayerController player , Transform transform)
@@ -35,8 +33,6 @@ public class StayProgressStrategy : ILockInteractStrategy
         this.player = player;
         currentProgress = this.lockView.LoadProgress();
         lastPlayerPos = player.transform.position;   
-         player.InteractionTriggerInRange = true;
-         player.InteractionTriggerTransform = transform;
         }
     }
 }

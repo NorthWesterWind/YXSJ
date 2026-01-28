@@ -1,5 +1,8 @@
+using System;
+using System.Collections.Generic;
 using Controller.Player;
 using DG.Tweening;
+using Module;
 using Module.Data;
 using TMPro;
 using UnityEngine;
@@ -28,6 +31,7 @@ namespace View
         public UIButton storeBtn;
         public UIButton sevendayBtn;
         public UIButton zhuanpanBtn;
+        public UIButton lingjingBtn;
 
 
         public UIButton characterBtn;
@@ -76,24 +80,40 @@ namespace View
             characterBtn.onClick.RemoveAllListeners();
             characterBtn.onClick.AddListener((() =>
             {
+                if (PlayerDataModule.Instance.data.characterFunction != 1)
+                {
+                    return;
+                }
                 UIController.Instance.Show<CharacterView>();
                 HandleHidePlayerInfoViewCartoon();
             }));
             cardFunctionBtn.onClick.RemoveAllListeners();
             cardFunctionBtn.onClick.AddListener((() =>
             {
+                if (PlayerDataModule.Instance.data.cardFunction != 1)
+                {
+                    return;
+                }
                 UIController.Instance.Show<CardInfoView>();
                 HandleHidePlayerInfoViewCartoon();
             }));
             mapFunctionBtn.onClick.RemoveAllListeners();
             mapFunctionBtn.onClick.AddListener((() =>
             {
+                if (PlayerDataModule.Instance.data.mapFunction != 1)
+                {
+                    return;
+                }
                 UIController.Instance.Show<MapSelectView>();
                 HandleHidePlayerInfoViewCartoon();
             }));
             employeeFunctionBtn.onClick.RemoveAllListeners();
             employeeFunctionBtn.onClick.AddListener((() =>
             {
+                if (PlayerDataModule.Instance.data.employeeFunction != 1)
+                {
+                    return;
+                }
                 UIController.Instance.Show<EmployeeFunctionView>();
                 HandleHidePlayerInfoViewCartoon();
             }));
@@ -101,13 +121,32 @@ namespace View
             zhuanpanBtn.onClick.RemoveAllListeners();
             zhuanpanBtn.onClick.AddListener((() =>
             {
+
                 UIController.Instance.Show<ZhuanPanView>();
                 HandleHidePlayerInfoViewCartoon();
+            }));
+            lingjingBtn.onClick.RemoveAllListeners();
+            lingjingBtn.onClick.AddListener((() =>
+            {
+                if(PlayerDataModule.Instance.data.GetLingJingTime != DateTime.Now.ToString("yyyy/MM/dd"))
+                {
+                    PlayerDataModule.Instance.data.lingJing += PlayerDataModule.Instance.data.GetLingJingCount;
+                    UIController.Instance.Show<RewardConfirmView>(new Dictionary<CurrencyType, int> { { CurrencyType.LingJing, PlayerDataModule.Instance.data.GetLingJingCount } });
+                }
+                else
+                {
+                    UIController.Instance.Show<TipView>("今天已经领取过灵晶！");
+                }
+                
             }));
 
             ordenFunctionBtn.onClick.RemoveAllListeners();
             ordenFunctionBtn.onClick.AddListener((() =>
             {
+                if (PlayerDataModule.Instance.data.ordenFunction != 1)
+                {
+                    return;
+                }
                 UIController.Instance.Show<OrderFunctionView>();
                 HandleHidePlayerInfoViewCartoon();
             }));
@@ -185,6 +224,8 @@ namespace View
         public void HandleUpdateMoneyInfo(params object[] args)
         {
             tongbitxt.text = Extensions.FormatNumber(player.dataModule.data.tongbi);
+
+            
         }
 
         public void HandleShowPlayerInfoViewCartoon(params object[] args)

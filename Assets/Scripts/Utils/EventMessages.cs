@@ -79,5 +79,7 @@ namespace Utils
         public const string HarvestTask = "HarvestTask"; //收集物品任务
         public const string MakeTongBiTask = "MakeTongBiTask"; //获得铜币任务
         public const string UnLockMapTask = "UnLockMapTask"; //解锁怪物区域任务
+
+        public const string UpdateCardInfo = "UpdateCardInfo"; //更新卡牌信息
     }
 }

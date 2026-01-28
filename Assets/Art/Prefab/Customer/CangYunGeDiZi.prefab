@@ -266,7 +266,7 @@ MonoBehaviour:
   stoppingDistance: 0.1
   slowingDistance: 1
   lookAheadDistance: 1
-  avoidRadius: 0.5
+  avoidRadius: 0.1
   avoidanceConsiderStuckedTime: 3
   avoidanceConsiderReachedDistance: 1
   rotateTransform: 0
@@ -297,6 +297,7 @@ MonoBehaviour:
   state: 0
   bornPosition: {x: 0, y: 0}
   nextPosition: {x: 0, y: 0}
+  purchasePosition: {x: 0, y: 0}
   goodsType: 0
   skeletonAnimation: {fileID: 1955607519742258222}
   shadow: {fileID: 1671368966924664933}
@@ -304,7 +305,7 @@ MonoBehaviour:
   salesStall: {fileID: 0}
   receiveTransform: {fileID: 1630326645130359850}
   purchaseList: []
-  _meshRenderer: {fileID: 0}
+  _meshRenderer: {fileID: 49986327666809456}
   fillBg: {fileID: 3472017124903668141}
   fill: {fileID: 7837891187513718572}
 --- !u!1 &3472017124903668141
@@ -334,7 +335,7 @@ Transform:
   m_GameObject: {fileID: 3472017124903668141}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.086, y: 2.099, z: 0}
+  m_LocalPosition: {x: -0.086, y: 2.24, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 0.6342}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -405,6 +406,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a5a0dc5d6e43cb4dbd1c7332b86cdde, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fillImage: {fileID: 0}
   productionText: {fileID: 0}
   container: {fileID: 0}
 --- !u!1 &6201495511144131038

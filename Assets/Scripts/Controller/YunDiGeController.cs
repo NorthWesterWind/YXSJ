@@ -12,6 +12,7 @@ namespace Controller
         public List<FreightClerkController> freightClerkList = new();
         public Transform bornTransform;
         public BuildingType buildingType;
+        public MeshRenderer renderer;
 
         protected override void Start()
         {
@@ -22,15 +23,19 @@ namespace Controller
         }
         void OnDisable()
         {
-            EventCenter.Instance.RemoveListener(EventMessages.UpdateSturctureLockInfo, Init);   
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateSturctureLockInfo, Init);
         }
 
         public void Init(params object[] args)
         {
+            if (GameController.Instance.unlockedBuildingTypes.Contains(buildingType))
+            {
+                return;
+            }
             var playerData = PlayerDataModule.Instance.data;
             var lockData = GetLockData(playerData.currentMapID);
             var state = GetStructureState(playerData, lockData);
-            for(int i = freightClerkList.Count; i >0; i++)
+            for (int i = freightClerkList.Count; i > 0; i++)
             {
                 Destroy(freightClerkList[i - 1].gameObject);
                 freightClerkList.RemoveAt(i - 1);
@@ -57,8 +62,9 @@ namespace Controller
         private void ShowContent()
         {
             content.SetActive(true);
+            renderer.sortingOrder = sprite.sortingOrder + 1;
             structureLock.gameObject.SetActive(false);
-           
+            GameController.Instance.unlockedBuildingTypes.Add(buildingType);
         }
 
         public StructureLockData GetLockData(int mapId)
@@ -88,11 +94,11 @@ namespace Controller
         public void UpdateYunDiZheInfo(params object[] args)
         {
             PlayerData playerData = PlayerDataModule.Instance.data;
-            if(playerData.deliverData.workingNum > freightClerkList.Count)
+            if (playerData.deliverData.workingNum > freightClerkList.Count)
             {
                 for (int i = freightClerkList.Count; i < playerData.deliverData.workingNum; i++)
                 {
-                    FreightClerkController freightClerk = Instantiate( _assetHandle.Get<GameObject>("FreightClerk"),  bornTransform ,false).GetComponent<FreightClerkController>();
+                    FreightClerkController freightClerk = Instantiate(_assetHandle.Get<GameObject>("FreightClerk"), bornTransform, false).GetComponent<FreightClerkController>();
                     freightClerk.Init();
                     freightClerkList.Add(freightClerk);
                 }
@@ -103,8 +109,8 @@ namespace Controller
         public override void AddEvent()
         {
             base.AddEvent();
-            EventCenter.Instance.AddListener(EventMessages.UpdateYunDiZheInfo , UpdateYunDiZheInfo);
-            
+            EventCenter.Instance.AddListener(EventMessages.UpdateYunDiZheInfo, UpdateYunDiZheInfo);
+
 
 
         }
@@ -112,7 +118,7 @@ namespace Controller
 
         void Update()
         {
-            
+
         }
     }
 }

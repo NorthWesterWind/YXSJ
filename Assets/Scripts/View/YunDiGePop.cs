@@ -112,8 +112,8 @@ public class YunDiGePop : BaseView
             cardLeveltxt.text = cardprogress.level.ToString();
             fillContent.SetActive(true);
             lockObj.SetActive(false);
-            cardfilltxt.text = cardprogress.currentNum + "/" + WorldData.cardUpLevelArr[cardprogress.level + 1];
-            fillImage.fillAmount = cardprogress.currentNum * 1f / WorldData.cardUpLevelArr[cardprogress.level + 1];
+            cardfilltxt.text = cardprogress.currentNum + "/" + WorldData.cardUpLevelArr[cardprogress.level - 1];
+            fillImage.fillAmount = cardprogress.currentNum * 1f / WorldData.cardUpLevelArr[cardprogress.level - 1];
 
             if (cardprogress.level < 5)
             {
@@ -173,8 +173,9 @@ public class YunDiGePop : BaseView
             {
                 nextspeedtxt.text = (deliverData.currentMoveSpeed + 0.5).ToString();
             }
-            EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask , BuildingType.YunDiGe);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask, BuildingType.YunDiGe);
             UIController.Instance.Show<TipView>("升级成功。");
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
         }
     }
     private void OnClickUpgradePeopleBtn()
@@ -183,13 +184,13 @@ public class YunDiGePop : BaseView
         {
             UIController.Instance.Show<TipView>("等级已满。");
         }
-        if (PlayerDataModule.Instance.data.tongbi < deliverData.speedLevel * 20000)
+        if (PlayerDataModule.Instance.data.tongbi < deliverData.peopleLevel * 20000)
         {
             UIController.Instance.Show<TipView>("铜币数量不足。");
         }
         else
         {
-            PlayerDataModule.Instance.data.tongbi -= deliverData.speedLevel * 20000;
+            PlayerDataModule.Instance.data.tongbi -= deliverData.peopleLevel * 20000;
             deliverData.peopleLevel += 1;
             deliverData.totalNum += 1;
             peopleLeveltxt.text = deliverData.peopleLevel + "级";
@@ -207,6 +208,7 @@ public class YunDiGePop : BaseView
             }
 
             UIController.Instance.Show<TipView>("升级成功。");
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
         }
     }
 

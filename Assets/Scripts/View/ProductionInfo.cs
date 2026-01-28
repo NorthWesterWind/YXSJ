@@ -18,12 +18,10 @@ namespace View
 
         private Coroutine loopRoutine;
 
-        private float baseTime;
         public ProductionStation container;
 
-        public void Init(float baseTime, int currentMaterialCount, StructureBase structureBase)
+        public void Init(int currentMaterialCount, StructureBase structureBase)
         {
-            this.baseTime = baseTime;
             productionText.text = currentMaterialCount.ToString();
             // 生产循环不在 Init 自动开始（由 StartProductionLoop 控制）
             if (loopRoutine != null)
@@ -69,11 +67,8 @@ namespace View
         }
 
         public void StartProductionLoop(ProductionStation container,
-            BuildingType type,
-            float baseTime)
+            BuildingType type)
         {
-            this.baseTime = baseTime;
-
             if (loopRoutine != null)
                 return;
 
@@ -99,11 +94,13 @@ namespace View
         {
             float t = 0f;
             float productionTime;
-            if(PlayerDataModule.Instance.data.speedTime > 0)
+
+            int timelevel = PlayerDataModule.Instance.data.ProductStationDataList.Find(x => x.buildingType == type).timelevel;
+            productionTime = WorldData.productStationWorkingTimeDic[timelevel];
+            if (PlayerDataModule.Instance.data.speedTime > 0)
             {
                 productionTime = 0.1f;
             }
-            productionTime = baseTime ;
             fillImage.fillAmount = 0;
             while (t < productionTime)
             {

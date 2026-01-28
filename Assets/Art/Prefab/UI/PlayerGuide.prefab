@@ -419,6 +419,8 @@ GameObject:
   - component: {fileID: 508812689204387259}
   - component: {fileID: 6751628248152564285}
   - component: {fileID: 4613387213195122244}
+  - component: {fileID: -1006762307400353781}
+  - component: {fileID: 1534149309892563546}
   m_Layer: 5
   m_Name: PlayerGuide
   m_TagString: Untagged
@@ -519,7 +521,7 @@ MonoBehaviour:
   _hideAnimationTime: 0.2
   _closeBackground: {fileID: 0}
   _isPopup: 1
-  _content: {fileID: 4998924107805614372}
+  _content: {fileID: 0}
   _enablePopupScale: 1
   _popupScaleCurve:
     serializedVersion: 2
@@ -569,6 +571,46 @@ MonoBehaviour:
   verticalLayoutGroup1: {fileID: 6118505323834763141}
   verticalLayoutGroup2: {fileID: 4416683149372038550}
   currentIndex: 0
+--- !u!223 &-1006762307400353781
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2653356475002494611}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 0
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 1
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 32767
+  m_TargetDisplay: 0
+--- !u!114 &1534149309892563546
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2653356475002494611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4095
 --- !u!1 &3154465585822559706
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Cinemachine;
@@ -6,7 +7,6 @@ using Controller.Structure;
 using Module;
 using Module.Data;
 using Sirenix.OdinInspector;
-using Spine;
 using Spine.Unity;
 using UnityEngine;
 using Utils;
@@ -47,7 +47,6 @@ namespace Controller.Player
         public float maxHp;
         public float maxCarryNum;
         public float currentPinkUpRange;
-        float velocity = 0f;
         public bool isDead = false;
 
         private AssetHandle _assetHandle;
@@ -57,9 +56,9 @@ namespace Controller.Player
 
         /// <summary>
         /// 角色是否处于交互范围内（解锁）
-        /// </summary>
-        public bool InteractionTriggerInRange = false;
-        public Transform InteractionTriggerTransform;
+        // /// </summary>
+        // public bool InteractionTriggerInRange = false;
+        // public Transform InteractionTriggerTransform;
 
         public Transform weaponRoot;
         public float speed;
@@ -67,6 +66,8 @@ namespace Controller.Player
         [SerializeField] private float radiusZ = 0.55f;  // 前后景深（决定遮挡感）
         [SerializeField] private float minScale = 0.85f; // 在身后时的最小缩放
         [SerializeField] private float maxScale = 1.15f; // 在身前时的最大缩放s
+
+        public bool InRange;
 
         private void Awake()
         {
@@ -136,6 +137,7 @@ namespace Controller.Player
             }
             currentCarryNum = 0;
             currentHp = dataModule.data.hp;
+            maxHp= dataModule.data.hp;
             maxCarryNum = dataModule.data.bagCapacity;
             currentPinkUpRange = dataModule.data.pickUpRange;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
@@ -224,26 +226,6 @@ namespace Controller.Player
             CheckProduct();
             CheckSaleStall();
 
-
-            if (PlayerDataModule.Instance.data.tongbi >= 100)
-            {
-                if (InteractionTriggerInRange && !isMoving)
-                {
-                    if (coroutine == null)
-                    {
-                        coroutine = StartCoroutine(ThrowOutTongBi());
-                    }
-                }
-                else
-                {
-                    if (coroutine != null)
-                    {
-                        StopCoroutine(coroutine);
-                        coroutine = null;
-                    }
-                }
-            }
-
             if (weapon.gameObject.activeSelf)
             {
                 weaponRoot.Rotate(0f, 0f, -speed * Time.deltaTime);
@@ -270,27 +252,55 @@ namespace Controller.Player
 
 
         }
-        private Coroutine coroutine;
-        private IEnumerator ThrowOutTongBi()
+        public bool CanThrowTongBi()
         {
-            Debug.Log("投掷铜币");
-            GameObject coinObj = GameObject.Instantiate(_assetHandle.Get<GameObject>("Production"));
-            coinObj.transform.position = receiveTransform.position;
+            return PlayerDataModule.Instance.data.tongbi >= 100 && InRange;
+        }
+
+        public void ThrowOutTongBi(Transform target)
+        {
+            Debug.Log(" yj = > 判断投掷铜币");
+
+            if (CanThrowTongBi())
+            {
+                Debug.Log(" yj = > 判断通过");
+                StartCoroutine(ThrowOutTongBiCoroutine(target));
+            }
+
+        }
+
+        private IEnumerator ThrowOutTongBiCoroutine(Transform target)
+        {
+            Debug.Log("yj = >投掷铜币");
+
+            GameObject coinObj = Instantiate(
+                _assetHandle.Get<GameObject>("Production"),
+                receiveTransform.position,
+                Quaternion.identity
+            );
+
             var coinCtrl = coinObj.GetComponent<Production>();
             coinCtrl.Init(GoodsType.TongBi, 100);
             coinCtrl.spriteRenderer.sortingOrder = renderer.sortingOrder + 2;
-            PlayerDataModule.Instance.data.tongbi -= 100;
+
+
+
             coinCtrl.FlyTo(
-               InteractionTriggerTransform.position,
+                target.position,
                 () =>
                 {
-                    EventCenter.Instance.TriggerEvent(EventMessages.ThrowOutTongBi, InteractionTriggerTransform);
+                    EventCenter.Instance.TriggerEvent(
+                        EventMessages.ThrowOutTongBi,
+                        target
+                    );
                     Destroy(coinObj);
+                    PlayerDataModule.Instance.data.tongbi -= 100;
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                 }
             );
+
             yield return new WaitForSeconds(0.5f);
         }
-
 
 
         // public void ThrowOutTongBi()
@@ -460,7 +470,7 @@ namespace Controller.Player
                     data.Key == BuildingType.YuShaHu_4 || data.Key == BuildingType.LianQiLu_2 ||
                     data.Key == BuildingType.LianQiLu_3)
                 {
-                    if ((data.Value.gameObject.transform.position - transform.position).sqrMagnitude < 8)
+                    if ((data.Value.gameObject.transform.position - transform.position).sqrMagnitude < 10)
                     {
                         var station = data.Value as ProductionStation;
                         if (station == null) continue;
@@ -510,7 +520,7 @@ namespace Controller.Player
                     break;
                 }
 
-                GameObject drop = ObjectPoolManager.Instance.GetObject("DropObj");
+                GameObject drop = Instantiate(_assetHandle.Get<GameObject>("DropObj"));
                 var dropCtrl = drop.GetComponent<DropController>();
                 dropCtrl.canPickup = false;
                 dropCtrl.Init(station.dropItemType);
@@ -538,7 +548,7 @@ namespace Controller.Player
                 drop.transform.position = target;
 
                 station.AddMaterial(1);
-                ObjectPoolManager.Instance.ReturnObject("DropObj", drop);
+                Destroy(drop);
 
                 // 递减材料计数
                 dropDic[station.dropItemType]--;
@@ -616,7 +626,7 @@ namespace Controller.Player
             }
         }
 
-     
+
         private InteractionController currentInteraction;
         private InteractionTrigger currentInteractionTrigger;
         private Coroutine stayCoroutine;
@@ -629,7 +639,7 @@ namespace Controller.Player
 
             currentInteraction = interaction;
             currentInteractionTrigger = interactionTrigger;
-             currentInteractionTrigger.TriggerEnter();
+            currentInteractionTrigger.TriggerEnter();
             if (stayCoroutine == null)
             {
                 stayCoroutine = StartCoroutine(StayCheck());
@@ -853,9 +863,9 @@ namespace Controller.Player
                         dropDic[itemType]++;
                     }
                     break;
-                // case DropItemType.JingYunBao:
-                //     dataModule.AddJinYuanBao(10);
-                //     break;
+                case DropItemType.JingYuanBao:
+                    dataModule.AddJinYuanBao(50);
+                    break;
                 case DropItemType.YingQian:
                     dataModule.AddYinQian(100);
                     break;
@@ -893,8 +903,9 @@ namespace Controller.Player
 
         public void HandleTakeDamage(params object[] args)
         {
-            float value = (float)args[0];
+            float value = Convert.ToSingle(args[0]);
             TakeDamage(value);
+
         }
 
         public void HandleFocusNew(params object[] args)
@@ -924,14 +935,24 @@ namespace Controller.Player
             StartCoroutine(InvincibleFrame());
 
             currentHp -= damage;
+            playerInfo.ShowHpInfo();
+            playerInfo.UpdateFill(currentHp / dataModule.data.hp);
             if (currentHp <= 0)
             {
                 DoDie();
             }
+
+            
         }
 
         public void DoDie()
         {
+            transform.position = GameController.Instance.RespawnPoint.transform.position;
+            currentHp = dataModule.data.hp;
+            playerInfo.ShowHpInfo();
+            playerInfo.UpdateFill(currentHp / dataModule.data.hp);
+            goodsDic.Clear();
+            dropDic.Clear();
         }
 
         private IEnumerator InvincibleFrame()

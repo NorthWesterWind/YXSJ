@@ -17,7 +17,6 @@ namespace Controller
         public List<int> customerTypeList = new();
         public float spawnTime;
 
-        private Dictionary<StructureBase, int> placeCustomerCount = new();
         private const int MaxCustomerPerPlace = 5;
         private Coroutine createCustomerCoroutine;
 
@@ -25,14 +24,11 @@ namespace Controller
         {
             Debug.Log($"CustomerFactory OnEnable: {GetInstanceID()}");
             EventCenter.Instance.AddListener(EventMessages.MapDataPrepared, HandleCustomerCreat);
-            EventCenter.Instance.AddListener(EventMessages.CustomerLeave, OnCustomerLeft);
         }
 
         private void OnDisable()
         {
             EventCenter.Instance.RemoveListener(EventMessages.MapDataPrepared, HandleCustomerCreat);
-            EventCenter.Instance.RemoveListener(EventMessages.CustomerLeave, OnCustomerLeft);
-
             if (createCustomerCoroutine != null)
             {
                 StopCoroutine(createCustomerCoroutine);
@@ -116,10 +112,7 @@ namespace Controller
                                     return false;
                                 break;
                         }
-                        if (!placeCustomerCount.ContainsKey(pair.Value))
-                            return true;
-
-                        return placeCustomerCount[pair.Value] < MaxCustomerPerPlace;
+                        return true;
                     })
                     .ToList();
 
@@ -146,15 +139,13 @@ namespace Controller
                 GameObject obj = Instantiate(_assetHandle.Get<GameObject>(Extensions.GetCustomerResNameByType(tempData.type)));
 
                 obj.transform.position = GetRandomPosition();
+
                 obj.GetComponent<CustomerController>().Init(tempData, goodsType, structure);
-
-                // 记录该地点顾客数量+1
-                if (!placeCustomerCount.ContainsKey(structure))
-                    placeCustomerCount[structure] = 0;
-
-                placeCustomerCount[structure]++;
-
+                yield return null;
+                Debug.Log($"生成顾客：{obj.name},目标结构：{structure.name}, 目标位置：{obj.GetComponent<CustomerController>().nextPosition}");
+               
                 yield return new WaitForSeconds(spawnTime);
+
             }
         }
 
@@ -162,50 +153,11 @@ namespace Controller
         private Vector3 GetRandomPosition()
         {
             Vector3 position = transform.position;
-            position.x += Random.Range(-5f, 5f);
+            position.x += Random.Range(-3f, 3f);
             return position;
         }
 
 
-        /// <summary>
-        /// 是否还能向该地点派遣顾客
-        /// </summary>
-        public bool CanDispatchCustomer(StructureBase place)
-        {
-            if (place == null)
-                return false;
 
-            if (!placeCustomerCount.ContainsKey(place))
-                placeCustomerCount[place] = 0;
-
-            return placeCustomerCount[place] < MaxCustomerPerPlace;
-        }
-
-
-        /// <summary>
-        /// 外部通知：某个地点顾客离开了（-1）
-        /// </summary>
-        public void OnCustomerLeft(params object[] args)
-        {
-            StructureBase place = (StructureBase)args[0];
-            if (place == null)
-                return;
-
-            if (!placeCustomerCount.ContainsKey(place))
-                return;
-
-            placeCustomerCount[place] = Mathf.Max(0, placeCustomerCount[place] - 1);
-        }
-
-        /// <summary>
-        /// （可选）获取当前可派遣顾客的所有地点
-        /// </summary>
-        public List<StructureBase> GetAvailablePlaces()
-        {
-            return GameController.Instance.goodBuild
-                .Select(kv => kv.Value)
-                .Where(CanDispatchCustomer)
-                .ToList();
-        }
     }
 }

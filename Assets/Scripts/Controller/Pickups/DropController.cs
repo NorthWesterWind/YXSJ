@@ -23,10 +23,15 @@ namespace Controller.Pickups
             _onArrive = null;
             ScenePickupController.Instance.materials.Add(this);
             spriteRenderer.sprite = _assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType(type));
-
-
         }
-       
+        void OnDestroy()
+        {
+            if (ScenePickupController.Instance.materials.Contains(this))
+            {
+                ScenePickupController.Instance.materials.Remove(this);
+            }
+        }
+
 
         /// <summary>
         /// 对外唯一入口：让物品飞向目标

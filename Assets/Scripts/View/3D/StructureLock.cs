@@ -143,8 +143,9 @@ public class StructureLock : MonoBehaviour
         if (!canUnlock)
             return;
         if (!other.CompareTag("Player")) return;
-        Debug.Log("进入建筑解锁范围");
+        Debug.Log("yj = >进入建筑解锁范围");
         playerInRange = true;
+        player.InRange = true;
         player = other.GetComponent<PlayerController>();
         OnEnter();
 
@@ -158,8 +159,7 @@ public class StructureLock : MonoBehaviour
         if (!other.CompareTag("Player")) return;
         Debug.Log("离开建筑解锁范围");
         playerInRange = false;
-        player.InteractionTriggerInRange = false;
-        player.InteractionTriggerTransform = null;
+        player.InRange = false;
         player = null;
         OnExit();
 
@@ -190,7 +190,6 @@ public class StructureLock : MonoBehaviour
 
     public void OnExit()
     {
-
         PlayerData playerData = PlayerDataModule.Instance.data;
         StructureLockProgressData progressData = playerData.structureLockProgressDataList.Find(s => s.buildType == buildType && s.mapId == playerData.currentMapID);
         if (progressData != null)
@@ -203,8 +202,8 @@ public class StructureLock : MonoBehaviour
 
     public void OnEnter()
     {
-        player.InteractionTriggerInRange = true;
-        player.InteractionTriggerTransform = receiveTransform;
+        if (player!= null)
+            player.ThrowOutTongBi(receiveTransform);
     }
 
 
@@ -216,6 +215,11 @@ public class StructureLock : MonoBehaviour
         if (percent >= 1f && isLocked)
         {
             Unlock();
+        }
+        else
+        {
+            if (player!= null)
+                player.ThrowOutTongBi(receiveTransform);
         }
     }
 
@@ -238,12 +242,6 @@ public class StructureLock : MonoBehaviour
             data.isUnlock = true;
             data.currentOwnMoney = _data.needMoney;
         }
-        if (player.InteractionTriggerTransform == receiveTransform)
-        {
-            player.InteractionTriggerInRange = false;
-            player.InteractionTriggerTransform = null;
-        }
-
         PlayerDataModule.Instance.data.structCanUnLockDataDic[PlayerDataModule.Instance.data.currentMapID]
             .Remove(data.buildType);
         PlayerDataModule.Instance.data.structUnLockDataDic[PlayerDataModule.Instance.data.currentMapID].Add(data.buildType);

@@ -68,7 +68,7 @@ namespace Controller
         private float _damageInterval = 0.2f;
         private float _lastHitTime = -999f;
 
-        private float detectRadius = 8;
+        private float detectRadius = 5;
         private float lastHitTime;
         private float hitInterval = 3;
         private float deadtime;
@@ -384,8 +384,19 @@ namespace Controller
 
                 agent.Stop(); // 立即停止移动
                 InAtking = true;
-                chargeCoroutine = StartCoroutine(GiantChargeSequence(playerTransform.position));
 
+                // 初步目标点
+                Vector2 targetPoint = (Vector2)playerTransform.position;
+
+                // 矩形限制
+                float halfWidth = patrolSize.x / 2f;
+                float halfHeight = patrolSize.y / 2f;
+                Vector2 clamped;
+                clamped.x = Mathf.Clamp(targetPoint.x, patrolCenter.x - halfWidth, patrolCenter.x + halfWidth);
+                clamped.y = Mathf.Clamp(targetPoint.y, patrolCenter.y - halfHeight, patrolCenter.y + halfHeight);
+                // 设置导航目标
+                agent.SetDestination(clamped);
+                chargeCoroutine = StartCoroutine(GiantChargeSequence(clamped));
             }
             else
             {
@@ -414,7 +425,7 @@ namespace Controller
             agent.Stop();
             Vector2 dir = targetPos - (Vector2)indicatorParent.transform.position;
             indicatorParent.transform.right = dir;
-
+            skeletonAnimation.skeleton.ScaleX = dir.x < 0 ? -1 : 1;
             // 冲撞阶段
             // --- 冲撞准备阶段 ---
             state = MonsterState.ChargeWait;
@@ -431,7 +442,7 @@ namespace Controller
 
             float startTime = Time.time;
             float maxChargeTime = 1f;
-            while (!hasHitPlayer && Vector2.Distance(transform.position, targetPos) > 0.5f &&
+            while (!hasHitPlayer &&
                    Time.time - startTime < maxChargeTime)
             {
                 yield return null;
@@ -443,7 +454,7 @@ namespace Controller
             // --- 冲撞停顿阶段 ---
             state = MonsterState.ChargeCooldown;
             agent.Stop();
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(1.5f);
             agent.avoidRadius = 0.6f; // 禁用避障
             // 回到巡逻/闲置
             ChangeState(MonsterState.Patrol);

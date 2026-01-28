@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Controller;
+using Unity.VisualScripting;
 using UnityEngine;
 using Utils;
 
@@ -100,6 +101,9 @@ namespace Module.Data
         public int taskPopCompleted = 0; //任务弹窗中用于记录获取的金芒珠 用于宝箱领取
         public string FanPingBaoXiaoTime;
         public string LingShunLingTime;
+
+        public string GetLingJingTime;
+        public int GetLingJingCount = 50;
 
         public List<int> sevenDayRecordList = new List<int>();
         public string sevenDayRecordTime;

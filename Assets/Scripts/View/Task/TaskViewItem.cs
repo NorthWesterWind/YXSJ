@@ -27,12 +27,15 @@ namespace View.Task
         public TextMeshProUGUI TongBiTxt;
         public GameObject JingYuanBaoObj;
         public TextMeshProUGUI JingYuanBaoTxt;
+        public UIButton testBtn;
         void Start()
         {
             btn.onClick.RemoveAllListeners();
             btn.onClick.AddListener(OnClickTask);
             _assetHandle = GetComponent<AssetHandle>();
 
+            // testBtn.onClick.RemoveAllListeners();
+            // testBtn.onClick.AddListener(OnClickTest);
         }
         void OnEnable()
         {
@@ -68,9 +71,9 @@ namespace View.Task
                 }
                 list.Add(data.taskId);
                 PlayerDataModule.Instance.GetTaskReward(data.rewardId);
-                HandleUpdateTaskInfo();
-                EventCenter.Instance.TriggerEvent(EventMessages.HasTaskComplete , data);
+                HandleUpdateTaskInfo(data.taskId);
                 
+                EventCenter.Instance.TriggerEvent(EventMessages.HasTaskComplete , data);
             }
 
             // else
@@ -79,6 +82,10 @@ namespace View.Task
             //     EventCenter.Instance.TriggerEvent(EventMessages.TriggerSearch);
             // }
 
+        }
+        public void OnClickTest()
+        {
+            
         }
 
         public void Init(TaskData taskData)
@@ -129,7 +136,7 @@ namespace View.Task
             {
                 isCompleted = true;
 
-                progresstxt.text = "(" + data.keyValue + "/" + data.keyValue + ")";
+                progresstxt.text = "(" + (int)data.keyValue + "/" + data.keyValue + ")";
                 btntxt.text = "已完成";
             }
             else if (PlayerDataModule.Instance.data.taskProgressDic.ContainsKey(data.taskId))
@@ -138,13 +145,13 @@ namespace View.Task
                 {
                     canGetReward = true;
                     btntxt.text = "领取";
-                    progresstxt.text = "(" + data.keyValue + "/" + data.keyValue + ")";
+                    progresstxt.text = "(" + (int)data.keyValue + "/" + data.keyValue + ")";
                 }
                 else
                 {
                     canGetReward = false;
                     btntxt.text = "进行中";
-                    progresstxt.text = "(" + PlayerDataModule.Instance.data.taskProgressDic[data.taskId] + "/" + data.keyValue + ")";
+                    progresstxt.text = "(" + (int)PlayerDataModule.Instance.data.taskProgressDic[data.taskId] + "/" + data.keyValue + ")";
                 }
             }
             else
@@ -195,7 +202,7 @@ namespace View.Task
             {
                 isCompleted = true;
 
-                progresstxt.text = "(" + data.keyValue + "/" + data.keyValue + ")";
+                progresstxt.text = "(" + (int)data.keyValue + "/" + data.keyValue + ")";
                 btntxt.text = "已完成";
             }
             else if (PlayerDataModule.Instance.data.taskProgressDic.ContainsKey(data.taskId))
@@ -204,19 +211,19 @@ namespace View.Task
                 {
                     canGetReward = true;
                     btntxt.text = "领取";
-                    progresstxt.text = "(" + data.keyValue + "/" + data.keyValue + ")";
+                    progresstxt.text = "(" + (int)data.keyValue + "/" + data.keyValue + ")";
                 }
                 else
                 {
                     canGetReward = false;
                     btntxt.text = "进行中";
-                    progresstxt.text = "(" + PlayerDataModule.Instance.data.taskProgressDic[data.taskId] + "/" + data.keyValue + ")";
+                    progresstxt.text = "(" + (int)PlayerDataModule.Instance.data.taskProgressDic[data.taskId] + "/" + data.keyValue + ")";
                 }
             }
             else
             {
                 btntxt.text = "进行中";
-                progresstxt.text = "(0/" + data.keyValue + ")";
+                progresstxt.text = "(0/" + (int)data.keyValue + ")";
             }
         }
     }

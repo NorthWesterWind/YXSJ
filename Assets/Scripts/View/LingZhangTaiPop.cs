@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Controller;
@@ -13,7 +14,7 @@ using View.CardView;
 
 public class LingZhangTaiPop : BaseView
 {
-   
+
     public RectTransform contentRect;
     public UIButton closeBtn;
     public TextMeshProUGUI workspeedtxt;
@@ -106,20 +107,20 @@ public class LingZhangTaiPop : BaseView
                 cardmasktxt.text = cardLevelData.unlockLevel.ToString();
             }
             btnMask_2.SetActive(true);
-            btnMaskTxt_2.text = "需要达到2级";
+            btnMaskTxt_2.text = "需要2级";
         }
         else
         {
             cardLeveltxt.text = cardprogress.level.ToString();
             fillContent.SetActive(true);
             lockObj.SetActive(false);
-            cardfilltxt.text = cardprogress.currentNum + "/" + WorldData.cardUpLevelArr[cardprogress.level + 1];
-            fillImage.fillAmount = cardprogress.currentNum * 1f / WorldData.cardUpLevelArr[cardprogress.level + 1];
+            cardfilltxt.text = cardprogress.currentNum + "/" + WorldData.cardUpLevelArr[cardprogress.level - 1];
+            fillImage.fillAmount = cardprogress.currentNum * 1f / WorldData.cardUpLevelArr[cardprogress.level - 1];
 
             if (cardprogress.level < 2)
             {
                 btnMask_2.SetActive(true);
-                btnMaskTxt_2.text = "需要达到2级";
+                btnMaskTxt_2.text = "需要2级";
             }
             else
             {
@@ -161,8 +162,9 @@ public class LingZhangTaiPop : BaseView
             PlayerDataModule.Instance.data.tongbi -= cashierData.workspeedLevel * 1000;
             cashierData.workspeedLevel += 1;
             cashierData.currentWorkingSpeed -= 0.05f;
-            workspeedLeveltxt.text =  cashierData.workspeedLevel + "级";
-            workspeedtxt.text =  cashierData.currentWorkingSpeed.ToString();
+            cashierData.currentWorkingSpeed = (float)Math.Round(cashierData.currentWorkingSpeed, 2);
+            workspeedLeveltxt.text = cashierData.workspeedLevel + "级";
+            workspeedtxt.text = cashierData.currentWorkingSpeed.ToString();
             currentworkspeedtxt.text = cashierData.currentWorkingSpeed.ToString();
             if (cashierData.workspeedLevel == cashierData.maxworkspeedLevel)
             {
@@ -172,11 +174,13 @@ public class LingZhangTaiPop : BaseView
             }
             else
             {
-                 nextworkspeedtxt.text = (cashierData.currentWorkingSpeed - 0.05f).ToString();
+                nextworkspeedtxt.text = (cashierData.currentWorkingSpeed - 0.05f).ToString();
             }
 
             UIController.Instance.Show<TipView>("升级成功。");
-            EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask , BuildingType.LingZhangTai);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask, BuildingType.LingZhangTai);
+
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
         }
     }
     private void OnClickUpgradePeopleBtn()
@@ -209,6 +213,7 @@ public class LingZhangTaiPop : BaseView
             }
 
             UIController.Instance.Show<TipView>("升级成功。");
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
         }
     }
 

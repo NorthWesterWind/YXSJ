@@ -1,10 +1,8 @@
 using System.Collections.Generic;
-using System.Linq;
 using Controller;
 using Module;
 using Module.Data;
 using TMPro;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
@@ -34,13 +32,14 @@ namespace View.PlayerInfo
             EventCenter.Instance.AddListener(EventMessages.UpdateTaskMainView, HandleUpdateTaskMainView);
             EventCenter.Instance.AddListener(EventMessages.MapTaskDataPrepared, HandleUpdateTaskMainView);
             EventCenter.Instance.AddListener(EventMessages.HidePlayerGuide, HidePlayerGuide);
+
         }
 
         private void OnDestroy()
         {
             EventCenter.Instance.RemoveListener(EventMessages.UpdateTaskMainView, HandleUpdateTaskMainView);
             EventCenter.Instance.RemoveListener(EventMessages.MapTaskDataPrepared, HandleUpdateTaskMainView);
-             EventCenter.Instance.RemoveListener(EventMessages.HidePlayerGuide, HidePlayerGuide);
+            EventCenter.Instance.RemoveListener(EventMessages.HidePlayerGuide, HidePlayerGuide);
         }
 
         #region 事件监听
@@ -58,15 +57,29 @@ namespace View.PlayerInfo
                 PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
                 PlayerDataModule.Instance.FillStructureLockProgressData();
             }
-            List<TaskData> dataList =  PlayerDataModule.Instance.data.listenInTaskList;
-             TaskData task = null;
-            if(PlayerDataModule.Instance.data.nowTaskId == 0)
+            List<TaskData> dataList = PlayerDataModule.Instance.data.listenInTaskList;
+
+            foreach (var data in dataList)
+            {
+                if (data.type == TaskType.Construct)
+                {
+                    if (PlayerDataModule.Instance.data.structureLockProgressDataList.Find(x => x.buildType == (BuildingType)data.aimId) != null)
+                    {
+                        if (PlayerDataModule.Instance.data.structureLockProgressDataList.Find(x => x.buildType == (BuildingType)data.aimId).isUnlock)
+                        {
+                            PlayerDataModule.Instance.data.taskProgressDic[data.taskId] = 1;
+                        }
+                    }
+                }
+            }
+            TaskData task = null;
+            if (PlayerDataModule.Instance.data.nowTaskId == 0)
             {
                 foreach (var item in PlayerDataModule.Instance.data.listenInTaskList)
                 {
                     if (PlayerDataModule.Instance.data.taskProgressDic.ContainsKey(item.taskId))
                     {
-                        if(PlayerDataModule.Instance.data.taskProgressDic[item.taskId] < item.keyValue)
+                        if (PlayerDataModule.Instance.data.taskProgressDic[item.taskId] < item.keyValue)
                         {
                             PlayerDataModule.Instance.data.nowTaskId = item.taskId;
                             task = item;
@@ -86,7 +99,7 @@ namespace View.PlayerInfo
             {
                 task = dataList.Find(x => x.taskId == PlayerDataModule.Instance.data.nowTaskId);
             }
-         
+
 
             if (task != null)
             {
@@ -94,7 +107,17 @@ namespace View.PlayerInfo
                 if (PlayerDataModule.Instance.data.taskProgressDic.ContainsKey(task.taskId))
                 {
                     //有进度
-                    taskProgressTxt.text = "(" + PlayerDataModule.Instance.data.taskProgressDic.ContainsKey(task.taskId) + "/" + task.keyValue + ")";
+
+
+                    if (PlayerDataModule.Instance.data.taskProgressDic[task.taskId] >= task.keyValue)
+                    {
+                        //完成
+                        taskProgressTxt.text = "可领取";
+                    }
+                    else
+                    {
+                        taskProgressTxt.text = "(" + PlayerDataModule.Instance.data.taskProgressDic[task.taskId] + "/" + task.keyValue + ")";
+                    }
                 }
                 else
                 {
@@ -104,12 +127,10 @@ namespace View.PlayerInfo
                 if (task.type == TaskType.Upgrade || task.type == TaskType.Construct)
                 {
                     iconImage.rectTransform.sizeDelta = new Vector2(160, 160);
-                    //iconImage.rectTransform.position = new Vector3(23, 0, 0);
                 }
                 else
                 {
                     iconImage.rectTransform.sizeDelta = new Vector2(130, 130);
-                    //iconImage.rectTransform.position = new Vector3(32, 0, 0);
                 }
             }
         }

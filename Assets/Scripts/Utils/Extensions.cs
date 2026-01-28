@@ -348,6 +348,9 @@ namespace Utils
 				case DropItemType.JingYuanBao:
 					resName = "JingYuanBao";
 					break;
+				case DropItemType.YingQian:
+					resName = "TongBi";
+					break;
 			}
 			return resName;
 		}

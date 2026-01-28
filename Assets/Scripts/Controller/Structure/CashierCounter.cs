@@ -20,8 +20,7 @@ namespace Controller.Structure
         public GameObject content_2;
         public Transform exportTransform;
         public Transform exportTransform2;
-        public Queue<CustomerController> customerQueue = new();
-        private float baseTime;
+        public List<CustomerController> customerList = new();
         public float speed = 1f;
 
         public Transform receiveTransform;
@@ -50,12 +49,12 @@ namespace Controller.Structure
         public MeshRenderer meshRenderer_1;
         public SpriteRenderer speedPoint_2;
         public SpriteRenderer orderPoint;
-         public MeshRenderer meshRenderer_2;
+        public MeshRenderer meshRenderer_2;
         public SpriteRenderer uiPoint_2;
-         public MeshRenderer meshRenderer_3;
+        public MeshRenderer meshRenderer_3;
 
         [SerializeField] private int maxWaiters; // 最多服务员
-        private int workingWaiters = 0;              // 当前忙的服务员数
+        public int workingWaiters = 0;              // 当前忙的服务员数
         protected override void Start()
         {
             base.Start();
@@ -78,7 +77,8 @@ namespace Controller.Structure
         }
         void Update()
         {
-            if (customerQueue.Count > 0)
+            Debug.LogError($"CashierCounter customerQueue.Count = {customerList.Count}");
+            if (customerList.Count > 0)
             {
                 var currentAnimation1 = skeletonAnimation1.AnimationState.GetCurrent(0);
 
@@ -161,18 +161,18 @@ namespace Controller.Structure
         {
             try
             {
-                Debug.LogError("Init begin");
+                //   Debug.LogError("Init begin");
 
                 var playerData = PlayerDataModule.Instance?.data;
                 lockData = GetLockData(playerData.currentMapID);
                 lockstate = GetStructureState(playerData, lockData);
                 RefreshView(lockstate, lockData);
 
-                Debug.LogError("Init end");
+                // Debug.LogError("Init end");
             }
             catch (System.Exception e)
             {
-                Debug.LogError("Init EXCEPTION !!!");
+                //  Debug.LogError("Init EXCEPTION !!!");
                 Debug.LogException(e);
             }
         }
@@ -209,6 +209,10 @@ namespace Controller.Structure
                     break;
 
                 case StructureState.Unlocked:
+                    if (GameController.Instance.unlockedBuildingTypes.Contains(structureType))
+                    {
+                        return;
+                    }
                     content.SetActive(true);
                     if (PlayerDataModule.Instance.data.ordenFunction == 1)
                     {
@@ -219,8 +223,8 @@ namespace Controller.Structure
                         ShowContent_1();
                     }
                     PlayerData playerData = PlayerDataModule.Instance.data;
-                    baseTime = playerData.cashierData.currentWorkingSpeed;
                     maxWaiters = playerData.cashierData.totalNum;
+                    GameController.Instance.unlockedBuildingTypes.Add(structureType);
                     break;
             }
         }
@@ -228,7 +232,7 @@ namespace Controller.Structure
 
         public void ShowContent_1()
         {
-           
+
             content_1.SetActive(true);
             content_2.SetActive(false);
             structureLock.gameObject.SetActive(false);
@@ -276,6 +280,7 @@ namespace Controller.Structure
         public void ShowContent_2()
         {
             parchaseTransform = parchaseTransform2;
+
             content_1.SetActive(false);
             content_2.SetActive(true);
             structureLock.gameObject.SetActive(false);
@@ -314,29 +319,26 @@ namespace Controller.Structure
             if (args.Length < 1) return;
 
             CustomerController c = args[0] as CustomerController;
-            customerQueue.Enqueue(c);
+            customerList.Add(c);
 
             TryProcessNextCustomer();
         }
 
         private void TryProcessNextCustomer()
         {
-            // 没顾客
-            if (customerQueue.Count == 0) return;
-
-            // 服务员已满
-            if (workingWaiters >= maxWaiters) return;
-
-            // 分配一个顾客
-            CustomerController customer = customerQueue.Dequeue();
-            workingWaiters++;
-
-            StartCoroutine(HandleSingleCustomer(customer));
+            while (customerList.Count > 0 && workingWaiters < maxWaiters)
+            {
+                CustomerController customer = customerList[0];
+                customerList.RemoveAt(0);
+                workingWaiters++;
+                StartCoroutine(HandleSingleCustomer(customer));
+            }
         }
+
         private IEnumerator HandleSingleCustomer(CustomerController customer)
         {
             float t = 0f;
-            float productionTime = baseTime / speed;
+            float productionTime = PlayerDataModule.Instance.data.cashierData.currentWorkingSpeed / speed;
 
             customer.fillBg.gameObject.SetActive(true);
             customer.fill.transform.localScale = new Vector3(0, 1, 1);
@@ -344,15 +346,15 @@ namespace Controller.Structure
             while (t < productionTime)
             {
                 t += Time.deltaTime;
-                float value = t / productionTime;
+                float value = Mathf.Clamp01(t / productionTime);
                 customer.fill.transform.localScale = new Vector3(value, 1, 1);
                 yield return null;
             }
 
             customer.fillBg.gameObject.SetActive(false);
             customer.state = NpcState.JieZhangChengGong;
+
             customer.SetNextPosition();
-            customer.agent.Stop();
             customer.agent.SetDestination(customer.nextPosition);
 
             EventCenter.Instance.TriggerEvent(
@@ -360,17 +362,21 @@ namespace Controller.Structure
                 customer.salesStall.currentGoodsType,
                 customer.data.carryNum
             );
-            float totalNum = WorldData.goodsPriceDic[customer.salesStall.currentGoodsType] * customer.data.carryNum;
-            totalNum *= PlayerDataModule.Instance.data.cashierData.earning;
+
+            float totalNum =
+                WorldData.goodsPriceDic[customer.salesStall.currentGoodsType]
+                * customer.data.carryNum
+                * PlayerDataModule.Instance.data.cashierData.earning;
             PrintingMoney(totalNum);
             workingWaiters--;
             TryProcessNextCustomer();
             if (PlayerDataModule.Instance.data.guideStep == GuideStep.ToLingZhangTai)
             {
-                PlayerDataModule.Instance.data.guideStep =  GuideStep.Checkout;
+                PlayerDataModule.Instance.data.guideStep = GuideStep.UpgradePot;
                 UIController.Instance.Show<PlayerGuide>();
             }
         }
+
 
 
         public void PrintingMoney(float value)

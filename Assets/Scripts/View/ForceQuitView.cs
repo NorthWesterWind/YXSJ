@@ -21,7 +21,7 @@ public class ForceQuitView : BaseView
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false; // 在编辑器中停止播放
 #else
-    Application.Quit(); // 在打包后的应用中退出
+    //Application.Quit(); // 在打包后的应用中退出
 #endif
         }));
     }

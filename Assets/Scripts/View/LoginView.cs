@@ -261,7 +261,7 @@ public class LoginView : BaseView
         {
             if (scene.name == $"Game_{PlayerDataModule.Instance.data.currentMapID}")
             {
-                if (PlayerDataModule.Instance.data.currentMapID == 1 && !PlayerDataModule.Instance.data.guidIdList.Contains(1))
+                if (PlayerDataModule.Instance.data.currentMapID == 1 && PlayerDataModule.Instance.data.guideStep != GuideStep.Over)
                 {
                     //剧情引导
                     UIController.Instance.Show<PlayerGuide>();

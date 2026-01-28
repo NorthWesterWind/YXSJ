@@ -55,8 +55,14 @@ namespace Controller.Pickups
            itemName = "Production";
            spriteRenderer.sprite = assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(type));
        }
-
-       public void FlyTo(Vector3 target , Action callback = null)
+        void OnDestroy()
+        {
+            if (ScenePickupController.Instance.products.Contains(this))
+            {
+                ScenePickupController.Instance.products.Remove(this);
+            }
+        }
+        public void FlyTo(Vector3 target , Action callback = null)
        {
            StartCoroutine(FlyRoutine(target , callback));
        }

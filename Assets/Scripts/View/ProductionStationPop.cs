@@ -31,7 +31,7 @@ namespace View
         public TextMeshProUGUI bottomleveltxt2;
         public TextMeshProUGUI bottompreviewtxt1;
         public TextMeshProUGUI bottompreviewtxt2;
-       public TextMeshProUGUI bottompreviewtxt1_1;
+        public TextMeshProUGUI bottompreviewtxt1_1;
         public TextMeshProUGUI bottompreviewtxt2_2;
         public UIButton bootomBtn1;
         public TextMeshProUGUI bootomBtntxt1;
@@ -131,40 +131,46 @@ namespace View
             bootomBtn1.onClick.RemoveAllListeners();
             bootomBtn1.onClick.AddListener((() =>
             {
-                if(productStationdata.priceLevel == productStationdata.maxPriceLevel)
+                if (productStationdata.priceLevel == productStationdata.maxPriceLevel)
                 {
                     UIController.Instance.Show<TipView>("等级已满。");
                     return;
                 }
-                if(PlayerDataModule.Instance.data.tongbi < productStationdata.priceLevel * 1000)
+                if (PlayerDataModule.Instance.data.tongbi < productStationdata.priceLevel * 1000)
                 {
-                     UIController.Instance.Show<TipView>("铜币不足。");
+                    UIController.Instance.Show<TipView>("铜币不足。");
                     return;
                 }
                 PlayerDataModule.Instance.data.tongbi -= productStationdata.priceLevel * 1000;
                 productStationdata.priceLevel++;
-               UpdateStationInfo(productStationdata);
-               if(PlayerDataModule.Instance.data.guideStep == GuideStep.UpgradePot)
-               {
-                   PlayerDataModule.Instance.data.guideStep = GuideStep.Finished;
-                   UIController.Instance.Show<PlayerGuide>();
-               }
-               EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask, productStationdata.buildingType);
+                UpdateStationInfo(productStationdata);
+                if (PlayerDataModule.Instance.data.guideStep == GuideStep.UpgradePot)
+                {
+                    PlayerDataModule.Instance.data.guideStep = GuideStep.Finished;
+                    UIController.Instance.Show<PlayerGuide>();
+                }
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
+                EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask, productStationdata.buildingType);
             }));
 
             bootomBtn2.onClick.RemoveAllListeners();
             bootomBtn2.onClick.AddListener((() =>
             {
-                if( productStationdata.timelevel == productStationdata.maxTimeLevel)
+                if (productStationdata.timelevel == productStationdata.maxTimeLevel)
                 {
-                     UIController.Instance.Show<TipView>("等级已满。");
+                    UIController.Instance.Show<TipView>("等级已满。");
                     return;
                 }
-                 if(PlayerDataModule.Instance.data.tongbi < productStationdata.priceLevel * 1000)
+                if (PlayerDataModule.Instance.data.tongbi < productStationdata.timelevel * 1000)
                 {
-                     UIController.Instance.Show<TipView>("铜币不足。");
+                    UIController.Instance.Show<TipView>("铜币不足。");
                     return;
                 }
+                PlayerDataModule.Instance.data.tongbi -= productStationdata.timelevel * 1000;
+                productStationdata.timelevel++;
+                UpdateStationInfo(productStationdata);
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
+
             }));
 
             cardBtn.onClick.RemoveAllListeners();
@@ -209,7 +215,7 @@ namespace View
             yield return new WaitForSeconds(0.4f);
             Hide();
         }
-         ProductStationData productStationdata;
+        ProductStationData productStationdata;
 
         public void UpdateInfo()
         {
@@ -310,46 +316,46 @@ namespace View
                      (productStationdata.priceLevel - 1) * 25).ToString();
             }
 
-         
-         
-            workingtimetxt.text = WorldData.productStationWorkingTimeDic[ productStationdata.timelevel]+ "秒";
+
+
+            workingtimetxt.text = WorldData.productStationWorkingTimeDic[productStationdata.timelevel] + "秒";
             bottomleveltxt1.text = productStationdata.priceLevel + "级";
             bottomleveltxt2.text = productStationdata.timelevel + "级";
 
-            if(productStationdata.priceLevel < productStationdata.maxPriceLevel)
+            if (productStationdata.priceLevel < productStationdata.maxPriceLevel)
             {
-                 bottompreviewtxt1.text =
-                "x" + (WorldData.goodsPriceDic[goodsType] *
-                       DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price +
-                       productStationdata.priceLevel * 25);
-              
-                   bottompreviewtxt2.text =  "x" + $"{WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price + (productStationdata.priceLevel + 1) * 25}";
-                  
-                   bootomBtntxt1.text = (1000 * productStationdata.priceLevel).ToString();
+                bottompreviewtxt1.text =
+               "x" + (WorldData.goodsPriceDic[goodsType] *
+                      DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price +
+                      productStationdata.priceLevel * 25);
+
+                bottompreviewtxt2.text = "x" + $"{WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price + (productStationdata.priceLevel + 1) * 25}";
+
+                bootomBtntxt1.text = (1000 * productStationdata.priceLevel).ToString();
             }
             else
             {
-                  bottompreviewtxt1.text =
-                "x" + (WorldData.goodsPriceDic[goodsType] *
-                       DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price +
-                       productStationdata.priceLevel * 25);
-                         bottompreviewtxt2.text = "";
-                          bootomBtntxt1.text = "已满级";
+                bottompreviewtxt1.text =
+              "x" + (WorldData.goodsPriceDic[goodsType] *
+                     DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price +
+                     productStationdata.priceLevel * 25);
+                bottompreviewtxt2.text = "";
+                bootomBtntxt1.text = "已满级";
             }
-          
+
             if (productStationdata.timelevel < productStationdata.maxTimeLevel)
             {
                 bottompreviewtxt1_1.text =
-                    WorldData.productStationWorkingTimeDic[productStationdata.timelevel] + "秒  " ;
-                   bottompreviewtxt2_2.text = $"{WorldData.productStationWorkingTimeDic[productStationdata.timelevel + 1]}秒 ";
-                    bootomBtntxt2.text = (2000 * productStationdata.timelevel).ToString();
+                    WorldData.productStationWorkingTimeDic[productStationdata.timelevel] + "秒  ";
+                bottompreviewtxt2_2.text = $"{WorldData.productStationWorkingTimeDic[productStationdata.timelevel + 1]}秒 ";
+                bootomBtntxt2.text = (2000 * productStationdata.timelevel).ToString();
             }
             else
             {
                 bottompreviewtxt2.text =
                     WorldData.productStationWorkingTimeDic[productStationdata.timelevel] + "秒";
-                    bottompreviewtxt2_2.text = "";
-                       bootomBtntxt2.text = "已满级";
+                bottompreviewtxt2_2.text = "";
+                bootomBtntxt2.text = "已满级";
             }
         }
 
@@ -384,9 +390,9 @@ namespace View
                 else
                 {
                     cardprogressfill.fillAmount =
-                        cardData.currentNum * 1f / WorldData.cardUpLevelArr[cardData.level + 1];
+                        cardData.currentNum * 1f / WorldData.cardUpLevelArr[cardData.level - 1];
                     cardprogresstxt.text =
-                        cardData.currentNum + "/" + WorldData.cardUpLevelArr[cardData.level + 1];
+                        cardData.currentNum + "/" + WorldData.cardUpLevelArr[cardData.level - 1];
                 }
             }
         }

@@ -127,14 +127,14 @@ public class LingChuGePop : BaseView
             fillContent.SetActive(true);
             cardContent.SetActive(true);
             cardLevelTxt.text = cardProgress.level.ToString();
-            cardFillTxt.text = cardProgress.currentNum + "/" + WorldData.cardUpLevelArr[cardProgress.level + 1];
+            cardFillTxt.text = cardProgress.currentNum + "/" + WorldData.cardUpLevelArr[cardProgress.level - 1];
             if (cardProgress.level == 10)
             {
                 cardFill.fillAmount = 1f;
             }
             else
             {
-                cardFill.fillAmount = cardProgress.currentNum * 1f / WorldData.cardUpLevelArr[cardProgress.level + 1];
+                cardFill.fillAmount = cardProgress.currentNum * 1f / WorldData.cardUpLevelArr[cardProgress.level - 1];
             }
             if (cardProgress.level < 5)
             {
@@ -211,8 +211,9 @@ public class LingChuGePop : BaseView
             {
                 EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask, BuildingType.LingChuGe_2);
             }
-    
+
             UIController.Instance.Show<TipView>("升级成功。");
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
         }
     }
     private void OnClickUpgradeNumBtn()
@@ -243,6 +244,7 @@ public class LingChuGePop : BaseView
             }
 
             UIController.Instance.Show<TipView>("升级成功。");
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
         }
     }
 }

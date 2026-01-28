@@ -19,9 +19,9 @@ public class MapLock : MonoBehaviour
 
     public MapLockData mapLockData;
 
-    private ILockInteractStrategy interactStrategy;
+    // private ILockInteractStrategy interactStrategy;
 
-    private bool playerInRange;
+    public bool playerInRange;
     private PlayerController player;
 
     public Transform receiveTransform;
@@ -50,8 +50,8 @@ public class MapLock : MonoBehaviour
 
     void Update()
     {
-        if (!playerInRange || interactStrategy == null || !isLocked)
-            return;
+        // if (!playerInRange || interactStrategy == null || !isLocked)
+        //     return;
     }
     public void HandleUpdateState(params object[] args)
     {
@@ -131,6 +131,13 @@ public class MapLock : MonoBehaviour
         {
             Unlock();
         }
+        else
+        {
+            if (player != null)
+            {
+                player.ThrowOutTongBi(receiveTransform);
+            }
+        }
     }
 
     private MapLockDataProgress GetProgressData()
@@ -148,22 +155,25 @@ public class MapLock : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (!isLocked) return;
         if (!other.CompareTag("Player")) return;
 
         playerInRange = true;
+
         player = other.GetComponent<PlayerController>();
-        interactStrategy?.OnEnter(this, player, receiveTransform);
+        player.InRange = true;
+        Debug.Log("yj = > 进入区域解锁范围");
+        player.ThrowOutTongBi(receiveTransform);
 
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
+        if (!isLocked) return;
         if (!other.CompareTag("Player")) return;
-
+        player.InRange = false;
         playerInRange = false;
         player = null;
-        interactStrategy?.OnExit();
-
     }
 
     #endregion
@@ -179,11 +189,6 @@ public class MapLock : MonoBehaviour
         {
             data.isUnlock = true;
             data.currentOwnMoney = mapLockData.needMoney;
-        }
-        if (player.InteractionTriggerTransform == receiveTransform)
-        {
-            player.InteractionTriggerInRange = false;
-            player.InteractionTriggerTransform = null;
         }
         PlayerDataModule.Instance.data.goldIngot += DataController.Instance.giftpackDataDic[4].JinYuanBao;
         var dic = PlayerDataModule.Instance.LotteryCard(DataController.Instance.giftpackDataDic[4]);

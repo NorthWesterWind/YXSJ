@@ -187,6 +187,13 @@ namespace Module
                         }
 
                     }
+                    else
+                    {
+                        if (data.taskProgressDic.ContainsKey(task.taskId))
+                        {
+                            data.taskProgressDic[task.taskId] += 1;
+                        }
+                    }
                 }
                 if (task.type == TaskType.Unlock)
                 {
@@ -514,9 +521,9 @@ namespace Module
                 var randomKey = DataController.Instance.orderDataDic.Keys.ElementAt(UnityEngine.Random.Range(0, DataController.Instance.orderDataDic.Count));
                 var randomValue = DataController.Instance.orderDataDic[randomKey];
                 var list = data.mapLockDataProgressList.FindAll(x => x.isUnlock == false);
-                List<MonsterType>result = new List<MonsterType>();
+                List<MonsterType> result = new List<MonsterType>();
                 MapData mapData = DataController.Instance.mapDataDic[data.currentMapID];
-                 List<MapLockData> mapLockDataList = null ;
+                List<MapLockData> mapLockDataList = null;
                 switch (data.currentMapID)
                 {
                     case 1:
@@ -526,20 +533,20 @@ namespace Module
                         mapLockDataList = DataController.Instance.mapLockDataList_2;
                         break;
                     case 3:
-                         mapLockDataList = DataController.Instance.mapLockDataList_3;
+                        mapLockDataList = DataController.Instance.mapLockDataList_3;
                         break;
                     case 4:
-                       mapLockDataList = DataController.Instance.mapLockDataList_4;
+                        mapLockDataList = DataController.Instance.mapLockDataList_4;
                         break;
                     case 5:
                         mapLockDataList = DataController.Instance.mapLockDataList_5;
                         break;
                 }
-                for(int i = 0; i <mapData .monsterTypeList.Count; i++)
+                for (int i = 0; i < mapData.monsterTypeList.Count; i++)
                 {
-                    if (list.Find(x => x.monsterType == (MonsterType) mapData.monsterTypeList[i]) != null)
+                    if (list.Find(x => x.monsterType == (MonsterType)mapData.monsterTypeList[i]) != null)
                     {
-                       result.Add((MonsterType)mapData.monsterTypeList[i]);
+                        result.Add((MonsterType)mapData.monsterTypeList[i]);
                     }
                     else
                     {
@@ -555,16 +562,16 @@ namespace Module
                 List<DropItemType> dropItemTypeList = new List<DropItemType>();
                 foreach (var item in result)
                 {
-                        GoodsType goodsType  = Extensions.GetGoodsTypeByMonsterType(item);
-                        if(goodsTypeList.Contains(goodsType)==false)
-                        {
-                            goodsTypeList.Add(goodsType);
-                        }
-                        DropItemType dropItemType = Extensions.GetDropTypeByMonsterType(item);
-                        if (dropItemTypeList.Contains(dropItemType) == false)
-                        {
-                            dropItemTypeList.Add(dropItemType);
-                        }
+                    GoodsType goodsType = Extensions.GetGoodsTypeByMonsterType(item);
+                    if (goodsTypeList.Contains(goodsType) == false)
+                    {
+                        goodsTypeList.Add(goodsType);
+                    }
+                    DropItemType dropItemType = Extensions.GetDropTypeByMonsterType(item);
+                    if (dropItemTypeList.Contains(dropItemType) == false)
+                    {
+                        dropItemTypeList.Add(dropItemType);
+                    }
                 }
                 data.orderDataprogressList.Add(new OrderDataProgress(randomKey,
                     new Dictionary<GoodsType, (int, int)>() { { goodsTypeList[UnityEngine.Random.Range(0, goodsTypeList.Count)], (0, randomValue.needNum) } },
@@ -707,17 +714,22 @@ namespace Module
         }
         public void UpgradeAccountLevel()
         {
+
             data.accountLevel += 1;
+            UIController.Instance.Show<TipView>($"等级提升至{data.accountLevel}级！");
             if (data.accountLevel >= 2)
             {
                 if (data.characterFunction == 0)
                 {
                     data.characterFunction = 1;
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdateFunctionState);
                 }
-                else if (data.cardFunction == 0)
+                 if (data.cardFunction == 0)
                 {
                     data.cardFunction = 1;
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdateFunctionState);
                 }
+
             }
 
             if (data.accountLevel >= 5)
@@ -725,6 +737,7 @@ namespace Module
                 if (data.mapFunction == 0)
                 {
                     data.mapFunction = 1;
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdateFunctionState);
                 }
 
                 if (data.levelLockMapList.Contains(2))
@@ -744,6 +757,7 @@ namespace Module
             if (data.accountLevel >= 12 && data.ordenFunction == 0)
             {
                 data.ordenFunction = 1;
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdateFunctionState);
             }
 
             if (data.accountLevel >= 20)
@@ -782,6 +796,7 @@ namespace Module
             data.goldIngot += rewardData.Jyb;
             UIController.Instance.Show<TipView>("任务奖励领取成功！");
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateLevelProgress);
         }
 
         public void GetSevenDayReward(int day)
@@ -904,7 +919,7 @@ namespace Module
                     }
                 }
             }
-              EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
         }
 
         public void HandleUpGradeStuctureTask(params object[] args)
@@ -1025,9 +1040,10 @@ namespace Module
 
                 EventCenter.Instance.TriggerEvent(EventMessages.UpdateSturctureLockInfo);
                 EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
-            }  catch (System.Exception e)
+            }
+            catch (System.Exception e)
             {
-                Debug.LogError( e);
+                Debug.LogError(e);
                 Debug.LogException(e);
             }
         }
@@ -1053,7 +1069,7 @@ namespace Module
                     }
                 }
             }
-              EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
         }
 
         public void HandleHarvestTask(params object[] args)
@@ -1087,7 +1103,7 @@ namespace Module
                     }
                 }
             }
-              EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
         }
 
         public void HandleMakeTongBiTask(params object[] args)
@@ -1108,7 +1124,7 @@ namespace Module
                     }
                 }
             }
-              EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
         }
         public void HandleUnLockMapTask(params object[] args)
         {
@@ -1128,7 +1144,7 @@ namespace Module
                 }
 
             }
-              EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
         }
 
         internal void Login(string text1, string text2)

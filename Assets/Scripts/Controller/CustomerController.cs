@@ -7,6 +7,7 @@ using PolyNav;
 using Spine;
 using Spine.Unity;
 using UnityEngine;
+using UnityEngine.AI;
 using Utils;
 namespace Controller
 {
@@ -15,6 +16,7 @@ namespace Controller
     public class CustomerController : MonoBehaviour
     {
         public PolyNavAgent agent;
+        // public NavMeshAgent navAgent;
         public CustomerData data;
         public NpcState state;
         public Vector2 bornPosition;
@@ -26,7 +28,6 @@ namespace Controller
         public int currentIndex = 0;
         public SalesStall salesStall;
         public Transform receiveTransform;
-        private List<Production> productionList = new();
         public List<Production> purchaseList = new();
         public MeshRenderer _meshRenderer;
         public GameObject fillBg;
@@ -55,17 +56,18 @@ namespace Controller
             }
 
             Vector2 dir = agent.movingDirection;
+            // Vector2 dir = navAgent.velocity;
             if (dir == Vector2.zero) return;
             if (Mathf.Abs(dir.x) > 0.01f)
             {
                 skeletonAnimation.skeleton.ScaleX = dir.x < 0 ? -1 : 1;
             }
 
+            // if (ReachedDestination())
+            // {
+            //     OnReachDestination();
+            // }
 
-        }
-        public void UpdateQueueTarget(Vector2 pos)
-        {
-            agent.SetDestination(pos);
         }
         public void SetLayer()
         {
@@ -75,6 +77,15 @@ namespace Controller
             int order = 30000 - Mathf.RoundToInt(transform.position.y * 100);
             _meshRenderer.sortingOrder = order;
             shadow.sortingOrder = order - 5;
+            for (int i = 0; i < purchaseList.Count; i++)
+            {
+                var obj = purchaseList[i];
+                var mesh = obj.GetComponent<Production>().spriteRenderer;
+                if (mesh != null)
+                {
+                    mesh.sortingOrder = order + i + 1;
+                }
+            }
         }
         public void Init(CustomerData outdata, GoodsType type, StructureBase structureBase)
         {
@@ -82,14 +93,45 @@ namespace Controller
             state = NpcState.QianWangGouMai;
             bornPosition = transform.position;
             salesStall = structureBase as SalesStall;
-            SetNextPosition();
+            agent = GetComponent<PolyNavAgent>();
+
             agent.map = GameObject.FindWithTag("Map").transform.GetComponent<PolyNavMap>();
-            agent.Stop(); ;
+
+            SetNextPosition();
             agent.SetDestination(nextPosition);
             Vector2 dir = (nextPosition - (Vector2)transform.position).normalized;
             fillBg.gameObject.SetActive(false);
             fill.gameObject.transform.localScale = new Vector3(0, 1, 1);
+
+            Debug.Log($"顾客生成点: {gameObject.transform.position}, 购买点: {nextPosition}, 距离: {(Vector2)transform.position - nextPosition}");
         }
+        /// <summary>
+        /// 初始化完成后强制顾客开始移动和逻辑
+        /// 用于解决生成后原地待机问题
+        /// </summary>
+        // public void StartBehavior()
+        // {
+        //     if (agent.map == null)
+        //     {
+        //         agent.map = GameObject.FindWithTag("Map")?.GetComponent<PolyNavMap>();
+        //         if (agent.map == null)
+        //         {
+        //             Debug.LogError($"{name} 找不到 PolyNavMap");
+        //             return;
+        //         }
+        //     }
+        //     // 设置目标点
+        //     agent.SetDestination(nextPosition);
+        // }
+
+        // bool ReachedDestination()
+        // {
+        //     if (navAgent.pathPending) return false;
+
+        //     return navAgent.remainingDistance <= navAgent.stoppingDistance
+        //            && (!navAgent.hasPath || navAgent.velocity.sqrMagnitude == 0f);
+        // }
+
         void OnEnable()
         {
             agent.OnDestinationReached += OnReachDestination;
@@ -113,24 +155,24 @@ namespace Controller
             if (state == NpcState.QianWangGouMai)
             {
                 WaitPurchase();
-                EventCenter.Instance.TriggerEvent(EventMessages.CustomerArrivedSell, this);
+                EventCenter.Instance.TriggerEvent(EventMessages.CustomerArrivedSell, this, salesStall);
                 return;
             }
 
             // 到达收银台
             if (state == NpcState.QianWangShouYinTai)
             {
-                EventCenter.Instance.TriggerEvent(EventMessages.CustomerArrived, this);
+                EventCenter.Instance.TriggerEvent(EventMessages.CustomerArrived, this, salesStall);
                 return;
             }
         }
 
-        private Coroutine coroutine = null;
+
         public void WaitPurchase()
         {
-            Debug.LogError($"{name} 到达购买点，开始等待购买");
+//            Debug.LogError($"{name} 到达购买点，开始等待购买");
             state = NpcState.WaitGouMaiWanCheng;
-            coroutine = StartCoroutine(PurchaseRoutine());
+            StartCoroutine(PurchaseRoutine());
 
         }
         private IEnumerator PurchaseRoutine()
@@ -143,11 +185,9 @@ namespace Controller
                 {
                     Purchase();
                     purchased = true;
-                    coroutine = null;
                     break;
                 }
                 timer += Time.deltaTime;
-                Debug.Log($"{name} 正在等待购买商品，已等待时间: {timer:F2}s");
                 yield return null;
             }
             if (!purchased)
@@ -157,7 +197,6 @@ namespace Controller
                 OnPurchaseTimeout();
             }
 
-            coroutine = null;
         }
         private void Purchase()
         {
@@ -165,16 +204,14 @@ namespace Controller
             Debug.Log($"{name} 成功购买 {data.carryNum} 件商品");
             state = NpcState.QianWangShouYinTai;
             SetNextPosition();
-            agent.Stop();
             agent.SetDestination(nextPosition);
         }
         private void OnPurchaseTimeout()
         {
             state = NpcState.Angry;
             SetNextPosition();
-            agent.Stop();
             agent.SetDestination(nextPosition);
-            EventCenter.Instance.TriggerEvent(EventMessages.CustomerLeave, salesStall ,this);
+            EventCenter.Instance.TriggerEvent(EventMessages.CustomerLeave, salesStall, this);
         }
         public void SetNextPosition()
         {
