@@ -697,6 +697,7 @@ namespace Module
         {
             data.tongbi += value;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
+            EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask,value);
         }
 
         public bool RemoveYinQian(int value)
@@ -794,6 +795,7 @@ namespace Module
             }
             data.tongbi += rewardData.Tq;
             data.goldIngot += rewardData.Jyb;
+            EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask,rewardData.Tq);
             UIController.Instance.Show<TipView>("任务奖励领取成功！");
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
             EventCenter.Instance.TriggerEvent(EventMessages.UpdateLevelProgress);
@@ -803,11 +805,12 @@ namespace Module
         {
             SevenDayRewardData _data = DataController.Instance.sevenDayRewardDataDic[day];
             data.goldIngot += _data.Jyb;
-            data.tongbi += _data.Jyb;
+            data.tongbi += _data.Yq;
             data.lingJing += _data.Lj;
             data.sevenDayRecordList.Add(day);
             data.sevenDayRecordTime = DateTime.Now.ToString("yyyy/MM/dd");
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
+            EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask, _data.Yq);
         }
 
 

@@ -93,7 +93,7 @@ namespace View.Task
             isCompleted = false;
             canGetReward = false;
             data = taskData;
-            infotxt.text = data.info;
+            infotxt.text = data.info + "。";
             RewardData rewardData = DataController.Instance.taskRewardDataDic[data.rewardId];
             jmztxt.text = "x"  + rewardData.Jmz.ToString();
             if(rewardData.Tq > 0)

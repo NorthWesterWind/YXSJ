@@ -51,6 +51,7 @@ namespace View
                     PlayerDataModule.Instance.data.GetSevenDayRewardIndex += 1;
                     kuang1.SetActive(false);
                     PlayerDataModule.Instance.data.tongbi += 1000;
+                    EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask , 1000);
                     UIController.Instance.Show<RewardConfirmView>(new Dictionary<CurrencyType , int>{{CurrencyType.TongBi,1000}});
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                 }
@@ -69,6 +70,7 @@ namespace View
                     PlayerDataModule.Instance.data.GetSevenDayRewardIndex += 1;
                     kuang2.SetActive(false);
                     PlayerDataModule.Instance.data.tongbi += 3000;
+                    EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask , 3000);
                      UIController.Instance.Show<RewardConfirmView>(new Dictionary<CurrencyType , int>{{CurrencyType.TongBi,3000}});
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                 }
@@ -104,6 +106,7 @@ namespace View
     
                     kuang4.SetActive(false);
                     PlayerDataModule.Instance.data.tongbi += 4000;
+                    EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask , 4000);
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                      UIController.Instance.Show<RewardConfirmView>(new Dictionary<CurrencyType , int>{{CurrencyType.TongBi,4000}});
                 }
@@ -123,6 +126,7 @@ namespace View
                     kuang5.SetActive(false);
                     PlayerDataModule.Instance.data.tongbi += 5000;
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
+                    EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask , 5000);
                      UIController.Instance.Show<RewardConfirmView>(new Dictionary<CurrencyType , int>{{CurrencyType.TongBi,5000}});
                 }
             }));
@@ -160,6 +164,7 @@ namespace View
                     PlayerDataModule.Instance.data.goldIngot += 400;
                     PlayerDataModule.Instance.data.lingJing += 200;
                     kuang7.SetActive(false);
+                    EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask , 5000);
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                     UIController.Instance.Show<RewardConfirmView>(new Dictionary<CurrencyType , int>{{CurrencyType.TongBi,1000},{CurrencyType.JingYuanBao,400},{CurrencyType.LingJing,400} ,{CurrencyType.LingJing,200}});
                    

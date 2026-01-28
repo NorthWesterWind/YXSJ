@@ -18,6 +18,7 @@ namespace View.PlayerInfo
         public UIButton showBtn;
         private AssetHandle _assetHandle;
         public GameObject content;
+
         void Start()
         {
             _assetHandle = GetComponent<AssetHandle>();
@@ -32,7 +33,6 @@ namespace View.PlayerInfo
             EventCenter.Instance.AddListener(EventMessages.UpdateTaskMainView, HandleUpdateTaskMainView);
             EventCenter.Instance.AddListener(EventMessages.MapTaskDataPrepared, HandleUpdateTaskMainView);
             EventCenter.Instance.AddListener(EventMessages.HidePlayerGuide, HidePlayerGuide);
-
         }
 
         private void OnDestroy()
@@ -49,6 +49,7 @@ namespace View.PlayerInfo
             content.SetActive(true);
             HandleUpdateTaskMainView();
         }
+
         public void HandleUpdateTaskMainView(params object[] args)
         {
             if (PlayerDataModule.Instance.data.listenInTaskList.Count == 0)
@@ -57,21 +58,25 @@ namespace View.PlayerInfo
                 PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
                 PlayerDataModule.Instance.FillStructureLockProgressData();
             }
+
             List<TaskData> dataList = PlayerDataModule.Instance.data.listenInTaskList;
 
             foreach (var data in dataList)
             {
                 if (data.type == TaskType.Construct)
                 {
-                    if (PlayerDataModule.Instance.data.structureLockProgressDataList.Find(x => x.buildType == (BuildingType)data.aimId) != null)
+                    if (PlayerDataModule.Instance.data.structureLockProgressDataList.Find(x =>
+                            x.buildType == (BuildingType)data.aimId) != null)
                     {
-                        if (PlayerDataModule.Instance.data.structureLockProgressDataList.Find(x => x.buildType == (BuildingType)data.aimId).isUnlock)
+                        if (PlayerDataModule.Instance.data.structureLockProgressDataList
+                            .Find(x => x.buildType == (BuildingType)data.aimId).isUnlock)
                         {
                             PlayerDataModule.Instance.data.taskProgressDic[data.taskId] = 1;
                         }
                     }
                 }
             }
+
             TaskData task = null;
             if (PlayerDataModule.Instance.data.nowTaskId == 0)
             {
@@ -85,6 +90,7 @@ namespace View.PlayerInfo
                             task = item;
                             break;
                         }
+
                         continue;
                     }
                     else
@@ -103,7 +109,7 @@ namespace View.PlayerInfo
 
             if (task != null)
             {
-                taskInfoTxt.text = task.info;
+                taskInfoTxt.text = task.info + "。";
                 if (PlayerDataModule.Instance.data.taskProgressDic.ContainsKey(task.taskId))
                 {
                     //有进度
@@ -111,19 +117,46 @@ namespace View.PlayerInfo
 
                     if (PlayerDataModule.Instance.data.taskProgressDic[task.taskId] >= task.keyValue)
                     {
-                        //完成
-                        taskProgressTxt.text = "可领取";
+                        var list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_1;
+                        if (PlayerDataModule.Instance.data.currentMapID == 2)
+                        {
+                            list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_2;
+                        }
+                        else if (PlayerDataModule.Instance.data.currentMapID == 3)
+                        {
+                            list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_3;
+                        }
+                        else if (PlayerDataModule.Instance.data.currentMapID == 4)
+                        {
+                            list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_4;
+                        }
+                        else if (PlayerDataModule.Instance.data.currentMapID == 5)
+                        {
+                            list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_5;
+                        }
+
+                        if (list.Contains(task.taskId))
+                        {
+                            taskProgressTxt.text = "已完成";
+                        }
+                        else
+                        {
+                            taskProgressTxt.text = "可领取";
+                        }
                     }
                     else
                     {
-                        taskProgressTxt.text = "(" + PlayerDataModule.Instance.data.taskProgressDic[task.taskId] + "/" + task.keyValue + ")";
+                        taskProgressTxt.text = "(" + PlayerDataModule.Instance.data.taskProgressDic[task.taskId] + "/" +
+                                               task.keyValue + ")";
                     }
                 }
                 else
                 {
                     taskProgressTxt.text = "(0/" + task.keyValue + ")";
                 }
-                iconImage.sprite = _assetHandle.Get<Sprite>(Extensions.GetTaskInfoResNameByTypeWithId(task.type, task.aimId));
+
+                iconImage.sprite =
+                    _assetHandle.Get<Sprite>(Extensions.GetTaskInfoResNameByTypeWithId(task.type, task.aimId));
                 if (task.type == TaskType.Upgrade || task.type == TaskType.Construct)
                 {
                     iconImage.rectTransform.sizeDelta = new Vector2(160, 160);
@@ -141,14 +174,11 @@ namespace View.PlayerInfo
             UIController.Instance.Show<TaskPop>();
         }
 
-
         #endregion
-
 
 
         void Update()
         {
-
         }
     }
 }

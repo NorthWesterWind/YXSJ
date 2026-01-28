@@ -132,6 +132,8 @@ namespace View
                 {
                     PlayerDataModule.Instance.data.lingJing += PlayerDataModule.Instance.data.GetLingJingCount;
                     UIController.Instance.Show<RewardConfirmView>(new Dictionary<CurrencyType, int> { { CurrencyType.LingJing, PlayerDataModule.Instance.data.GetLingJingCount } });
+                    PlayerDataModule.Instance.data.GetLingJingTime = DateTime.Now.ToString("yyyy/MM/dd");
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                 }
                 else
                 {

@@ -7427,9 +7427,21 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8359190721890398964, guid: 8f9a607632eb0334b961b21d38279230, type: 3}
+      propertyPath: monsterLayer.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8359190721890398964, guid: 8f9a607632eb0334b961b21d38279230, type: 3}
+      propertyPath: productLayer.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8359190721890398964, guid: 8f9a607632eb0334b961b21d38279230, type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 8359190721890398964, guid: 8f9a607632eb0334b961b21d38279230, type: 3}
+    - target: {fileID: 8359190721890398964, guid: 8f9a607632eb0334b961b21d38279230, type: 3}
+      propertyPath: productStationLayer.m_Bits
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -16024,6 +16036,12 @@ MonoBehaviour:
     - Name: LingShunLingTime
       Entry: 6
       Data: 
+    - Name: GetLingJingTime
+      Entry: 6
+      Data: 
+    - Name: GetLingJingCount
+      Entry: 3
+      Data: 0
     - Name: sevenDayRecordList
       Entry: 7
       Data: 7|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
@@ -19986,6 +20004,22 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2479314996700771674, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3386383141008012400, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3386383141008012400, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3386383141008012400, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3386383141008012400, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}

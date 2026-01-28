@@ -81,5 +81,9 @@ namespace Utils
         public const string UnLockMapTask = "UnLockMapTask"; //解锁怪物区域任务
 
         public const string UpdateCardInfo = "UpdateCardInfo"; //更新卡牌信息
+        
+        public const string ShowLoadView = "ShowLoadView"; //显示加载UI
+        public const string UpdateLoadView = "UpdateLoadView"; //更新加载UI
+        
     }
 }

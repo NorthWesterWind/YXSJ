@@ -16,6 +16,7 @@ namespace Controller.Player
 {
     public class PlayerController : SerializedMonoBehaviour
     {
+        public float maxCarryNum;
         private SkeletonAnimation _skeletonAnimation;
         private Vector2 _dirValue;
         public bool isMoving = false;
@@ -45,7 +46,7 @@ namespace Controller.Player
         public int currentCarryNum = 0;
         public float currentHp;
         public float maxHp;
-        public float maxCarryNum;
+       
         public float currentPinkUpRange;
         public bool isDead = false;
 
@@ -141,7 +142,7 @@ namespace Controller.Player
             maxCarryNum = dataModule.data.bagCapacity;
             currentPinkUpRange = dataModule.data.pickUpRange;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
-
+            playerInfo.UpdateTxt();
         }
 
         public void SetLayer()

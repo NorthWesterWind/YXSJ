@@ -50,6 +50,7 @@ namespace View.MapFunction
                         PlayerDataModule.Instance.data.currentMapID = mapData.id;
                         maskImg.SetActive(false);
                         UIController.Instance.Show<TipView>(mapData.name + "解锁成功！");
+                        EventCenter.Instance.TriggerEvent(EventMessages.ShowLoadView);
                         StartCoroutine(LoadNextSceneCoroutine());
                     }
                     else
@@ -98,7 +99,7 @@ namespace View.MapFunction
                 }
                 else
                 {
-                    btntxt.text = "铜币:" + mapData.unlockCost;
+                    btntxt.text = "x" + mapData.unlockCost;
                 }
             }
             pricetxt.text = "x" + mapData.price;
@@ -148,7 +149,7 @@ namespace View.MapFunction
 
             asyncLoad.allowSceneActivation = false;
             float displayProgress = 0f;
-
+          
             while (!asyncLoad.isDone)
             {
                 float targetProgress = Mathf.Clamp01(asyncLoad.progress / 0.9f);
@@ -157,6 +158,7 @@ namespace View.MapFunction
                 if (asyncLoad.progress >= 0.9f && displayProgress >= 0.99f)
                 {
                     displayProgress = Mathf.MoveTowards(displayProgress, 1f, Time.deltaTime * 0.3f);
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdateLoadView , displayProgress);
                     if (displayProgress >= 1f)
                     {
                         yield return new WaitForSeconds(0.5f);

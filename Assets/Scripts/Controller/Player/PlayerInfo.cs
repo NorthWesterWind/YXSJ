@@ -31,6 +31,7 @@ namespace Controller.Player
             HideHpInfo();
 
             EventCenter.Instance.AddListener(EventMessages.UpdatePlayerEquimentInfo, UpdateBagInfo);
+          
         }
         void OnDestroy()
         {
@@ -110,6 +111,7 @@ namespace Controller.Player
             {
                 text.text = $"{player.currentCarryNum}/{player.maxCarryNum}";
             }
+            Debug.LogError($"yj=> player.maxCarryNum = {player.maxCarryNum} ");
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerCarryInfo);
         }
     }

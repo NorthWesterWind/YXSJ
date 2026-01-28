@@ -77,7 +77,7 @@ namespace Controller.Structure
         }
         void Update()
         {
-            Debug.LogError($"CashierCounter customerQueue.Count = {customerList.Count}");
+        
             if (customerList.Count > 0)
             {
                 var currentAnimation1 = skeletonAnimation1.AnimationState.GetCurrent(0);

@@ -215,6 +215,7 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+  maxCarryNum: 0
   isMoving: 0
   dataModule: {fileID: 0}
   shadowRenderer: {fileID: 3766165142030048411}
@@ -226,13 +227,13 @@ MonoBehaviour:
   detectRadius: 10
   monsterLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 0
   productLayer:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
   productStationLayer:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 0
   overlappingTrigger: []
   receiveTransform: {fileID: 6450889363661755686}
   infoTransform: {fileID: 1440778688930170217}
@@ -240,17 +241,15 @@ MonoBehaviour:
   currentCarryNum: 0
   currentHp: 0
   maxHp: 0
-  maxCarryNum: 0
   currentPinkUpRange: 0
   isDead: 0
-  InteractionTriggerInRange: 0
-  InteractionTriggerTransform: {fileID: 0}
   weaponRoot: {fileID: 9125713213876222166}
   speed: 540
   radiusX: 1.1
   radiusZ: 0.55
   minScale: 0.85
   maxScale: 1.15
+  InRange: 0
   isShowUI: 0
   scatterCurve:
     serializedVersion: 2
@@ -276,10 +275,6 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  detectRadiu: 1.5
-  interactionLayer:
-    serializedVersion: 2
-    m_Bits: 2048
 --- !u!222 &6108397800056542576
 CanvasRenderer:
   m_ObjectHideFlags: 0
