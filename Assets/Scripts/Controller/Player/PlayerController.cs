@@ -16,7 +16,18 @@ namespace Controller.Player
 {
     public class PlayerController : SerializedMonoBehaviour
     {
+        public int currentCarryNum;
+        public float currentHp;
+        public float currentMoveSpeed;
+        public float currentPinkUpRange;
+        public float currenthpRecover;
+
         public float maxCarryNum;
+        public float maxHp;
+
+        public int RemainCapacity => (int)maxCarryNum - currentCarryNum;
+
+
         private SkeletonAnimation _skeletonAnimation;
         private Vector2 _dirValue;
         public bool isMoving = false;
@@ -29,7 +40,7 @@ namespace Controller.Player
         public GameObject weapon;
         public SkeletonAnimation weaponEffect;
 
-        public float detectRadius = 6f; // 怪物检测半径
+        private float detectRadius = 6f; // 怪物检测半径
         public LayerMask monsterLayer;   // 只检测怪物层
         public LayerMask productLayer;
         public LayerMask productStationLayer;
@@ -43,17 +54,11 @@ namespace Controller.Player
         public Dictionary<GoodsType, int> goodsDic = new();
         public Dictionary<DropItemType, int> dropDic = new();
 
-        public int currentCarryNum = 0;
-        public float currentHp;
-        public float maxHp;
-       
-        public float currentPinkUpRange;
         public bool isDead = false;
 
         private AssetHandle _assetHandle;
 
 
-        public int RemainCapacity => (int)maxCarryNum - currentCarryNum;
 
         /// <summary>
         /// 角色是否处于交互范围内（解锁）
@@ -103,8 +108,6 @@ namespace Controller.Player
             AddEvent();
             Init();
             renderer = transform.Find("Character").GetComponent<MeshRenderer>();
-
-
         }
 
 
@@ -116,6 +119,8 @@ namespace Controller.Player
             EventCenter.Instance.AddListener(EventMessages.PlayerTakeDamage, HandleTakeDamage);
             EventCenter.Instance.AddListener(EventMessages.FocusNewPosition, HandleFocusNew);
             EventCenter.Instance.AddListener(EventMessages.UpdatePlayerEquimentInfo, UpdatePlayerEquimentInfo);
+            EventCenter.Instance.AddListener(EventMessages.UpdatePlayerValueInfo, UpdatePlayerValueInfo);
+            EventCenter.Instance.AddListener(EventMessages.MonsterDead, HandleMonsterDead);
         }
         private void OnDestroy()
         {
@@ -125,9 +130,25 @@ namespace Controller.Player
             EventCenter.Instance.RemoveListener(EventMessages.PlayerTakeDamage, HandleTakeDamage);
             EventCenter.Instance.RemoveListener(EventMessages.FocusNewPosition, HandleFocusNew);
             EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerEquimentInfo, UpdatePlayerEquimentInfo);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerValueInfo, UpdatePlayerValueInfo);
+            EventCenter.Instance.RemoveListener(EventMessages.MonsterDead, HandleMonsterDead);
         }
 
+        public void HandleMonsterDead(params object[] args)
+        {
+            currentHp += PlayerDataModule.Instance.data.addhpRecover;
+            currentHp = Mathf.Min(currentHp, maxHp);
+        }
 
+        public void UpdatePlayerValueInfo(params object[] args)
+        {
+            currentCarryNum = 0;
+
+            maxHp = dataModule.data.hp + dataModule.data.addHp;
+            maxCarryNum = dataModule.data.bagCapacity + dataModule.data.addBagCapacity;
+            currentPinkUpRange = dataModule.data.pickUpRange + dataModule.data.addPickUpRange;
+            currentMoveSpeed = dataModule.data.moveSpeed + dataModule.data.addMoveSpeed;
+        }
 
 
         public void Init()
@@ -136,13 +157,11 @@ namespace Controller.Player
             {
                 dataModule = PlayerDataModule.Instance;
             }
-            currentCarryNum = 0;
-            currentHp = dataModule.data.hp;
-            maxHp= dataModule.data.hp;
-            maxCarryNum = dataModule.data.bagCapacity;
-            currentPinkUpRange = dataModule.data.pickUpRange;
+            UpdatePlayerValueInfo();
+            currentHp = dataModule.data.hp + dataModule.data.addHp;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
-            playerInfo.UpdateTxt();
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
+
         }
 
         public void SetLayer()
@@ -157,6 +176,7 @@ namespace Controller.Player
 
         void Update()
         {
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerInfo);
             SetLayer();
             if (isShowUI)
             {
@@ -315,10 +335,9 @@ namespace Controller.Player
             if (isMoving)
             {
                 _rigidbody.MovePosition(_rigidbody.position +
-                                        new Vector2(_dirValue.x, _dirValue.y) * (dataModule.data.moveSpeed * Time.fixedDeltaTime));
+                                        new Vector2(_dirValue.x, _dirValue.y) * (currentMoveSpeed * Time.fixedDeltaTime));
             }
         }
-
         private void UpdatePlayerEquimentInfo(params object[] args)
         {
             if (DataController.Instance.weaponDataDic.ContainsKey(dataModule.data.currentWeapon))
@@ -326,6 +345,9 @@ namespace Controller.Player
                 WeaponData weaponData = DataController.Instance.weaponDataDic[dataModule.data.currentWeapon];
                 weaponRenderer.sprite = _assetHandle.Get<Sprite>(weaponData.name);
                 _skeletonAnimation.skeleton.SetAttachment(weaponData.slotName, weaponData.attachmentName);
+                SkeletonDataAsset skeletonDataAsset = _assetHandle.Get<SkeletonDataAsset>(weaponData.name+"data");
+                weaponEffect.skeletonDataAsset = skeletonDataAsset;
+                weaponEffect.Initialize(true);
             }
             if (DataController.Instance.storageBagDataDic.ContainsKey(dataModule.data.currentBag))
             {
@@ -943,7 +965,7 @@ namespace Controller.Player
                 DoDie();
             }
 
-            
+
         }
 
         public void DoDie()

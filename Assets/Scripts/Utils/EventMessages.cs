@@ -84,6 +84,7 @@ namespace Utils
         
         public const string ShowLoadView = "ShowLoadView"; //显示加载UI
         public const string UpdateLoadView = "UpdateLoadView"; //更新加载UI
-        
+        public const string UpdatePlayerInfo = "UpdatePlayerInfo"; //更新玩家信息
+        public const string UpdatePlayerValueInfo = "UpdatePlayerValueInfo"; //更新玩家数值信息
     }
 }

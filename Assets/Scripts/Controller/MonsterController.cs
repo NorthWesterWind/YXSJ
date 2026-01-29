@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Controller.Monster;
 using DG.Tweening;
@@ -95,7 +96,7 @@ namespace Controller
             behaviorType = behavior;
             factorID = Id;
             atk = data.atk;
-
+            agent.enabled = true;
             this.patrolSize = patrolSize;
 
             if (_hpInfo == null)
@@ -153,7 +154,7 @@ namespace Controller
             ChangeState(MonsterState.Patrol);
             EventCenter.Instance.AddListener(EventMessages.NotifyToFlee, HandleNotifyToFlee);
         }
-
+        public float slowtime = 3f;
         public bool InAtking;
         void Update()
         {
@@ -202,6 +203,16 @@ namespace Controller
                     }
                 }
 
+            }
+            if(currentSpeed < data.movespeed)
+            {
+                slowtime -= Time.deltaTime;
+                if(slowtime <= 0)
+                {
+                    slowtime = 3f;
+                    currentSpeed = data.movespeed;
+                    agent.maxSpeed = currentSpeed;
+                }
             }
 
         }
@@ -321,14 +332,21 @@ namespace Controller
             skeletonAnimation.skeleton.ScaleX = fleeDir.x < 0 ? -1 : 1;
         }
 
+    
+      
 
         private bool isDead = false;
 
-        public void TakeDamage(int damage, Transform attacker)
+        public void TakeDamage(int damage, Transform attacker, float slowDownValue = 0f)
         {
             if (isDead) return;
             if (Time.time - _lastHitTime < _damageInterval) return;
-
+             if(slowDownValue > 0)
+            {
+                currentSpeed =  data.movespeed -Convert.ToInt32(slowDownValue);
+                agent.maxSpeed = currentSpeed;
+                slowtime = 3f;
+            }
             _lastHitTime = Time.time;
             currentHp -= damage;
             this.attacker = attacker;
@@ -436,7 +454,7 @@ namespace Controller
 
             // --- 冲撞移动阶段 ---
             state = MonsterState.ChargeMove;
-            agent.maxSpeed = 8f;
+            agent.maxSpeed = 10f;
             agent.avoidRadius = 0f; // 禁用避障
             agent.SetDestination(targetPos);
 
@@ -485,7 +503,8 @@ namespace Controller
 
         public IEnumerator DoDie()
         {
-
+            agent.Stop();
+            agent.enabled = false;
             Destroy(_hpInfo);
             EventCenter.Instance.RemoveListener(EventMessages.NotifyToFlee, HandleNotifyToFlee);
             if (monsterType == MonsterType.JingYuanBao)

@@ -145,8 +145,9 @@ public class StructureLock : MonoBehaviour
         if (!other.CompareTag("Player")) return;
         Debug.Log("yj = >进入建筑解锁范围");
         playerInRange = true;
-        player.InRange = true;
+
         player = other.GetComponent<PlayerController>();
+        player.InRange = true;
         OnEnter();
 
     }
@@ -202,7 +203,7 @@ public class StructureLock : MonoBehaviour
 
     public void OnEnter()
     {
-        if (player!= null)
+        if (player != null)
             player.ThrowOutTongBi(receiveTransform);
     }
 
@@ -218,7 +219,7 @@ public class StructureLock : MonoBehaviour
         }
         else
         {
-            if (player!= null)
+            if (player != null)
                 player.ThrowOutTongBi(receiveTransform);
         }
     }

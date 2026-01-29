@@ -145,7 +145,7 @@ public class LingZhangTaiPop : BaseView
         upgradePeopleBtn.onClick.RemoveAllListeners();
         upgradePeopleBtn.onClick.AddListener(OnClickUpgradePeopleBtn);
         cardBtn.onClick.RemoveAllListeners();
-        cardBtn.onClick.AddListener(() => { UIController.Instance.Show<CardDetailPop>(DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeYunDiGe)); });
+        cardBtn.onClick.AddListener(() => { UIController.Instance.Show<CardDetailPop>(DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeLingZhangTai)); });
     }
     private void OnClickUpgradeSpeedBtn()
     {

@@ -137,8 +137,8 @@ namespace View
                     {
                         UIController.Instance.Show<TipView>("兑换成功！");
                         PlayerDataModule.Instance.data.lingJing += rewardValue;
-                        PlayerDataModule.Instance.data.tongbi += rewardValue;
-                        EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask , rewardValue);
+                        // PlayerDataModule.Instance.data.tongbi += rewardValue;
+                        // EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask , rewardValue);
                         EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                     }
                 };

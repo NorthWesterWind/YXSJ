@@ -133,9 +133,9 @@ public class MapLock : MonoBehaviour
         }
         else
         {
-            if (player != null)
+            if (player != null && lockObject.activeSelf)
             {
-                player.ThrowOutTongBi(receiveTransform);
+                    player.ThrowOutTongBi(receiveTransform);
             }
         }
     }
@@ -163,7 +163,11 @@ public class MapLock : MonoBehaviour
         player = other.GetComponent<PlayerController>();
         player.InRange = true;
         Debug.Log("yj = > 进入区域解锁范围");
-        player.ThrowOutTongBi(receiveTransform);
+        if(GetProgressData() != null && lockObject.activeSelf)
+        {
+            player.ThrowOutTongBi(receiveTransform);
+        }
+      
 
     }
 

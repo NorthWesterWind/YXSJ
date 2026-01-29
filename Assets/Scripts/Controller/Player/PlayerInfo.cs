@@ -31,11 +31,13 @@ namespace Controller.Player
             HideHpInfo();
 
             EventCenter.Instance.AddListener(EventMessages.UpdatePlayerEquimentInfo, UpdateBagInfo);
+            EventCenter.Instance.AddListener(EventMessages.UpdatePlayerInfo, UpdateTxt);
           
         }
         void OnDestroy()
         {
             EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerEquimentInfo, UpdateBagInfo);
+             EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerInfo, UpdateTxt);
         }
 
 
@@ -101,7 +103,7 @@ namespace Controller.Player
         }
 
 
-        public void UpdateTxt()
+        public void UpdateTxt(params object[] args)
         {
             if (player.currentCarryNum >= player.maxCarryNum)
             {

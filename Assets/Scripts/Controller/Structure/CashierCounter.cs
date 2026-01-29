@@ -77,7 +77,7 @@ namespace Controller.Structure
         }
         void Update()
         {
-        
+
             if (customerList.Count > 0)
             {
                 var currentAnimation1 = skeletonAnimation1.AnimationState.GetCurrent(0);
@@ -352,6 +352,7 @@ namespace Controller.Structure
             }
 
             customer.fillBg.gameObject.SetActive(false);
+            GoodsType goodsType = customer.salesStall.currentGoodsType;
             customer.state = NpcState.JieZhangChengGong;
 
             customer.SetNextPosition();
@@ -363,10 +364,10 @@ namespace Controller.Structure
                 customer.data.carryNum
             );
 
+            ProductStationData productStationdata = PlayerDataModule.Instance.data.ProductStationDataList.Find(x => x.goodsType == goodsType);
             float totalNum =
-                WorldData.goodsPriceDic[customer.salesStall.currentGoodsType]
-                * customer.data.carryNum
-                * PlayerDataModule.Instance.data.cashierData.earning;
+                WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price * customer.data.carryNum
+                * PlayerDataModule.Instance.data.cashierData.earning + (productStationdata.priceLevel - 1) * 25;
             PrintingMoney(totalNum);
             workingWaiters--;
             TryProcessNextCustomer();

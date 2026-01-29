@@ -46,7 +46,7 @@ namespace Controller.Structure
         {
             if (args[0] as SalesStall != this) return;
             CustomerController c = args[1] as CustomerController;
-            customerList.RemoveAll(c => c == null); 
+            customerList.RemoveAll(c => c == null);
             if (customerList.Contains(c))
             {
                 customerList.Remove(c);
@@ -57,8 +57,8 @@ namespace Controller.Structure
             if (args.Length < 1) return;
 
             CustomerController c = args[0] as CustomerController;
-            if(args[1] as SalesStall != this) return;
-            customerList.RemoveAll(c => c == null); 
+            if (args[1] as SalesStall != this) return;
+            customerList.RemoveAll(c => c == null);
             customerList.Add(c);
             TryServeNextCustomer();
         }
@@ -150,7 +150,8 @@ namespace Controller.Structure
         private void TryServeNextCustomer()
         {
             // 没顾客
-            customerList.RemoveAll(c => c == null); 
+            customerList.RemoveAll(c => c == null ||
+            (c.state != NpcState.WaitGouMaiWanCheng && !c.severing));
             if (customerList.Count == 0)
                 return;
 
@@ -164,7 +165,7 @@ namespace Controller.Structure
 
             if (TryPurchase(customer, customer.data.carryNum, customer.purchaseList))
             {
-                
+
                 customerList.RemoveAt(0);
                 // 继续服务下一个
                 TryServeNextCustomer();
@@ -179,10 +180,11 @@ namespace Controller.Structure
         {
             if (productList.Count < count)
                 return false;
-            if(customer.state != NpcState.WaitGouMaiWanCheng)
+            if (customer.state != NpcState.WaitGouMaiWanCheng)
             {
-                 return false;
+                return false;
             }
+            customer.severing = true;
             outList.Clear();
             for (int i = 0; i < count; i++)
             {

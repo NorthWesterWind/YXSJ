@@ -327,9 +327,9 @@ namespace View
                 bottompreviewtxt1.text =
                "x" + (WorldData.goodsPriceDic[goodsType] *
                       DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price +
-                      productStationdata.priceLevel * 25);
+                      (productStationdata.priceLevel-1) * 25);
 
-                bottompreviewtxt2.text = "x" + $"{WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price + (productStationdata.priceLevel + 1) * 25}";
+                bottompreviewtxt2.text = "x" + $"{WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price + (productStationdata.priceLevel) * 25}";
 
                 bootomBtntxt1.text = (1000 * productStationdata.priceLevel).ToString();
             }

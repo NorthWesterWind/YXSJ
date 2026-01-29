@@ -270,6 +270,7 @@ public class LoginView : BaseView
                 EventCenter.Instance.TriggerEvent(EventMessages.MapDataPrepared);
                 EventCenter.Instance.TriggerEvent(EventMessages.MapTaskDataPrepared);
                 EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
                 EventCenter.Instance.TriggerEvent(EventMessages.CustomerBeginCreate);
                 EventCenter.Instance.TriggerEvent(EventMessages.MonsterBeginCreate);
                 DataController.Instance.InitMapLock();

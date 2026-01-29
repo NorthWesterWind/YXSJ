@@ -100,7 +100,7 @@ namespace View.CharacterInfoView
             PlayerData data = PlayerDataModule.Instance.data;
             if (data.jingMangZhu < 4)
             {
-                UIController.Instance.Show<TipView>("金芒珠数量不足！");
+                UIController.Instance.Show<TipView>("翠芒珠数量不足！");
             }
             else
             {
@@ -133,6 +133,7 @@ namespace View.CharacterInfoView
                         break;
                 }
                 ShowTalent();
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
             }
         }
 

@@ -1,3 +1,4 @@
+using Controller;
 using Module;
 using Module.Data;
 using TMPro;
@@ -260,25 +261,36 @@ namespace View.PopUp
             {
                 if (state == BtnState.ZhuangBei)
                 {
+                    PlayerData playerData = PlayerDataModule.Instance.data;
                     if (isWeapon)
                     {
+                        WeaponData weapondata = DataController.Instance.weaponDataDic[playerData.currentWeapon];
+                        playerData.addAtk -= weaponData.atkValue;
                         PlayerDataModule.Instance.data.currentWeapon = weaponData.id;
+                        playerData.addAtk += DataController.Instance.weaponDataDic[weaponData.id].atkValue;
 
                     }
                     else
                     {
+                        StotageBagData stotageBagData = DataController.Instance.storageBagDataDic[playerData.currentBag];
+                        playerData.addBagCapacity -= stotageBagData.capacity;
                         PlayerDataModule.Instance.data.currentBag = stotageBagData.id;
+                        playerData.addBagCapacity += DataController.Instance.storageBagDataDic[stotageBagData.id].capacity;
                     }
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);  
                     state = BtnState.YiZhuangBei;
                     btntxt.text = "已装备";
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
                 }
                 else if (state == BtnState.JieSuo)
                 {
+
+
                     if (isWeapon)
                     {
-                        PlayerDataModule.Instance.data.ownWeaponList.Add(weaponData.id);
 
+                        PlayerDataModule.Instance.data.ownWeaponList.Add(weaponData.id);
                     }
                     else
                     {

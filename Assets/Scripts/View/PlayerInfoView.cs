@@ -32,6 +32,8 @@ namespace View
         public UIButton sevendayBtn;
         public UIButton zhuanpanBtn;
         public UIButton lingjingBtn;
+        public UIButton friendBtn;
+        public UIButton mijingBtn;
 
 
         public UIButton characterBtn;
@@ -152,6 +154,13 @@ namespace View
                 UIController.Instance.Show<OrderFunctionView>();
                 HandleHidePlayerInfoViewCartoon();
             }));
+
+            friendBtn.onClick.RemoveAllListeners();
+            friendBtn.onClick.AddListener((() =>
+            {
+                UIController.Instance.Show<FriendView>();
+                HandleHidePlayerInfoViewCartoon();
+            }));    
         }
 
         public override void RemoveEventListener()

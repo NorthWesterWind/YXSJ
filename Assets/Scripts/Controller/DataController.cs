@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Controller.Structure;
 using Module;
 using Module.Data;
 using Newtonsoft.Json;
@@ -348,7 +349,8 @@ namespace Controller
                     var productionData = PlayerDataModule.Instance.data.ProductStationDataList.Find(x => x.buildingType == BuildingType.YuShaHu_1);
                     if (productionData == null)
                     {
-                        PlayerDataModule.Instance.data.ProductStationDataList.Add(new ProductStationData(BuildingType.YuShaHu_1));
+                      
+                        PlayerDataModule.Instance.data.ProductStationDataList.Add(new ProductStationData(BuildingType.YuShaHu_1,  GameController.Instance.buildings[BuildingType.YuShaHu_1].GetComponent<ProductionStation>().goodsType));
                     }
                 }
                 if (buildingType == BuildingType.LingZhangTai)

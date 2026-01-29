@@ -65,15 +65,15 @@ namespace View.Task
             mapNameTxt.text = _mapData.name;
             if (_mapData.id == 1 || _mapData.id == 2)
             {
-                rewardBtnImg.sprite = assetHandle.Get<Sprite>("宝箱1");
+                rewardBtnImg.sprite = assetHandle.Get<Sprite>("玄银宝箱");
             }
             else if (_mapData.id == 3 || _mapData.id == 4)
             {
-                rewardBtnImg.sprite = assetHandle.Get<Sprite>("宝箱2");
+                rewardBtnImg.sprite = assetHandle.Get<Sprite>("天灵宝箱");
             }
             else
             {
-                rewardBtnImg.sprite = assetHandle.Get<Sprite>("宝箱3");
+                rewardBtnImg.sprite = assetHandle.Get<Sprite>("紫金宝箱");
             }
             int tempvalue1 = count / _mapData.taskGroupSize;
             mapprogressTxt.text = tempvalue1 + "/" + _mapData.taskGroupNum;

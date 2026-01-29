@@ -32,6 +32,7 @@ namespace Controller
         public MeshRenderer _meshRenderer;
         public GameObject fillBg;
         public GameObject fill;
+        public bool severing = false;
         void Start()
         {
 
@@ -89,6 +90,7 @@ namespace Controller
         }
         public void Init(CustomerData outdata, GoodsType type, StructureBase structureBase)
         {
+            severing = false;
             goodsType = type; data = outdata;
             state = NpcState.QianWangGouMai;
             bornPosition = transform.position;
@@ -170,7 +172,7 @@ namespace Controller
 
         public void WaitPurchase()
         {
-//            Debug.LogError($"{name} 到达购买点，开始等待购买");
+            //            Debug.LogError($"{name} 到达购买点，开始等待购买");
             state = NpcState.WaitGouMaiWanCheng;
             StartCoroutine(PurchaseRoutine());
 
@@ -178,19 +180,22 @@ namespace Controller
         private IEnumerator PurchaseRoutine()
         {
             float timer = 0f;
-            bool purchased = false;
             while (timer < data.waitTime)
             {
                 if (purchaseList.Count >= data.carryNum)
                 {
                     Purchase();
-                    purchased = true;
-                    break;
+                    yield break;
+                }
+                if (severing)
+                {
+                    yield return null;
+                    continue;
                 }
                 timer += Time.deltaTime;
                 yield return null;
             }
-            if (!purchased)
+            if (!severing && purchaseList.Count < data.carryNum)
             {
                 skeletonAnimation.AnimationState.SetAnimation(0, "angry", false);
                 yield return new WaitForSeconds(1f);
@@ -200,7 +205,16 @@ namespace Controller
         }
         private void Purchase()
         {
-            for (int i = 0; i < purchaseList.Count; i++) { var obj = purchaseList[i]; purchaseList[i].FlyTo(receiveTransform.position, () => { obj.transform.SetParent(transform, false); obj.transform.position = receiveTransform.position; }); }
+            for (int i = 0; i < purchaseList.Count; i++)
+            {
+                var obj = purchaseList[i];
+                purchaseList[i].FlyTo(receiveTransform.position, () =>
+                 {
+                     obj.transform.SetParent(transform, false);
+                     obj.transform.position = receiveTransform.position;
+                 });
+            }
+            severing = false;
             Debug.Log($"{name} 成功购买 {data.carryNum} 件商品");
             state = NpcState.QianWangShouYinTai;
             SetNextPosition();

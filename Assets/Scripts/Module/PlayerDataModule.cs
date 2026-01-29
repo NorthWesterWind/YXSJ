@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Controller;
+using Controller.Structure;
 using Module.Data;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -697,7 +698,7 @@ namespace Module
         {
             data.tongbi += value;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
-            EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask,value);
+            EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask, value);
         }
 
         public bool RemoveYinQian(int value)
@@ -725,7 +726,7 @@ namespace Module
                     data.characterFunction = 1;
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdateFunctionState);
                 }
-                 if (data.cardFunction == 0)
+                if (data.cardFunction == 0)
                 {
                     data.cardFunction = 1;
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdateFunctionState);
@@ -795,7 +796,7 @@ namespace Module
             }
             data.tongbi += rewardData.Tq;
             data.goldIngot += rewardData.Jyb;
-            EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask,rewardData.Tq);
+            EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask, rewardData.Tq);
             UIController.Instance.Show<TipView>("任务奖励领取成功！");
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
             EventCenter.Instance.TriggerEvent(EventMessages.UpdateLevelProgress);
@@ -1004,7 +1005,7 @@ namespace Module
                         Debug.LogError(" yj ==>  重复添加生产台数据");
                     }
 
-                    data.ProductStationDataList.Add(new ProductStationData(buildingType));
+                    data.ProductStationDataList.Add(new ProductStationData(buildingType, GameController.Instance.buildings[buildingType].GetComponent<ProductionStation>().goodsType));
                 }
 
                 if (buildingType == BuildingType.YunDiGe)

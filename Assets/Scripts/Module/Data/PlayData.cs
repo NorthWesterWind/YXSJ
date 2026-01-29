@@ -386,11 +386,13 @@ namespace Module.Data
         public int maxPriceLevel = 100;
         public int timelevel;
         public int maxTimeLevel = 40;
-        public ProductStationData(BuildingType buildingType)
+        public GoodsType goodsType = GoodsType.None;
+        public ProductStationData(BuildingType buildingType , GoodsType goodsType)
         {
             this.buildingType = buildingType;
             priceLevel = 1;
             timelevel = 1;
+            this.goodsType = goodsType;
         }
     }
 
