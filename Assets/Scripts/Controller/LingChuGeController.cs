@@ -68,6 +68,7 @@ namespace Controller
             meshRenderer.sortingOrder = sprite.sortingOrder + 1;
             structureLock.gameObject.SetActive(false);
             GameController.Instance.unlockedBuildingTypes.Add(structureType);
+            HandleBeginWorking();
         }
 
 
@@ -115,7 +116,6 @@ namespace Controller
             {
                 characterController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
             }
-            EventCenter.Instance.TriggerEvent(EventMessages.LingChuGeBeginWorking);
            
         }
 

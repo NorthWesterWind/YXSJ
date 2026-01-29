@@ -41,7 +41,7 @@ namespace Controller
                 freightClerkList.RemoveAt(i - 1);
             }
             RefreshView(state, lockData);
-            UpdateYunDiZheInfo();
+          
         }
 
         private void RefreshView(StructureState state, StructureLockData lockData)
@@ -65,6 +65,7 @@ namespace Controller
             renderer.sortingOrder = sprite.sortingOrder + 1;
             structureLock.gameObject.SetActive(false);
             GameController.Instance.unlockedBuildingTypes.Add(buildingType);
+              UpdateYunDiZheInfo();
         }
 
         public StructureLockData GetLockData(int mapId)
