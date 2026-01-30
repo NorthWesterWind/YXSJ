@@ -1,6 +1,7 @@
 using Controller.Player;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 public class VirtualJoystick : MonoBehaviour,
     IPointerDownHandler,
@@ -26,10 +27,22 @@ public class VirtualJoystick : MonoBehaviour,
     public float Horizontal => horizontal ? InputVector.x : 0f;
     public float Vertical => vertical ? InputVector.y : 0f;
     PlayerController playerController;
+    PlayerController2D playerController2D;
+
+    private bool isTrial;
 
     public void Awake()
     {
-        if (playerController == null)
+        string sceneName = SceneManager.GetActiveScene().name;
+        if (sceneName.Contains("Trial"))
+        {
+            isTrial = true;
+        }
+        if (isTrial)
+        {
+            playerController2D = GameObject.FindWithTag("Player").GetComponent<PlayerController2D>();
+        }
+        else
         {
             playerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
         }
@@ -39,7 +52,7 @@ public class VirtualJoystick : MonoBehaviour,
         uiCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay
             ? null
             : canvas.worldCamera;
-             baseRect.gameObject.SetActive(false);
+        baseRect.gameObject.SetActive(false);
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -97,8 +110,15 @@ public class VirtualJoystick : MonoBehaviour,
 
         if (InputVector.sqrMagnitude < deadZone * deadZone)
             InputVector = Vector2.zero;
+        if (isTrial)
+        {
+            playerController2D.SetDir(InputVector);
+        }
+        else
+        {
+            playerController.SetDir(InputVector);
+        }
 
-        playerController.SetDir(InputVector);
     }
 
     private void UpdateHandlePosition()
@@ -111,7 +131,14 @@ public class VirtualJoystick : MonoBehaviour,
         InputVector = Vector2.zero;
         handle.anchoredPosition = Vector2.zero;
         baseRect.anchoredPosition = initialPosition;
-        playerController.SetDir(InputVector);
+        if (isTrial)
+        {
+            playerController2D.SetDir(InputVector);
+        }
+        else
+        {
+            playerController.SetDir(InputVector);
+        }
         baseRect.gameObject.SetActive(false);
     }
 }

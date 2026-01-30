@@ -68,6 +68,10 @@ namespace Module.Data
         public int todayUseZhuanPanNum = 0; //今日转盘使用次数
         public int currentUseNum; //当前累计使用次数
 
+        public int playLingBaoCount;
+        public int playXuanJingCount;
+        public string lastloginday = "";
+
         #endregion
 
         public int monthlyLimitMoney; //每月限制消费金额

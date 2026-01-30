@@ -2068,6 +2068,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   atkValue: 3
+  slowDownValue: 0
 --- !u!61 &1058228376
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2584,14 +2585,7 @@ MonoBehaviour:
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
-    ReferencedUnityObjects:
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
-    - {fileID: 0}
+    ReferencedUnityObjects: []
     SerializedBytesString: 
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
@@ -2651,8 +2645,8 @@ MonoBehaviour:
       Entry: 3
       Data: 7
     - Name: $v
-      Entry: 10
-      Data: 0
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -2663,8 +2657,8 @@ MonoBehaviour:
       Entry: 3
       Data: 5
     - Name: $v
-      Entry: 10
-      Data: 1
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -2675,8 +2669,8 @@ MonoBehaviour:
       Entry: 3
       Data: 3
     - Name: $v
-      Entry: 10
-      Data: 2
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -2687,8 +2681,8 @@ MonoBehaviour:
       Entry: 3
       Data: 1
     - Name: $v
-      Entry: 10
-      Data: 3
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -2699,8 +2693,8 @@ MonoBehaviour:
       Entry: 3
       Data: 4
     - Name: $v
-      Entry: 10
-      Data: 4
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -2711,8 +2705,8 @@ MonoBehaviour:
       Entry: 3
       Data: 6
     - Name: $v
-      Entry: 10
-      Data: 5
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -2723,8 +2717,8 @@ MonoBehaviour:
       Entry: 3
       Data: 2
     - Name: $v
-      Entry: 10
-      Data: 6
+      Entry: 6
+      Data: 
     - Name: 
       Entry: 8
       Data: 
@@ -4705,6 +4699,13 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+  currentCarryNum: 0
+  currentHp: 0
+  currentMoveSpeed: 0
+  currentPinkUpRange: 0
+  currenthpRecover: 0
+  maxCarryNum: 0
+  maxHp: 0
   isMoving: 0
   dataModule: {fileID: 0}
   shadowRenderer: {fileID: 368377169}
@@ -4713,7 +4714,6 @@ MonoBehaviour:
   focusCamera: {fileID: 0}
   weapon: {fileID: 1058228370}
   weaponEffect: {fileID: 0}
-  detectRadius: 10
   monsterLayer:
     serializedVersion: 2
     m_Bits: 64
@@ -4727,11 +4727,6 @@ MonoBehaviour:
   receiveTransform: {fileID: 710152830}
   infoTransform: {fileID: 404194317}
   playerInfo: {fileID: 0}
-  currentCarryNum: 0
-  currentHp: 0
-  maxHp: 0
-  maxCarryNum: 0
-  currentPinkUpRange: 0
   isDead: 0
   weaponRoot: {fileID: 0}
   speed: 0
@@ -4739,6 +4734,7 @@ MonoBehaviour:
   radiusZ: 0.55
   minScale: 0.85
   maxScale: 1.15
+  InRange: 0
   isShowUI: 0
   scatterCurve:
     serializedVersion: 2
@@ -5045,6 +5041,22 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3386383141008012400, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3386383141008012400, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3386383141008012400, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3386383141008012400, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4499262006150596088, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -5253,6 +5265,22 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9012949818232307925, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9012949818232307925, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9012949818232307925, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9012949818232307925, guid: 0893d9003c1000b4da987652d9ab8830, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5419,8 +5447,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 338c30f928b173d4a8a6a48abb801218, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  offset: {x: 0, y: 0, z: 0}
   fillImage: {fileID: 288679237}
   fillBg: {fileID: 5121026044600275727}
   canvas: {fileID: 1952903743954528662}

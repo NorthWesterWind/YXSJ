@@ -10,8 +10,6 @@ namespace Controller.Player
 {
     public class PlayerInfo : MonoBehaviour
     {
-        public Transform target; // 角色头顶挂点
-        public Vector3 offset;   // 屏幕偏移（比如往上抬一点）
         public Image fillImage;
         public Image fillBg;
         public Canvas canvas;
@@ -21,23 +19,19 @@ namespace Controller.Player
         public AssetHandle _assetHandle;
         private void Start()
         {
-            if (player == null)
-            {
-                player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
-                target = player.infoTransform;
-                player.playerInfo = this;
-            }
+
+
             _assetHandle = GetComponent<AssetHandle>();
             HideHpInfo();
 
             EventCenter.Instance.AddListener(EventMessages.UpdatePlayerEquimentInfo, UpdateBagInfo);
             EventCenter.Instance.AddListener(EventMessages.UpdatePlayerInfo, UpdateTxt);
-          
+
         }
         void OnDestroy()
         {
             EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerEquimentInfo, UpdateBagInfo);
-             EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerInfo, UpdateTxt);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerInfo, UpdateTxt);
         }
 
 
@@ -59,41 +53,22 @@ namespace Controller.Player
 
 
 
-        private Coroutine uiRoutine;
+
 
         private void OnEnable()
         {
-            uiRoutine = StartCoroutine(UpdateUIRoutine());
+
         }
 
         private void OnDisable()
         {
-            if (uiRoutine != null)
-                StopCoroutine(uiRoutine);
+
         }
 
-        private IEnumerator UpdateUIRoutine()
-        {
-            while (true)
-            {
-                yield return new WaitForEndOfFrame();
-
-                Vector3 screenPos = Camera.main.WorldToScreenPoint(target.position + offset);
-                transform.position = screenPos;
-
-                SetLayer();
-            }
-        }
 
         private void Update()
         {
 
-        }
-
-        public void SetLayer()
-        {
-            int newOrder = 30000 - Mathf.FloorToInt(player.transform.localPosition.y);
-            canvas.sortingOrder = newOrder;
         }
 
         public void UpdateFill(float value)
@@ -113,7 +88,6 @@ namespace Controller.Player
             {
                 text.text = $"{player.currentCarryNum}/{player.maxCarryNum}";
             }
-           // Debug.LogError($"yj=> player.maxCarryNum = {player.maxCarryNum} ");
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerCarryInfo);
         }
     }

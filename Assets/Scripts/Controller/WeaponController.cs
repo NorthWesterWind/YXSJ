@@ -70,7 +70,12 @@ namespace Controller
             {
                 monsterCtrl.TakeDamage(atkValue ,transform , slowDownValue);
             }
-           
+            // var monsterCtr2 = monster.GetComponent<MonsterController2D>();
+            // if (monsterCtr2 != null && monsterCtrl.currentHp > 0)
+            // {
+            //     monsterCtr2.TakeDamage(atkValue);
+            // }
+            
         }
     }
 }

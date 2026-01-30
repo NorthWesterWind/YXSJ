@@ -86,6 +86,7 @@
     <Compile Include="Assets\Scripts\Controller\DynamicJoystickController.cs" />
     <Compile Include="Assets\Scripts\Controller\Monster\NormalMonsterStrategy.cs" />
     <Compile Include="Assets\Scripts\Utils\EventCenter.cs" />
+    <Compile Include="Assets\Scripts\View\TrialView.cs" />
     <Compile Include="Assets\Scripts\Module\Data\MapLockData.cs" />
     <Compile Include="Assets\Scripts\Controller\AudioSourceController.cs" />
     <Compile Include="Assets\Scripts\Utils\VirtualJoystick.cs" />
@@ -93,6 +94,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextSelector_A.cs" />
     <Compile Include="Assets\Scripts\Module\Data\CardLevelData.cs" />
     <Compile Include="Assets\Scripts\Controller\Monster\GiantMonsterStrategy.cs" />
+    <Compile Include="Assets\Scripts\Controller\Player\2D\PlayerController2D.cs" />
     <Compile Include="Assets\Scripts\Module\Data\TalentData.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\Benchmark01_UGUI.cs" />
     <Compile Include="Assets\Scripts\Controller\Monster\IMonsterBehaviorStrategy.cs" />
@@ -107,6 +109,7 @@
     <Compile Include="Assets\Scripts\Controller\CustomerFactory.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\ChatController.cs" />
     <Compile Include="Assets\Scripts\Controller\Pickups\Production.cs" />
+    <Compile Include="Assets\Scripts\Controller\Monster\MonsterController.cs" />
     <Compile Include="Assets\Scripts\Module\Data\PlayData.cs" />
     <Compile Include="Assets\Scripts\View\ExchangeView.cs" />
     <Compile Include="Assets\Scripts\Controller\GuideFingerController.cs" />
@@ -195,11 +198,13 @@
     <Compile Include="Assets\Scripts\Module\Data\RewardData.cs" />
     <Compile Include="Assets\Scripts\View\EmployeeFunction\LingChuGeInfoItem.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexShakeB.cs" />
+    <Compile Include="Assets\Scripts\Controller\GameController2D.cs" />
     <Compile Include="Assets\Samples\Cinemachine\2.10.5\Cinemachine Example Scenes\Scenes\BossCamera\CustomLockCameraY.cs" />
     <Compile Include="Assets\Scripts\View\CharacterInfoView\itemInfo.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\DropdownSample.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\VertexColorCycler.cs" />
     <Compile Include="Assets\Scripts\View\LingChuGePop.cs" />
+    <Compile Include="Assets\Scripts\Controller\Monster\Monster2D\MonsterController2D.cs" />
     <Compile Include="Assets\Scripts\View\WorldSpaceUIFollow.cs" />
     <Compile Include="Assets\Scripts\Utils\ShanPingView.cs" />
     <Compile Include="Assets\Scripts\View\LingChuGe\BottomItem.cs" />
@@ -232,6 +237,7 @@
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TeleType.cs" />
     <Compile Include="Assets\Scripts\View\Task\TaskViewItem.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextEventCheck.cs" />
+    <Compile Include="Assets\Scripts\View\DungeonLevelView.cs" />
     <Compile Include="Assets\Scripts\View\OrderFunction\OrderNeedItem.cs" />
     <Compile Include="Assets\Scripts\View\VipView.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_UiFrameRateCounter.cs" />
@@ -275,7 +281,6 @@
     <Compile Include="Assets\Scripts\Controller\YuanBaoKuangDongCtr.cs" />
     <Compile Include="Assets\Scripts\View\EmployeeFunction\EmployeeContent.cs" />
     <Compile Include="Assets\Scripts\Controller\Structure\SalesStall.cs" />
-    <Compile Include="Assets\Scripts\Controller\MonsterController.cs" />
     <Compile Include="Assets\Scripts\Utils\SettingLayer.cs" />
     <Compile Include="Assets\Scripts\View\MapFunction\MapSelectView.cs" />
     <Compile Include="Assets\TextMesh Pro\Examples &amp; Extras\Scripts\TMP_TextInfoDebugTool.cs" />

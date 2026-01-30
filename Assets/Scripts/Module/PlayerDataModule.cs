@@ -475,6 +475,12 @@ namespace Module
                      {
                          data.monthlyLimitMoney = 0;
                      }
+                     if(data.lastloginday != now.ToString("yyyy/MM/dd"))
+                     {
+                         data.useZhuanPanTotalValue = 0;
+                         data.playLingBaoCount = 3;
+                         data.playXuanJingCount = 3;
+                     }
 
                      callback?.Invoke(respone.fcm);
                      DataController.Instance.UpdateStructureLockInfo();

@@ -32,7 +32,7 @@ namespace View
         public UIButton sevendayBtn;
         public UIButton zhuanpanBtn;
         public UIButton lingjingBtn;
-        public UIButton friendBtn;
+       // public UIButton friendBtn;
         public UIButton mijingBtn;
 
 
@@ -155,12 +155,12 @@ namespace View
                 HandleHidePlayerInfoViewCartoon();
             }));
 
-            friendBtn.onClick.RemoveAllListeners();
-            friendBtn.onClick.AddListener((() =>
-            {
-                UIController.Instance.Show<FriendView>();
-                HandleHidePlayerInfoViewCartoon();
-            }));    
+            // friendBtn.onClick.RemoveAllListeners();
+            // friendBtn.onClick.AddListener((() =>
+            // {
+            //     UIController.Instance.Show<FriendView>();
+            //     HandleHidePlayerInfoViewCartoon();
+            // }));    
         }
 
         public override void RemoveEventListener()

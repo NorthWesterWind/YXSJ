@@ -48,7 +48,6 @@ namespace Controller.Player
 
         public List<InteractionController> overlappingTrigger = new();
         public Transform receiveTransform;
-        public Transform infoTransform;
         public PlayerInfo playerInfo;
 
         public Dictionary<GoodsType, int> goodsDic = new();
@@ -57,7 +56,7 @@ namespace Controller.Player
         public bool isDead = false;
 
         private AssetHandle _assetHandle;
-
+        private Canvas canvas;
 
 
         /// <summary>
@@ -81,7 +80,7 @@ namespace Controller.Player
             {
                 dataModule = PlayerDataModule.Instance;
             }
-
+            canvas = GetComponent<Canvas>();
             camera = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
             camera.LookAt = transform;
             camera.Follow = transform;
@@ -161,12 +160,13 @@ namespace Controller.Player
             currentHp = dataModule.data.hp + dataModule.data.addHp;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
-
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerInfo);
         }
 
         public void SetLayer()
         {
             int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
+            canvas.sortingOrder = newOrder +1;
             renderer.sortingOrder = newOrder;
             //weaponRenderer.sortingOrder = newOrder;
             shadowRenderer.sortingOrder = newOrder;
@@ -176,7 +176,7 @@ namespace Controller.Player
 
         void Update()
         {
-            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerInfo);
+         
             SetLayer();
             if (isShowUI)
             {
@@ -345,7 +345,7 @@ namespace Controller.Player
                 WeaponData weaponData = DataController.Instance.weaponDataDic[dataModule.data.currentWeapon];
                 weaponRenderer.sprite = _assetHandle.Get<Sprite>(weaponData.name);
                 _skeletonAnimation.skeleton.SetAttachment(weaponData.slotName, weaponData.attachmentName);
-                SkeletonDataAsset skeletonDataAsset = _assetHandle.Get<SkeletonDataAsset>(weaponData.name+"data");
+                SkeletonDataAsset skeletonDataAsset = _assetHandle.Get<SkeletonDataAsset>(weaponData.name + "data");
                 weaponEffect.skeletonDataAsset = skeletonDataAsset;
                 weaponEffect.Initialize(true);
             }

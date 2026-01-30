@@ -6,6 +6,7 @@ using Module.Data;
 using PolyNav;
 using Spine.Unity;
 using UnityEngine;
+using UnityEngine.UI;
 using Utils;
 using View;
 using Random = UnityEngine.Random;
@@ -47,8 +48,9 @@ namespace Controller
 
         public Transform uiAnchor;
         private AssetHandle _assetHandle;
-        private GameObject _hpInfo;
-        private WorldSpaceUIFollow _worldSpaceUIFollow;
+        // private WorldSpaceUIFollow _worldSpaceUIFollow;
+        public GameObject fillBg;
+        public Image fillImg;
 
         private float lastDamageTime = -999f;
         private bool isRegenerating = false;
@@ -85,8 +87,7 @@ namespace Controller
             _assetHandle = GetComponent<AssetHandle>();
 
         }
-
-        public void Init(MonsterData data, Vector2 center, MonsterBehavior behavior, int Id, Vector2 patrolSize)
+               public void Init(MonsterData data, Vector2 center, MonsterBehavior behavior, int Id, Vector2 patrolSize)
         {
             this.data = data;
             currentHp = data.hp;
@@ -99,16 +100,8 @@ namespace Controller
             agent.enabled = true;
             this.patrolSize = patrolSize;
 
-            if (_hpInfo == null)
-            {
-                _hpInfo = Instantiate(_assetHandle.Get<GameObject>("HpInfo"), GameObject.Find("HpCanvas").transform,
-                    false);
-                _worldSpaceUIFollow = _hpInfo.GetComponent<WorldSpaceUIFollow>();
-                _worldSpaceUIFollow.target = uiAnchor;
-            }
-
-            _worldSpaceUIFollow.UpdateFill(currentHp / data.hp);
-            _hpInfo.SetActive(false);
+            fillImg.fillAmount = currentHp / data.hp;
+            fillBg.gameObject.SetActive(false);
 
             SetLayer();
 
@@ -204,10 +197,10 @@ namespace Controller
                 }
 
             }
-            if(currentSpeed < data.movespeed)
+            if (currentSpeed < data.movespeed)
             {
                 slowtime -= Time.deltaTime;
-                if(slowtime <= 0)
+                if (slowtime <= 0)
                 {
                     slowtime = 3f;
                     currentSpeed = data.movespeed;
@@ -218,10 +211,14 @@ namespace Controller
         }
         private bool hasHitPlayer = false;
         private Coroutine chargeCoroutine;
+        private Canvas canvas;
 
         public void SetLayer()
         {
             int newOrder = 30000 - Mathf.FloorToInt(transform.localPosition.y);
+            if (canvas == null)
+                canvas = GetComponent<Canvas>();
+            canvas.sortingOrder = newOrder + 1;
             _meshRenderer.sortingOrder = newOrder;
         }
 
@@ -332,8 +329,8 @@ namespace Controller
             skeletonAnimation.skeleton.ScaleX = fleeDir.x < 0 ? -1 : 1;
         }
 
-    
-      
+
+
 
         private bool isDead = false;
 
@@ -341,9 +338,9 @@ namespace Controller
         {
             if (isDead) return;
             if (Time.time - _lastHitTime < _damageInterval) return;
-             if(slowDownValue > 0)
+            if (slowDownValue > 0)
             {
-                currentSpeed =  data.movespeed -Convert.ToInt32(slowDownValue);
+                currentSpeed = data.movespeed - Convert.ToInt32(slowDownValue);
                 agent.maxSpeed = currentSpeed;
                 slowtime = 3f;
             }
@@ -363,9 +360,11 @@ namespace Controller
                 regenCoroutine = null;
                 isRegenerating = false;
             }
-
-            _hpInfo.SetActive(true);
-            _worldSpaceUIFollow.UpdateFill(currentHp / data.hp);
+            if (!fillBg.activeSelf)
+            {
+                fillBg.SetActive(true);
+            }
+            fillImg.fillAmount = currentHp / data.hp;
 
             if (currentHp <= 0)
             {
@@ -375,7 +374,7 @@ namespace Controller
                 var current = state.GetCurrent(0);
                 if (current == null || current.Animation.Name != "dead")
                 {
-                    state.SetAnimation(1, "dead", false);
+                    state.SetAnimation(0, "dead", false);
                 }
                 StartCoroutine(DoDie());
             }
@@ -487,7 +486,11 @@ namespace Controller
             {
                 currentHp += regenSpeed * Time.deltaTime;
                 currentHp = Mathf.Min(currentHp, data.hp);
-                _worldSpaceUIFollow.UpdateFill(currentHp / data.hp);
+                if (!fillBg.activeSelf)
+                {
+                    fillBg.SetActive(true);
+                }
+                fillImg.fillAmount = (currentHp / data.hp);
                 yield return null;
 
                 if (Time.time - lastDamageTime < regenDelay)
@@ -497,7 +500,7 @@ namespace Controller
                 }
             }
 
-            _hpInfo.SetActive(false);
+            fillBg.SetActive(false);
             isRegenerating = false;
         }
 
@@ -505,7 +508,6 @@ namespace Controller
         {
             agent.Stop();
             agent.enabled = false;
-            Destroy(_hpInfo);
             EventCenter.Instance.RemoveListener(EventMessages.NotifyToFlee, HandleNotifyToFlee);
             if (monsterType == MonsterType.JingYuanBao)
             {

@@ -86,5 +86,10 @@ namespace Utils
         public const string UpdateLoadView = "UpdateLoadView"; //更新加载UI
         public const string UpdatePlayerInfo = "UpdatePlayerInfo"; //更新玩家信息
         public const string UpdatePlayerValueInfo = "UpdatePlayerValueInfo"; //更新玩家数值信息
+
+        public const string HasMonsterArrive = "HasMonsterArrive"; //有怪物到达终点
+
+        public const string BeginCreat2DMonster = "BeginCreat2DMonster"; //开始创建2D怪物
+        public const string StopCreat2DMonster = "StopCreat2DMonster"; //停止创建2D怪物
     }
 }

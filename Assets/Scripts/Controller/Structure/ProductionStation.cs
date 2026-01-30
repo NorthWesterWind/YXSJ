@@ -1,11 +1,8 @@
-using System;
 using System.Collections.Generic;
 using Controller.Pickups;
 using Module;
 using Module.Data;
-using Spine;
 using Spine.Unity;
-using Unity.VisualScripting;
 using UnityEngine;
 using Utils;
 using View;
@@ -24,7 +21,7 @@ namespace Controller.Structure
 
 
         public int currentMaterialCount;  //当前材料数量
-        public float baseProductionTime ; // 基础生产时间
+        public float baseProductionTime; // 基础生产时间
         [Header("进度条信息类")]
         public ProductionInfo productionInfo;
         public DropItemType dropItemType;
@@ -37,11 +34,12 @@ namespace Controller.Structure
 
         public SpriteRenderer productIcon;
         public SpriteRenderer materialIcon;
-        public SpriteRenderer  turnIcon;
+        public SpriteRenderer turnIcon;
         public Transform infoTransform;
         public SkeletonAnimation icon;
 
-            
+
+
         void OnEnable()
         {
             EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo, Init);
@@ -62,7 +60,7 @@ namespace Controller.Structure
         public StructureState lockstate;
         public void Init(params object[] args)
         {
-            if( GameController.Instance.unlockedBuildingTypes.Contains(buildingType))
+            if (GameController.Instance.unlockedBuildingTypes.Contains(buildingType))
             {
                 return;
             }
@@ -70,7 +68,7 @@ namespace Controller.Structure
             lockData = GetLockData(playerData.currentMapID);
             lockstate = GetStructureState(playerData, lockData);
             RefreshView(lockstate, lockData);
-           
+
         }
         public StructureLockData GetLockData(int mapId)
         {
@@ -113,33 +111,29 @@ namespace Controller.Structure
         {
             content.SetActive(true);
             structureLock.gameObject.SetActive(false);
-            if(_assetHandle == null)
+            if (_assetHandle == null)
                 _assetHandle = GetComponent<AssetHandle>();
-            baseProductionTime = WorldData.productStationWorkingTimeDic[ PlayerDataModule.Instance.data.ProductStationDataList.Find(x => x.buildingType == buildingType).timelevel];
-             if (productionInfo == null)
+            baseProductionTime = WorldData.productStationWorkingTimeDic[PlayerDataModule.Instance.data.ProductStationDataList.Find(x => x.buildingType == buildingType).timelevel];
+
+            productionInfo.Init(currentMaterialCount, this);
+            if (currentMaterialCount == 0)
             {
-                GameObject obj = GameObject.Instantiate(_assetHandle.Get<GameObject>("ProductionInfo"), GameObject.Find("HpCanvas").transform, false);
-                productionInfo = obj.GetComponent<ProductionInfo>();
-                productionInfo.Init( currentMaterialCount, this);
-                if (currentMaterialCount == 0)
-                {
-                    productionInfo.gameObject.SetActive(false);
-                }
+                productionInfo.gameObject.SetActive(false);
             }
-            productionInfo.Init( currentMaterialCount, this);
             grid.basePosition = productPosition.position;
 
             ObjectPoolManager.Instance.WarmPool("Production", _productObj, 50);
 
             productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(goodsType));
             materialIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType(dropItemType));
-            
+
             int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
             int order = newOrder + 2;
             icon.GetComponent<MeshRenderer>().sortingOrder = order;
             productIcon.sortingOrder = order;
             materialIcon.sortingOrder = order;
             turnIcon.sortingOrder = order;
+            GetComponent<Canvas>().sortingOrder = order + 2;
 
             icon.initialSkinName = GetBuildingIcon().ToString();
             GameController.Instance.unlockedBuildingTypes.Add(buildingType);
@@ -181,7 +175,7 @@ namespace Controller.Structure
             if (dropItemType == DropItemType.ShuangYunZhiFragment &&
                 PlayerDataModule.Instance.data.guideStep == GuideStep.DeliverMaterial)
             {
-                PlayerDataModule.Instance.data.guideStep =  GuideStep.BuildAccountDesk;
+                PlayerDataModule.Instance.data.guideStep = GuideStep.BuildAccountDesk;
                 UIController.Instance.Show<PlayerGuide>();
             }
         }
@@ -201,7 +195,7 @@ namespace Controller.Structure
             GameObject productObj = ObjectPoolManager.Instance.GetObject("Production");
             productObj.transform.position = recivePosition.position;
             Production product = productObj.GetComponent<Production>();
-            EventCenter.Instance.TriggerEvent(EventMessages.ProduceTask,goodsType); 
+            EventCenter.Instance.TriggerEvent(EventMessages.ProduceTask, goodsType);
             product.Init(goodsType);
             product.SetStation(this);
             product.spriteRenderer.sortingOrder = sprite.sortingOrder + 3;
@@ -224,9 +218,7 @@ namespace Controller.Structure
 
         private void OnDestroy()
         {
-            if (productionInfo != null)
-                Destroy(productionInfo.gameObject);
-
+          
         }
 
 

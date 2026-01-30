@@ -352,12 +352,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1080, y: 1920}
   m_ScreenMatchMode: 0
-  m_MatchWidthOrHeight: 0
+  m_MatchWidthOrHeight: 0.3
   m_PhysicalUnit: 3
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
@@ -730,6 +730,15 @@ MonoBehaviour:
     - Name: currentUseNum
       Entry: 3
       Data: 0
+    - Name: playLingBaoCount
+      Entry: 3
+      Data: 0
+    - Name: playXuanJingCount
+      Entry: 3
+      Data: 0
+    - Name: lastloginday
+      Entry: 6
+      Data: 
     - Name: monthlyLimitMoney
       Entry: 3
       Data: 0
@@ -817,137 +826,27 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: mapCompletedTaskRecordDic
-      Entry: 7
-      Data: 4|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[System.Collections.Generic.List`1[[System.Int32,
-        mscorlib]], mscorlib]], mscorlib
-    - Name: comparer
-      Entry: 7
-      Data: 5|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
-        mscorlib]], mscorlib
-    - Name: 
-      Entry: 8
+    - Name: mapCompletedTaskRecordList_1
+      Entry: 6
       Data: 
-    - Name: 
-      Entry: 12
-      Data: 5
-    - Name: 
-      Entry: 7
+    - Name: mapCompletedTaskRecordList_2
+      Entry: 6
       Data: 
-    - Name: $k
-      Entry: 3
-      Data: 1
-    - Name: $v
-      Entry: 7
-      Data: 6|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
+    - Name: mapCompletedTaskRecordList_3
+      Entry: 6
       Data: 
-    - Name: 
-      Entry: 8
+    - Name: mapCompletedTaskRecordList_4
+      Entry: 6
       Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 2
-    - Name: $v
-      Entry: 7
-      Data: 7|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 3
-    - Name: $v
-      Entry: 7
-      Data: 8|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 4
-    - Name: $v
-      Entry: 7
-      Data: 9|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 5
-    - Name: $v
-      Entry: 7
-      Data: 10|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
+    - Name: mapCompletedTaskRecordList_5
+      Entry: 6
       Data: 
     - Name: nowTaskId
       Entry: 3
       Data: 0
     - Name: listenInTaskList
       Entry: 7
-      Data: 11|System.Collections.Generic.List`1[[Module.Data.TaskData, Assembly-CSharp]],
+      Data: 4|System.Collections.Generic.List`1[[Module.Data.TaskData, Assembly-CSharp]],
         mscorlib
     - Name: 
       Entry: 12
@@ -960,11 +859,15 @@ MonoBehaviour:
       Data: 
     - Name: taskProgressDic
       Entry: 7
-      Data: 12|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[System.Int32,
+      Data: 5|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[System.Int32,
         mscorlib]], mscorlib
     - Name: comparer
-      Entry: 9
-      Data: 5
+      Entry: 7
+      Data: 6|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: 
       Entry: 12
       Data: 1
@@ -995,9 +898,15 @@ MonoBehaviour:
     - Name: LingShunLingTime
       Entry: 6
       Data: 
+    - Name: GetLingJingTime
+      Entry: 6
+      Data: 
+    - Name: GetLingJingCount
+      Entry: 3
+      Data: 0
     - Name: sevenDayRecordList
       Entry: 7
-      Data: 13|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
+      Data: 7|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 0
@@ -1021,7 +930,7 @@ MonoBehaviour:
       Data: 0
     - Name: ownWeaponList
       Entry: 7
-      Data: 14|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
+      Data: 8|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 1
@@ -1039,7 +948,7 @@ MonoBehaviour:
       Data: 1
     - Name: ownBagList
       Entry: 7
-      Data: 15|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
+      Data: 9|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
     - Name: 
       Entry: 12
       Data: 1
@@ -1066,7 +975,7 @@ MonoBehaviour:
       Data: 0
     - Name: cardUpProgressesList
       Entry: 7
-      Data: 16|System.Collections.Generic.List`1[[Module.Data.CardUpProgress, Assembly-CSharp]],
+      Data: 10|System.Collections.Generic.List`1[[Module.Data.CardUpProgress, Assembly-CSharp]],
         mscorlib
     - Name: 
       Entry: 12
@@ -1079,11 +988,137 @@ MonoBehaviour:
       Data: 
     - Name: structLockDataDic
       Entry: 7
+      Data: 11|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[System.Collections.Generic.List`1[[Module.Data.BuildingType,
+        Assembly-CSharp]], mscorlib]], mscorlib
+    - Name: comparer
+      Entry: 9
+      Data: 6
+    - Name: 
+      Entry: 12
+      Data: 5
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 1
+    - Name: $v
+      Entry: 7
+      Data: 12|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 2
+    - Name: $v
+      Entry: 7
+      Data: 13|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 3
+    - Name: $v
+      Entry: 7
+      Data: 14|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 4
+    - Name: $v
+      Entry: 7
+      Data: 15|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 7
+      Data: 
+    - Name: $k
+      Entry: 3
+      Data: 5
+    - Name: $v
+      Entry: 7
+      Data: 16|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
+        mscorlib
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: structUnLockDataDic
+      Entry: 7
       Data: 17|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[System.Collections.Generic.List`1[[Module.Data.BuildingType,
         Assembly-CSharp]], mscorlib]], mscorlib
     - Name: comparer
       Entry: 9
-      Data: 5
+      Data: 6
     - Name: 
       Entry: 12
       Data: 5
@@ -1203,13 +1238,13 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: structUnLockDataDic
+    - Name: structCanUnLockDataDic
       Entry: 7
       Data: 23|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[System.Collections.Generic.List`1[[Module.Data.BuildingType,
         Assembly-CSharp]], mscorlib]], mscorlib
     - Name: comparer
       Entry: 9
-      Data: 5
+      Data: 6
     - Name: 
       Entry: 12
       Data: 5
@@ -1329,132 +1364,6 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
-    - Name: structCanUnLockDataDic
-      Entry: 7
-      Data: 29|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[System.Collections.Generic.List`1[[Module.Data.BuildingType,
-        Assembly-CSharp]], mscorlib]], mscorlib
-    - Name: comparer
-      Entry: 9
-      Data: 5
-    - Name: 
-      Entry: 12
-      Data: 5
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 1
-    - Name: $v
-      Entry: 7
-      Data: 30|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 2
-    - Name: $v
-      Entry: 7
-      Data: 31|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 3
-    - Name: $v
-      Entry: 7
-      Data: 32|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 4
-    - Name: $v
-      Entry: 7
-      Data: 33|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 5
-    - Name: $v
-      Entry: 7
-      Data: 34|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
     - Name: cashierData
       Entry: 6
       Data: 
@@ -1463,7 +1372,7 @@ MonoBehaviour:
       Data: 
     - Name: warehouselist
       Entry: 7
-      Data: 35|System.Collections.Generic.List`1[[Module.Data.WarehouseCategory,
+      Data: 29|System.Collections.Generic.List`1[[Module.Data.WarehouseCategory,
         Assembly-CSharp]], mscorlib
     - Name: 
       Entry: 12
@@ -1476,7 +1385,7 @@ MonoBehaviour:
       Data: 
     - Name: ProductStationDataList
       Entry: 7
-      Data: 36|System.Collections.Generic.List`1[[Module.Data.ProductStationData,
+      Data: 30|System.Collections.Generic.List`1[[Module.Data.ProductStationData,
         Assembly-CSharp]], mscorlib
     - Name: 
       Entry: 12
@@ -1489,7 +1398,7 @@ MonoBehaviour:
       Data: 
     - Name: orderDataprogressList
       Entry: 7
-      Data: 37|System.Collections.Generic.List`1[[Module.Data.OrderDataProgress,
+      Data: 31|System.Collections.Generic.List`1[[Module.Data.OrderDataProgress,
         Assembly-CSharp]], mscorlib
     - Name: 
       Entry: 12
@@ -1502,7 +1411,7 @@ MonoBehaviour:
       Data: 
     - Name: mapLockDataProgressList
       Entry: 7
-      Data: 38|System.Collections.Generic.List`1[[Module.Data.MapLockDataProgress,
+      Data: 32|System.Collections.Generic.List`1[[Module.Data.MapLockDataProgress,
         Assembly-CSharp]], mscorlib
     - Name: 
       Entry: 12
@@ -1515,7 +1424,7 @@ MonoBehaviour:
       Data: 
     - Name: structureLockProgressDataList
       Entry: 7
-      Data: 39|System.Collections.Generic.List`1[[Module.Data.StructureLockProgressData,
+      Data: 33|System.Collections.Generic.List`1[[Module.Data.StructureLockProgressData,
         Assembly-CSharp]], mscorlib
     - Name: 
       Entry: 12
