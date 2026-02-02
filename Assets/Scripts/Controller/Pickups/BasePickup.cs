@@ -61,15 +61,15 @@ namespace Controller.Pickups
             // 让具体物品去执行拾取逻辑
             GetComponent<IPickable>().OnPicked(picker.gameObject);
             isTaken = false;
-            ObjectPoolManager.Instance.ReturnObject(itemName , gameObject);
             if (ScenePickupController.Instance.materials.Contains(this))
             {
                 ScenePickupController.Instance.materials.Remove(this);
             }
-            else
+           if (ScenePickupController.Instance.products.Contains(this))
             {
                 ScenePickupController.Instance.products.Remove(this);
             }
+            Destroy(gameObject);
            
         }
     }

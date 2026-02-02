@@ -32,7 +32,7 @@ namespace View
         public UIButton sevendayBtn;
         public UIButton zhuanpanBtn;
         public UIButton lingjingBtn;
-       // public UIButton friendBtn;
+        // public UIButton friendBtn;
         public UIButton mijingBtn;
 
 
@@ -130,7 +130,7 @@ namespace View
             lingjingBtn.onClick.RemoveAllListeners();
             lingjingBtn.onClick.AddListener((() =>
             {
-                if(PlayerDataModule.Instance.data.GetLingJingTime != DateTime.Now.ToString("yyyy/MM/dd"))
+                if (PlayerDataModule.Instance.data.GetLingJingTime != DateTime.Now.ToString("yyyy/MM/dd"))
                 {
                     PlayerDataModule.Instance.data.lingJing += PlayerDataModule.Instance.data.GetLingJingCount;
                     UIController.Instance.Show<RewardConfirmView>(new Dictionary<CurrencyType, int> { { CurrencyType.LingJing, PlayerDataModule.Instance.data.GetLingJingCount } });
@@ -141,7 +141,18 @@ namespace View
                 {
                     UIController.Instance.Show<TipView>("今天已经领取过灵晶！");
                 }
-                
+
+            }));
+            mijingBtn.onClick.RemoveAllListeners();
+            mijingBtn.onClick.AddListener((() =>
+            {
+                if (player.weapon.activeSelf)
+                {
+                    UIController.Instance.Show<TipView>("战斗状态无法进入副本！");
+                    return;
+                }
+                HandleHidePlayerInfoViewCartoon();
+                UIController.Instance.Show<DungeonLevelView>();
             }));
 
             ordenFunctionBtn.onClick.RemoveAllListeners();
@@ -236,7 +247,7 @@ namespace View
         {
             tongbitxt.text = Extensions.FormatNumber(player.dataModule.data.tongbi);
 
-            
+
         }
 
         public void HandleShowPlayerInfoViewCartoon(params object[] args)

@@ -271,7 +271,7 @@ namespace Controller
             GetDropType(monster.GetComponent<MonsterController>().monsterType);
             Vector3 bornPos = new Vector3(monster.transform.position.x, monster.transform.position.y,
                 monster.transform.position.z);
-             Destroy(monster);
+            Destroy(monster);
             StartCoroutine(ScatterDrops(bornPos));
         }
 
@@ -285,7 +285,9 @@ namespace Controller
 
                 for (int i = 0; i < dropCount; i++)
                 {
+
                     GameObject drop = GameObject.Instantiate(_assetHandle.Get<GameObject>("DropObj"));
+                    ScenePickupController.Instance.materials.Add(drop.GetComponent<DropController>());
                     drop.GetComponent<DropController>().Init(dropType);
                     drop.transform.position = bornPos;
                     StartCoroutine(FlyDrop(drop, bornPos));
@@ -447,7 +449,7 @@ namespace Controller
                     break;
                 case MonsterType.JingRuiCaoGolden:
                     dropDict[DropItemType.JingRuiCaoFragment] = 10;
-                    dropDict[DropItemType.YingQian] =5;
+                    dropDict[DropItemType.YingQian] = 5;
                     break;
                 case MonsterType.JingRuiCaoBig:
                     dropDict[DropItemType.JingRuiCaoFragment] = 4;

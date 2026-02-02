@@ -60,7 +60,7 @@ public class GameController2D : MonoBehaviour
             monsterParent
         );
 
-        monster.Init(pathPoints);
+        // monster.Init(pathPoints);
     }
 }
 

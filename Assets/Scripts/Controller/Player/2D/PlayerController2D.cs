@@ -16,7 +16,6 @@ public class PlayerController2D : MonoBehaviour
     public Transform weaponRoot;
     public Image weaponRenderer;
     public float speed;
-    public SkeletonGraphic weaponEffect;
     public Rigidbody2D _rigidbody;
     public bool isMoving = false;
     private AssetHandle _assetHandle;
@@ -24,7 +23,7 @@ public class PlayerController2D : MonoBehaviour
     void Awake()
     {
         if (_assetHandle == null) _assetHandle = GetComponent<AssetHandle>();
-       // skeletonGraphic = transform.Find("Character").GetComponent<SkeletonGraphic>();
+        // skeletonGraphic = transform.Find("Character").GetComponent<SkeletonGraphic>();
         // WeaponData weaponData = DataController.Instance.weaponDataDic[PlayerDataModule.Instance.data.currentWeapon];
         // weaponRenderer.sprite = _assetHandle.Get<Sprite>(weaponData.name);
         // skeletonGraphic.Skeleton.SetAttachment(weaponData.slotName, weaponData.attachmentName);
@@ -35,42 +34,34 @@ public class PlayerController2D : MonoBehaviour
         // skeletonGraphic.Skeleton.SetAttachment(stotageBagData.slotName, stotageBagData.attachmentName);
 
     }
+    void Start()
+    {
+        var state = skeletonGraphic.AnimationState;
+        var current = state.GetCurrent(0);
+        if (current == null || current.Animation.Name != "攻击腿不动")
+        {
+            state.SetAnimation(0, "攻击腿不动", true);
+        }
 
+    }
+    bool newIsMoving = false;
     void Update()
     {
-        if (_dirValue != Vector2.zero)
+
+        newIsMoving = _dirValue != Vector2.zero;
+
+        if (newIsMoving)
         {
-            isMoving = true;
             if (_dirValue.x < 0)
-            {
                 skeletonGraphic.transform.localScale = new Vector3(-0.6f, 0.6f, 0.6f);
-            }
             else
-            {
                 skeletonGraphic.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
-            }
-
-            var state = skeletonGraphic.AnimationState;
-            var current = state.GetCurrent(0);
-
-            if (current == null || current.Animation.Name != "攻击")
-            {
-                state.SetAnimation(0, "攻击", true);
-            }
         }
-        else
+
+        if (isMoving != newIsMoving)
         {
-            isMoving = false;
-            var state = skeletonGraphic.AnimationState;
-            var current = state.GetCurrent(0);
-
-            if (current == null || current.Animation.Name != "攻击腿不动")
-            {
-                state.SetAnimation(0, "攻击腿不动", true);
-            }
-
-
-
+            isMoving = newIsMoving;
+            UpdateAnimation();
         }
 
 
@@ -80,14 +71,30 @@ public class PlayerController2D : MonoBehaviour
         float t = Mathf.Abs(Mathf.Cos(z * Mathf.Deg2Rad));
         float scale = Mathf.Lerp(0.85f, 1.1f, t);
         weaponRoot.localScale = Vector3.one * scale;
-        weaponEffect.gameObject.SetActive(true);
-        var state1 = weaponEffect.AnimationState;
-        var current1 = state1.GetCurrent(0);
-        if (current1 == null || current1.Animation.Name != "animation")
+    }
+    void UpdateAnimation()
+    {
+        var state = skeletonGraphic.AnimationState;
+        var current = state.GetCurrent(0);
+
+        if (isMoving)
         {
-            state1.SetAnimation(0, "animation", true);
+            if (current == null || current.Animation.Name != "攻击")
+            {
+                state.SetAnimation(0, "攻击", true);
+                Debug.Log("切换到：攻击");
+            }
+        }
+        else
+        {
+            if (current == null || current.Animation.Name != "攻击腿不动")
+            {
+                state.SetAnimation(0, "攻击腿不动", true);
+                Debug.Log("切换到：攻击腿不动");
+            }
         }
     }
+
 
     private void FixedUpdate()
     {

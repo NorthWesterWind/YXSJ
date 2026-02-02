@@ -133,7 +133,7 @@ public class VirtualJoystick : MonoBehaviour,
         baseRect.anchoredPosition = initialPosition;
         if (isTrial)
         {
-            playerController2D.SetDir(InputVector);
+            playerController2D.SetDir(Vector2.zero);
         }
         else
         {

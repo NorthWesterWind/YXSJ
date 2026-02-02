@@ -225,7 +225,7 @@ namespace Controller
                 storage[drop.itemType]++;
 
                 // 回收物体
-                ObjectPoolManager.Instance.ReturnObject(drop.itemName, drop.gameObject);
+                Destroy(drop.gameObject);
             }
 
             deliveringDrops.Clear();

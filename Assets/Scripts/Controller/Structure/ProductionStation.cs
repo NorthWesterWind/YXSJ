@@ -121,9 +121,6 @@ namespace Controller.Structure
                 productionInfo.gameObject.SetActive(false);
             }
             grid.basePosition = productPosition.position;
-
-            ObjectPoolManager.Instance.WarmPool("Production", _productObj, 50);
-
             productIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(goodsType));
             materialIcon.sprite = _assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType(dropItemType));
 
@@ -192,7 +189,7 @@ namespace Controller.Structure
             {
                 return;
             }
-            GameObject productObj = ObjectPoolManager.Instance.GetObject("Production");
+            GameObject productObj = GameObject.Instantiate(_assetHandle.Get<GameObject>("Production"));
             productObj.transform.position = recivePosition.position;
             Production product = productObj.GetComponent<Production>();
             EventCenter.Instance.TriggerEvent(EventMessages.ProduceTask, goodsType);

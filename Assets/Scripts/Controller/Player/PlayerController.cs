@@ -88,7 +88,7 @@ namespace Controller.Player
             _rigidbody = GetComponent<Rigidbody2D>();
             _assetHandle = GetComponent<AssetHandle>();
             _skeletonAnimation = transform.Find("Character").GetComponent<SkeletonAnimation>();
-
+            renderer = transform.Find("Character").GetComponent<MeshRenderer>();
             var data = _skeletonAnimation.AnimationState.Data;
 
             data.SetMix("待机", "走路", 0.2f);
@@ -106,7 +106,7 @@ namespace Controller.Player
         {
             AddEvent();
             Init();
-            renderer = transform.Find("Character").GetComponent<MeshRenderer>();
+           
         }
 
 
@@ -233,12 +233,6 @@ namespace Controller.Player
                         state.SetAnimation(0, "待机", true);
                     }
                 }
-
-                // if (!Mathf.Approximately(camera.m_Lens.OrthographicSize,10))
-                // {
-                //     camera.m_Lens.OrthographicSize =
-                //         Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 10, ref velocity, 0.3f);
-                // }
             }
 
             CheckMonster();
@@ -596,7 +590,7 @@ namespace Controller.Player
                     break;
                 }
 
-                GameObject drop = ObjectPoolManager.Instance.GetObject("Production");
+                GameObject drop = GameObject.Instantiate(_assetHandle.Get<GameObject>("Production"));
                 var dropCtrl = drop.GetComponent<Production>();
                 dropCtrl.canPickup = false;
                 dropCtrl.Init(station.currentGoodsType);

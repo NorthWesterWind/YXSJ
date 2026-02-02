@@ -27,9 +27,7 @@ namespace Controller.Pickups
         void OnDestroy()
         {
             if (ScenePickupController.Instance.materials.Contains(this))
-            {
                 ScenePickupController.Instance.materials.Remove(this);
-            }
         }
 
 
@@ -83,9 +81,7 @@ namespace Controller.Pickups
             {
                 OnPicked(player);
             }
-            // 从场景列表移除
-            ScenePickupController.Instance.materials.Remove(this);
-            ObjectPoolManager.Instance.ReturnObject(itemName, gameObject);
+          
         }
 
         public void OnPicked(GameObject pickerObj)

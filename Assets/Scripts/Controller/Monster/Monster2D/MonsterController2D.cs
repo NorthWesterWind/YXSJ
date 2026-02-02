@@ -1,4 +1,6 @@
+using System;
 using System.Collections;
+using Module;
 using Module.Data;
 using Spine.Unity;
 using UnityEngine;
@@ -7,29 +9,50 @@ using Utils;
 
 public class MonsterController2D : MonoBehaviour
 {
-    public float currentHp = 100;
-    public MonsterData data;
+    public float currentHp;
+    // public MonsterData data;
     public SkeletonGraphic skeletonGraphic;
+    public GameObject fillContent;
     public Image fillImg;
     public SkeletonGraphic specialEffect;
     [Header("Path")]
     public Transform[] pathPoints;   // 路径点
     private int currentIndex = 0;     // 当前目标点索引
     public float moveSpeed = 3f;     // 移动速度
+    public bool canWalk = true;
+    public float maxHp;
+    private Canvas canvas;
+    void OnEnable()
+    {
+       
+    }
+    void OnDisable()
+    {
+        
+    }
 
     void Update()
     {
+        if (!canWalk) return;
         var currentAnimation = skeletonGraphic.AnimationState.GetCurrent(0);
         if (currentAnimation == null || currentAnimation.Animation.Name != "walk")
         {
             skeletonGraphic.AnimationState.SetAnimation(0, "walk", true);
         }
         MoveAlongPath();
+        int newOrder = 3000 - Mathf.RoundToInt(transform.position.y * 100);
+        canvas.sortingOrder = newOrder;
     }
-    public void Init(Transform[] points)
+    public void Init(Transform[] points, float hp)
     {
+        canWalk = true;
         pathPoints = points;
         specialEffect.AnimationState.SetAnimation(0, "animation", false);
+        fillContent.SetActive(true);
+        fillImg.fillAmount = 1f;
+        maxHp = hp;
+        currentHp = maxHp;
+        canvas = GetComponent<Canvas>();
     }
 
     void MoveAlongPath()
@@ -53,7 +76,10 @@ public class MonsterController2D : MonoBehaviour
 
             if (currentIndex >= pathPoints.Length)
             {
+                EventCenter.Instance.TriggerEvent(EventMessages.StopCreat2DMonster);
+                canWalk = false;
                 isDead = true;
+                fillContent.SetActive(false);
                 EventCenter.Instance.TriggerEvent(EventMessages.HasMonsterArrive);
                 var state = skeletonGraphic.AnimationState;
                 var current = state.GetCurrent(0);
@@ -62,6 +88,15 @@ public class MonsterController2D : MonoBehaviour
                     state.SetAnimation(0, "dead", false);
                 }
                 StartCoroutine(DoDie());
+                if(PlayerDataModule.Instance.data.playTrialCurrencyType == CurrencyType.JingYuanBao)
+                {
+                    UIController.Instance.Show<TrialResultView>(false,100);
+                }
+                else
+                {
+                    UIController.Instance.Show<TrialResultView>(false,50);
+                }
+               
 
             }
         }
@@ -79,20 +114,32 @@ public class MonsterController2D : MonoBehaviour
     public void TakeDamage(int damage)
     {
         if (isDead) return;
+
         currentHp -= damage;
-        fillImg.fillAmount = currentHp / data.hp;
+        currentHp = Mathf.Max(currentHp, 0);
+
+        if (fillImg != null && currentHp > 0)
+        {
+            fillImg.fillAmount = Mathf.Clamp01((float)currentHp / maxHp);
+        }
+
         if (currentHp <= 0)
         {
             isDead = true;
+            canWalk = false;
+            fillContent.SetActive(false);
             var state = skeletonGraphic.AnimationState;
             var current = state.GetCurrent(0);
+
             if (current == null || current.Animation.Name != "dead")
             {
                 state.SetAnimation(0, "dead", false);
             }
             StartCoroutine(DoDie());
+            EventCenter.Instance.TriggerEvent(EventMessages.MonsterDead2D, gameObject);
         }
     }
+
     public IEnumerator DoDie()
     {
         yield return new WaitForSeconds(1f);

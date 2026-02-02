@@ -69,11 +69,12 @@ namespace Module.Data
         public int currentUseNum; //当前累计使用次数
 
         public int playLingBaoCount;
-        public int playXuanJingCount;
+        public bool canPlayXuanJing = true;
+        public string playXuanJingTime;
         public string lastloginday = "";
-
+        public CurrencyType playTrialCurrencyType ;
         #endregion
-
+        
         public int monthlyLimitMoney; //每月限制消费金额
         public DateTime lastTime;  //判断是否跨月
         public int tongbi = 3000;  //铜币

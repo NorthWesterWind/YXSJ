@@ -4,10 +4,11 @@ namespace Utils
 {
     public static class EventMessages
     {
-    
+
         public const string BeginJugmentRemainTime = "BeginJugmentRemainTime";   ///未成年人可游玩时间倒计时
         public const string CameraBeginShaking = "CameraBeginShaking";       //触发镜头晃动
         public const string MonsterDead = "MonsterDead";                     //触发怪物死亡
+        public const string MonsterDead2D = "MonsterDead2D";                     //触发2D怪物死亡
         public const string MonsterBeginCreate = "MonsterBeginCreate";       //通知工厂创建怪物
         public const string CustomerBeginCreate = "CustomerBeginCreate";     //通知顾客数据准备完成
         public const string MapDataPrepared = "MapDataPrepared";             //地图数据准备完成
@@ -40,14 +41,14 @@ namespace Utils
 
         public const string UpdateYunDiZheInfo = "UpdateYunDiZheInfo";       //更新云递者信息
         public const string UpdateYunDiGeWorkingState = "UpdateYunDiGeWorkingState";       //更新云递阁工作状态
-    
+
 
         public const string UpdateLingChuGeInfo = "UpdateLingChuGeInfo"; //更新灵储阁信息
         public const string LingChuGeBeginWorking = "LingChuGeBeginWorking"; //灵储阁开始派遣储玄采徒
         public const string LingChuGeEndWorking = "LingChuGeEndWorking"; //清除所有玄采徒
         public const string LingChuGeDelivery = "LingChuGeDelivery"; //灵储阁递送物品
         public const string LingChuGeStopDelivery = "LingChuGeStopDelivery"; //灵储阁停止递送物品
-        
+
         public const string UpdateLingChuGeWorkingInfo = "UpdateLingChuGeWorkingInfo"; //更新灵储阁工作信息
 
 
@@ -60,16 +61,16 @@ namespace Utils
         public const string CustomerLeave = "CustomerLeave"; //顾客离开售卖摊
 
 
-        public const string  ThrowOutTongBi = "ThrowOutTongBi"; //玩家抛出铜币
+        public const string ThrowOutTongBi = "ThrowOutTongBi"; //玩家抛出铜币
 
         public const string MapLockUnlocked = "MapLockUnlocked"; //地图区域锁解锁
-        public const string UpdateMapLockState= "UpdateMapLockState"; //更新地图锁定区域状态
+        public const string UpdateMapLockState = "UpdateMapLockState"; //更新地图锁定区域状态
         public const string StructureLockUnlocked = "StructureLockUnlocked"; //建筑区域锁解锁
         public const string JingYuanBaoDead = "JingYuanBaoDead"; //金元宝死亡
         public const string ShowOrderDetail = "ShowOrderDetail"; //显示订单详情
-        public const string  UpdateOrderItem = " UpdateOrderItem"; //更新订单界面
-       
-        public const string HidePlayerGuide  = "HidePlayerGuide"; //玩家引导完成
+        public const string UpdateOrderItem = " UpdateOrderItem"; //更新订单界面
+
+        public const string HidePlayerGuide = "HidePlayerGuide"; //玩家引导完成
         public const string DataPrepared = "DataPrepared"; //数据准备完成
         public const string UpdateSturctureLockInfo = "UpdateSturctureLockInfo"; //更新建筑解锁信息
         public const string ProduceTask = "ProduceTask"; //生产任务
@@ -81,7 +82,7 @@ namespace Utils
         public const string UnLockMapTask = "UnLockMapTask"; //解锁怪物区域任务
 
         public const string UpdateCardInfo = "UpdateCardInfo"; //更新卡牌信息
-        
+
         public const string ShowLoadView = "ShowLoadView"; //显示加载UI
         public const string UpdateLoadView = "UpdateLoadView"; //更新加载UI
         public const string UpdatePlayerInfo = "UpdatePlayerInfo"; //更新玩家信息
@@ -91,5 +92,7 @@ namespace Utils
 
         public const string BeginCreat2DMonster = "BeginCreat2DMonster"; //开始创建2D怪物
         public const string StopCreat2DMonster = "StopCreat2DMonster"; //停止创建2D怪物
+
+        public const string CloseTrialView = "CloseTrialView"; //关闭试炼界面
     }
 }

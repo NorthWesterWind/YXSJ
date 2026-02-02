@@ -479,7 +479,7 @@ namespace Module
                      {
                          data.useZhuanPanTotalValue = 0;
                          data.playLingBaoCount = 3;
-                         data.playXuanJingCount = 3;
+                         
                      }
 
                      callback?.Invoke(respone.fcm);

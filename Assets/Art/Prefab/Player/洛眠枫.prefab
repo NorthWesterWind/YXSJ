@@ -393,10 +393,9 @@ MonoBehaviour:
     m_Bits: 256
   overlappingTrigger: []
   receiveTransform: {fileID: 6450889363661755686}
-  infoTransform: {fileID: 1440778688930170217}
-  playerInfo: {fileID: 0}
+  playerInfo: {fileID: 326017815252776789}
   isDead: 0
-  weaponRoot: {fileID: 9125713213876222166}
+  weaponRoot: {fileID: 5941671048440279785}
   speed: 540
   radiusX: 1.1
   radiusZ: 0.55
@@ -495,6 +494,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3298b88c6a15b714e8df7277a20acc01, type: 2}
   - {fileID: 11400000, guid: 62318fa4e1a23f94b9e82f13c8780ef2, type: 2}
   - {fileID: 11400000, guid: b206f5731c1a7264aac4933af21fd8fb, type: 2}
+  - {fileID: 6728240818630394814, guid: 516e7d2f5e1ecdc458374d4d9b7587a1, type: 3}
 --- !u!60 &2569660435835029261
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -579,7 +579,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -796,7 +796,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4644430912754167070}
   - component: {fileID: 3420345107680801902}
-  - component: {fileID: 1311621801154377873}
   - component: {fileID: 2493875982373059207}
   - component: {fileID: 7157128734697228549}
   - component: {fileID: 3484522700305454136}
@@ -835,35 +834,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51ccdd7ab636c2141b3298dcee2a8490, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  atkValue: 3
   slowDownValue: 0
---- !u!50 &1311621801154377873
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6329064069753548759}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 1
-  m_LinearDrag: 0
-  m_AngularDrag: 0.05
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 4
 --- !u!212 &2493875982373059207
 SpriteRenderer:
   m_ObjectHideFlags: 0

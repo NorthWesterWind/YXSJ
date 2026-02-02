@@ -19,15 +19,12 @@ namespace Controller
 
         private void Awake()
         {
-            var rb = GetComponent<Rigidbody2D>();
-            rb.bodyType = RigidbodyType2D.Kinematic; // 不受物理力影响
-            rb.simulated = true;
-
             var col = GetComponent<Collider2D>();
             col.isTrigger = true; // 攻击检测必须是Trigger
         }
 
-        public int  atkValue;
+
+        private int  atkValue;
         public float  slowDownValue;
         public void UpdatePlayerValueInfo(params object[] args)
         {
@@ -55,13 +52,13 @@ namespace Controller
             }
         }
 
-        private void OnTriggerStay2D(Collider2D other)
-        {
-            if (other.CompareTag("Monster"))
-            {
-                AttackMonster(other.gameObject);
-            }
-        }
+        // private void OnTriggerStay2D(Collider2D other)
+        // {
+        //     if (other.CompareTag("Monster"))
+        //     {
+        //         AttackMonster(other.gameObject);
+        //     }
+        // }
 
         private void AttackMonster(GameObject monster)
         {
@@ -70,11 +67,11 @@ namespace Controller
             {
                 monsterCtrl.TakeDamage(atkValue ,transform , slowDownValue);
             }
-            // var monsterCtr2 = monster.GetComponent<MonsterController2D>();
-            // if (monsterCtr2 != null && monsterCtrl.currentHp > 0)
-            // {
-            //     monsterCtr2.TakeDamage(atkValue);
-            // }
+            var monsterCtr2 = monster.GetComponent<MonsterController2D>();
+            if (monsterCtr2 != null && !monsterCtr2.isDead)
+            {
+                monsterCtr2.TakeDamage(atkValue);
+            }
             
         }
     }

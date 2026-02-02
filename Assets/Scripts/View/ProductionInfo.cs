@@ -13,9 +13,6 @@ namespace View
     {
         public Image fillImage;
         public TextMeshProUGUI productionText;
-        private float _productionTime;
-
-
         private Coroutine loopRoutine;
 
         public ProductionStation container;
@@ -34,32 +31,9 @@ namespace View
         }
         private Coroutine followRoutine;
 
-        private void OnEnable()
-        {
-            followRoutine = StartCoroutine(FollowRoutine());
-        }
 
-        private void OnDisable()
-        {
-            if (followRoutine != null)
-                StopCoroutine(followRoutine);
-        }
 
-        private IEnumerator FollowRoutine()
-        {
-            while (container)
-            {
-                yield return new WaitForEndOfFrame();
-
-                Vector3 screenPos =
-                    Camera.main.WorldToScreenPoint(container.infoTransform.position);
-
-                screenPos.x = Mathf.Round(screenPos.x);
-                screenPos.y = Mathf.Round(screenPos.y);
-
-                transform.position = screenPos;
-            }
-        }
+      
 
         public void UpdateText()
         {

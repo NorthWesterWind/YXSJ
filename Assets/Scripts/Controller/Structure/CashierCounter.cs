@@ -382,7 +382,7 @@ namespace Controller.Structure
 
         public void PrintingMoney(float value)
         {
-            GameObject productObj = ObjectPoolManager.Instance.GetObject("Production");
+            GameObject productObj = GameObject.Instantiate(_assetHandle.Get<GameObject>("Production"));
             productObj.transform.position = receiveTransform.position;
             Production product = productObj.GetComponent<Production>();
             product.Init(GoodsType.TongBi, (int)value);

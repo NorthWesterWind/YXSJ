@@ -563,7 +563,7 @@ MonoBehaviour:
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 0
-  m_FillAmount: 1
+  m_FillAmount: 0
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -578,9 +578,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1863093691050292397}
   - component: {fileID: 415716490579457435}
-  - component: {fileID: 6131250073502278374}
   - component: {fileID: 2776753845662287310}
   - component: {fileID: 5082936069745199753}
+  - component: {fileID: 2586289663217213120}
   m_Layer: 6
   m_Name: ShuangYunZhi2D
   m_TagString: Monster
@@ -640,7 +640,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 2.2133884, y: 44.780407}
@@ -656,33 +656,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 71.21472, y: 94.03251}
   m_EdgeRadius: 0
---- !u!50 &6131250073502278374
-Rigidbody2D:
-  serializedVersion: 4
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8649016127392778520}
-  m_BodyType: 0
-  m_Simulated: 1
-  m_UseFullKinematicContacts: 0
-  m_UseAutoMass: 0
-  m_Mass: 50
-  m_LinearDrag: 100
-  m_AngularDrag: 1
-  m_GravityScale: 0
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_Interpolate: 0
-  m_SleepingMode: 1
-  m_CollisionDetection: 0
-  m_Constraints: 4
 --- !u!114 &2776753845662287310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -719,8 +692,33 @@ MonoBehaviour:
     movespeed: 0
     atk: 0
   skeletonGraphic: {fileID: 4188091829496481780}
+  fillContent: {fileID: 513239119251752195}
   fillImg: {fileID: 6288697996768425469}
   specialEffect: {fileID: 3078016812778570969}
   pathPoints: []
   moveSpeed: 3
+  canWalk: 1
   isDead: 0
+--- !u!223 &2586289663217213120
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8649016127392778520}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 1
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 817
+  m_TargetDisplay: 0
