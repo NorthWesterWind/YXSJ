@@ -18,7 +18,7 @@ public class MonsterController2D : MonoBehaviour
     [Header("Path")]
     public Transform[] pathPoints;   // 路径点
     private int currentIndex = 0;     // 当前目标点索引
-    public float moveSpeed = 3f;     // 移动速度
+    private float moveSpeed = 350f;     // 移动速度
     public bool canWalk = true;
     public float maxHp;
     private Canvas canvas;
@@ -40,7 +40,7 @@ public class MonsterController2D : MonoBehaviour
             skeletonGraphic.AnimationState.SetAnimation(0, "walk", true);
         }
         MoveAlongPath();
-        int newOrder = 3000 - Mathf.RoundToInt(transform.position.y * 100);
+        int newOrder = 32000 - Mathf.RoundToInt(transform.position.y );
         canvas.sortingOrder = newOrder;
     }
     public void Init(Transform[] points, float hp)

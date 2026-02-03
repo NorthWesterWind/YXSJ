@@ -44,6 +44,7 @@ public class PlayerController2D : MonoBehaviour
         }
 
     }
+    public float moveSpeed;
     bool newIsMoving = false;
     void Update()
     {
@@ -101,7 +102,7 @@ public class PlayerController2D : MonoBehaviour
         if (isMoving)
         {
             _rigidbody.MovePosition(_rigidbody.position +
-                                    new Vector2(_dirValue.x, _dirValue.y) * ((PlayerDataModule.Instance.data.moveSpeed + PlayerDataModule.Instance.data.addMoveSpeed) * Time.fixedDeltaTime));
+                                    new Vector2(_dirValue.x, _dirValue.y) * ((PlayerDataModule.Instance.data.moveSpeed + PlayerDataModule.Instance.data.addMoveSpeed + moveSpeed) * Time.fixedDeltaTime));
         }
     }
 

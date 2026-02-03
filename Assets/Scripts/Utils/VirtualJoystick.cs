@@ -27,20 +27,17 @@ public class VirtualJoystick : MonoBehaviour,
     public float Horizontal => horizontal ? InputVector.x : 0f;
     public float Vertical => vertical ? InputVector.y : 0f;
     PlayerController playerController;
-    PlayerController2D playerController2D;
+    public PlayerController2D playerController2D;
 
-    private bool isTrial;
+    public bool isTrial;
 
     public void Awake()
     {
-        string sceneName = SceneManager.GetActiveScene().name;
-        if (sceneName.Contains("Trial"))
-        {
-            isTrial = true;
-        }
+
+
         if (isTrial)
         {
-            playerController2D = GameObject.FindWithTag("Player").GetComponent<PlayerController2D>();
+
         }
         else
         {

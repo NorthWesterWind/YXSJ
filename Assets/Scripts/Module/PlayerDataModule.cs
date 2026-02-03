@@ -475,11 +475,11 @@ namespace Module
                      {
                          data.monthlyLimitMoney = 0;
                      }
-                     if(data.lastloginday != now.ToString("yyyy/MM/dd"))
+                     if (data.lastloginday != now.ToString("yyyy/MM/dd"))
                      {
                          data.useZhuanPanTotalValue = 0;
                          data.playLingBaoCount = 3;
-                         
+                         data.lastloginday = now.ToString("yyyy/MM/dd");
                      }
 
                      callback?.Invoke(respone.fcm);

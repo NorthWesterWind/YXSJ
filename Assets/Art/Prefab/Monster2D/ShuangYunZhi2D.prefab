@@ -685,12 +685,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentHp: 100
-  data:
-    type: 0
-    name: 
-    hp: 0
-    movespeed: 0
-    atk: 0
   skeletonGraphic: {fileID: 4188091829496481780}
   fillContent: {fileID: 513239119251752195}
   fillImg: {fileID: 6288697996768425469}
@@ -698,6 +692,7 @@ MonoBehaviour:
   pathPoints: []
   moveSpeed: 3
   canWalk: 1
+  maxHp: 0
   isDead: 0
 --- !u!223 &2586289663217213120
 Canvas:
@@ -720,5 +715,5 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 817
+  m_SortingOrder: 3
   m_TargetDisplay: 0

@@ -55,7 +55,7 @@ public class TrialResultView : BaseView
             PlayerDataModule.Instance.data.lingJing += value;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
             DateTime time = DateTime.Now;
-            PlayerDataModule.Instance.data.playXuanJingTime = time.ToString("yyyy/MM/dd/HH:mm:ss");
+            PlayerDataModule.Instance.data.playXuanJingTime = time.ToString("yyyy-MM-dd HH:mm:ss");
             PlayerDataModule.Instance.data.canPlayXuanJing = false;
         }
 

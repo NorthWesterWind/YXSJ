@@ -1076,7 +1076,7 @@ MonoBehaviour:
       m_Calls: []
   m_Sprite: {fileID: 21300000, guid: b91de7df7d63b974fb9f8a2a0ed20185, type: 3}
   m_Type: 0
-  m_PreserveAspect: 0
+  m_PreserveAspect: 1
   m_FillCenter: 1
   m_FillMethod: 4
   m_FillAmount: 1
@@ -1415,6 +1415,7 @@ MonoBehaviour:
   speed: 0
   _rigidbody: {fileID: 0}
   isMoving: 0
+  moveSpeed: 0
 --- !u!1 &4275449218317246270
 GameObject:
   m_ObjectHideFlags: 0
@@ -1580,7 +1581,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3395436209269146999
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1701,7 +1702,7 @@ MonoBehaviour:
   _showAnimationTime: 0.3
   _hideAnimationTime: 0.2
   _closeBackground: {fileID: 0}
-  _isPopup: 0
+  _isPopup: 1
   _content: {fileID: 0}
   _enablePopupScale: 1
   _popupScaleCurve:
@@ -1771,10 +1772,10 @@ MonoBehaviour:
   - {fileID: 3940884337553245658, guid: f87bf1f65238d7446b1d0df5ed18551b, type: 3}
   highLevelMonsters_3:
   - {fileID: 6635266885657792519, guid: eb6cf8678ef574244b92570538fd24c3, type: 3}
-  spawnInterval: 0.5
-  lowCount: 30
-  midCount: 20
-  highCount: 10
+  spawnInterval: 0.3
+  lowCount: 40
+  midCount: 40
+  highCount: 20
   lowTypes: 2
   midTypes: 2
   highTypes: 1
@@ -1972,6 +1973,7 @@ MonoBehaviour:
   speed: 560
   _rigidbody: {fileID: 7115647967297498567}
   isMoving: 0
+  moveSpeed: 400
 --- !u!1 &6623962652229996862
 GameObject:
   m_ObjectHideFlags: 0
@@ -2440,11 +2442,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9170207428115576639}
-  - component: {fileID: 6389753204221681737}
   - component: {fileID: 3697462228559011028}
   - component: {fileID: 3461467113488841248}
   - component: {fileID: 3919238603806154010}
   - component: {fileID: 4429368003280849102}
+  - component: {fileID: 8364104649793911650}
+  - component: {fileID: 5790758332023474287}
   m_Layer: 3
   m_Name: weapon
   m_TagString: Untagged
@@ -2472,19 +2475,6 @@ RectTransform:
   m_AnchoredPosition: {x: 21, y: 0}
   m_SizeDelta: {x: 79, y: 211}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &6389753204221681737
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7789889252646744338}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 51ccdd7ab636c2141b3298dcee2a8490, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  slowDownValue: 0
 --- !u!114 &3697462228559011028
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2581,6 +2571,45 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 71.27876, y: 203.80386}
   m_EdgeRadius: 0
+--- !u!50 &8364104649793911650
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7789889252646744338}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 4
+--- !u!114 &5790758332023474287
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7789889252646744338}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff8642cc424c6134a9d299c7d000782e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8272539409096016413
 GameObject:
   m_ObjectHideFlags: 0
@@ -2900,6 +2929,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7222893105133867303, guid: ae09bd6a291ecb44f80e921a9af9845d, type: 3}
+      propertyPath: isTrial
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7222893105133867303, guid: ae09bd6a291ecb44f80e921a9af9845d, type: 3}
+      propertyPath: playerController2D
+      value: 
+      objectReference: {fileID: 1861723860216174655}
     - target: {fileID: 8387118071136273871, guid: ae09bd6a291ecb44f80e921a9af9845d, type: 3}
       propertyPath: m_Name
       value: JoystickRoot
@@ -2946,7 +2983,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 1000
+  m_SortingOrder: 30030
   m_TargetDisplay: 0
 --- !u!114 &4867822824750185254
 MonoBehaviour:

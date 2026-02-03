@@ -36,6 +36,7 @@ public class TrialView : BaseView
     public bool isCreatOver = false;
     public GameObject img_1;
     public GameObject img_2;
+    private bool isShowUI = false;
 
     void OnEnable()
     {
@@ -54,7 +55,7 @@ public class TrialView : BaseView
     }
     void Start()
     {
-        StartSpawn(true);   ;
+
     }
     public void HandleMonsterDead2D(params object[] args)
     {
@@ -62,19 +63,23 @@ public class TrialView : BaseView
         if (spawnList.Contains(monster))
         {
             spawnList.Remove(monster);
-            if (spawnList.Count == 0 && isCreatOver)
+        }
+    }
+    void Update()
+    {
+        if (spawnList.Count == 0 && isCreatOver && !isShowUI)
+        {
+            if (PlayerDataModule.Instance.data.playTrialCurrencyType == CurrencyType.JingYuanBao)
             {
-                if (PlayerDataModule.Instance.data.playTrialCurrencyType == CurrencyType.JingYuanBao)
-                {
-                    UIController.Instance.Show<TrialResultView>(true, 500);
-
-                }
-                else
-                {
-                    UIController.Instance.Show<TrialResultView>(true, 200);
-
-                }
+                UIController.Instance.Show<TrialResultView>(true, 500);
             }
+            else
+            {
+                UIController.Instance.Show<TrialResultView>(true, 200);
+            }
+            isShowUI = true;
+            Hide();
+
         }
     }
 
@@ -85,19 +90,23 @@ public class TrialView : BaseView
     public override void UpdateViewWithArgs(params object[] args)
     {
         base.UpdateViewWithArgs(args);
-        if(PlayerDataModule.Instance.data.playTrialCurrencyType == CurrencyType.JingYuanBao)
+        isShowUI = false;
+        spawnList.Clear();
+        spawnCoroutine = null;
+        Extensions.ClearChildren(monsterParent);
+        if (PlayerDataModule.Instance.data.playTrialCurrencyType == CurrencyType.JingYuanBao)
         {
             img_1.SetActive(true);
             img_2.SetActive(false);
+            StartSpawn(true);
         }
         else
         {
             img_1.SetActive(false);
             img_2.SetActive(true);
+            StartSpawn(false);
         }
         isCreatOver = false;
-        bool isGold = (bool)args[0];
-        StartSpawn(isGold);
     }
     public void StartSpawn(params object[] args)
     {
@@ -115,25 +124,26 @@ public class TrialView : BaseView
 
     public void StopSpawn(params object[] args)
     {
-        if (spawnCoroutine == null) return;
 
+        if (spawnCoroutine == null) return;
         StopCoroutine(spawnCoroutine);
         spawnCoroutine = null;
+        Hide();
     }
 
     IEnumerator SpawnLoop()
     {
 
-        yield return StartCoroutine(SpawnLayer(lowLevelMonsters, lowCount, lowTypes, 10));
-        yield return StartCoroutine(SpawnLayer(midLevelMonsters, midCount, midTypes, 15));
-        yield return StartCoroutine(SpawnLayer(highLevelMonsters, highCount, highTypes, 20));
+        yield return StartCoroutine(SpawnLayer(lowLevelMonsters, lowCount, lowTypes, 200));
+        yield return StartCoroutine(SpawnLayer(midLevelMonsters, midCount, midTypes,300));
+        yield return StartCoroutine(SpawnLayer(highLevelMonsters, highCount, highTypes, 400));
         isCreatOver = true;
     }
     IEnumerator SpawnLoop_1()
     {
-        yield return StartCoroutine(SpawnLayer(lowLevelMonsters_1, lowCount, lowTypes, 10));
-        yield return StartCoroutine(SpawnLayer(midLevelMonsters_2, midCount, midTypes, 15));
-        yield return StartCoroutine(SpawnLayer(highLevelMonsters_3, highCount, highTypes, 20));
+        yield return StartCoroutine(SpawnLayer(lowLevelMonsters_1, lowCount, lowTypes, 200));
+        yield return StartCoroutine(SpawnLayer(midLevelMonsters_2, midCount, midTypes, 300));
+        yield return StartCoroutine(SpawnLayer(highLevelMonsters_3, highCount, highTypes, 400));
         isCreatOver = true;
     }
 

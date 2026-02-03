@@ -40,10 +40,13 @@ public class DungeonLevelView : BaseView
         {
             infotxt_2.text = "当前可进行挑战。";
         }
-        else 
+        else
         {
-
-            DateTime recordTime = DateTime.Parse(PlayerDataModule.Instance.data.playXuanJingTime);
+            DateTime recordTime = DateTime.MinValue;
+            if (!string.IsNullOrEmpty(PlayerDataModule.Instance.data.playXuanJingTime))
+            {
+                recordTime = DateTime.Parse(PlayerDataModule.Instance.data.playXuanJingTime);
+            }
             DateTime now = DateTime.Now;
             TimeSpan delta = now - recordTime;
             double passedMinutes = delta.TotalMinutes;
@@ -83,7 +86,7 @@ public class DungeonLevelView : BaseView
     {
         if (!PlayerDataModule.Instance.data.canPlayXuanJing)
         {
-             UIController.Instance.Show<TipView>("当前关卡冷却中!");
+            UIController.Instance.Show<TipView>("当前关卡冷却中!");
             return;
         }
         PlayerDataModule.Instance.data.playTrialCurrencyType = Module.Data.CurrencyType.LingJing;

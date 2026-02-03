@@ -287,7 +287,6 @@ namespace Controller
                 {
 
                     GameObject drop = GameObject.Instantiate(_assetHandle.Get<GameObject>("DropObj"));
-                    ScenePickupController.Instance.materials.Add(drop.GetComponent<DropController>());
                     drop.GetComponent<DropController>().Init(dropType);
                     drop.transform.position = bornPos;
                     StartCoroutine(FlyDrop(drop, bornPos));

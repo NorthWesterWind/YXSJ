@@ -24,8 +24,8 @@ namespace Controller
         }
 
 
-        private int  atkValue;
-        public float  slowDownValue;
+        public  int  atkValue;
+        private float  slowDownValue;
         public void UpdatePlayerValueInfo(params object[] args)
         {
             atkValue = Convert.ToInt32(PlayerDataModule.Instance.data.atk + PlayerDataModule.Instance.data.addAtk);
@@ -70,6 +70,7 @@ namespace Controller
             var monsterCtr2 = monster.GetComponent<MonsterController2D>();
             if (monsterCtr2 != null && !monsterCtr2.isDead)
             {
+                Debug.Log($"[Weapon] 攻击命中怪物2D: atkvalue: {atkValue}");
                 monsterCtr2.TakeDamage(atkValue);
             }
             
