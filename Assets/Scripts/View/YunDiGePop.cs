@@ -112,9 +112,16 @@ public class YunDiGePop : BaseView
             cardLeveltxt.text = cardprogress.level.ToString();
             fillContent.SetActive(true);
             lockObj.SetActive(false);
-            cardfilltxt.text = cardprogress.currentNum + "/" + WorldData.cardUpLevelArr[cardprogress.level - 1];
-            fillImage.fillAmount = cardprogress.currentNum * 1f / WorldData.cardUpLevelArr[cardprogress.level - 1];
-
+            if (cardprogress.level == WorldData.cardUpLevelArr_LingChuGe_YunDiGe.Length + 1)
+            {
+                fillImage.fillAmount = 1f;
+                cardfilltxt.text = "已满级";
+            }
+            else
+            {
+                cardfilltxt.text = cardprogress.currentNum + "/" + WorldData.cardUpLevelArr_LingChuGe_YunDiGe[cardprogress.level - 1];
+                fillImage.fillAmount = cardprogress.currentNum * 1f / WorldData.cardUpLevelArr_LingChuGe_YunDiGe[cardprogress.level - 1];
+            }
             if (cardprogress.level < 5)
             {
                 btnMask_2.SetActive(true);
@@ -144,6 +151,12 @@ public class YunDiGePop : BaseView
         upgradePeopleBtn.onClick.AddListener(OnClickUpgradePeopleBtn);
         cardBtn.onClick.RemoveAllListeners();
         cardBtn.onClick.AddListener(() => { UIController.Instance.Show<CardDetailPop>(DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeYunDiGe)); });
+        EventCenter.Instance.AddListener(EventMessages.UpdateCardInfo, UpdateViewWithArgs);
+    }
+    public override void RemoveEventListener()
+    {
+        base.RemoveEventListener();
+        EventCenter.Instance.RemoveListener(EventMessages.UpdateCardInfo, UpdateViewWithArgs);
     }
     private void OnClickUpgradeSpeedBtn()
     {

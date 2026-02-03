@@ -51,7 +51,7 @@ namespace View.LingChuGe
             {
                 GameObject obj = GameObject.Instantiate(assetHandle.Get<GameObject>("topItem"), topTransform, false);
                 obj.GetComponent<TopItem>().Init( lingChuGeController ,value);
-
+            
             }
         }
     }

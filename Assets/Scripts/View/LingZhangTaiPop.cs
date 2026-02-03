@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using Controller;
 using DG.Tweening;
 using Module;
@@ -47,6 +46,7 @@ public class LingZhangTaiPop : BaseView
     public TextMeshProUGUI freetxt_2;
     PlayerData playerData;
     CashierData cashierData;
+    public TextMeshProUGUI donatetxt;
 
     protected override void Awake()
     {
@@ -99,7 +99,6 @@ public class LingZhangTaiPop : BaseView
             if (cardLevelData.unlockLevel <= playerData.accountLevel)
             {
                 cardMask.SetActive(false);
-
             }
             else
             {
@@ -108,14 +107,24 @@ public class LingZhangTaiPop : BaseView
             }
             btnMask_2.SetActive(true);
             btnMaskTxt_2.text = "需要2级";
+            donatetxt.text =  "x" + "0%";
         }
         else
         {
             cardLeveltxt.text = cardprogress.level.ToString();
             fillContent.SetActive(true);
             lockObj.SetActive(false);
-            cardfilltxt.text = cardprogress.currentNum + "/" + WorldData.cardUpLevelArr[cardprogress.level - 1];
-            fillImage.fillAmount = cardprogress.currentNum * 1f / WorldData.cardUpLevelArr[cardprogress.level - 1];
+            if (cardprogress.level < WorldData.cardUpLevelArr_LingChouLing.Length + 1)
+            {
+                cardfilltxt.text = cardprogress.currentNum + "/" + WorldData.cardUpLevelArr_LingChouLing[cardprogress.level - 1];
+                fillImage.fillAmount = cardprogress.currentNum * 1f / WorldData.cardUpLevelArr_LingChouLing[cardprogress.level - 1];
+            }
+            else
+            {
+                cardfilltxt.text = "已满级";
+                fillImage.fillAmount = 1f;
+            }
+            donatetxt.text = "x" + $" {cardprogress.level * 0.2f * 100f}%";
 
             if (cardprogress.level < 2)
             {
@@ -146,6 +155,13 @@ public class LingZhangTaiPop : BaseView
         upgradePeopleBtn.onClick.AddListener(OnClickUpgradePeopleBtn);
         cardBtn.onClick.RemoveAllListeners();
         cardBtn.onClick.AddListener(() => { UIController.Instance.Show<CardDetailPop>(DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeLingZhangTai)); });
+        EventCenter.Instance.AddListener(EventMessages.UpdateCardInfo, UpdateViewWithArgs);
+    }
+
+    public override void RemoveEventListener()
+    {
+        base.RemoveEventListener();
+        EventCenter.Instance.RemoveListener(EventMessages.UpdateCardInfo, UpdateViewWithArgs);
     }
     private void OnClickUpgradeSpeedBtn()
     {

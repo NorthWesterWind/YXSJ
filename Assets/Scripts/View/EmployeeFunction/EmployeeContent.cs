@@ -86,8 +86,14 @@ public class EmployeeContent : MonoBehaviour
             addbtn.onClick.RemoveAllListeners();
             addbtn.onClick.AddListener(() =>
             {
+                // 防御：已无空闲云递者则不再增加
+                if (playerData.deliverData.workingNum >= playerData.deliverData.totalNum)
+                    return;
 
                 playerData.deliverData.workingNum += 1;
+                // 更新云递阁工人数对应的搬运工实例
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdateYunDiZheInfo);
+                // 如有其他地方监听工作状态，可以继续触发
                 EventCenter.Instance.TriggerEvent(EventMessages.UpdateYunDiGeWorkingState);
 
                 if (playerData.deliverData.totalNum > playerData.deliverData.workingNum)
@@ -102,7 +108,11 @@ public class EmployeeContent : MonoBehaviour
             removebtn.onClick.RemoveAllListeners();
             removebtn.onClick.AddListener(() =>
             {
+                if (playerData.deliverData.workingNum <= 0)
+                    return;
+
                 playerData.deliverData.workingNum -= 1;
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdateYunDiZheInfo);
                 EventCenter.Instance.TriggerEvent(EventMessages.UpdateYunDiGeWorkingState);
                 if (playerData.deliverData.workingNum > 0)
                 {

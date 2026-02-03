@@ -8,7 +8,7 @@ namespace Controller.Monster
    
         }
 
-        public void OnTakeDamage(MonsterController monster, int damage)
+        public void OnTakeDamage(MonsterController monster, float damage)
         {
             // 不逃跑，原地战斗
             // 可以加入受击硬直

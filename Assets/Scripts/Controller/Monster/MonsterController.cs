@@ -87,7 +87,7 @@ namespace Controller
             _assetHandle = GetComponent<AssetHandle>();
 
         }
-               public void Init(MonsterData data, Vector2 center, MonsterBehavior behavior, int Id, Vector2 patrolSize)
+        public void Init(MonsterData data, Vector2 center, MonsterBehavior behavior, int Id, Vector2 patrolSize)
         {
             this.data = data;
             currentHp = data.hp;
@@ -169,19 +169,11 @@ namespace Controller
                     CheckPlayer();
                 }
             }
-
-            // 检查当前动画槽是否为 null
-            var currentAnimation = skeletonAnimation.AnimationState.GetCurrent(0);
-            if (InAtking)
+            if (!isDead)
             {
-                if (currentAnimation == null || currentAnimation.Animation.Name != "walk")
-                {
-                    skeletonAnimation.AnimationState.SetAnimation(0, "walk", true);
-                }
-            }
-            else
-            {
-                if (agent.hasPath || agent.remainingDistance > 1)
+                // 检查当前动画槽是否为 null
+                var currentAnimation = skeletonAnimation.AnimationState.GetCurrent(0);
+                if (InAtking)
                 {
                     if (currentAnimation == null || currentAnimation.Animation.Name != "walk")
                     {
@@ -190,13 +182,24 @@ namespace Controller
                 }
                 else
                 {
-                    if (currentAnimation == null || currentAnimation.Animation.Name != "idle")
+                    if (agent.hasPath || agent.remainingDistance > 1)
                     {
-                        skeletonAnimation.AnimationState.SetAnimation(0, "idle", true);
+                        if (currentAnimation == null || currentAnimation.Animation.Name != "walk")
+                        {
+                            skeletonAnimation.AnimationState.SetAnimation(0, "walk", true);
+                        }
                     }
-                }
+                    else
+                    {
+                        if (currentAnimation == null || currentAnimation.Animation.Name != "idle")
+                        {
+                            skeletonAnimation.AnimationState.SetAnimation(0, "idle", true);
+                        }
+                    }
 
+                }
             }
+
             if (currentSpeed < data.movespeed)
             {
                 slowtime -= Time.deltaTime;
@@ -334,7 +337,7 @@ namespace Controller
 
         private bool isDead = false;
 
-        public void TakeDamage(int damage, Transform attacker, float slowDownValue = 0f)
+        public void TakeDamage(float damage, Transform attacker, float slowDownValue = 0f)
         {
             if (isDead) return;
             if (Time.time - _lastHitTime < _damageInterval) return;

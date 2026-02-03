@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using Controller.Pickups;
+using Module;
 using Module.Data;
 using PolyNav;
 using Spine.Unity;
@@ -23,16 +24,17 @@ namespace Controller
         public PolyNavAgent agent;
         public MonsterType monsterType;
         public DropItemType targetType;   // 采集目标：你说的“只采集某种物品”
-        public float detectRadius = 10f;  // 怪物检测半径
+        public float detectRadius = 6f;  // 怪物检测半径
         public LayerMask monsterLayer;    // 只检测怪物层
-        public float collectRange = 1.5f; // 采集距离
+
         public float waitTime = 2f;       // 区域无怪物时的等待时间
+
+
 
         public GameObject weapon;
         public CollectorInventory inventory;
         public LingChuGeController depot;
         public Transform receiveTransform;
-        public Transform infoTransform;
         public SkeletonAnimation skeletonAnimation;
         public SpriteRenderer spriteRenderer;
         public SpriteRenderer shadowRenderer;
@@ -40,16 +42,18 @@ namespace Controller
 
         public Collector collectorData;
 
-        public int id;
-
 
         private CollectorState currentState;
         private FactoryController currentTarget; // 当前采集物目标
 
         public float currentHp;
+        public float maxHp;
         public CollectorInfo collectorInfo;
         public int currentCarryNum;
         public int maxCarryNum;
+
+        // 是否附近存在怪物，用于控制“先打怪，后捡东西”的优先级
+        private bool hasMonsterNearby;
 
         private void Start()
         {
@@ -69,14 +73,22 @@ namespace Controller
 
             inventory.max = (int)c.bagCapacity;
             agent.maxSpeed = collectorData.moveSpeed;
-            currentHp = collectorData.maxHp;
+            maxHp = collectorData.maxHp;
+            var cardprogress = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeCharacterWithXuanCaiTuHp);
+            if (cardprogress != null)
+            {
+                maxHp += cardprogress.level * 30;
+            }
+            currentHp = maxHp;
+
             currentCarryNum = 0;
             maxCarryNum = (int)c.bagCapacity;
+            collectorInfo.HideHpInfo();
         }
 
         public void SetLayer()
         {
-            int newOrder = 30000 - Mathf.FloorToInt(transform.localPosition.y);
+            int newOrder = 30000 - Mathf.FloorToInt(transform.localPosition.y * 100);
             spriteRenderer.sortingOrder = newOrder;
             weaponRenderer.sortingOrder = newOrder;
             shadowRenderer.sortingOrder = newOrder;
@@ -85,77 +97,90 @@ namespace Controller
         private void Update()
         {
             SetLayer();
-            if (agent.hasPath && agent.remainingDistance > 1 && agent.currentSpeed < 0.1f)
+            UpdateAnimation();
+
+            CheckMonster();
+
+            // 背包满，强制回仓
+            if (inventory.IsFull() && currentState != CollectorState.ReturnToDepot)
             {
-                var state = skeletonAnimation.AnimationState;
-                var current = state.GetCurrent(0);
-                if (weapon.gameObject.activeSelf)
-                {
-                    if (current == null || current.Animation.Name != "zoulugongji")
-                    {
-                        state.SetAnimation(0, "zoulugongji", true);
-                    }
-
-                }
-                else
-                {
-                    if (current == null || current.Animation.Name != "walk")
-                    {
-                        state.SetAnimation(0, "walk", true);
-                    }
-                }
-            }
-            else
-            {
-                var state = skeletonAnimation.AnimationState;
-                var current = state.GetCurrent(0);
-
-                if (weapon.gameObject.activeSelf)
-                {
-                    if (current == null || current.Animation.Name != "gongji")
-                    {
-                        state.SetAnimation(0, "gongji", true);
-                    }
-                }
-                else
-                {
-
-                    if (current == null || current.Animation.Name != "idle")
-                    {
-                        state.SetAnimation(0, "idle", true);
-                    }
-                }
-
-            }
-
-
-
-            if (inventory.IsFull())
-            {
-                if (currentState != CollectorState.ReturnToDepot)
-                {
-                    SwitchState(CollectorState.ReturnToDepot);
-                    agent.SetDestination(depot.collectorTransform.position);
-                }
+                ChangeState(CollectorState.ReturnToDepot);
                 return;
             }
 
-            CheckMonster();
-            switch (currentState)
+            UpdateState();
+
+            // 非战斗 / 非回仓才捡东西
+            if (!hasMonsterNearby && currentState != CollectorState.ReturnToDepot)
+            {
+                DoCollect();
+            }
+        }
+
+        private void ChangeState(CollectorState newState)
+        {
+            if (currentState == newState) return;
+
+            ExitState(currentState);
+            currentState = newState;
+            EnterState(newState);
+        }
+        private void ExitState(CollectorState state)
+        {
+            switch (state)
+            {
+                case CollectorState.Wait:
+                    CancelInvoke(nameof(BackToIdle));
+                    break;
+
+                case CollectorState.Fight:
+                    agent.Stop();
+                    break;
+            }
+        }
+
+
+        private void EnterState(CollectorState state)
+        {
+            switch (state)
             {
                 case CollectorState.Idle:
-                    SwitchState(CollectorState.FindResource);
                     break;
 
                 case CollectorState.FindResource:
                     currentTarget = GameController.Instance.factoryControllers[monsterType];
-                    agent.SetDestination(currentTarget.transform.position);
-                    SwitchState(CollectorState.GoToResource);
+                    ChangeState(CollectorState.GoToResource);
                     break;
 
                 case CollectorState.GoToResource:
-                    if (!agent.hasPath)
-                        SwitchState(CollectorState.Fight);
+                    agent.SetDestination(currentTarget.transform.position);
+                    break;
+
+                case CollectorState.ReturnToDepot:
+                    agent.SetDestination(depot.collectorTransform.position);
+                    break;
+
+                case CollectorState.Wait:
+                    Invoke(nameof(BackToIdle), waitTime);
+                    break;
+            }
+        }
+
+        private void BackToIdle()
+        {
+            ChangeState(CollectorState.Idle);
+        }
+        private void UpdateState()
+        {
+            switch (currentState)
+            {
+                case CollectorState.Idle:
+                    ChangeState(CollectorState.FindResource);
+                    break;
+
+                case CollectorState.GoToResource:
+                    if (!agent.hasPath || agent.remainingDistance < 0.1f)
+                        ChangeState(CollectorState.Fight);
                     break;
 
                 case CollectorState.Fight:
@@ -166,21 +191,32 @@ namespace Controller
                     if (!agent.hasPath || agent.remainingDistance < 0.1f)
                     {
                         depot.Store(this, inventory);
-                        SwitchState(CollectorState.Idle);
+                        ChangeState(CollectorState.Idle);
                     }
                     break;
-
-                case CollectorState.Wait:
-                    SwitchState(CollectorState.Idle);
-                    break;
-            }
-
-            if (currentState != CollectorState.Fight &&
-                currentState != CollectorState.ReturnToDepot)
-            {
-                DoCollect();
             }
         }
+        private void UpdateAnimation()
+        {
+            var state = skeletonAnimation.AnimationState;
+            var current = state.GetCurrent(0);
+
+            bool moving = agent.hasPath && agent.remainingDistance > 1f;
+            bool fighting = weapon.gameObject.activeSelf;
+
+            string anim =
+                fighting
+                    ? (moving ? "zoulugongji" : "gongji")
+                    : (moving ? "walk" : "idle");
+
+            if (current == null || current.Animation.Name != anim)
+            {
+                state.SetAnimation(0, anim, true);
+            }
+        }
+
+
+
         public void AddDropItem(DropItemType itemType)
         {
             inventory.Add(itemType);
@@ -216,18 +252,40 @@ namespace Controller
                 if ((item as DropController).itemType != targetType) continue;
                 if (item.isTaken) continue;
                 float dist = Vector2.Distance(transform.position, item.transform.position);
-                if (dist <= collectRange && !inventory.IsFull())
+                if (!inventory.IsFull())
                 {
                     item.StartAttract(this.transform, receiveTransform);
                 }
             }
         }
 
+        public void CheckDrop()
+        {
+            var list = ScenePickupController.Instance.materials.ToArray();
+
+            foreach (var item in list)
+            {
+                if (item == null) continue;                       // 回收后 item 可能被销毁
+                if (!item.gameObject.activeInHierarchy) continue; // 避免 inactive
+                if (item.isTaken) continue;
+                if (inventory.IsFull())
+                    break;
+                float dist = Vector2.Distance(transform.position, item.transform.position);
+                if (dist <= 5 && currentCarryNum < maxCarryNum)
+                {
+                    item.StartAttract(this.transform, receiveTransform);
+                }
+            }
+        }
+
+
         public void CheckMonster()
         {
             Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectRadius, monsterLayer);
 
-            if (hits.Length > 0)
+            hasMonsterNearby = hits.Length > 0;
+
+            if (hasMonsterNearby)
             {
                 weapon.gameObject.SetActive(true);
             }
@@ -309,8 +367,20 @@ namespace Controller
                 return;
             }
 
-            // 前往最近怪物
-            agent.SetDestination(nearest.position);
+            // 根据与最近怪物的距离决定“靠近”还是“原地挥武器”
+            // 约定：攻击检测范围与玩家一致，当距离小于攻击范围一半时停止移动，让武器去做触发检测
+            float stopDistance = detectRadius * 0.5f;
+
+            if (minDist > stopDistance)
+            {
+                // 还没到攻击距离，继续往怪物位置移动
+                agent.SetDestination(nearest.position);
+            }
+            else
+            {
+                // 已到攻击距离附近，停下脚步，让武器触发器去做伤害检测
+                agent.Stop();
+            }
         }
 
         private void SwitchState(CollectorState newState)

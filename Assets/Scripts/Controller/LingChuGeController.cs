@@ -13,16 +13,16 @@ namespace Controller
 {
     public class LingChuGeController : StructureBase
     {
-        public int capacity;
+
         public WarehouseCategory  warehouseCategory;
         public Transform receiveTransform;
         public Transform sendTransform;
-        public Transform infoTransform;
         public LingChuGeInfo infoitem;
         public Transform collectorTransform;
         public WarehouseCategoryType categoryType; 
         public List<CollectorController>  collectorControllerList = new List<CollectorController>();
-        public Dictionary< DropItemType , int> storage;
+        public Dictionary< DropItemType , int> storage = new Dictionary<DropItemType, int>();
+        public int capacity;
         public PlayerController characterController;
         
         private bool isDelivering = false;
@@ -68,22 +68,54 @@ namespace Controller
             meshRenderer.sortingOrder = sprite.sortingOrder + 1;
             structureLock.gameObject.SetActive(false);
             GameController.Instance.unlockedBuildingTypes.Add(structureType);
+            // 解锁内容后，按当前数据同步采集员与信息
             HandleBeginWorking();
         }
 
 
-       public void UpdateCollectorInfo(params object[] args)
+        /// <summary>
+        /// 根据仓库数据，增删采集员实例，使之与 workingCollectorList 一致
+        /// </summary>
+        public void UpdateCollectorInfo(params object[] args)
         {
-              PlayerData playerData = PlayerDataModule.Instance.data;
-              var warehouseCategory = playerData.warehouselist.Find(x => x.warehouseCategoryType == categoryType);
-            if (warehouseCategory.workingCollectorList.Count > collectorControllerList.Count)
+            PlayerData playerData = PlayerDataModule.Instance.data;
+            warehouseCategory = playerData.warehouselist.Find(x => x.warehouseCategoryType == categoryType);
+            if (warehouseCategory == null)
             {
-                for (int i = collectorControllerList.Count; i < warehouseCategory.workingCollectorList.Count; i++)
+                return;
+            }
+
+            int targetCount = warehouseCategory.workingCollectorList.Count;
+
+            // 增加采集员
+            if (targetCount > collectorControllerList.Count)
+            {
+                for (int i = collectorControllerList.Count; i < targetCount; i++)
                 {
-                   CollectorController cc = Instantiate(_assetHandle.Get<GameObject>("Collector"), bornTransform, false).GetComponent<CollectorController>();
-                    cc.Init( warehouseCategory.workingCollectorList[i] , this);
+                    CollectorController cc = Instantiate(_assetHandle.Get<GameObject>("XuaCaiTu"), bornTransform, false)
+                        .GetComponent<CollectorController>();
+                    cc.Init(warehouseCategory.workingCollectorList[i], this);
                     collectorControllerList.Add(cc);
                 }
+            }
+            // 减少采集员
+            else if (targetCount < collectorControllerList.Count)
+            {
+                for (int i = collectorControllerList.Count - 1; i >= targetCount; i--)
+                {
+                    var collector = collectorControllerList[i];
+                    collectorControllerList.RemoveAt(i);
+                    if (collector != null)
+                    {
+                        Destroy(collector.gameObject);
+                    }
+                }
+            }
+
+            // 刷新信息展示
+            if (infoitem != null)
+            {
+                infoitem.Init(warehouseCategory, this);
             }
         }
 
@@ -116,7 +148,12 @@ namespace Controller
             {
                 characterController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
             }
-           
+
+            // 确保存储字典已初始化
+            if (storage == null)
+            {
+                storage = new Dictionary<DropItemType, int>();
+            }
         }
 
         private void OnEnable()
@@ -141,7 +178,6 @@ namespace Controller
             if (Vector2.Distance(characterController.gameObject.transform.position, transform.position) < 8)
             {
                 infoitem.gameObject.SetActive(true);
-                infoitem.transform.position =  infoTransform.position;
             }
             else
             {
@@ -151,21 +187,19 @@ namespace Controller
 
         public void HandleBeginWorking(params object[] args)
         {
+            // 统一入口：更新仓库引用并按当前数据同步采集员
             warehouseCategory = PlayerDataModule.Instance.data.warehouselist.Find(x => x.warehouseCategoryType == categoryType);
-            if (infoitem == null)
+            if (warehouseCategory == null)
             {
-                infoitem = Instantiate(_assetHandle.Get<GameObject>("LingChuGeInfo") , GameObject.Find("Canvas").transform,false).GetComponent<LingChuGeInfo>();
+                return;
             }
-            infoitem.Init( warehouseCategory , this);
-            List<Collector> list = warehouseCategory.workingCollectorList;
-            foreach (Collector c in list)
+
+            if (infoitem != null)
             {
-                GameObject obj = Instantiate(_assetHandle.Get<GameObject>("Collector"));
-                obj.transform.position = collectorTransform.position;
-                obj.GetComponent<CollectorController>().Init(c , this);
-                collectorControllerList.Add(obj.GetComponent<CollectorController>());
-                
+                infoitem.Init(warehouseCategory, this);
             }
+
+            UpdateCollectorInfo();
         }
 
         public void HandleLingChuGeDelivery(params object[] args)
@@ -173,7 +207,12 @@ namespace Controller
             if (isDelivering) return;
 
             DropItemType targetType = (DropItemType)args[0];
-            int count = storage[targetType];
+
+            if (!storage.TryGetValue(targetType, out var count))
+            {
+                count = 0;
+            }
+
             count = Mathf.Min(count, characterController.RemainCapacity);
 
             if (count <= 0) return;
@@ -221,8 +260,11 @@ namespace Controller
                 // 终止飞行
                 drop.ForceStop();
 
-                // 返还库存
-                storage[drop.itemType]++;
+                // 返还库存（如果键不存在则先创建）
+                if (!storage.TryAdd(drop.itemType, 1))
+                {
+                    storage[drop.itemType]++;
+                }
 
                 // 回收物体
                 Destroy(drop.gameObject);

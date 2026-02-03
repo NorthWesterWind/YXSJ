@@ -144,18 +144,77 @@ namespace View.CardView
                 leveltxt.gameObject.SetActive(true);
                 MaskImg.gameObject.SetActive(false);
                 topLeftLockImage.gameObject.SetActive(false);
-                if (cardUpProgress.level == 10)
+
+                switch (cardUpProgress.developType)
                 {
-                    fillContent.SetActive(true);
-                    progresstxt.text = "已满级";
-                    fillImg.fillAmount = 1f;
+                    case CardDevelopType.UpgradeYuShaHu_1:
+                    case CardDevelopType.UpgradeYuShaHu_2:
+                    case CardDevelopType.UpgradeYuShaHu_3:
+                    case CardDevelopType.UpgradeYuShaHu_4:
+                    case CardDevelopType.UpgradeLianQiLu_1:
+                    case CardDevelopType.UpgradeLianQiLu_2:
+                    case CardDevelopType.UpgradeLianQiLu_3:
+                        if (cardUpProgress.level == WorldData.cardUpLevelArr.Length + 1)
+                        {
+                            fillContent.SetActive(true);
+                            progresstxt.text = "已满级";
+                            fillImg.fillAmount = 1f;
+                        }
+                        else
+                        {
+                            fillContent.SetActive(true);
+                            fillImg.fillAmount = cardUpProgress.currentNum * 1f / WorldData.cardUpLevelArr[cardUpProgress.level - 1];
+                            progresstxt.text = cardUpProgress.currentNum + "/" + WorldData.cardUpLevelArr[cardUpProgress.level - 1];
+                        }
+                        break;
+                    case CardDevelopType.UpgradeLingZhangTai:
+                        if (cardUpProgress.level - 1 < WorldData.cardUpLevelArr_LingChouLing.Length)
+                        {
+                            fillContent.SetActive(true);
+                            fillImg.fillAmount = cardUpProgress.currentNum * 1f / WorldData.cardUpLevelArr_LingChouLing[cardUpProgress.level - 1];
+                            progresstxt.text = $"{cardUpProgress.currentNum}/{WorldData.cardUpLevelArr_LingChouLing[cardUpProgress.level - 1]}";
+                        }
+                        else
+                        {
+                            fillContent.SetActive(false);
+                            progresstxt.text = "已满级";
+                            fillImg.fillAmount = 1f;
+                        }
+                        break;
+                    case CardDevelopType.UpgradeLingChuGe_1:
+                    case CardDevelopType.UpgradeLingChuGe_2:
+                    case CardDevelopType.UpgradeYunDiGe:
+                        if (cardUpProgress.level - 1 < WorldData.cardUpLevelArr_LingChuGe_YunDiGe.Length)
+                        {
+                            fillContent.SetActive(true);
+                            fillImg.fillAmount = cardUpProgress.currentNum * 1f / WorldData.cardUpLevelArr_LingChuGe_YunDiGe[cardUpProgress.level - 1];
+                            progresstxt.text = $"{cardUpProgress.currentNum}/{WorldData.cardUpLevelArr_LingChuGe_YunDiGe[cardUpProgress.level - 1]}";
+                        }
+                        else
+                        {
+                            fillContent.SetActive(false);
+                            progresstxt.text = "已满级";
+                            fillImg.fillAmount = 1f;
+                        }
+                        break;
+                    case CardDevelopType.UpgradeCharacterWithXuanCaiTuAtk:
+                    case CardDevelopType.UpgradeCharacterWithXuanCaiTuHp:
+                    case CardDevelopType.UpgradeGetYuanBaoLing:
+                        if (cardUpProgress.level - 1 < WorldData.cardUpLevelArr_WuQiLing_LingLiLingr_YuanBaoLing.Length)
+                        {
+                            fillContent.SetActive(true);
+                            fillImg.fillAmount = cardUpProgress.currentNum * 1f / WorldData.cardUpLevelArr_WuQiLing_LingLiLingr_YuanBaoLing[cardUpProgress.level - 1];
+                            progresstxt.text = $"{cardUpProgress.currentNum}/{WorldData.cardUpLevelArr_WuQiLing_LingLiLingr_YuanBaoLing[cardUpProgress.level - 1]}";
+                        }
+                        else
+                        {
+                            fillContent.SetActive(false);
+                            progresstxt.text = "已满级";
+                            fillImg.fillAmount = 1f;
+                        }
+                        break;
                 }
-                else
-                {
-                    fillContent.SetActive(true);
-                    fillImg.fillAmount = cardUpProgress.currentNum * 1f / WorldData.cardUpLevelArr[cardUpProgress.level - 1];
-                    progresstxt.text = cardUpProgress.currentNum + "/" + WorldData.cardUpLevelArr[cardUpProgress.level - 1];
-                }
+
 
             }
             else

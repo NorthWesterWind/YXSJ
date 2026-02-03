@@ -10,7 +10,7 @@ namespace Controller.Monster
         
         }
 
-        public void OnTakeDamage(MonsterController monster, int damage)
+        public void OnTakeDamage(MonsterController monster, float damage)
         {
             if ( monster.state != MonsterState.Flee)
                 monster.ChangeState(MonsterState.Flee);

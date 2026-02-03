@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 1
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: d49122404c4b57649ad274199fe345ed, type: 2}
-  m_sharedMaterial: {fileID: -3891391281964462782, guid: d49122404c4b57649ad274199fe345ed, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: a39492218aa13b54f9f809688d32fa19, type: 2}
+  m_sharedMaterial: {fileID: -3891391281964462782, guid: a39492218aa13b54f9f809688d32fa19, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1062,7 +1062,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &974560082106214912
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1632,7 +1632,7 @@ MonoBehaviour:
   _showAnimationTime: 0.3
   _hideAnimationTime: 0.2
   _closeBackground: {fileID: 0}
-  _isPopup: 0
+  _isPopup: 1
   _content: {fileID: 0}
   _enablePopupScale: 1
   _popupScaleCurve:
@@ -1698,6 +1698,7 @@ MonoBehaviour:
   btnMask_2: {fileID: 2614779492085119119}
   btnMaskTxt_2: {fileID: 4790943878421515417}
   freetxt_2: {fileID: 3230145100206991176}
+  donatetxt: {fileID: 4487805106078892330}
 --- !u!1 &3631932791567391538
 GameObject:
   m_ObjectHideFlags: 0
@@ -1790,7 +1791,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4143262323683472254
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3183,7 +3184,7 @@ GameObject:
   - component: {fileID: 6069247298696701596}
   - component: {fileID: 4487805106078892330}
   m_Layer: 5
-  m_Name: Text (TMP) (1)
+  m_Name: donatetxt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1822426938244129712}
   - component: {fileID: 7120398937420497927}
+  - component: {fileID: 1073117974470256450}
   m_Layer: 5
   m_Name: topInfo
   m_TagString: Untagged
@@ -46,6 +47,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 346119722495993705}
   m_CullTransparentMesh: 1
+--- !u!114 &1073117974470256450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 346119722495993705}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 40efe4da9f0e55f46a67dcee007f46ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fillImage: {fileID: 3516615461551783554}
+  fillBg: {fileID: 4744534335371137549}
+  text: {fileID: 5762841869740731438}
+  collector: {fileID: 4416509543525353125}
 --- !u!1 &437202156178287239
 GameObject:
   m_ObjectHideFlags: 0
@@ -281,7 +298,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 71.5082, y: 0.8}
+  m_AnchoredPosition: {x: 48.3, y: 0.8}
   m_SizeDelta: {x: 93.1862, y: 39.53}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2993439552389274453
@@ -629,6 +646,7 @@ GameObject:
   - component: {fileID: 6389833823030740200}
   - component: {fileID: 4416509543525353125}
   - component: {fileID: 121387116836826623}
+  - component: {fileID: 9067682532327098590}
   m_Layer: 0
   m_Name: XuanCaiTu
   m_TagString: Untagged
@@ -752,31 +770,26 @@ MonoBehaviour:
   monsterLayer:
     serializedVersion: 2
     m_Bits: 0
-  collectRange: 1.5
   waitTime: 2
-  weapon: {fileID: 0}
+  weapon: {fileID: 6064793176159173579}
   depot: {fileID: 0}
-  receiveTransform: {fileID: 0}
-  infoTransform: {fileID: 0}
-  skeletonAnimation: {fileID: 0}
+  receiveTransform: {fileID: 6451977250429088915}
+  skeletonAnimation: {fileID: 2430943085502578746}
   spriteRenderer: {fileID: 0}
-  shadowRenderer: {fileID: 0}
-  weaponRenderer: {fileID: 0}
+  shadowRenderer: {fileID: 7254888134410665797}
+  weaponRenderer: {fileID: 3312406724486711077}
   collectorData:
     id: 0
     atk: 0
     bagCapacity: 0
     moveSpeed: 0
-    pickUpRange: 0
-    slowDownValue: 0
-    weaponSize: 0
     monsterType: 0
     collectorType: 0
     maxHp: 0
     hpRecover: 0
-  id: 0
   currentHp: 0
-  collectorInfo: {fileID: 0}
+  maxHp: 0
+  collectorInfo: {fileID: 1073117974470256450}
   currentCarryNum: 0
   maxCarryNum: 0
 --- !u!223 &121387116836826623
@@ -802,6 +815,20 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 210
   m_TargetDisplay: 0
+--- !u!114 &9067682532327098590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5412441200256446805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f61ee4d501da133479dea48b131b5928, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  assets:
+  - {fileID: 845777481163941341, guid: 5001ecaeea02e894a84a60685735423f, type: 3}
 --- !u!1 &6064793176159173579
 GameObject:
   m_ObjectHideFlags: 0
@@ -852,7 +879,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   atkValue: 3
-  slowDownValue: 0
 --- !u!50 &1648808115126629560
 Rigidbody2D:
   serializedVersion: 4
@@ -1000,7 +1026,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5751653033777015480}
   - component: {fileID: 3146390068934145598}
-  - component: {fileID: 3421790610855169363}
   m_Layer: 5
   m_Name: pickInfo
   m_TagString: Untagged
@@ -1036,36 +1061,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7328598368395898453}
   m_CullTransparentMesh: 1
---- !u!114 &3421790610855169363
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7328598368395898453}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: a013491ca7dfe7546a9bb5ab26b6c1b6, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &8319544401351919041
 GameObject:
   m_ObjectHideFlags: 0

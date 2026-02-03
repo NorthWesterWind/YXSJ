@@ -10,7 +10,7 @@ namespace Controller.Monster
       
         }
         
-        public void OnTakeDamage(MonsterController monster, int damage)
+        public void OnTakeDamage(MonsterController monster, float damage)
         {
             // 金怪受击立刻逃跑
             // 切换到逃跑状态（若尚未逃跑）

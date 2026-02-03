@@ -95,13 +95,31 @@ namespace Controller
         public void UpdateYunDiZheInfo(params object[] args)
         {
             PlayerData playerData = PlayerDataModule.Instance.data;
-            if (playerData.deliverData.workingNum > freightClerkList.Count)
+            int targetCount = playerData.deliverData.workingNum;
+
+            // 增加搬运工
+            if (targetCount > freightClerkList.Count)
             {
-                for (int i = freightClerkList.Count; i < playerData.deliverData.workingNum; i++)
+                for (int i = freightClerkList.Count; i < targetCount; i++)
                 {
-                    FreightClerkController freightClerk = Instantiate(_assetHandle.Get<GameObject>("FreightClerk"), bornTransform, false).GetComponent<FreightClerkController>();
+                    FreightClerkController freightClerk =
+                        Instantiate(_assetHandle.Get<GameObject>("FreightClerk"), bornTransform, false)
+                            .GetComponent<FreightClerkController>();
                     freightClerk.Init();
                     freightClerkList.Add(freightClerk);
+                }
+            }
+            // 减少搬运工：多余的先停止工作，再从列表移除
+            else if (targetCount < freightClerkList.Count)
+            {
+                for (int i = freightClerkList.Count - 1; i >= targetCount; i--)
+                {
+                    var clerk = freightClerkList[i];
+                    freightClerkList.RemoveAt(i);
+                    if (clerk != null)
+                    {
+                        clerk.StopWorking();
+                    }
                 }
             }
 

@@ -206,6 +206,13 @@ namespace View
 
             closeBtn.onClick.RemoveAllListeners();
             closeBtn.onClick.AddListener(() => { StartCoroutine(ShowAnimation()); });
+
+            EventCenter.Instance.AddListener(EventMessages.UpdateCardInfo, UpdateViewWithArgs);
+        }
+        public override void RemoveEventListener()
+        {
+            base.RemoveEventListener();
+               EventCenter.Instance.RemoveListener(EventMessages.UpdateCardInfo, UpdateViewWithArgs);
         }
 
         private IEnumerator ShowAnimation()
@@ -303,17 +310,15 @@ namespace View
             if (cardData == null)
             {
                 pricetxt.text =
-                    (WorldData.goodsPriceDic[goodsType] *
+                    Extensions.FormatNumber((WorldData.goodsPriceDic[goodsType] *
                      DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price +
-                     (productStationdata.priceLevel - 1) * 25).ToString();
+                     (productStationdata.priceLevel - 1) * 25));
             }
             else
             {
-                pricetxt.text =
-                    (WorldData.goodsPriceDic[goodsType] *
-                     DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price *
-                     Mathf.Pow(3, cardData.level) +
-                     (productStationdata.priceLevel - 1) * 25).ToString();
+                pricetxt.text = Extensions.FormatNumber((WorldData.goodsPriceDic[goodsType] *
+                     DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price * cardData.level +
+                     (productStationdata.priceLevel - 1) * 25));
             }
 
 
@@ -324,21 +329,47 @@ namespace View
 
             if (productStationdata.priceLevel < productStationdata.maxPriceLevel)
             {
-                bottompreviewtxt1.text =
-               "x" + (WorldData.goodsPriceDic[goodsType] *
-                      DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price +
-                      (productStationdata.priceLevel-1) * 25);
+                if (cardData == null)
+                {
+                    bottompreviewtxt1.text =
+                                   "x" + Extensions.FormatNumber(WorldData.goodsPriceDic[goodsType] *
+                                          DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price +
+                                          (productStationdata.priceLevel - 1) * 25);
 
-                bottompreviewtxt2.text = "x" + $"{WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price + (productStationdata.priceLevel) * 25}";
+                    bottompreviewtxt2.text = "x" + Extensions.FormatNumber(WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price + (productStationdata.priceLevel) * 25);
+
+                }
+                else
+                {
+                    bottompreviewtxt1.text =
+                              "x" + Extensions.FormatNumber(WorldData.goodsPriceDic[goodsType] *
+                                     DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price* cardData.level +
+                                     (productStationdata.priceLevel - 1) * 25);
+
+                    bottompreviewtxt2.text = "x" + Extensions.FormatNumber(WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price* cardData.level + (productStationdata.priceLevel) * 25);
+
+                }
 
                 bootomBtntxt1.text = (1000 * productStationdata.priceLevel).ToString();
             }
             else
             {
-                bottompreviewtxt1.text =
-              "x" + (WorldData.goodsPriceDic[goodsType] *
+
+                 if (cardData == null)
+                {
+                           bottompreviewtxt1.text =
+              "x" + Extensions.FormatNumber(WorldData.goodsPriceDic[goodsType] *
                      DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price +
                      productStationdata.priceLevel * 25);
+                }
+                else
+                {
+                      bottompreviewtxt1.text =
+              "x" + Extensions.FormatNumber(WorldData.goodsPriceDic[goodsType] *
+                     DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price*cardData.level +
+                     productStationdata.priceLevel * 25);
+                }
+             
                 bottompreviewtxt2.text = "";
                 bootomBtntxt1.text = "已满级";
             }
@@ -382,7 +413,7 @@ namespace View
                 mask.SetActive(false);
                 cardleveltxt.text = cardData.level.ToString();
 
-                if (cardData.level == 10)
+                if (cardData.level == WorldData.cardUpLevelArr.Length +1)
                 {
                     cardprogressfill.fillAmount = 1;
                     cardprogresstxt.text = "已满级";

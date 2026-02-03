@@ -8,7 +8,7 @@ using Utils;
 
 public class YuanBaoKuangDongCtr : StructureBase
 {
-  
+
     PlayerData playerData;
 
     void Start()
@@ -25,7 +25,7 @@ public class YuanBaoKuangDongCtr : StructureBase
         return playerData.remainCount > 0;
     }
 
-    public void ConsumeOne(params object [] objects)
+    public void ConsumeOne(params object[] objects)
     {
         if (playerData.remainCount <= 0)
             return;
@@ -39,6 +39,10 @@ public class YuanBaoKuangDongCtr : StructureBase
         {
             playerData.lastRefrashTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             playerData.remainCount = 30;
+            var data = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeGetYuanBaoLing);
+            if (data != null)
+                playerData.remainCount += data.level * 10;
+
         }
     }
 

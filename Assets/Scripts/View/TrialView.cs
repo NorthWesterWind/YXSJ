@@ -135,15 +135,15 @@ public class TrialView : BaseView
     {
 
         yield return StartCoroutine(SpawnLayer(lowLevelMonsters, lowCount, lowTypes, 200));
-        yield return StartCoroutine(SpawnLayer(midLevelMonsters, midCount, midTypes,300));
-        yield return StartCoroutine(SpawnLayer(highLevelMonsters, highCount, highTypes, 400));
+        yield return StartCoroutine(SpawnLayer(midLevelMonsters, midCount, midTypes,250));
+        yield return StartCoroutine(SpawnLayer(highLevelMonsters, highCount, highTypes, 300));
         isCreatOver = true;
     }
     IEnumerator SpawnLoop_1()
     {
         yield return StartCoroutine(SpawnLayer(lowLevelMonsters_1, lowCount, lowTypes, 200));
-        yield return StartCoroutine(SpawnLayer(midLevelMonsters_2, midCount, midTypes, 300));
-        yield return StartCoroutine(SpawnLayer(highLevelMonsters_3, highCount, highTypes, 400));
+        yield return StartCoroutine(SpawnLayer(midLevelMonsters_2, midCount, midTypes, 250));
+        yield return StartCoroutine(SpawnLayer(highLevelMonsters_3, highCount, highTypes, 300));
         isCreatOver = true;
     }
 

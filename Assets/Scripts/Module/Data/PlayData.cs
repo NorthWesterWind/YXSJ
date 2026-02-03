@@ -321,9 +321,6 @@ namespace Module.Data
         public float atk = 10;
         public float bagCapacity = 20;
         public float moveSpeed = 8f;     //移动速度
-        public float pickUpRange = 5f;   //拾取物品距离
-        public float slowDownValue = 3f; //降低速度值
-        public float weaponSize = 1f;    //武器尺寸
         public MonsterFamily monsterType; //当前的目标怪物
         public CollectorType collectorType;
         public float maxHp = 30;

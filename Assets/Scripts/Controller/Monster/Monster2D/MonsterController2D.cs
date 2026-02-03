@@ -18,7 +18,7 @@ public class MonsterController2D : MonoBehaviour
     [Header("Path")]
     public Transform[] pathPoints;   // 路径点
     private int currentIndex = 0;     // 当前目标点索引
-    private float moveSpeed = 350f;     // 移动速度
+    private float moveSpeed = 300f;     // 移动速度
     public bool canWalk = true;
     public float maxHp;
     private Canvas canvas;
@@ -111,7 +111,7 @@ public class MonsterController2D : MonoBehaviour
     }
     public bool isDead = false;
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(float damage)
     {
         if (isDead) return;
 

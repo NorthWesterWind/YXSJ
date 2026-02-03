@@ -369,7 +369,7 @@ namespace Module.Data
                 UpgradeYunDiGe = 11,
                 UpgradeCharacterWithXuanCaiTuAtk = 12,
                 UpgradeCharacterWithXuanCaiTuHp = 13,
-                UpgradeGetLingJingShu = 14
+                UpgradeGetYuanBaoLing = 14
         }
 
         public enum GiftpackType

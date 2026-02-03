@@ -144,6 +144,11 @@ namespace Controller.Player
             currentCarryNum = 0;
 
             maxHp = dataModule.data.hp + dataModule.data.addHp;
+            var cardprogrees = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeCharacterWithXuanCaiTuHp);
+            if(cardprogrees != null)
+            {
+                maxHp += cardprogrees.level * 30;
+            }
             maxCarryNum = dataModule.data.bagCapacity + dataModule.data.addBagCapacity;
             currentPinkUpRange = dataModule.data.pickUpRange + dataModule.data.addPickUpRange;
             currentMoveSpeed = dataModule.data.moveSpeed + dataModule.data.addMoveSpeed;
@@ -157,7 +162,7 @@ namespace Controller.Player
                 dataModule = PlayerDataModule.Instance;
             }
             UpdatePlayerValueInfo();
-            currentHp = dataModule.data.hp + dataModule.data.addHp;
+            currentHp =  maxHp;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerInfo);

@@ -365,9 +365,47 @@ namespace Controller.Structure
             );
 
             ProductStationData productStationdata = PlayerDataModule.Instance.data.ProductStationDataList.Find(x => x.goodsType == goodsType);
-            float totalNum =
-                WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price * customer.data.carryNum
-                * PlayerDataModule.Instance.data.cashierData.earning + (productStationdata.priceLevel - 1) * 25;
+            ProductionStation productionStation = GameController.Instance.productionStationList.Find(x => x.goodsType == goodsType);
+            CardUpProgress cardData = null;
+            switch (productionStation.buildingType)
+            {
+                case BuildingType.YuShaHu_1:
+                    cardData = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_1);
+                    break;
+                case BuildingType.YuShaHu_2:
+                    cardData = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_2);
+                    break;
+                case BuildingType.YuShaHu_3:
+                    cardData = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_3);
+                    break;
+                case BuildingType.YuShaHu_4:
+                    cardData = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_4);
+                    break;
+                case BuildingType.LianQiLu_1:
+                    cardData = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_1);
+                    break;
+                case BuildingType.LianQiLu_2:
+                    cardData = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_2);
+                    break;
+                case BuildingType.LianQiLu_3:
+                    cardData = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_3);
+                    break;
+            }
+            float totalNum;
+
+            if (cardData != null)
+            {
+                totalNum =
+                              WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price * customer.data.carryNum
+                              * PlayerDataModule.Instance.data.cashierData.earning * (cardData.level*0.2f + 1 ) + (productStationdata.priceLevel - 1) * 25;
+            }
+            else
+            {
+                totalNum =
+                     WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price * customer.data.carryNum
+                        * PlayerDataModule.Instance.data.cashierData.earning + (productStationdata.priceLevel - 1) * 25;
+            }
+
             PrintingMoney(totalNum);
             workingWaiters--;
             TryProcessNextCustomer();

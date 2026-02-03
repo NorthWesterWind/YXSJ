@@ -52,6 +52,10 @@ public class VirtualJoystick : MonoBehaviour,
         baseRect.gameObject.SetActive(false);
     }
 
+    void OnEnable()
+    {
+        ResetJoystick();
+    }
     public void OnPointerDown(PointerEventData eventData)
     {
         baseRect.gameObject.SetActive(true);

@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using Controller;
 using DG.Tweening;
 using Module;
@@ -11,8 +10,10 @@ using Utils;
 using View;
 using View.CardView;
 
+
 public class LingChuGePop : BaseView
 {
+    public Image icon;
     public RectTransform contentRect;
     public UIButton closeBtn;
     public TextMeshProUGUI buildTxt;
@@ -26,13 +27,9 @@ public class LingChuGePop : BaseView
 
     public TextMeshProUGUI cardFillTxt;
     public TextMeshProUGUI cardLevelTxt;
-
-    public GameObject cardContent;
     public GameObject cardMask;
     public TextMeshProUGUI cardMaskTxt;
     public UIButton cardBtn;
-
-    public TextMeshProUGUI storageTxt;
 
     public TextMeshProUGUI atkLevelTxt;
     public TextMeshProUGUI currentAtkTxt;
@@ -76,7 +73,6 @@ public class LingChuGePop : BaseView
         warehouse = PlayerDataModule.Instance.data.warehouselist.Find(x => x.warehouseCategoryType == warehouseCategoryType);
         atktxt.text = warehouse.atk.ToString();
         numtxt.text = warehouse.peopleNum.ToString();
-        storageTxt.text = warehouse.capacity.ToString();
         if (warehouse.atkLevel < warehouse.maxAtkLevel)
         {
             gradefreeTxt_1.text = (warehouse.atkLevel * 3000).ToString();
@@ -109,7 +105,6 @@ public class LingChuGePop : BaseView
         if (cardProgress == null)
         {
             lockObj.SetActive(true);
-            cardContent.SetActive(false);
 
             if (PlayerDataModule.Instance.data.accountLevel < cardLevelData.unlockLevel)
             {
@@ -125,16 +120,17 @@ public class LingChuGePop : BaseView
         {
             lockObj.SetActive(false);
             fillContent.SetActive(true);
-            cardContent.SetActive(true);
             cardLevelTxt.text = cardProgress.level.ToString();
-            cardFillTxt.text = cardProgress.currentNum + "/" + WorldData.cardUpLevelArr[cardProgress.level - 1];
-            if (cardProgress.level == 10)
+
+            if (cardProgress.level == WorldData.cardUpLevelArr_LingChuGe_YunDiGe.Length + 1)
             {
                 cardFill.fillAmount = 1f;
+                cardFillTxt.text = "已满级";
             }
             else
             {
-                cardFill.fillAmount = cardProgress.currentNum * 1f / WorldData.cardUpLevelArr[cardProgress.level - 1];
+                cardFillTxt.text = cardProgress.currentNum + "/" + WorldData.cardUpLevelArr_LingChuGe_YunDiGe[cardProgress.level - 1];
+                cardFill.fillAmount = cardProgress.currentNum * 1f / WorldData.cardUpLevelArr_LingChuGe_YunDiGe[cardProgress.level - 1];
             }
             if (cardProgress.level < 5)
             {
@@ -153,6 +149,24 @@ public class LingChuGePop : BaseView
             numgradeMask.SetActive(true);
             numgradeMaskTxt.text = "等级已满";
         }
+
+        if (PlayerDataModule.Instance.data.currentMapID == 1 ||
+        PlayerDataModule.Instance.data.currentMapID == 2)
+        {
+            icon.sprite = _assetHandle.Get<Sprite>("LingChuGe1");
+        }
+        else if (PlayerDataModule.Instance.data.currentMapID == 3)
+        {
+            icon.sprite = _assetHandle.Get<Sprite>("LingChuGe3");
+        }
+        else if (PlayerDataModule.Instance.data.currentMapID == 4)
+        {
+            icon.sprite = _assetHandle.Get<Sprite>("LingChuGe4");
+        }
+        else if (PlayerDataModule.Instance.data.currentMapID == 5)
+        {
+            icon.sprite = _assetHandle.Get<Sprite>("LingChuGe5");
+        }
     }
 
 
@@ -170,6 +184,13 @@ public class LingChuGePop : BaseView
         {
             StartCoroutine(HideAnimation());
         }));
+
+        EventCenter.Instance.AddListener(EventMessages.UpdateCardInfo, UpdateViewWithArgs);
+    }
+    public override void RemoveEventListener()
+    {
+        base.RemoveEventListener();
+          EventCenter.Instance.RemoveListener(EventMessages.UpdateCardInfo, UpdateViewWithArgs);
     }
     private IEnumerator HideAnimation()
     {

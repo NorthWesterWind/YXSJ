@@ -177,23 +177,35 @@ namespace View.EmployeeFunction
                         break;
 
                     case 2:
-                        WarehouseCategory warehouseCategory1 = playerData.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1);
-                        var collector1 = warehouseCategory1.workingCollectorList.Find(x => x.monsterType == monstertype);
-                        warehouseCategory1.workingCollectorList.RemoveAt(warehouseCategory1.unworkingCollectorList.Count - 1);
-                        collector1.monsterType = MonsterFamily.None;
-                        warehouseCategory1.unworkingCollectorList.Add(collector1);
-                        UpdateInfo();
-                        EventCenter.Instance.TriggerEvent(EventMessages.UpdateLingChuGeWorkingInfo);
+                        // 一号灵储阁：从 working 列表中移除对应怪物类型的采集员，放回 unworking
+                        WarehouseCategory warehouseCategory1 = playerData.warehouselist
+                            .Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1);
+                        var collector1 = warehouseCategory1?.workingCollectorList
+                            .Find(x => x.monsterType == monstertype);
+                        if (collector1 != null)
+                        {
+                            warehouseCategory1.workingCollectorList.Remove(collector1);
+                            collector1.monsterType = MonsterFamily.None;
+                            warehouseCategory1.unworkingCollectorList.Add(collector1);
+                            UpdateInfo();
+                            EventCenter.Instance.TriggerEvent(EventMessages.UpdateLingChuGeWorkingInfo);
+                        }
                         break;
 
                     case 3:
-                        WarehouseCategory warehouseCategory2 = playerData.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2);
-                        var collector2 = warehouseCategory2.workingCollectorList.Find(x => x.monsterType == monstertype);
-                        warehouseCategory2.workingCollectorList.RemoveAt(warehouseCategory2.unworkingCollectorList.Count - 1);
-                        collector2.monsterType = MonsterFamily.None;
-                        warehouseCategory2.unworkingCollectorList.Add(collector2);
-                        UpdateInfo();
-                        EventCenter.Instance.TriggerEvent(EventMessages.UpdateLingChuGeWorkingInfo);
+                        // 二号灵储阁：逻辑同上
+                        WarehouseCategory warehouseCategory2 = playerData.warehouselist
+                            .Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2);
+                        var collector2 = warehouseCategory2?.workingCollectorList
+                            .Find(x => x.monsterType == monstertype);
+                        if (collector2 != null)
+                        {
+                            warehouseCategory2.workingCollectorList.Remove(collector2);
+                            collector2.monsterType = MonsterFamily.None;
+                            warehouseCategory2.unworkingCollectorList.Add(collector2);
+                            UpdateInfo();
+                            EventCenter.Instance.TriggerEvent(EventMessages.UpdateLingChuGeWorkingInfo);
+                        }
                         break;
                 }
 
