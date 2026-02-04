@@ -39,18 +39,18 @@ public class StructureLock : MonoBehaviour
             case BuildingType.LingChuGe_1:
             case BuildingType.LingChuGe_2:
                 if (PlayerDataModule.Instance.data.currentMapID == 1 || PlayerDataModule.Instance.data.currentMapID == 2)
-                    structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) + "_1");
+                    structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) + "1");
                 else if (PlayerDataModule.Instance.data.currentMapID == 3)
                 {
-                    structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) + "_3");
+                    structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) + "3");
                 }
                 else if (PlayerDataModule.Instance.data.currentMapID == 4)
                 {
-                    structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) + "_4");
+                    structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) + "4");
                 }
                 else
                 {
-                    structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) + "_5");
+                    structureSprite.sprite = _assetHandle.Get<Sprite>(Extensions.GetStructureResNameByType(buildType) + "5");
                 }
                 break;
             case BuildingType.LingZhangTai:

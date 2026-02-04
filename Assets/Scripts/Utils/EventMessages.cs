@@ -94,5 +94,7 @@ namespace Utils
         public const string StopCreat2DMonster = "StopCreat2DMonster"; //停止创建2D怪物
 
         public const string CloseTrialView = "CloseTrialView"; //关闭试炼界面
+        public const string UpdateLingZhangTai = "UpdateLingZhangTai"; //更新灵账台
+        public const string UpdateYunDiZheSpeed = "UpdateYunDiZheSpeed"; //更新云递者速度
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using Utils;
@@ -7,8 +8,8 @@ namespace Controller.Pickups
     public abstract class BasePickup : MonoBehaviour
     {
         public bool canPickup = false;
-        public float flyHeight = 1.5f;      
-        public float flyDuration = 0.5f;  
+        public float flyHeight = 1.5f;
+        public float flyDuration = 0.5f;
         public AnimationCurve flyCurve;
 
         protected Transform picker;
@@ -17,20 +18,22 @@ namespace Controller.Pickups
         protected AssetHandle _assetHandle;
 
         public bool isTaken = false;   // 被谁使用了
+        private Action _onCancel;
         private void Awake()
         {
             _assetHandle = GetComponent<AssetHandle>();
         }
 
-        public void StartAttract(Transform picker, Transform receivePoint)
+        public void StartAttract(Transform picker, Transform receivePoint, Action onCancel = null)
         {
             if (!canPickup) return;
-            
+
             if (isTaken) return;
-            isTaken = true;   
-            
+            isTaken = true;
+
             this.picker = picker;
             this.pickerReceivePoint = receivePoint;
+            this._onCancel = onCancel;
 
             StartCoroutine(FlyToPicker());
         }
@@ -55,9 +58,12 @@ namespace Controller.Pickups
             }
             // 再检查一次，保证池子没提前回收
             if (picker == null || pickerReceivePoint == null || !gameObject.activeInHierarchy)
+            {
+                _onCancel?.Invoke();
                 yield break;
+            }
             transform.position = pickerReceivePoint.position;
-           
+
             // 让具体物品去执行拾取逻辑
             GetComponent<IPickable>().OnPicked(picker.gameObject);
             isTaken = false;
@@ -70,7 +76,7 @@ namespace Controller.Pickups
                 ScenePickupController.Instance.products.Remove(this);
             }
             Destroy(gameObject);
-           
+
         }
     }
 

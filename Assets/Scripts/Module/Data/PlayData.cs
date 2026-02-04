@@ -338,9 +338,8 @@ namespace Module.Data
     [Serializable]
     public class DeliverData
     {
-        public int workingNum = 0; //正在工作人数
-        public int totalNum = 0;    //总人数
-        public float currentMoveSpeed = 4f;
+        public int workingNum = 1; //正在工作人数
+        public int totalNum = 1;    //总人数
         public int capacity = 1;
         public int speedLevel = 1;
         public int peopleLevel = 1;

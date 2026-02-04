@@ -383,7 +383,7 @@ namespace View
             }
             else
             {
-                bottompreviewtxt2.text =
+                bottompreviewtxt1_1.text =
                     WorldData.productStationWorkingTimeDic[productStationdata.timelevel] + "秒";
                 bottompreviewtxt2_2.text = "";
                 bootomBtntxt2.text = "已满级";

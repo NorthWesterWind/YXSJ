@@ -218,7 +218,7 @@ namespace Controller
 
         public void SetLayer()
         {
-            int newOrder = 30000 - Mathf.FloorToInt(transform.localPosition.y);
+            int newOrder = 30000 - Mathf.FloorToInt(transform.localPosition.y * 100);
             if (canvas == null)
                 canvas = GetComponent<Canvas>();
             canvas.sortingOrder = newOrder + 1;
@@ -516,7 +516,6 @@ namespace Controller
             {
                 EventCenter.Instance.TriggerEvent(EventMessages.JingYuanBaoDead);
             }
-            isDead = false;
             yield return new WaitForSeconds(deadtime);
             EventCenter.Instance.TriggerEvent(EventMessages.CameraBeginShaking);
             EventCenter.Instance.TriggerEvent(EventMessages.MonsterDead, monsterType, gameObject, factorID);

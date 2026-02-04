@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Controller;
 using Module;
@@ -72,8 +73,8 @@ namespace View.Task
                 list.Add(data.taskId);
                 PlayerDataModule.Instance.GetTaskReward(data.rewardId);
                 HandleUpdateTaskInfo(data.taskId);
-                
-                EventCenter.Instance.TriggerEvent(EventMessages.HasTaskComplete , data);
+
+                EventCenter.Instance.TriggerEvent(EventMessages.HasTaskComplete, data);
             }
 
             // else
@@ -85,7 +86,7 @@ namespace View.Task
         }
         public void OnClickTest()
         {
-            
+
         }
 
         public void Init(TaskData taskData)
@@ -95,20 +96,20 @@ namespace View.Task
             data = taskData;
             infotxt.text = data.info + "。";
             RewardData rewardData = DataController.Instance.taskRewardDataDic[data.rewardId];
-            jmztxt.text = "x"  + rewardData.Jmz.ToString();
-            if(rewardData.Tq > 0)
+            jmztxt.text = "x" + rewardData.Jmz.ToString();
+            if (rewardData.Tq > 0)
             {
                 TongBiObj.SetActive(true);
-                TongBiTxt.text = "x"  + rewardData.Tq.ToString();
+                TongBiTxt.text = "x" + rewardData.Tq.ToString();
             }
             else
             {
                 TongBiObj.SetActive(false);
             }
-            if(rewardData.Jyb > 0)
+            if (rewardData.Jyb > 0)
             {
                 JingYuanBaoObj.SetActive(true);
-                JingYuanBaoTxt.text =  "x"  + rewardData.Jyb.ToString();
+                JingYuanBaoTxt.text = "x" + rewardData.Jyb.ToString();
             }
             else
             {
@@ -163,7 +164,25 @@ namespace View.Task
             {
                 _assetHandle = GetComponent<AssetHandle>();
             }
-            iconImage.sprite = _assetHandle.Get<Sprite>(Extensions.GetTaskInfoResNameByTypeWithId(data.type, data.aimId));
+            String str = Extensions.GetTaskInfoResNameByTypeWithId(data.type, data.aimId);
+            if (str == "LingChuGe")
+            {
+                if (PlayerDataModule.Instance.data.currentMapID == 1 || PlayerDataModule.Instance.data.currentMapID == 2)
+                    str += "1";
+                else if (PlayerDataModule.Instance.data.currentMapID == 3)
+                {
+                    str += "3";
+                }
+                else if (PlayerDataModule.Instance.data.currentMapID == 4)
+                {
+                    str += "4";
+                }
+                else
+                {
+                    str += "5";
+                }
+            }
+            iconImage.sprite = _assetHandle.Get<Sprite>(str);
             if (data.type == TaskType.Upgrade || data.type == TaskType.Construct)
             {
                 iconImage.rectTransform.sizeDelta = new Vector2(160, 160);
@@ -198,7 +217,7 @@ namespace View.Task
                 list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_5;
             }
 
-             if (list.Contains(data.taskId))
+            if (list.Contains(data.taskId))
             {
                 isCompleted = true;
 

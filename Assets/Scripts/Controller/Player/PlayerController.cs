@@ -53,6 +53,9 @@ namespace Controller.Player
         public Dictionary<GoodsType, int> goodsDic = new();
         public Dictionary<DropItemType, int> dropDic = new();
 
+        // 正在飞行中待拾取的物品数量（用于防止超出容量上限）
+        private int _pendingPickupCount = 0;
+
         public bool isDead = false;
 
         private AssetHandle _assetHandle;
@@ -142,6 +145,7 @@ namespace Controller.Player
         public void UpdatePlayerValueInfo(params object[] args)
         {
             currentCarryNum = 0;
+            _pendingPickupCount = 0;
 
             maxHp = dataModule.data.hp + dataModule.data.addHp;
             var cardprogrees = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeCharacterWithXuanCaiTuHp);
@@ -416,10 +420,27 @@ namespace Controller.Player
                 if (item == null) continue;                       // 回收后 item 可能被销毁
                 if (!item.gameObject.activeInHierarchy) continue; // 避免 inactive
                 if (item.isTaken) continue;
+                if (!item.canPickup) continue;                    // 还在掉落动画中，不可拾取
+
                 float dist = Vector2.Distance(transform.position, item.transform.position);
-                if (dist <= currentPinkUpRange && currentCarryNum < maxCarryNum)
+                if (dist > currentPinkUpRange) continue;
+
+                var drop = item as DropController;
+                if (drop == null) continue;
+
+                // 金元宝和银钱不占背包容量，无需检查上限
+                if (drop.itemType == DropItemType.JingYuanBao || drop.itemType == DropItemType.YingQian)
                 {
                     item.StartAttract(this.transform, receiveTransform);
+                }
+                else
+                {
+                    // 检查剩余容量（考虑正在飞行中的物品）
+                    // 用 continue 而不是 break，确保后续的银钱/金元宝仍能被拾取
+                    if (currentCarryNum + _pendingPickupCount >= maxCarryNum) continue;
+                    item.StartAttract(this.transform, receiveTransform,
+                        () => _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1));
+                    _pendingPickupCount++;
                 }
             }
         }
@@ -427,10 +448,13 @@ namespace Controller.Player
         public void CheckProduct()
         {
             var list = ScenePickupController.Instance.products.ToArray();
+
             foreach (var item in list)
             {
                 if (item == null) continue;
                 if (!item.gameObject.activeInHierarchy) continue;
+                if (item.isTaken) continue;
+                if (!item.canPickup) continue;
 
                 float dist = Vector2.Distance(transform.position, item.transform.position);
                 if (dist <= currentPinkUpRange && item.GetComponent<Production>().station is CashierCounter)
@@ -438,14 +462,20 @@ namespace Controller.Player
                     ((CashierCounter)(item.GetComponent<Production>().station)).grid.ReleaseOne();
                     item.StartAttract(this.transform, receiveTransform);
                 }
-                else if (dist <= currentPinkUpRange && currentCarryNum < maxCarryNum)
+                else if (dist <= currentPinkUpRange)
                 {
+                    // 检查剩余容量（考虑正在飞行中的物品）
+                    // 用 continue 而不是 break，确保后续的收银台铜币仍能被拾取
+                    if (currentCarryNum + _pendingPickupCount >= maxCarryNum) continue;
+
                     if (item.GetComponent<Production>().state != ItemState.OnWorkbench)
                         continue;
                     ((ProductionStation)(item.GetComponent<Production>().station)).grid.ReleaseOne();
                     ((ProductionStation)(item.GetComponent<Production>().station)).productionList.Remove(
                         item.GetComponent<Production>());
-                    item.StartAttract(this.transform, receiveTransform);
+                    item.StartAttract(this.transform, receiveTransform,
+                        () => _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1));
+                    _pendingPickupCount++;
                 }
 
             }
@@ -771,7 +801,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
-
+                    _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1);
                     break;
                 case DropItemType.YueLuCaoFragment:
                     currentCarryNum += 1;
@@ -779,7 +809,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
-
+                    _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1);
                     break;
                 case DropItemType.ZiXinHuaFragment:
                     currentCarryNum += 1;
@@ -787,7 +817,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
-
+                    _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1);
                     break;
                 case DropItemType.YuHuiHeFragment:
                     currentCarryNum += 1;
@@ -795,7 +825,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
-
+                    _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1);
                     break;
                 case DropItemType.XingWenGuoFragment:
                     currentCarryNum += 1;
@@ -803,7 +833,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
-
+                    _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1);
                     break;
                 case DropItemType.WuRongJunFragment:
                     currentCarryNum += 1;
@@ -811,7 +841,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
-
+                    _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1);
                     break;
                 case DropItemType.LingXuShengFragment:
                     currentCarryNum += 1;
@@ -819,7 +849,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
-
+                    _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1);
                     break;
                 case DropItemType.XueBanHuaFragment:
                     currentCarryNum += 1;
@@ -827,7 +857,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
-
+                    _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1);
                     break;
                 case DropItemType.MuLingYaFragment:
                     currentCarryNum += 1;
@@ -835,7 +865,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
-
+                    _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1);
                     break;
                 case DropItemType.JingRuiCaoFragment:
                     currentCarryNum += 1;
@@ -843,7 +873,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
-
+                    _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1);
                     break;
 
                 case DropItemType.TieKuangShiFragment:
@@ -852,7 +882,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
-
+                    _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1);
                     break;
                 case DropItemType.YinKuangShiFragment:
                     currentCarryNum += 1;
@@ -860,7 +890,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
-
+                    _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1);
                     break;
                 case DropItemType.TongKuangShiFragment:
                     currentCarryNum += 1;
@@ -868,7 +898,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
-
+                    _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1);
                     break;
                 case DropItemType.ZiJingShiFragment:
                     currentCarryNum += 1;
@@ -876,7 +906,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
-
+                    _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1);
                     break;
                 case DropItemType.YueJingShiFragment:
                     currentCarryNum += 1;
@@ -884,6 +914,7 @@ namespace Controller.Player
                     {
                         dropDic[itemType]++;
                     }
+                    _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1);
                     break;
                 case DropItemType.JingYuanBao:
                     dataModule.AddJinYuanBao(50);
@@ -910,6 +941,7 @@ namespace Controller.Player
             else
             {
                 currentCarryNum++;
+                _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1);
                 goodsDic.TryAdd(goodsType, 0);
                 goodsDic[goodsType]++;
                 playerInfo.UpdateTxt();
@@ -975,6 +1007,7 @@ namespace Controller.Player
             playerInfo.UpdateFill(currentHp / dataModule.data.hp);
             goodsDic.Clear();
             dropDic.Clear();
+            _pendingPickupCount = 0;
         }
 
         private IEnumerator InvincibleFrame()

@@ -49,7 +49,7 @@ namespace Controller
                     UIController.Instance.Show<YunDiGePop>();
                     break;
                 case ShowUIType.LingChuGe:
-                     UIController.Instance.Show<LingChuGePop>();
+                     UIController.Instance.Show<LingChuGePop>(buildingType);
                     break;
                 case  ShowUIType.OrderView:
                     UIController.Instance.Show<OrderFunctionView>();

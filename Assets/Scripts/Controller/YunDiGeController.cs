@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Controller.Structure;
 using Module;
 using Module.Data;
+using Unity.VisualScripting;
 using UnityEngine;
 using Utils;
 
@@ -20,10 +21,12 @@ namespace Controller
         void OnEnable()
         {
             EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo, Init);
+            EventCenter.Instance.AddListener(EventMessages.UpdateYunDiZheInfo, UpdateYunDiZheInfo);
         }
         void OnDisable()
         {
             EventCenter.Instance.RemoveListener(EventMessages.UpdateSturctureLockInfo, Init);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateYunDiZheInfo, UpdateYunDiZheInfo);
         }
 
         public void Init(params object[] args)
@@ -41,7 +44,7 @@ namespace Controller
                 freightClerkList.RemoveAt(i - 1);
             }
             RefreshView(state, lockData);
-          
+
         }
 
         private void RefreshView(StructureState state, StructureLockData lockData)
@@ -65,7 +68,7 @@ namespace Controller
             renderer.sortingOrder = sprite.sortingOrder + 1;
             structureLock.gameObject.SetActive(false);
             GameController.Instance.unlockedBuildingTypes.Add(buildingType);
-              UpdateYunDiZheInfo();
+            UpdateYunDiZheInfo();
         }
 
         public StructureLockData GetLockData(int mapId)
@@ -103,8 +106,9 @@ namespace Controller
                 for (int i = freightClerkList.Count; i < targetCount; i++)
                 {
                     FreightClerkController freightClerk =
-                        Instantiate(_assetHandle.Get<GameObject>("FreightClerk"), bornTransform, false)
+                        Instantiate(_assetHandle.Get<GameObject>("FreightClerk"))
                             .GetComponent<FreightClerkController>();
+                    freightClerk.transform.position = bornTransform.position;
                     freightClerk.Init();
                     freightClerkList.Add(freightClerk);
                 }
@@ -128,9 +132,6 @@ namespace Controller
         public override void AddEvent()
         {
             base.AddEvent();
-            EventCenter.Instance.AddListener(EventMessages.UpdateYunDiZheInfo, UpdateYunDiZheInfo);
-
-
 
         }
 

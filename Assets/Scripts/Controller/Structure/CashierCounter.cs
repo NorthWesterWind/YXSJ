@@ -66,6 +66,8 @@ namespace Controller.Structure
             EventCenter.Instance.AddListener(EventMessages.StructureSpeedUp, HandleStructureSpeedUp);
             EventCenter.Instance.AddListener(EventMessages.StructureSpeedDown, HandleStructureSpeedDown);
             EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo, Init);
+            EventCenter.Instance.AddListener(EventMessages.UpdateLingZhangTai, Init);
+
         }
 
         private void OnDisable()
@@ -74,6 +76,7 @@ namespace Controller.Structure
             EventCenter.Instance.RemoveListener(EventMessages.StructureSpeedUp, HandleStructureSpeedUp);
             EventCenter.Instance.RemoveListener(EventMessages.StructureSpeedDown, HandleStructureSpeedDown);
             EventCenter.Instance.RemoveListener(EventMessages.UpdateSturctureLockInfo, Init);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateLingZhangTai, Init);
         }
         void Update()
         {

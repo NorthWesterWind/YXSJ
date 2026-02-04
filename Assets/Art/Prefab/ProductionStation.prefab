@@ -185,7 +185,7 @@ Transform:
   m_GameObject: {fileID: 1243381780730255363}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.29, y: -0.09, z: 0}
+  m_LocalPosition: {x: 1.18, y: -0.09, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -381,6 +381,41 @@ Transform:
   m_Children: []
   m_Father: {fileID: 6039938227021536917}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1871034697600742940
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3533945208337104121}
+  m_Layer: 8
+  m_Name: transferpoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &3533945208337104121
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1871034697600742940}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6039938227021536917}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 1.53, y: -2.47}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2011829703630286692
 GameObject:
   m_ObjectHideFlags: 0
@@ -495,6 +530,7 @@ RectTransform:
   - {fileID: 8282502584849631397}
   - {fileID: 3924665771825620014}
   - {fileID: 7679703132467590470}
+  - {fileID: 3533945208337104121}
   m_Father: {fileID: 8942042284059102006}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -1039,7 +1075,7 @@ MonoBehaviour:
   isCanUnlockState: 0
   productPosition: {fileID: 4608641470955530193}
   recivePosition: {fileID: 2721096844116599535}
-  transferPoint: {fileID: 0}
+  transferPoint: {fileID: 3533945208337104121}
   currentMaterialCount: 0
   baseProductionTime: 2.5
   productionInfo: {fileID: 5843738026028276114}
@@ -1048,11 +1084,11 @@ MonoBehaviour:
   buildingType: 4
   _productObj: {fileID: 6728240818630394814, guid: 516e7d2f5e1ecdc458374d4d9b7587a1, type: 3}
   grid:
-    columns: 5
+    columns: 6
     rows: 2
-    layers: 4
-    xSpacing: 0.2
-    ySpacing: 0.3
+    layers: 10
+    xSpacing: 0.1
+    ySpacing: 0.1
     basePosition: {x: 0, y: 0}
     currentIndex: 0
   productionList: []

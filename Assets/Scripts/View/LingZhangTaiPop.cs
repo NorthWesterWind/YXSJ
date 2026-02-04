@@ -74,8 +74,8 @@ public class LingZhangTaiPop : BaseView
             btnMask_1.SetActive(true);
             btnMaskTxt_1.text = "等级已满";
         }
-        freetxt_1.text = (cashierData.workspeedLevel * 1000).ToString();
-        freetxt_2.text = (cashierData.peopleLevel * 20000).ToString();
+        freetxt_1.text = Extensions.FormatNumber(cashierData.workspeedLevel * 1000).ToString();
+        freetxt_2.text = Extensions.FormatNumber(cashierData.peopleLevel * 20000).ToString();
         peopleLeveltxt.text = cashierData.peopleLevel + "级";
         currentpeopletxt.text = cashierData.totalNum.ToString();
         if (cashierData.peopleLevel < cashierData.maxpeopleLevel)
@@ -201,9 +201,16 @@ public class LingZhangTaiPop : BaseView
     }
     private void OnClickUpgradePeopleBtn()
     {
+        var cardProgress = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLingZhangTai);
+        if (cardProgress == null || cardProgress.level < 2)
+        {
+            UIController.Instance.Show<TipView>("需要达到2级。");
+            return;
+        }
         if (cashierData.peopleLevel == cashierData.maxpeopleLevel)
         {
             UIController.Instance.Show<TipView>("等级已满。");
+            return;
         }
         if (PlayerDataModule.Instance.data.tongbi < cashierData.peopleLevel * 20000)
         {
@@ -230,6 +237,7 @@ public class LingZhangTaiPop : BaseView
 
             UIController.Instance.Show<TipView>("升级成功。");
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateLingZhangTai);
         }
     }
 

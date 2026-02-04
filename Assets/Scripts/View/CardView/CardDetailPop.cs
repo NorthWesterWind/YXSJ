@@ -68,7 +68,7 @@ namespace View.CardView
                     break;
             }
 
-            infotxt.text = cardLevelData.description;
+            infotxt.text = "\u3000\u3000" + cardLevelData.description;
             PlayerData playerData = PlayerDataModule.Instance.data;
             bool own = false;
 

@@ -61,6 +61,10 @@ namespace Module
                     }
                     if (type == BuildingType.YunDiGe)
                     {
+                        if(data.deliverData == null)
+                        {
+                            data.deliverData = new DeliverData();
+                        }
                         if (data.taskProgressDic.ContainsKey(task.taskId))
                         {
                             data.taskProgressDic[task.taskId] += data.deliverData.speedLevel;
@@ -218,6 +222,13 @@ namespace Module
                             data1 = DataController.Instance.mapLockDataList_5.Find(x => x.monsterType == monster);
                             break;
                     }
+
+                    // data1 可能为 null（currentMapID 不在 1-5 范围内，或 Find 未找到匹配项）
+                    if (data1 == null)
+                    {
+                        Debug.LogError("data1 == null");
+                    }
+
                     var _data = data.mapLockDataProgressList.Find(x => x.monsterType == monster);
                     if (_data == null)
                     {

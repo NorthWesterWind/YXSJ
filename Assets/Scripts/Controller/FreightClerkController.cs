@@ -17,7 +17,8 @@ namespace Controller
     {
         public SkeletonAnimation skeletonAnimation;
         public MeshRenderer renderer;
-        private PolyNavAgent _agent;
+        public SpriteRenderer shadow;
+        public PolyNavAgent _agent;
         public int currentCapacity;
         private AssetHandle _assetHandle;
 
@@ -40,6 +41,10 @@ namespace Controller
         private static readonly Dictionary<ProductionStation, int> StationWorkingClerkCount =
             new Dictionary<ProductionStation, int>();
 
+        private void UpdateSpeed(params object[] args)
+        {
+            _agent.maxSpeed = WorldData.speedLevelDic[PlayerDataModule.Instance.data.deliverData.speedLevel];
+        }
         public void Init()
         {
             // 缺失组件保护
@@ -66,10 +71,10 @@ namespace Controller
             productionStationList = GameController.Instance.productionStationList;
             salesStallList = GameController.Instance.salesStallList;
             // 初始化导航
-            _agent.map = GameObject.Find("Map").transform.GetComponent<PolyNavMap>();
+            _agent.map = GameObject.FindWithTag("Map").transform.GetComponent<PolyNavMap>();
             normalPos = productionStationList[0].transferPoint;
             _agent.SetDestination(normalPos.position);
-            _agent.maxSpeed = PlayerDataModule.Instance.data.deliverData.currentMoveSpeed;
+            _agent.maxSpeed = WorldData.speedLevelDic[deliverData.speedLevel];
             StartCoroutine(WorkerLoop());
         }
 
@@ -150,7 +155,7 @@ namespace Controller
                 ReleaseStationReservation();
 
 
-                yield return new WaitForSeconds(1f );
+                yield return new WaitForSeconds(1f);
 
             }
         }
@@ -250,6 +255,13 @@ namespace Controller
                 PlayAnimationIfNotPlaying("idle");
             }
             SetLayer();
+
+            Vector2 dir = _agent.movingDirection;
+            if (dir == Vector2.zero) return;
+            if (Mathf.Abs(dir.x) > 0.01f)
+            {
+                skeletonAnimation.skeleton.ScaleX = dir.x < 0 ? -1 : 1;
+            }
         }
 
         private void PlayAnimationIfNotPlaying(string animationName)
@@ -266,16 +278,19 @@ namespace Controller
         {
             int newOrder = 30000 - Mathf.FloorToInt(transform.localPosition.y * 100);
             renderer.sortingOrder = newOrder;
+            shadow.sortingOrder = newOrder - 1;
         }
 
         void OnEnable()
         {
             _agent.OnDestinationReached += OnReachDestination;
+            EventCenter.Instance.AddListener(EventMessages.UpdateYunDiZheSpeed, UpdateSpeed);
         }
 
         void OnDisable()
         {
             _agent.OnDestinationReached -= OnReachDestination;
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateYunDiZheSpeed, UpdateSpeed);
         }
         void OnReachDestination()
         {

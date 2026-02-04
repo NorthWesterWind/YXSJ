@@ -763,21 +763,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d0355801d3f5f04ea301a742d9f687a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agent: {fileID: 0}
-  monsterType: 0
-  targetType: 0
   detectRadius: 10
+  collectRadius: 5
   monsterLayer:
     serializedVersion: 2
     m_Bits: 0
   waitTime: 2
+  agent: {fileID: 975175239268052875}
   weapon: {fileID: 6064793176159173579}
   depot: {fileID: 0}
   receiveTransform: {fileID: 6451977250429088915}
   skeletonAnimation: {fileID: 2430943085502578746}
-  spriteRenderer: {fileID: 0}
+  spriteRenderer: {fileID: 7254888134410665797}
   shadowRenderer: {fileID: 7254888134410665797}
   weaponRenderer: {fileID: 3312406724486711077}
+  collectorInfo: {fileID: 1073117974470256450}
   collectorData:
     id: 0
     atk: 0
@@ -787,9 +787,10 @@ MonoBehaviour:
     collectorType: 0
     maxHp: 0
     hpRecover: 0
+  monsterType: 0
+  targetType: 0
   currentHp: 0
   maxHp: 0
-  collectorInfo: {fileID: 1073117974470256450}
   currentCarryNum: 0
   maxCarryNum: 0
 --- !u!223 &121387116836826623

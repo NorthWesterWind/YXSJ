@@ -57,13 +57,13 @@ public class YunDiGePop : BaseView
         playerData = PlayerDataModule.Instance.data;
         contentRect.DOAnchorPos(new Vector2(0, 0), 0.3f);
         deliverData = playerData.deliverData;
-        speedtxt.text = deliverData.currentMoveSpeed.ToString();
+        speedtxt.text = WorldData.speedLevelDic[deliverData.speedLevel].ToString();
         peopletxt.text = deliverData.totalNum.ToString();
         speedLeveltxt.text = deliverData.speedLevel + "级";
-        currentspeedtxt.text = deliverData.currentMoveSpeed.ToString();
+        currentspeedtxt.text =  WorldData.speedLevelDic[deliverData.speedLevel].ToString();
         if (deliverData.speedLevel < deliverData.maxSpeedLevel)
         {
-            nextspeedtxt.text = (deliverData.currentMoveSpeed + 0.5f).ToString();
+            nextspeedtxt.text =  WorldData.speedLevelDic[deliverData.speedLevel+1].ToString();
             btnMask_1.SetActive(false);
         }
         else
@@ -72,8 +72,8 @@ public class YunDiGePop : BaseView
             btnMask_1.SetActive(true);
             btnMaskTxt_1.text = "等级已满";
         }
-        freetxt_1.text = (deliverData.speedLevel * 5000).ToString();
-        freetxt_2.text = (deliverData.peopleLevel * 20000).ToString();
+        freetxt_1.text = Extensions.FormatNumber(deliverData.speedLevel * 5000).ToString();
+        freetxt_2.text = Extensions.FormatNumber(deliverData.peopleLevel * 20000).ToString();
         peopleLeveltxt.text = deliverData.peopleLevel + "级";
         currentpeopletxt.text = deliverData.totalNum.ToString();
         if (deliverData.peopleLevel < deliverData.maxpeopleLevel)
@@ -105,7 +105,7 @@ public class YunDiGePop : BaseView
                 cardmasktxt.text = cardLevelData.unlockLevel.ToString();
             }
             btnMask_2.SetActive(true);
-            btnMaskTxt_2.text = "需要达到5级";
+            btnMaskTxt_2.text = "需要5级";
         }
         else
         {
@@ -125,7 +125,7 @@ public class YunDiGePop : BaseView
             if (cardprogress.level < 5)
             {
                 btnMask_2.SetActive(true);
-                btnMaskTxt_2.text = "需要达到5级";
+                btnMaskTxt_2.text = "需要5级";
             }
             else
             {
@@ -172,9 +172,8 @@ public class YunDiGePop : BaseView
         {
             PlayerDataModule.Instance.data.tongbi -= deliverData.speedLevel * 5000;
             deliverData.speedLevel += 1;
-            deliverData.currentMoveSpeed += 0.5f;
             speedLeveltxt.text = deliverData.speedLevel + "级";
-            speedtxt.text = deliverData.currentMoveSpeed.ToString();
+            speedtxt.text =  WorldData.speedLevelDic[deliverData.speedLevel].ToString();
             currentspeedtxt.text = deliverData.speedLevel.ToString();
             if (deliverData.speedLevel == deliverData.maxSpeedLevel)
             {
@@ -184,18 +183,26 @@ public class YunDiGePop : BaseView
             }
             else
             {
-                nextspeedtxt.text = (deliverData.currentMoveSpeed + 0.5).ToString();
+                nextspeedtxt.text =  WorldData.speedLevelDic[deliverData.speedLevel+1].ToString();
             }
             EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask, BuildingType.YunDiGe);
             UIController.Instance.Show<TipView>("升级成功。");
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateYunDiZheSpeed);
         }
     }
     private void OnClickUpgradePeopleBtn()
     {
+        var cardProgress = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYunDiGe);
+        if (cardProgress == null || cardProgress.level < 5)
+        {
+            UIController.Instance.Show<TipView>("需要5级。");
+            return;
+        }
         if (deliverData.peopleLevel == deliverData.maxpeopleLevel)
         {
             UIController.Instance.Show<TipView>("等级已满。");
+            return;
         }
         if (PlayerDataModule.Instance.data.tongbi < deliverData.peopleLevel * 20000)
         {

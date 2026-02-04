@@ -75,14 +75,14 @@ public class LingChuGePop : BaseView
         numtxt.text = warehouse.peopleNum.ToString();
         if (warehouse.atkLevel < warehouse.maxAtkLevel)
         {
-            gradefreeTxt_1.text = (warehouse.atkLevel * 3000).ToString();
+            gradefreeTxt_1.text = Extensions.FormatNumber (warehouse.atkLevel * 3000);
         }
         else
         {
             gradefreeTxt_1.text = "等级已满";
         }
 
-        gradefreeTxt_2.text = (warehouse.numLevel * 20000).ToString();
+        gradefreeTxt_2.text = Extensions.FormatNumber(warehouse.numLevel * 20000);
         atkLevelTxt.text = warehouse.atkLevel + "级";
         numLevelTxt.text = warehouse.numLevel + "级";
         currentAtkTxt.text = warehouse.atk.ToString();
@@ -114,7 +114,7 @@ public class LingChuGePop : BaseView
             fillContent.SetActive(false);
 
             numgradeMask.SetActive(true);
-            numgradeMaskTxt.text = "需要达到5级";
+            numgradeMaskTxt.text = "需要5级";
         }
         else
         {
@@ -135,7 +135,7 @@ public class LingChuGePop : BaseView
             if (cardProgress.level < 5)
             {
                 numgradeMask.SetActive(true);
-                numgradeMaskTxt.text = "需要达到5级";
+                numgradeMaskTxt.text = "需要5级";
             }
             else
             {
@@ -239,9 +239,16 @@ public class LingChuGePop : BaseView
     }
     private void OnClickUpgradeNumBtn()
     {
+        var cardProgress = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == cardType);
+        if (cardProgress == null || cardProgress.level < 5)
+        {
+            UIController.Instance.Show<TipView>("需要5级。");
+            return;
+        }
         if (warehouse.peopleNum == 3)
         {
             UIController.Instance.Show<TipView>("等级已满。");
+            return;
         }
         if (PlayerDataModule.Instance.data.tongbi < warehouse.numLevel * 20000)
         {

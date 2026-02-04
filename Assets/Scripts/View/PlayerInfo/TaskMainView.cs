@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Controller;
 using Module;
@@ -155,8 +156,25 @@ namespace View.PlayerInfo
                     taskProgressTxt.text = "(0/" + task.keyValue + ")";
                 }
 
-                iconImage.sprite =
-                    _assetHandle.Get<Sprite>(Extensions.GetTaskInfoResNameByTypeWithId(task.type, task.aimId));
+                String str = Extensions.GetTaskInfoResNameByTypeWithId(task.type, task.aimId);
+                if (str == "LingChuGe")
+                {
+                    if (PlayerDataModule.Instance.data.currentMapID == 1 || PlayerDataModule.Instance.data.currentMapID == 2)
+                        str += "1";
+                    else if (PlayerDataModule.Instance.data.currentMapID == 3)
+                    {
+                        str += "3";
+                    }
+                    else if (PlayerDataModule.Instance.data.currentMapID == 4)
+                    {
+                        str += "4";
+                    }
+                    else
+                    {
+                        str += "5";
+                    }
+                }
+                iconImage.sprite = _assetHandle.Get<Sprite>(str);
                 if (task.type == TaskType.Upgrade || task.type == TaskType.Construct)
                 {
                     iconImage.rectTransform.sizeDelta = new Vector2(160, 160);

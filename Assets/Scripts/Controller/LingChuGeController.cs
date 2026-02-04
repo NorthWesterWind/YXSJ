@@ -13,42 +13,36 @@ namespace Controller
 {
     public class LingChuGeController : StructureBase
     {
-
-        public WarehouseCategory  warehouseCategory;
+        public WarehouseCategory warehouseCategory;
         public Transform receiveTransform;
         public Transform sendTransform;
         public LingChuGeInfo infoitem;
         public Transform collectorTransform;
-        public WarehouseCategoryType categoryType; 
-        public List<CollectorController>  collectorControllerList = new List<CollectorController>();
-        public Dictionary< DropItemType , int> storage = new Dictionary<DropItemType, int>();
-        public int capacity;
+        public WarehouseCategoryType categoryType;
+        public List<CollectorController> collectorControllerList = new List<CollectorController>();
+        public Dictionary<DropItemType, int> storage = new Dictionary<DropItemType, int>();
+        public int maxcapacity;
+        public int currentcapacity;
         public PlayerController characterController;
-        
+
         private bool isDelivering = false;
         private List<DropController> deliveringDrops = new();
-        public  MeshRenderer meshRenderer;
         public Transform bornTransform;
-        
+
         public void Init(params object[] args)
         {
-            if( GameController.Instance.unlockedBuildingTypes.Contains(structureType))
+            if (GameController.Instance.unlockedBuildingTypes.Contains(structureType))
             {
                 return;
-            }   
+            }
             var playerData = PlayerDataModule.Instance.data;
             var lockData = GetLockData(playerData.currentMapID);
             var state = GetStructureState(playerData, lockData);
-            for (int i = collectorControllerList.Count; i > 0; i++)
-            {
-                Destroy(collectorControllerList[i - 1].gameObject);
-                collectorControllerList.RemoveAt(i - 1);
-            }
             RefreshView(state, lockData);
-            UpdateCollectorInfo();
+
         }
 
-          private void RefreshView(StructureState state, StructureLockData lockData)
+        private void RefreshView(StructureState state, StructureLockData lockData)
         {
             switch (state)
             {
@@ -65,10 +59,29 @@ namespace Controller
         private void ShowContent()
         {
             content.SetActive(true);
-            meshRenderer.sortingOrder = sprite.sortingOrder + 1;
             structureLock.gameObject.SetActive(false);
             GameController.Instance.unlockedBuildingTypes.Add(structureType);
             // 解锁内容后，按当前数据同步采集员与信息
+
+            GetComponent<Canvas>().sortingOrder = sprite.sortingOrder + 1;
+            var playerData = PlayerDataModule.Instance.data;
+            maxcapacity = playerData.warehouselist.Find(x => x.warehouseCategoryType == categoryType).capacity;
+            if (categoryType == WarehouseCategoryType.LingChuGe_1)
+            {
+                var cardData = playerData.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLingChuGe_1);
+                if (cardData != null)
+                {
+                    maxcapacity += cardData.level * 10;
+                }
+            }
+            else
+            {
+                var cardData = playerData.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLingChuGe_2);
+                if (cardData != null)
+                {
+                    maxcapacity += cardData.level * 10;
+                }
+            }
             HandleBeginWorking();
         }
 
@@ -92,8 +105,9 @@ namespace Controller
             {
                 for (int i = collectorControllerList.Count; i < targetCount; i++)
                 {
-                    CollectorController cc = Instantiate(_assetHandle.Get<GameObject>("XuaCaiTu"), bornTransform, false)
+                    CollectorController cc = Instantiate(_assetHandle.Get<GameObject>("XuaCaiTu"))
                         .GetComponent<CollectorController>();
+                    cc.transform.position = collectorTransform.position;
                     cc.Init(warehouseCategory.workingCollectorList[i], this);
                     collectorControllerList.Add(cc);
                 }
@@ -119,7 +133,7 @@ namespace Controller
             }
         }
 
-          public StructureLockData GetLockData(int mapId)
+        public StructureLockData GetLockData(int mapId)
         {
             var list = DataController.Instance.GetStructureLockList(mapId);
             return list?.Find(s => s.buildingType == structureType);
@@ -158,17 +172,17 @@ namespace Controller
 
         private void OnEnable()
         {
-            EventCenter.Instance.AddListener(EventMessages.LingChuGeBeginWorking , HandleBeginWorking);
-            EventCenter.Instance.AddListener(EventMessages.LingChuGeDelivery , HandleLingChuGeDelivery);
-            EventCenter.Instance.AddListener(EventMessages.LingChuGeStopDelivery , HandleLingChuGeStopDelivery);
+            EventCenter.Instance.AddListener(EventMessages.LingChuGeBeginWorking, HandleBeginWorking);
+            EventCenter.Instance.AddListener(EventMessages.LingChuGeDelivery, HandleLingChuGeDelivery);
+            EventCenter.Instance.AddListener(EventMessages.LingChuGeStopDelivery, HandleLingChuGeStopDelivery);
             EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo, Init);
         }
 
         private void OnDisable()
         {
-            EventCenter.Instance.RemoveListener(EventMessages.LingChuGeBeginWorking , HandleBeginWorking);
-            EventCenter.Instance.RemoveListener(EventMessages.LingChuGeDelivery , HandleLingChuGeDelivery);
-            EventCenter.Instance.RemoveListener(EventMessages.LingChuGeStopDelivery , HandleLingChuGeStopDelivery);
+            EventCenter.Instance.RemoveListener(EventMessages.LingChuGeBeginWorking, HandleBeginWorking);
+            EventCenter.Instance.RemoveListener(EventMessages.LingChuGeDelivery, HandleLingChuGeDelivery);
+            EventCenter.Instance.RemoveListener(EventMessages.LingChuGeStopDelivery, HandleLingChuGeStopDelivery);
             EventCenter.Instance.RemoveListener(EventMessages.UpdateSturctureLockInfo, Init);
         }
 
@@ -177,11 +191,11 @@ namespace Controller
         {
             if (Vector2.Distance(characterController.gameObject.transform.position, transform.position) < 8)
             {
-                infoitem.gameObject.SetActive(true);
+                infoitem.ShowInfo();
             }
             else
             {
-                infoitem.gameObject.SetActive(false);
+                infoitem.HideInfo();
             }
         }
 
@@ -223,7 +237,7 @@ namespace Controller
             {
                 GameObject obj = Instantiate(_assetHandle.Get<GameObject>("DropItem"));
                 obj.transform.position = sendTransform.position;
- 
+
                 var drop = obj.GetComponent<DropController>();
                 drop.Init(targetType);
 
@@ -245,7 +259,7 @@ namespace Controller
             }
         }
 
-        
+
         public void HandleLingChuGeStopDelivery(params object[] args)
         {
             if (!isDelivering) return;
@@ -272,26 +286,56 @@ namespace Controller
 
             deliveringDrops.Clear();
         }
-        
-        
+
+
         /// <summary>
         /// 取出货物
         /// </summary>
         /// <param name="controller"></param>
         /// <param name="inv"></param>
-        public void Store( CollectorController controller , CollectorInventory inv)
+        public void Store(CollectorController controller, CollectorInventory inv)
         {
-            foreach (var kv in inv.dic)
+            int freeSpace = maxcapacity - currentcapacity;
+            if (freeSpace <= 0)
+                return;
+
+            // 拷贝 key，避免修改集合异常
+            var keys = new List<DropItemType>(inv.dic.Keys);
+
+            foreach (var key in keys)
             {
-                GameObject obj = Instantiate(_assetHandle.Get<GameObject>("DropObj"));
-                obj.transform.position = controller.receiveTransform.position;
-                var cc =  obj.GetComponent<DropController>();
-                cc.Init(controller.targetType);
-                cc.FlyTo(receiveTransform);
-                if (!storage.TryAdd(kv.Key, kv.Value))
-                    storage[kv.Key] += kv.Value;
+                if (freeSpace <= 0)
+                    break;
+
+                int carryCount = inv.dic[key];
+                int storeCount = Mathf.Min(carryCount, freeSpace);
+                if (storeCount <= 0)
+                    continue;
+
+                // 仓库存
+                if (!storage.TryAdd(key, storeCount))
+                    storage[key] += storeCount;
+
+                currentcapacity += storeCount;
+                freeSpace -= storeCount;
+
+                // 背包扣
+                inv.Remove(key, storeCount);
+
+                // 表现
+                for (int i = 0; i < storeCount; i++)
+                {
+                    GameObject obj = Instantiate(_assetHandle.Get<GameObject>("DropObj"));
+                    obj.transform.position = controller.receiveTransform.position;
+
+                    var cc = obj.GetComponent<DropController>();
+                    cc.Init(key);
+                    cc.FlyTo(receiveTransform);
+                }
             }
-            inv.Clear();
+
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateLingChuGeInfo);
         }
+
     }
 }
