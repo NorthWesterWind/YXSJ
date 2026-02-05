@@ -223,9 +223,9 @@ namespace Controller.Structure
         {
             int num = freightClerk.currentCapacity;
             List<Production> list = new List<Production>();
-            if (productionList.Count < num)
+            if (productionList.Count <= num)
             {
-                list = productionList;
+                list.AddRange(productionList);
                 productionList.Clear();
             }
             else
@@ -236,6 +236,9 @@ namespace Controller.Structure
 
             for (int i = 0; i < list.Count; i++)
             {
+                list[i].canPickup = false;             // 标记为不可拾取，防止被玩家抢夺
+                list[i].SetState(ItemState.HeldByAssistant);
+                grid.ReleaseOne();
                 list[i].FlyTo(freightClerk.points[i].position);
             }
 

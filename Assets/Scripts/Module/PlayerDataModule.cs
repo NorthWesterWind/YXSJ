@@ -61,7 +61,7 @@ namespace Module
                     }
                     if (type == BuildingType.YunDiGe)
                     {
-                        if(data.deliverData == null)
+                        if (data.deliverData == null)
                         {
                             data.deliverData = new DeliverData();
                         }
@@ -1113,16 +1113,22 @@ namespace Module
 
                         if (data.taskProgressDic[_data.taskId] > _data.keyValue)
                         {
-                            if (dropItemType == DropItemType.ShuangYunZhiFragment && data.currentMapID == 1 &&
-                                data.guideStep == GuideStep.CollectMaterial)
-                            {
-                                data.guideStep = GuideStep.DeliverMaterial;
-                                UIController.Instance.Show<PlayerGuide>();
-                            }
+                            // if (dropItemType == DropItemType.ShuangYunZhiFragment && data.currentMapID == 1 &&
+                            //     data.guideStep == GuideStep.CollectMaterial)
+                            // {
+                            //     data.guideStep = GuideStep.DeliverMaterial;
+                            //     UIController.Instance.Show<PlayerGuide>();
+                            // }
                         }
 
                     }
                 }
+            }
+            if (dropItemType == DropItemType.ShuangYunZhiFragment && data.currentMapID == 1 &&
+                                data.guideStep == GuideStep.CollectMaterial)
+            {
+                data.guideStep = GuideStep.DeliverMaterial;
+                UIController.Instance.Show<PlayerGuide>();
             }
             EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
         }

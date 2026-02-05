@@ -137,17 +137,19 @@ public class StructureLock : MonoBehaviour
 
     #region Trigger
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerStay2D(Collider2D other)
     {
         bool canUnlock = PlayerDataModule.Instance.data.structCanUnLockDataDic[PlayerDataModule.Instance.data.currentMapID].Contains(buildType);
         if (!canUnlock)
             return;
         if (!other.CompareTag("Player")) return;
         Debug.Log("yj = >进入建筑解锁范围");
+        
         playerInRange = true;
 
         player = other.GetComponent<PlayerController>();
         player.InRange = true;
+
         OnEnter();
 
     }
@@ -203,7 +205,7 @@ public class StructureLock : MonoBehaviour
 
     public void OnEnter()
     {
-        if (player != null)
+        if (player != null && !player.isMoving)
             player.ThrowOutTongBi(receiveTransform);
     }
 
@@ -219,7 +221,7 @@ public class StructureLock : MonoBehaviour
         }
         else
         {
-            if (player != null)
+            if (player != null && !player.isMoving)
                 player.ThrowOutTongBi(receiveTransform);
         }
     }

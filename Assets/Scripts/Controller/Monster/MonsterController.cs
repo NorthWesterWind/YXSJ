@@ -99,7 +99,7 @@ namespace Controller
             atk = data.atk;
             agent.enabled = true;
             this.patrolSize = patrolSize;
-
+            agent.maxSpeed = currentSpeed;
             fillImg.fillAmount = currentHp / data.hp;
             fillBg.gameObject.SetActive(false);
 
@@ -147,7 +147,7 @@ namespace Controller
             ChangeState(MonsterState.Patrol);
             EventCenter.Instance.AddListener(EventMessages.NotifyToFlee, HandleNotifyToFlee);
         }
-        public float slowtime = 3f;
+        public float slowtime = 1f;
         public bool InAtking;
         void Update()
         {
@@ -205,7 +205,7 @@ namespace Controller
                 slowtime -= Time.deltaTime;
                 if (slowtime <= 0)
                 {
-                    slowtime = 3f;
+                    slowtime = 1f;
                     currentSpeed = data.movespeed;
                     agent.maxSpeed = currentSpeed;
                 }
@@ -341,11 +341,13 @@ namespace Controller
         {
             if (isDead) return;
             if (Time.time - _lastHitTime < _damageInterval) return;
-            if (slowDownValue > 0)
+            if (slowDownValue > 0 && behaviorType != MonsterBehavior.Giant)
             {
-                currentSpeed = data.movespeed - Convert.ToInt32(slowDownValue);
+                currentSpeed = Mathf.Max(1, data.movespeed - Convert.ToInt32(slowDownValue));
+                Debug.LogError("yj => currentSpeed:" + currentSpeed);
+                Debug.LogError("yj => slowDownValue:" + slowDownValue);
                 agent.maxSpeed = currentSpeed;
-                slowtime = 3f;
+                slowtime = 1f;
             }
             _lastHitTime = Time.time;
             currentHp -= damage;

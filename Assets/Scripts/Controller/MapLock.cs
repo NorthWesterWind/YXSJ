@@ -133,9 +133,9 @@ public class MapLock : MonoBehaviour
         }
         else
         {
-            if (player != null && lockObject.activeSelf)
+            if (player != null && lockObject.activeSelf && !player.isMoving)
             {
-                    player.ThrowOutTongBi(receiveTransform);
+                player.ThrowOutTongBi(receiveTransform);
             }
         }
     }
@@ -153,7 +153,7 @@ public class MapLock : MonoBehaviour
 
     #region Trigger
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerStay2D(Collider2D other)
     {
         if (!isLocked) return;
         if (!other.CompareTag("Player")) return;
@@ -163,11 +163,11 @@ public class MapLock : MonoBehaviour
         player = other.GetComponent<PlayerController>();
         player.InRange = true;
         Debug.Log("yj = > 进入区域解锁范围");
-        if(GetProgressData() != null && lockObject.activeSelf)
+        if (GetProgressData() != null && lockObject.activeSelf && !player.isMoving)
         {
             player.ThrowOutTongBi(receiveTransform);
         }
-      
+
 
     }
 

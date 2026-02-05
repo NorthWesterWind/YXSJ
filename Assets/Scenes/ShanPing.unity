@@ -494,13 +494,13 @@ GameObject:
   m_Component:
   - component: {fileID: 1724471875}
   - component: {fileID: 1724471874}
-  - component: {fileID: 1724471873}
   - component: {fileID: 1724471872}
   - component: {fileID: 1724471871}
   - component: {fileID: 1724471870}
   - component: {fileID: 1724471869}
   - component: {fileID: 1724471868}
   - component: {fileID: 1724471867}
+  - component: {fileID: 1724471876}
   m_Layer: 0
   m_Name: Scripts
   m_TagString: Untagged
@@ -733,12 +733,18 @@ MonoBehaviour:
     - Name: playLingBaoCount
       Entry: 3
       Data: 0
-    - Name: playXuanJingCount
-      Entry: 3
-      Data: 0
+    - Name: canPlayXuanJing
+      Entry: 5
+      Data: false
+    - Name: playXuanJingTime
+      Entry: 6
+      Data: 
     - Name: lastloginday
       Entry: 6
       Data: 
+    - Name: playTrialCurrencyType
+      Entry: 3
+      Data: 0
     - Name: monthlyLimitMoney
       Entry: 3
       Data: 0
@@ -1829,20 +1835,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   assets:
   - {fileID: 245738559891905573, guid: 7397dc2f32ca5844bb8a12aa96373617, type: 3}
---- !u!114 &1724471873
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1724471866}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dbd0eeb6b6e50754585437a157455cd2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 0}
-  canInput: 1
 --- !u!114 &1724471874
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1881,6 +1873,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1724471876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1724471866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2743f0a57314c641b988cc246cd7ded, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &4887876097199223460
 PrefabInstance:
   m_ObjectHideFlags: 0

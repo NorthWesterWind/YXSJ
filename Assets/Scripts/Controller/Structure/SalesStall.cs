@@ -158,6 +158,11 @@ namespace Controller.Structure
                 return;
 
             CustomerController customer = customerList[0];
+
+            // 跳过正在服务中的顾客，避免重复调用TryPurchase导致purchaseList被清空
+            if (customer.severing)
+                return;
+
             if (customer.data.carryNum > productList.Count)
                 return;
 

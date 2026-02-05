@@ -175,6 +175,8 @@ namespace Controller
             StartCoroutine(PurchaseRoutine());
 
         }
+
+        private bool purchaseConfirmed = false;
         private IEnumerator PurchaseRoutine()
         {
             float timer = 0f;

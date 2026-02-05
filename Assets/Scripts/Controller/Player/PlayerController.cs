@@ -76,6 +76,7 @@ namespace Controller.Player
         [SerializeField] private float maxScale = 1.15f; // 在身前时的最大缩放s
 
         public bool InRange;
+        private bool isThrowingCoin = false; // 防止重复抛币
 
         private void Awake()
         {
@@ -278,7 +279,7 @@ namespace Controller.Player
         }
         public bool CanThrowTongBi()
         {
-            return PlayerDataModule.Instance.data.tongbi >= 100 && InRange;
+            return PlayerDataModule.Instance.data.tongbi >= 100 && InRange && !isThrowingCoin && !isMoving;
         }
 
         public void ThrowOutTongBi(Transform target)
@@ -295,6 +296,7 @@ namespace Controller.Player
 
         private IEnumerator ThrowOutTongBiCoroutine(Transform target)
         {
+            isThrowingCoin = true; // 标记正在抛币
             Debug.Log("yj = >投掷铜币");
 
             GameObject coinObj = Instantiate(
@@ -324,6 +326,7 @@ namespace Controller.Player
             );
 
             yield return new WaitForSeconds(0.5f);
+            isThrowingCoin = false; // 抛币结束
         }
 
 
