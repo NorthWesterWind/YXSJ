@@ -1247,7 +1247,6 @@ GameObject:
   - component: {fileID: 4849286282112015413}
   - component: {fileID: 1779947800469445107}
   - component: {fileID: 3411200990700057425}
-  - component: {fileID: 5277590564257606653}
   m_Layer: 3
   m_Name: Character
   m_TagString: Untagged
@@ -1395,27 +1394,6 @@ MonoBehaviour:
       immutableTriangles: 0
   updateTiming: 1
   unscaledTime: 0
---- !u!114 &5277590564257606653
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3942077333971290941}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 924334e6d63d0294785fe845e446a84f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  skeletonGraphic: {fileID: 3411200990700057425}
-  _dirValue: {x: 0, y: 0}
-  weapon: {fileID: 7789889252646744338}
-  weaponRoot: {fileID: 6923743722849815770}
-  weaponRenderer: {fileID: 3919238603806154010}
-  speed: 0
-  _rigidbody: {fileID: 0}
-  isMoving: 0
-  moveSpeed: 0
 --- !u!1 &4275449218317246270
 GameObject:
   m_ObjectHideFlags: 0
@@ -2983,7 +2961,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 30030
+  m_SortingOrder: 32767
   m_TargetDisplay: 0
 --- !u!114 &4867822824750185254
 MonoBehaviour:

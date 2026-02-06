@@ -43,6 +43,13 @@ namespace Controller.Structure
         public MeshRenderer rend4;
         public MeshRenderer rend5;
         public MeshRenderer rend6;
+        public SpriteRenderer shadow_1;
+        public SpriteRenderer shadow_2;
+        public SpriteRenderer shadow_3;
+        public SpriteRenderer shadow_4;
+        public SpriteRenderer shadow_5;
+        public SpriteRenderer shadow_6;
+
 
         public SpriteRenderer speedPoint_1;
         public SpriteRenderer uiPoint_1;
@@ -271,9 +278,12 @@ namespace Controller.Structure
                     break;
             }
             int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
-            rend1.sortingOrder = newOrder + 3;
-            rend2.sortingOrder = newOrder + 2;
-            rend3.sortingOrder = newOrder + 1;
+            rend1.sortingOrder = 30000 - Mathf.RoundToInt((transform.position.y + LingZhangShi1.transform.localPosition.y) * 100) + 4;
+            rend2.sortingOrder = 30000 - Mathf.RoundToInt((transform.position.y + LingZhangShi2.transform.localPosition.y) * 100) + 3;
+            rend3.sortingOrder = 30000 - Mathf.RoundToInt((transform.position.y + LingZhangShi3.transform.localPosition.y) * 100) + 2;
+            shadow_1.sortingOrder = rend1.sortingOrder - 1;
+            shadow_2.sortingOrder = rend2.sortingOrder - 1; ;
+            shadow_3.sortingOrder = rend3.sortingOrder - 1;
             speedPoint_1.sortingOrder = newOrder + 2;
             uiPoint_1.sortingOrder = newOrder + 2;
             meshRenderer_1.sortingOrder = newOrder + 2;
@@ -307,9 +317,12 @@ namespace Controller.Structure
                     break;
             }
             int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
-            rend4.sortingOrder = newOrder + 3;
-            rend5.sortingOrder = newOrder + 2;
-            rend6.sortingOrder = newOrder + 1;
+            rend4.sortingOrder = 30000 - Mathf.RoundToInt((transform.position.y + LingZhangShi1_1.transform.localPosition.y) * 100) + 4;
+            rend5.sortingOrder = 30000 - Mathf.RoundToInt((transform.position.y + LingZhangShi2_2.transform.localPosition.y) * 100) + +3;
+            rend6.sortingOrder = 30000 - Mathf.RoundToInt((transform.position.y + LingZhangShi3_3.transform.localPosition.y) * 100) + +2;
+            shadow_4.sortingOrder = rend4.sortingOrder - 1;
+            shadow_5.sortingOrder = rend5.sortingOrder - 1;
+            shadow_6.sortingOrder = rend6.sortingOrder - 1;
             speedPoint_2.sortingOrder = newOrder + 2;
             uiPoint_2.sortingOrder = newOrder + 2;
             orderPoint.sortingOrder = newOrder + 2;
@@ -400,7 +413,7 @@ namespace Controller.Structure
             {
                 totalNum =
                               WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price * customer.data.carryNum
-                              * PlayerDataModule.Instance.data.cashierData.earning * (cardData.level*0.2f + 1 ) + (productStationdata.priceLevel - 1) * 25;
+                              * PlayerDataModule.Instance.data.cashierData.earning * (cardData.level * 0.2f + 1) + (productStationdata.priceLevel - 1) * 25;
             }
             else
             {

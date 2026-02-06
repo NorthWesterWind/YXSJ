@@ -110,7 +110,7 @@ namespace Controller.Player
         {
             AddEvent();
             Init();
-           
+
         }
 
 
@@ -150,13 +150,14 @@ namespace Controller.Player
 
             maxHp = dataModule.data.hp + dataModule.data.addHp;
             var cardprogrees = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeCharacterWithXuanCaiTuHp);
-            if(cardprogrees != null)
+            if (cardprogrees != null)
             {
                 maxHp += cardprogrees.level * 30;
             }
             maxCarryNum = dataModule.data.bagCapacity + dataModule.data.addBagCapacity;
             currentPinkUpRange = dataModule.data.pickUpRange + dataModule.data.addPickUpRange;
             currentMoveSpeed = dataModule.data.moveSpeed + dataModule.data.addMoveSpeed;
+            playerInfo.UpdateTxt();
         }
 
 
@@ -167,16 +168,17 @@ namespace Controller.Player
                 dataModule = PlayerDataModule.Instance;
             }
             UpdatePlayerValueInfo();
-            currentHp =  maxHp;
+            currentHp = maxHp;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerInfo);
         }
 
         public void SetLayer()
         {
             int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
-            canvas.sortingOrder = newOrder +1;
+            canvas.sortingOrder = newOrder + 1;
             renderer.sortingOrder = newOrder;
             //weaponRenderer.sortingOrder = newOrder;
             shadowRenderer.sortingOrder = newOrder;
@@ -186,7 +188,7 @@ namespace Controller.Player
 
         void Update()
         {
-         
+
             SetLayer();
             if (isShowUI)
             {
@@ -361,7 +363,7 @@ namespace Controller.Player
                 _skeletonAnimation.skeleton.SetAttachment(stotageBagData.slotName, stotageBagData.attachmentName);
             }
 
-
+            playerInfo.UpdateBagInfo();
         }
 
         private void HandleFocusView(params object[] args)

@@ -20,6 +20,7 @@ public class ZhuanPanView : BaseView
     public Image redPoint;
     public Image fillImage;
     public TextMeshProUGUI filltxt;
+    public TextMeshProUGUI remaintxt;
 
     protected override void AddEventListener()
     {
@@ -78,6 +79,7 @@ public class ZhuanPanView : BaseView
         {
             redPoint.gameObject.SetActive(false);
         }
+        remaintxt.text =  "今日剩余转动次数：" + (10-PlayerDataModule.Instance.data.todayUseZhuanPanNum);
     }
 
     public void BeginZhuanPan()
@@ -95,6 +97,7 @@ public class ZhuanPanView : BaseView
         PlayerDataModule.Instance.data.todayUseZhuanPanNum += 1;
         PlayerDataModule.Instance.data.currentUseNum += 1;
         PlayerDataModule.Instance.data.lingJing -= 50;
+          PlayerDataModule.Instance.data.useLingJingTotalValue += 50;
         filltxt.text = PlayerDataModule.Instance.data.currentUseNum + "/5";
         fillImage.fillAmount = PlayerDataModule.Instance.data.currentUseNum * 1f / 5f;
         if (PlayerDataModule.Instance.data.currentUseNum >= 5)

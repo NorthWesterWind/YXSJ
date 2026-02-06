@@ -24,14 +24,14 @@ public class PlayerController2D : MonoBehaviour
     {
         if (_assetHandle == null) _assetHandle = GetComponent<AssetHandle>();
         // skeletonGraphic = transform.Find("Character").GetComponent<SkeletonGraphic>();
-        // WeaponData weaponData = DataController.Instance.weaponDataDic[PlayerDataModule.Instance.data.currentWeapon];
-        // weaponRenderer.sprite = _assetHandle.Get<Sprite>(weaponData.name);
+         WeaponData weaponData = DataController.Instance.weaponDataDic[PlayerDataModule.Instance.data.currentWeapon];
+        weaponRenderer.sprite = _assetHandle.Get<Sprite>(weaponData.name);
         // skeletonGraphic.Skeleton.SetAttachment(weaponData.slotName, weaponData.attachmentName);
         // SkeletonDataAsset skeletonDataAsset = _assetHandle.Get<SkeletonDataAsset>(weaponData.name + "data");
         // weaponEffect.skeletonDataAsset = skeletonDataAsset;
         // weaponEffect.Initialize(true);
-        // StotageBagData stotageBagData = DataController.Instance.storageBagDataDic[PlayerDataModule.Instance.data.currentBag];
-        // skeletonGraphic.Skeleton.SetAttachment(stotageBagData.slotName, stotageBagData.attachmentName);
+         StotageBagData stotageBagData = DataController.Instance.storageBagDataDic[PlayerDataModule.Instance.data.currentBag];
+         skeletonGraphic.Skeleton.SetAttachment(stotageBagData.slotName, stotageBagData.attachmentName);
 
     }
     void Start()
@@ -42,6 +42,18 @@ public class PlayerController2D : MonoBehaviour
         {
             state.SetAnimation(0, "攻击腿不动", true);
         }
+        if (DataController.Instance.weaponDataDic.ContainsKey(PlayerDataModule.Instance.data.currentWeapon))
+        {
+            WeaponData weaponData = DataController.Instance.weaponDataDic[PlayerDataModule.Instance.data.currentWeapon];
+            weaponRenderer.sprite = _assetHandle.Get<Sprite>(weaponData.name);
+            skeletonGraphic.Skeleton.SetAttachment(weaponData.slotName, weaponData.attachmentName);
+        }
+        if (DataController.Instance.storageBagDataDic.ContainsKey(PlayerDataModule.Instance.data.currentBag))
+        {
+            StotageBagData stotageBagData = DataController.Instance.storageBagDataDic[PlayerDataModule.Instance.data.currentBag];
+            skeletonGraphic.Skeleton.SetAttachment(stotageBagData.slotName, stotageBagData.attachmentName);
+        }
+
 
     }
     public float moveSpeed;

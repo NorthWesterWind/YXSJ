@@ -9,11 +9,11 @@ public enum GuideStep
     CollectMaterial = 5,
     DeliverMaterial = 6,
     BuildAccountDesk = 8,
-    TakeTea = 10,
+    TakeTea = 9,
     SellTea = 11,
     ToLingZhangTai = 12,
-    Checkout = 13,
-    UpgradePot = 15,
+    // Checkout = 13,
+    UpgradePot = 13,
 
     Finished = 16,
     Over =17,
@@ -58,33 +58,33 @@ public class GuideManager : MonoSingleton<GuideManager>
         finger.StartGuide(target);
     }
 
-    public void CompleteStep()
-    {
-        if (!IsRunning) return;
+    // public void CompleteStep()
+    // {
+    //     if (!IsRunning) return;
 
-        IsRunning = false;
-        finger.StopGuide();
+    //     IsRunning = false;
+    //     finger.StopGuide();
 
-        CurrentStep = GetNextStep(CurrentStep);
-        SaveProgress();
-    }
+    //     CurrentStep = GetNextStep(CurrentStep);
+    //     SaveProgress();
+    // }
 
-    private GuideStep GetNextStep(GuideStep step)
-    {
-        switch (step)
-        {
-            case GuideStep.BuildYushaPot: return GuideStep.BuildTeaStand;
-            case GuideStep.BuildTeaStand: return GuideStep.CollectMaterial;
-            case GuideStep.CollectMaterial: return GuideStep.DeliverMaterial;
-            case GuideStep.DeliverMaterial: return GuideStep.BuildAccountDesk;
-            case GuideStep.BuildAccountDesk: return GuideStep.TakeTea;
-            case GuideStep.TakeTea: return GuideStep.SellTea;
-            case GuideStep.SellTea: return GuideStep.Checkout;
-            case GuideStep.Checkout: return GuideStep.UpgradePot;
-            case GuideStep.UpgradePot: return GuideStep.Finished;
-            default: return GuideStep.Finished;
-        }
-    }
+    // private GuideStep GetNextStep(GuideStep step)
+    // {
+    //     switch (step)
+    //     {
+    //         case GuideStep.BuildYushaPot: return GuideStep.BuildTeaStand;
+    //         case GuideStep.BuildTeaStand: return GuideStep.CollectMaterial;
+    //         case GuideStep.CollectMaterial: return GuideStep.DeliverMaterial;
+    //         case GuideStep.DeliverMaterial: return GuideStep.BuildAccountDesk;
+    //         case GuideStep.BuildAccountDesk: return GuideStep.TakeTea;
+    //         case GuideStep.TakeTea: return GuideStep.SellTea;
+    //         case GuideStep.SellTea: return GuideStep.Checkout;
+    //         case GuideStep.Checkout: return GuideStep.UpgradePot;
+    //         case GuideStep.UpgradePot: return GuideStep.Finished;
+    //         default: return GuideStep.Finished;
+    //     }
+    // }
 
     #endregion
 }

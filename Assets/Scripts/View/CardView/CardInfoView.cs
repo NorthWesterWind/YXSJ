@@ -16,6 +16,10 @@ namespace View.CardView
         public TextMeshProUGUI progressTxt;
         public AssetHandle assetHandle;
         public Transform transform_1;
+        public GameObject obj_1;
+        public GameObject obj_2;
+        public GameObject obj_3;
+
         public Transform transform_2;
         public Transform transform_3;
 
@@ -58,11 +62,36 @@ namespace View.CardView
             Extensions.ClearChildren(transform_1);
             Extensions.ClearChildren(transform_2);
             Extensions.ClearChildren(transform_3);
+            if (list1.Count == 0)
+            {
+                obj_1.SetActive(false);
+            }
+            else
+            {
+                obj_1.SetActive(true);
+            }
+            if (list2.Count == 0)
+            {
+                obj_2.SetActive(false);
+            }
+            else
+            {
+                obj_2.SetActive(true);
+            }
+            if (list3.Count == 0)
+            {
+                obj_3.SetActive(false);
+            }
+            else
+            {
+                obj_3.SetActive(true);
+            }
             for (int i = 0; i < list1.Count; i++)
             {
                 GameObject obj = Instantiate(assetHandle.Get<GameObject>("cardItem"), transform_1, false);
                 obj.GetComponent<CardItem>().Init(list1[i]);
             }
+
 
             for (int i = 0; i < list2.Count; i++)
             {

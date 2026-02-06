@@ -41,9 +41,9 @@ public class LoginView : BaseView
     public UIButton realNameReturnBtn;
     public UIButton realNameBtn;
 
-    public GameObject setNameContent;
-    public TMP_InputField setNameInput;
-    public UIButton setNameBtn;
+    // public GameObject setNameContent;
+    // public TMP_InputField setNameInput;
+    // public UIButton setNameBtn;
     public UIButton ZhuXiaoBtn;
     protected override void Awake()
     {
@@ -59,7 +59,7 @@ public class LoginView : BaseView
         registerPasswordInput.text = "";
         realNameInput.text = "";
         realAccountInput.text = "";
-        setNameInput.text = "";
+        //setNameInput.text = "";
         HideAllPanels();
         SwitchToLoginPanel();
         Debug.Log($"Persistent Path: {Application.persistentDataPath}");
@@ -71,7 +71,7 @@ public class LoginView : BaseView
         loginContent.SetActive(false);
         registerContent.SetActive(false);
         realNameContent.SetActive(false);
-        setNameContent.SetActive(false);
+        //setNameContent.SetActive(false);
 
         fillBg.gameObject.SetActive(false);
     }
@@ -96,12 +96,12 @@ public class LoginView : BaseView
         realNameInput.text = "";
         realAccountInput.text = "";
     }
-    public void SwitchToSetNamePanel()
-    {
-        HideAllPanels();
-        setNameContent.SetActive(true);
-        setNameInput.text = "";
-    }
+    // public void SwitchToSetNamePanel()
+    // {
+    //     HideAllPanels();
+    //     setNameContent.SetActive(true);
+    //     setNameInput.text = "";
+    // }
 
     protected override void AddEventListener()
     {
@@ -114,7 +114,7 @@ public class LoginView : BaseView
         passwordInput.onValueChanged.AddListener(OnPasswordValueChanged);
         registerPasswordInput.onValidateInput += ValidateAlphaNumeric;
         registerPasswordInput.onValueChanged.AddListener(OnPassword2ValueChanged);
-        setNameInput.onValueChanged.AddListener(OnCreateNameValueChanged);
+       // setNameInput.onValueChanged.AddListener(OnCreateNameValueChanged);
         realAccountInput.onValueChanged.AddListener(OnNumberValueChanged);
 
         loginBtn.onClick.RemoveAllListeners();
@@ -133,8 +133,8 @@ public class LoginView : BaseView
         realNameBtn.onClick.RemoveAllListeners();
         realNameBtn.onClick.AddListener(OnRealName);
 
-        setNameBtn.onClick.RemoveAllListeners();
-        setNameBtn.onClick.AddListener(OnSetName);
+        // setNameBtn.onClick.RemoveAllListeners();
+        // setNameBtn.onClick.AddListener(OnSetName);
 
         ageBtn.onClick.RemoveAllListeners();
         ageBtn.onClick.AddListener(OnAge);
@@ -148,7 +148,7 @@ public class LoginView : BaseView
         }
 
         UIController.Instance.Show<AttentionView>(
-            "\u3000\u30001、本游戏是一款以模拟经营为背景的休闲模拟类手机网络游戏，适用于年满8周岁及以上的用户，建议未成年人在家长监护下使用游戏产品。\n\r\u3000\u30002、本游戏以模拟经营题材，核心玩法包含材料收集、建筑升级、角色养成、商品售卖及资源管理，玩家可通过策略进行模拟经营，激励玩家用心钻研和挑战自我。\n\r\u3000\u30003、根据国家新闻出版署《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》，本游戏已设置实名认证系统和防沉迷系统，并接入国家实名认证系统和防沉迷系统。游戏中部分道具需要付费，规范向未成年人提供付费服务：本游戏不会为未满8周岁的用户提供游戏充值服务；满8周岁未满16周岁的用户，单次充值金额不得超过50元人民币，每月充值金额累计不得超过200元人民币；满16周岁未满18周岁的用户，单次充值金额不得超过100元人民币，每月充值金额累计不得超过400元人民币。\n\r\u3000\u30004、本游戏为模拟经营为主题的休闲模拟类游戏。在游戏中，玩家化身在妖剑世界的一名传奇经营者，提供角色培养、材料收集、资源搭配的过程，有助于玩家日常放松。游戏玩法简单，强化应变决策力，提供放松体验，任务奖励增强玩家自信心与目标感。",
+            "\u3000\u30001、本游戏是一款以模拟经营为背景的休闲模拟类手机网络游戏，适用于年满8周岁及以上的用户，建议未成年人在家长监护下使用游戏产品。\n\r\u3000\u30002、本游戏以模拟经营为题材，核心玩法包含材料收集、建筑升级、角色养成、商品售卖及资源管理，玩家可通过策略进行模拟经营，激励玩家用心钻研和挑战自我。\n\r\u3000\u30003、根据国家新闻出版署《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》，本游戏已设置实名认证系统和防沉迷系统，并接入国家实名认证系统和防沉迷系统。游戏中部分道具需要付费，规范向未成年人提供付费服务：本游戏不会为未满8周岁的用户提供游戏充值服务；满8周岁未满16周岁的用户，单次充值金额不得超过50元人民币，每月充值金额累计不得超过200元人民币；满16周岁未满18周岁的用户，单次充值金额不得超过100元人民币，每月充值金额累计不得超过400元人民币。\n\r\u3000\u30004、本游戏为模拟经营为主题的休闲模拟类游戏。在游戏中，玩家化身在妖剑世界的一名传奇经营者，提供角色培养、材料收集、资源搭配的过程，有助于玩家日常放松。游戏玩法简单，强化应变决策力，提供放松体验，任务奖励增强玩家自信心与目标感。",
             "适龄提示");
     }
 
@@ -183,12 +183,12 @@ public class LoginView : BaseView
             return;
         }
 
-        if (!PlayerDataModule.Instance.data.isCreated)
-        {
-            HideAllPanels();
-            SwitchToSetNamePanel();
-        }
-        else
+        // if (!PlayerDataModule.Instance.data.isCreated)
+        // {
+        //     HideAllPanels();
+        //     SwitchToSetNamePanel();
+        // }
+        // else
             OnCanLogin();
     }
 
@@ -357,12 +357,12 @@ public class LoginView : BaseView
                        PlayerDataModule.Instance.SavePlayerDataAsync();
                        PlayerDataModule.Instance.SavePlayerDataToSever();
 
-                       if (!PlayerDataModule.Instance.data.isCreated)
-                       {
-                           HideAllPanels();
-                           SwitchToSetNamePanel();
-                       }
-                       else
+                    //    if (!PlayerDataModule.Instance.data.isCreated)
+                    //    {
+                    //        HideAllPanels();
+                    //        SwitchToSetNamePanel();
+                    //    }
+                    //    else
                            OnCanLogin();
                        break;
                    case 3:
@@ -381,7 +381,7 @@ public class LoginView : BaseView
     private void OnSetName()
     {
 
-        string name = setNameInput.text;
+       // string name = setNameInput.text;
         if (string.IsNullOrEmpty(name))
         {
             UIController.Instance.Show<TipView>("昵称不能为空!");
@@ -496,7 +496,7 @@ public class LoginView : BaseView
         if (filtered.ToString() != text)
         {
             filtered.Append(text);
-            setNameInput.text = filtered.ToString();
+            //setNameInput.text = filtered.ToString();
         }
     }
     private void OnNumberValueChanged(string text)

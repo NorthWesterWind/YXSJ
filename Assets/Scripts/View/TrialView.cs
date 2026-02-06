@@ -25,8 +25,8 @@ public class TrialView : BaseView
     [Header("Spawn Settings")]
     public float spawnInterval = 0.5f;   // 可以在外部动态调整
     public int lowCount = 10;            // 每层生成数量
-    public int midCount = 6;
-    public int highCount = 4;
+    public int midCount = 10;
+    public int highCount = 6;
     public int lowTypes = 2;             // 每层随机挑几种怪物
     public int midTypes = 2;
     public int highTypes = 1;
@@ -134,16 +134,16 @@ public class TrialView : BaseView
     IEnumerator SpawnLoop()
     {
 
-        yield return StartCoroutine(SpawnLayer(lowLevelMonsters, lowCount, lowTypes, 150));
-        yield return StartCoroutine(SpawnLayer(midLevelMonsters, midCount, midTypes,200));
-        yield return StartCoroutine(SpawnLayer(highLevelMonsters, highCount, highTypes, 220));
+        yield return StartCoroutine(SpawnLayer(lowLevelMonsters, lowCount, lowTypes, 100));
+        yield return StartCoroutine(SpawnLayer(midLevelMonsters, midCount, midTypes,120));
+        yield return StartCoroutine(SpawnLayer(highLevelMonsters, highCount, highTypes, 160));
         isCreatOver = true;
     }
     IEnumerator SpawnLoop_1()
     {
-        yield return StartCoroutine(SpawnLayer(lowLevelMonsters_1, lowCount, lowTypes, 150));
-        yield return StartCoroutine(SpawnLayer(midLevelMonsters_2, midCount, midTypes, 200));
-        yield return StartCoroutine(SpawnLayer(highLevelMonsters_3, highCount, highTypes, 220));
+        yield return StartCoroutine(SpawnLayer(lowLevelMonsters_1, lowCount, lowTypes, 100));
+        yield return StartCoroutine(SpawnLayer(midLevelMonsters_2, midCount, midTypes, 120));
+        yield return StartCoroutine(SpawnLayer(highLevelMonsters_3, highCount, highTypes, 160));
         isCreatOver = true;
     }
 

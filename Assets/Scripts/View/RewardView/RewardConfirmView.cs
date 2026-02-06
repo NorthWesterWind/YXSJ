@@ -16,6 +16,7 @@ public class RewardConfirmView : BaseView
     {
         base.UpdateViewWithArgs(args);
         Extensions.ClearChildren(content);
+        content.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, 0);
         if (args[0] is Dictionary<int, int>)
         {
             cardlevelIdDic = args[0] as Dictionary<int, int>;

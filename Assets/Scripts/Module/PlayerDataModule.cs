@@ -799,6 +799,7 @@ namespace Module
         public void UnlockEmployeeFunction()
         {
             data.employeeFunction = 1;
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateFunctionState);
         }
 
         public void GetTaskReward(int rewardId)
@@ -1029,15 +1030,19 @@ namespace Module
                 {
                     if (data.deliverData == null)
                     {
+                        if (data.employeeFunction == 0)
+                        {
+                            UnlockEmployeeFunction();
+                        }
                         data.deliverData = new DeliverData();
                     }
                 }
 
                 if (buildingType == BuildingType.LingZhangTai)
                 {
-                    if (data.deliverData == null)
+                    if (data.cashierData == null)
                     {
-                        data.deliverData = new DeliverData();
+                        data.cashierData = new CashierData();
                     }
                 }
 

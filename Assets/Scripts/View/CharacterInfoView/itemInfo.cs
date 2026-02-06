@@ -10,19 +10,19 @@ namespace View.CharacterInfoView
 {
     public class ItemInfo : MonoBehaviour
     {
-       public Image iconImg;
-       public Image selectImg;
-       public Image maskImg;
-       public Image fill;
-       public GameObject fillRect;
-       public UIButton btn;
-       public WeaponData weaponData;
-       public StotageBagData storageBagData;
-       public TextMeshProUGUI infoTxt;
-       public  AssetHandle assetHandle;
+        public Image iconImg;
+        public Image selectImg;
+        public Image maskImg;
+        public Image fill;
+        public GameObject fillRect;
+        public UIButton btn;
+        public WeaponData weaponData;
+        public StotageBagData storageBagData;
+        public TextMeshProUGUI infoTxt;
+        public AssetHandle assetHandle;
 
 
-       void Start()
+        void Start()
         {
             btn.onClick.RemoveAllListeners();
             btn.onClick.AddListener((() =>
@@ -38,6 +38,15 @@ namespace View.CharacterInfoView
             }));
         }
 
+        void OnEnable()
+        {
+            EventCenter.Instance.AddListener(EventMessages.UpdatePlayerEquimentInfo, HandleUpdate);
+        }
+        void OnDisable()
+        {
+            EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerEquimentInfo, HandleUpdate);
+        }
+
         public void Init(params object[] args)
         {
             PlayerData playerdata = PlayerDataModule.Instance.data;
@@ -48,7 +57,7 @@ namespace View.CharacterInfoView
                 selectImg.gameObject.SetActive(playerdata.currentWeapon == weaponData.id);
                 maskImg.gameObject.SetActive(!(playerdata.ownWeaponList.Contains(weaponData.id)));
                 infoTxt.text = weaponData.name;
-                switch ( weaponData.lockType)
+                switch (weaponData.lockType)
                 {
                     case UnlockType.accountLevel:
                         fillRect.SetActive(true);
@@ -73,20 +82,20 @@ namespace View.CharacterInfoView
                     case UnlockType.Purchase:
                         fillRect.SetActive(false);
                         break;
-                    
+
                 }
                 iconImg.sprite = assetHandle.Get<Sprite>(weaponData.name);
             }
             else
             {
-                storageBagData =  args[0] as StotageBagData;
+                storageBagData = args[0] as StotageBagData;
                 weaponData = null;
                 selectImg.gameObject.SetActive(playerdata.currentBag == storageBagData.id);
-                maskImg.gameObject.SetActive(!(playerdata.ownWeaponList.Contains(storageBagData.id)));
-                infoTxt.text = storageBagData.name  ;
-            
-             
-                switch ( storageBagData.lockType)
+                maskImg.gameObject.SetActive(!(playerdata.ownBagList.Contains(storageBagData.id)));
+                infoTxt.text = storageBagData.name;
+
+
+                switch (storageBagData.lockType)
                 {
                     case UnlockType.accountLevel:
                         fillRect.SetActive(true);
@@ -111,15 +120,30 @@ namespace View.CharacterInfoView
                     case UnlockType.Purchase:
                         fillRect.SetActive(false);
                         break;
-                }  
+                }
                 iconImg.sprite = assetHandle.Get<Sprite>(storageBagData.name);
             }
         }
 
-      
+        public void HandleUpdate(params object[] args)
+        {
+            if (weaponData != null)
+            {
+                selectImg.gameObject.SetActive(PlayerDataModule.Instance.data.currentWeapon == weaponData.id);
+                maskImg.gameObject.SetActive(!(PlayerDataModule.Instance.data.ownWeaponList.Contains(weaponData.id)));
+
+            }
+            else
+            {
+                selectImg.gameObject.SetActive(PlayerDataModule.Instance.data.currentBag == storageBagData.id);
+                maskImg.gameObject.SetActive(!(PlayerDataModule.Instance.data.ownBagList.Contains(storageBagData.id)));
+            }
+        }
+
+
         void Update()
         {
-        
+
         }
     }
 }

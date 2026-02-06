@@ -285,6 +285,10 @@ namespace View.CharacterInfoView
 
             weaponIcon.sprite = _assetHandle.Get<Sprite>(weaponData.name);
             bagIcon.sprite = _assetHandle.Get<Sprite>(bagData.name);
+             PlayerData data = PlayerDataModule.Instance.data;
+            atktxt.text = data.addAtk + data.atk + "";
+            bagtxt.text = data.addBagCapacity + data.bagCapacity + "";
+            hptxt.text = data.addHp + data.hp + "";
         }
 
         public void OnClickDetailBtn()

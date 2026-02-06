@@ -84,6 +84,7 @@ namespace View
             {
                 if (PlayerDataModule.Instance.data.characterFunction != 1)
                 {
+                    UIController.Instance.Show<TipView>("账号等级2时解锁!");
                     return;
                 }
                 UIController.Instance.Show<CharacterView>();
@@ -94,6 +95,7 @@ namespace View
             {
                 if (PlayerDataModule.Instance.data.cardFunction != 1)
                 {
+                    UIController.Instance.Show<TipView>("账号等级2时解锁!");
                     return;
                 }
                 UIController.Instance.Show<CardInfoView>();
@@ -104,6 +106,7 @@ namespace View
             {
                 if (PlayerDataModule.Instance.data.mapFunction != 1)
                 {
+                    UIController.Instance.Show<TipView>("账号等级5时解锁!");
                     return;
                 }
                 UIController.Instance.Show<MapSelectView>();
@@ -114,6 +117,7 @@ namespace View
             {
                 if (PlayerDataModule.Instance.data.employeeFunction != 1)
                 {
+                    UIController.Instance.Show<TipView>("账号等级12时解锁!");
                     return;
                 }
                 UIController.Instance.Show<EmployeeFunctionView>();
@@ -160,6 +164,7 @@ namespace View
             {
                 if (PlayerDataModule.Instance.data.ordenFunction != 1)
                 {
+                    UIController.Instance.Show<TipView>("账号等级12时解锁!");
                     return;
                 }
                 UIController.Instance.Show<OrderFunctionView>();

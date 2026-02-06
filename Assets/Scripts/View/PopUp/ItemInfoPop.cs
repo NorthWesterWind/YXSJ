@@ -30,7 +30,7 @@ namespace View.PopUp
         public TextMeshProUGUI filltxt;
         public bool isWeapon = false;
         WeaponData weaponData;
-        StotageBagData stotageBagData;
+        public StotageBagData stotageBagData;
 
         public override void UpdateViewWithArgs(params object[] args)
         {
@@ -54,7 +54,7 @@ namespace View.PopUp
                         state = BtnState.ZhuangBei;
                         btntxt.text = "装备";
                     }
-
+                    locktxt.text = "攻击力：" + (playerdata.atk + weaponData.atkValue);
                     fillContent.SetActive(false);
                 }
                 else
@@ -159,6 +159,7 @@ namespace View.PopUp
                     }
 
                     fillContent.SetActive(false);
+                    locktxt.text = "储物容量：" + (playerdata.bagCapacity + stotageBagData.capacity);
                 }
                 else
                 {
@@ -261,27 +262,27 @@ namespace View.PopUp
             {
                 if (state == BtnState.ZhuangBei)
                 {
-                    PlayerData playerData = PlayerDataModule.Instance.data;
+
                     if (isWeapon)
                     {
-                        WeaponData weapondata = DataController.Instance.weaponDataDic[playerData.currentWeapon];
-                        playerData.addAtk -= weaponData.atkValue;
+                        WeaponData weapondata = DataController.Instance.weaponDataDic[PlayerDataModule.Instance.data.currentWeapon];
+                        PlayerDataModule.Instance.data.addAtk -= weapondata.atkValue;
                         PlayerDataModule.Instance.data.currentWeapon = weaponData.id;
-                        playerData.addAtk += DataController.Instance.weaponDataDic[weaponData.id].atkValue;
+                        PlayerDataModule.Instance.data.addAtk += DataController.Instance.weaponDataDic[weaponData.id].atkValue;
 
                     }
                     else
                     {
-                        StotageBagData stotageBagData = DataController.Instance.storageBagDataDic[playerData.currentBag];
-                        playerData.addBagCapacity -= stotageBagData.capacity;
+                        StotageBagData stotageBagdata = DataController.Instance.storageBagDataDic[PlayerDataModule.Instance.data.currentBag];
+                        PlayerDataModule.Instance.data.addBagCapacity -= stotageBagdata.capacity;
                         PlayerDataModule.Instance.data.currentBag = stotageBagData.id;
-                        playerData.addBagCapacity += DataController.Instance.storageBagDataDic[stotageBagData.id].capacity;
+                        Debug.LogError("playerData.currentBag = " + PlayerDataModule.Instance.data.currentBag);
+                        PlayerDataModule.Instance.data.addBagCapacity += DataController.Instance.storageBagDataDic[stotageBagData.id].capacity;
                     }
-                    EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);  
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
                     state = BtnState.YiZhuangBei;
                     btntxt.text = "已装备";
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
-                    EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
                 }
                 else if (state == BtnState.JieSuo)
                 {

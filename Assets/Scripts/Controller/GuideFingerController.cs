@@ -45,7 +45,7 @@ public class GuideFingerController : MonoBehaviour
             float dist = Vector3.Distance(player.position, target.position);
             if (dist <= hideDistance)
             {
-                GuideManager.Instance.CompleteStep();
+               // GuideManager.Instance.CompleteStep();
                 yield break;
             }
 

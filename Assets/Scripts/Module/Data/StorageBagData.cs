@@ -1,5 +1,6 @@
 
 using Module.Data;
+[System.Serializable]
 
 public class StotageBagData
 {
