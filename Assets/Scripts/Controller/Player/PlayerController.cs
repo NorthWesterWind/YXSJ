@@ -39,6 +39,7 @@ namespace Controller.Player
         private Rigidbody2D _rigidbody;
         public GameObject weapon;
         public SkeletonAnimation weaponEffect;
+        
 
         private float detectRadius = 6f; // 怪物检测半径
         public LayerMask monsterLayer;   // 只检测怪物层
@@ -77,6 +78,9 @@ namespace Controller.Player
 
         public bool InRange;
         private bool isThrowingCoin = false; // 防止重复抛币
+
+        public GameObject finger;
+        public Transform guidePosition;
 
         private void Awake()
         {
@@ -124,6 +128,7 @@ namespace Controller.Player
             EventCenter.Instance.AddListener(EventMessages.UpdatePlayerEquimentInfo, UpdatePlayerEquimentInfo);
             EventCenter.Instance.AddListener(EventMessages.UpdatePlayerValueInfo, UpdatePlayerValueInfo);
             EventCenter.Instance.AddListener(EventMessages.MonsterDead, HandleMonsterDead);
+            EventCenter.Instance.AddListener(EventMessages.ShowGuideFinger,HandleShowGuideFinger);
         }
         private void OnDestroy()
         {
@@ -135,7 +140,14 @@ namespace Controller.Player
             EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerEquimentInfo, UpdatePlayerEquimentInfo);
             EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerValueInfo, UpdatePlayerValueInfo);
             EventCenter.Instance.RemoveListener(EventMessages.MonsterDead, HandleMonsterDead);
+            EventCenter.Instance.RemoveListener(EventMessages.ShowGuideFinger,HandleShowGuideFinger);
         }
+        
+        public void HandleShowGuideFinger(params object[] args)
+        {
+            
+        }
+
 
         public void HandleMonsterDead(params object[] args)
         {

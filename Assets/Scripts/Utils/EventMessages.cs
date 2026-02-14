@@ -96,5 +96,6 @@ namespace Utils
         public const string CloseTrialView = "CloseTrialView"; //关闭试炼界面
         public const string UpdateLingZhangTai = "UpdateLingZhangTai"; //更新灵账台
         public const string UpdateYunDiZheSpeed = "UpdateYunDiZheSpeed"; //更新云递者速度
+        public const string ShowGuideFinger = "ShowGuideFinger";//显示引导手指
     }
 }
