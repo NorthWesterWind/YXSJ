@@ -97,5 +97,6 @@ namespace Utils
         public const string UpdateLingZhangTai = "UpdateLingZhangTai"; //更新灵账台
         public const string UpdateYunDiZheSpeed = "UpdateYunDiZheSpeed"; //更新云递者速度
         public const string ShowGuideFinger = "ShowGuideFinger";//显示引导手指
+        public const string HideGuideFinger = "HideGuideFinger";//隐藏引导手指
     }
 }

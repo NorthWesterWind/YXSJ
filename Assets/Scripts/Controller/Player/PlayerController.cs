@@ -35,11 +35,11 @@ namespace Controller.Player
         public SpriteRenderer shadowRenderer;
         public SpriteRenderer weaponRenderer;
         public CinemachineVirtualCamera camera;
-        public CinemachineVirtualCamera focusCamera;
+      //  public CinemachineVirtualCamera focusCamera;
         private Rigidbody2D _rigidbody;
         public GameObject weapon;
         public SkeletonAnimation weaponEffect;
-        
+
 
         private float detectRadius = 6f; // 怪物检测半径
         public LayerMask monsterLayer;   // 只检测怪物层
@@ -80,7 +80,10 @@ namespace Controller.Player
         private bool isThrowingCoin = false; // 防止重复抛币
 
         public GameObject finger;
-        public Transform guidePosition;
+        public Transform fingerRoot;
+
+
+        public Vector2 guidePosition;
 
         private void Awake()
         {
@@ -92,7 +95,7 @@ namespace Controller.Player
             camera = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
             camera.LookAt = transform;
             camera.Follow = transform;
-            focusCamera = GameObject.Find("FocusVirtualCamera").GetComponent<CinemachineVirtualCamera>();
+           // focusCamera = GameObject.Find("FocusVirtualCamera").GetComponent<CinemachineVirtualCamera>();
             _rigidbody = GetComponent<Rigidbody2D>();
             _assetHandle = GetComponent<AssetHandle>();
             _skeletonAnimation = transform.Find("Character").GetComponent<SkeletonAnimation>();
@@ -128,7 +131,9 @@ namespace Controller.Player
             EventCenter.Instance.AddListener(EventMessages.UpdatePlayerEquimentInfo, UpdatePlayerEquimentInfo);
             EventCenter.Instance.AddListener(EventMessages.UpdatePlayerValueInfo, UpdatePlayerValueInfo);
             EventCenter.Instance.AddListener(EventMessages.MonsterDead, HandleMonsterDead);
-            EventCenter.Instance.AddListener(EventMessages.ShowGuideFinger,HandleShowGuideFinger);
+            EventCenter.Instance.AddListener(EventMessages.ShowGuideFinger, HandleShowGuideFinger);
+            EventCenter.Instance.AddListener(EventMessages.HideGuideFinger, HandleHideGuideFinger);
+            EventCenter.Instance.AddListener(EventMessages.CameraBeginShaking, HandleCameraBeginShaking);
         }
         private void OnDestroy()
         {
@@ -140,12 +145,25 @@ namespace Controller.Player
             EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerEquimentInfo, UpdatePlayerEquimentInfo);
             EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerValueInfo, UpdatePlayerValueInfo);
             EventCenter.Instance.RemoveListener(EventMessages.MonsterDead, HandleMonsterDead);
-            EventCenter.Instance.RemoveListener(EventMessages.ShowGuideFinger,HandleShowGuideFinger);
+            EventCenter.Instance.RemoveListener(EventMessages.ShowGuideFinger, HandleShowGuideFinger);
+            EventCenter.Instance.RemoveListener(EventMessages.HideGuideFinger, HandleHideGuideFinger);
+            EventCenter.Instance.RemoveListener(EventMessages.CameraBeginShaking, HandleCameraBeginShaking);
         }
-        
-        public void HandleShowGuideFinger(params object[] args)
+
+        public void HandleCameraBeginShaking(params object[] args)
         {
             
+        }
+
+        public void HandleShowGuideFinger(params object[] args)
+        {
+            finger.SetActive(true);
+            guidePosition = (Vector2)args[0];
+        }
+         public void HandleHideGuideFinger(params object[] args)
+        {
+            finger.SetActive(false);
+            guidePosition = Vector2.zero;
         }
 
 
@@ -179,6 +197,7 @@ namespace Controller.Player
             {
                 dataModule = PlayerDataModule.Instance;
             }
+            finger.SetActive(false);
             UpdatePlayerValueInfo();
             currentHp = maxHp;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
@@ -289,8 +308,25 @@ namespace Controller.Player
                 weaponEffect.gameObject.SetActive(false);
             }
 
+            if (finger.activeSelf)
+            {
+                Vector2 dir = guidePosition - (Vector2)transform.position;
+                fingerRoot.transform.right = dir;
+                finger.GetComponent<SpriteRenderer>().sortingOrder = renderer.sortingOrder + 100;
+                if (Vector2.Distance(guidePosition, transform.position) < 3f)
+                {
+                    finger.SetActive(false);
+                    guidePosition = Vector2.zero;
+                }
+            }
 
         }
+
+
+
+
+
+
         public bool CanThrowTongBi()
         {
             return PlayerDataModule.Instance.data.tongbi >= 100 && InRange && !isThrowingCoin && !isMoving;
@@ -983,15 +1019,15 @@ namespace Controller.Player
         {
             Transform t = (Transform)args[0];
             EventCenter.Instance.TriggerEvent(EventMessages.FocusView); // 禁止输入
-            focusCamera.LookAt = t;
-            focusCamera.Priority = 20; // > PlayerCam 的 10
+            // focusCamera.LookAt = t;
+            // focusCamera.Priority = 20; // > PlayerCam 的 10
             StartCoroutine(ReturnAfterDelay(3f));
         }
         IEnumerator ReturnAfterDelay(float seconds)
         {
             yield return new WaitForSeconds(seconds);
-            focusCamera.LookAt = transform;
-            focusCamera.Priority = 5;                                             // 恢复为低
+            // focusCamera.LookAt = transform;
+            // focusCamera.Priority = 5;                                             // 恢复为低
             EventCenter.Instance.TriggerEvent(EventMessages.RestoreFocusView); // 恢复输入
         }
 

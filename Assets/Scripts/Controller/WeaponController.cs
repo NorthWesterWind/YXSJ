@@ -9,6 +9,7 @@ namespace Controller
 {
     public class WeaponController : MonoBehaviour
     {
+        public bool isPlayer;
 
         void OnEnable()
         {
@@ -72,7 +73,7 @@ namespace Controller
             var monsterCtrl = monster.GetComponent<MonsterController>();
             if (monsterCtrl != null && monsterCtrl.currentHp > 0)
             {
-                monsterCtrl.TakeDamage(atkValue, transform, slowDownValue);
+                monsterCtrl.TakeDamage(atkValue, transform, slowDownValue, isPlayer);
             }
             var monsterCtr2 = monster.GetComponent<MonsterController2D>();
             if (monsterCtr2 != null && !monsterCtr2.isDead)

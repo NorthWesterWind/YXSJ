@@ -130,8 +130,20 @@ namespace Controller
                     continue;
                 }
 
-                // 拿货
+                // 拿货（玩家优先，所以可能拿到空列表或少量产品）
                 productList = targetStation.TakeProduct(this);
+
+                // 如果取货失败或被玩家抢走了，释放占用并继续
+                if (productList == null || productList.Count == 0)
+                {
+                    ReleaseStationReservation();
+                    if (normalPos != null)
+                    {
+                        yield return MoveTo(normalPos.position);
+                    }
+                    yield return new WaitForSeconds(2f);
+                    continue;
+                }
 
                 yield return new WaitForSeconds(0.5f + productList.Count);
 

@@ -320,7 +320,7 @@ namespace Module.Data
         public int id;
         public float atk = 10;
         public float bagCapacity = 20;
-        public float moveSpeed = 8f;     //移动速度
+        public float moveSpeed = 4f;     //移动速度
         public MonsterFamily monsterType; //当前的目标怪物
         public CollectorType collectorType;
         public float maxHp = 30;

@@ -28,7 +28,7 @@ public class PlayerGuide : BaseView
       "\u3000\u3000新主人，终于等到你啦！我是镇妖剑的剑灵小灵，你被我选中成为新一代镇妖剑主人！",
       "\u3000\u3000镇妖剑？新主人…我该怎么做？",
       "\u3000\u3000主人，别慌呀，有我在！现在我们先去建造一号玉砂壶。",
-      "\u3000\u3000太棒啦！接下来我们建一号灵茶售卖架——你还记得吗？以前街上的灵茶坊都摆满了这种架子，可以用来售卖灵茶获得多多的铜币哦！",
+      "\u3000\u3000太棒啦！接下来我们来打造一号灵茶售卖架，主人你还记得吗？以前街边的灵茶坊里，可都摆着这样的架子，用它来售卖灵茶，就能赚不少铜币呢！",
       "\u3000\u3000接下来，我们就要进入获取灵材区域。前面不远处就是采集霜云芝的区域了，只要拿起“我”攻击它们，就能自动散掉妖气，把灵材变纯净，就可以轻易获取了。要是遇到那种比人还高的巨型灵体也别怕，“我”也能驱散它的妖气获取它哦！",
       "\u3000\u3000好了，我们快把霜云芝送到一号玉砂壶凝炼吧！",
       "\u3000\u3000小灵，接下来应该怎么做？",
@@ -53,6 +53,7 @@ public class PlayerGuide : BaseView
     public override void UpdateViewWithArgs(params object[] args)
     {
         base.UpdateViewWithArgs(args);
+        EventCenter.Instance.TriggerEvent(EventMessages.HideGuideFinger);
         currentIndex = (int)PlayerDataModule.Instance.data.guideStep;
         bg.gameObject.SetActive(true);
         ShowText(info[currentIndex - 1]);
@@ -412,7 +413,7 @@ public class PlayerGuide : BaseView
     {
         //建造一号玉砂壶
         Transform collectPoint = GameController.Instance.buildings[BuildingType.YuShaHu_1].transform;
-
+        EventCenter.Instance.TriggerEvent(EventMessages.ShowGuideFinger, new Vector2(collectPoint.position.x, collectPoint.position.y ));
 
         StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x => x.buildingType == BuildingType.YuShaHu_1);
         StructureLockProgressData progress1 = new StructureLockProgressData(BuildingType.YuShaHu_1,
@@ -431,7 +432,7 @@ public class PlayerGuide : BaseView
         //建造一号灵茶架
         Transform collectPoint = GameController.Instance.buildings[BuildingType.LingChaJia_1].transform;
         // GuideManager.Instance.StartStep(GuideStep.BuildTeaStand, collectPoint);
-
+         EventCenter.Instance.TriggerEvent(EventMessages.ShowGuideFinger, new Vector2(collectPoint.position.x, collectPoint.position.y ));
 
         StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x => x.buildingType == BuildingType.LingChaJia_1);
         StructureLockProgressData progress1 = new StructureLockProgressData(BuildingType.LingChaJia_1,
@@ -451,6 +452,7 @@ public class PlayerGuide : BaseView
         //收集霜云芝
         Transform collectPoint = GameController.Instance.factoryControllers[Module.Data.MonsterType.ShuangYunZhi].transform;
         //  GuideManager.Instance.StartStep(GuideStep.CollectMaterial, collectPoint);
+         EventCenter.Instance.TriggerEvent(EventMessages.ShowGuideFinger, new Vector2(collectPoint.position.x, collectPoint.position.y ));
         Hide();
     }
     private void TriggerGuide_4()
@@ -458,12 +460,14 @@ public class PlayerGuide : BaseView
         //运送霜云芝
         Transform collectPoint = GameController.Instance.buildings[BuildingType.YuShaHu_1].transform;
         //  GuideManager.Instance.StartStep(GuideStep.DeliverMaterial, collectPoint);
+         EventCenter.Instance.TriggerEvent(EventMessages.ShowGuideFinger, new Vector2(collectPoint.position.x, collectPoint.position.y ));
         Hide();
     }
     private void TriggerGuide_5()
     {
         //建造灵账台
         Transform collectPoint = GameController.Instance.buildings[BuildingType.LingZhangTai].transform;
+         EventCenter.Instance.TriggerEvent(EventMessages.ShowGuideFinger, new Vector2(collectPoint.position.x, collectPoint.position.y - 2 ));
         // GuideManager.Instance.StartStep(GuideStep.BuildAccountDesk, collectPoint);
         StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x => x.buildingType == BuildingType.LingZhangTai);
         StructureLockProgressData progress1 = new StructureLockProgressData(BuildingType.LingZhangTai,
@@ -485,6 +489,7 @@ public class PlayerGuide : BaseView
     {
         //取灵茶
         Transform collectPoint = GameController.Instance.buildings[BuildingType.YuShaHu_1].transform;
+         EventCenter.Instance.TriggerEvent(EventMessages.ShowGuideFinger, new Vector2(collectPoint.position.x, collectPoint.position.y ));
         // GuideManager.Instance.StartStep(GuideStep.TakeTea, collectPoint);
         if (GameController.Instance.buildings[BuildingType.YuShaHu_1].GetComponent<ProductionStation>().currentMaterialCount == 0)
         {
@@ -497,6 +502,7 @@ public class PlayerGuide : BaseView
     {
         //上架灵茶
         Transform collectPoint = GameController.Instance.buildings[BuildingType.LingChaJia_1].transform;
+         EventCenter.Instance.TriggerEvent(EventMessages.ShowGuideFinger, new Vector2(collectPoint.position.x, collectPoint.position.y ));
         //GuideManager.Instance.StartStep(GuideStep.SellTea, collectPoint);
            if (GameController.Instance.buildings[BuildingType.YuShaHu_1].GetComponent<ProductionStation>().currentMaterialCount == 0)
         {
@@ -517,6 +523,7 @@ public class PlayerGuide : BaseView
     {
         //升级一号玉砂壶
         Transform collectPoint = GameController.Instance.buildings[BuildingType.YuShaHu_1].transform;
+         EventCenter.Instance.TriggerEvent(EventMessages.ShowGuideFinger, new Vector2(collectPoint.position.x, collectPoint.position.y ));
         // GuideManager.Instance.StartStep(GuideStep.UpgradePot, collectPoint);
         PlayerDataModule.Instance.data.guideStep = GuideStep.UpgradePot;
         Hide();

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Cinemachine;
 using Controller.Monster;
 using DG.Tweening;
 using Module.Data;
@@ -9,6 +10,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Utils;
 using View;
+using World.Controller;
 using Random = UnityEngine.Random;
 
 namespace Controller
@@ -26,6 +28,7 @@ namespace Controller
 
     public class MonsterController : MonoBehaviour
     {
+        public CinemachineImpulseSource impulseSource;
         public float currentHp = 100;
         private int currentSpeed;
         public MonsterData data;
@@ -85,7 +88,7 @@ namespace Controller
             agent = GetComponent<PolyNavAgent>();
             agent.map = GameObject.Find("Map").transform.GetComponent<PolyNavMap>();
             _assetHandle = GetComponent<AssetHandle>();
-
+            impulseSource = GetComponent<CinemachineImpulseSource>();
         }
         public void Init(MonsterData data, Vector2 center, MonsterBehavior behavior, int Id, Vector2 patrolSize)
         {
@@ -337,7 +340,7 @@ namespace Controller
 
         private bool isDead = false;
 
-        public void TakeDamage(float damage, Transform attacker, float slowDownValue = 0f)
+        public void TakeDamage(float damage, Transform attacker, float slowDownValue = 0f, bool isPlayer = false)
         {
             if (isDead) return;
             if (Time.time - _lastHitTime < _damageInterval) return;
@@ -381,7 +384,7 @@ namespace Controller
                 {
                     state.SetAnimation(0, "dead", false);
                 }
-                StartCoroutine(DoDie());
+                StartCoroutine(DoDie(isPlayer));
             }
         }
 
@@ -509,7 +512,7 @@ namespace Controller
             isRegenerating = false;
         }
 
-        public IEnumerator DoDie()
+        public IEnumerator DoDie(bool isPlayer)
         {
             agent.Stop();
             agent.enabled = false;
@@ -518,7 +521,11 @@ namespace Controller
             {
                 EventCenter.Instance.TriggerEvent(EventMessages.JingYuanBaoDead);
             }
-            yield return new WaitForSeconds(deadtime);
+            yield return new WaitForSeconds(deadtime * 0.85f);
+            if (isPlayer)
+            {
+                impulseSource.GenerateImpulse(0.7f * AudioSourceController.Instance.soundVolume);
+            }
             EventCenter.Instance.TriggerEvent(EventMessages.CameraBeginShaking);
             EventCenter.Instance.TriggerEvent(EventMessages.MonsterDead, monsterType, gameObject, factorID);
         }
