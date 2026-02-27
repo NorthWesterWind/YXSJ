@@ -149,6 +149,10 @@ public class LingChuGePop : BaseView
             numgradeMask.SetActive(true);
             numgradeMaskTxt.text = "等级已满";
         }
+        if(_assetHandle == null)
+        {
+            _assetHandle = GetComponent<AssetHandle>();
+        }
 
         if (PlayerDataModule.Instance.data.currentMapID == 1 ||
         PlayerDataModule.Instance.data.currentMapID == 2)

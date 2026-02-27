@@ -2,16 +2,23 @@ using System;
 using Module;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Utils;
 using View;
 
 public class DungeonLevelView : BaseView
 {
     public UIButton closeBtn;
+    public UIButton btn_1;
+    public GameObject image_1;
+    public UIButton btn_2;
+    public GameObject image_2;
     public UIButton gameBtn_1;
     public UIButton gameBtn_2;
     public TextMeshProUGUI infotxt_1;
     public TextMeshProUGUI infotxt_2;
+
+    private bool isFirstSelected = true;
 
     protected override void AddEventListener()
     {
@@ -22,12 +29,42 @@ public class DungeonLevelView : BaseView
         gameBtn_1.onClick.AddListener(OnClickGameBtn_1);
         gameBtn_2.onClick.RemoveAllListeners();
         gameBtn_2.onClick.AddListener(OnClickGameBtn_2);
+
+        btn_1.onClick.RemoveAllListeners();
+        btn_1.onClick.AddListener(() =>
+        {
+            isFirstSelected = true;
+            if (!image_1.activeSelf)
+            {
+                image_1.SetActive(true);
+            }
+            if (image_2.activeSelf)
+            {
+                image_2.SetActive(false);
+            }
+        });
+        btn_2.onClick.RemoveAllListeners();
+        btn_2.onClick.AddListener(() =>
+        {
+            isFirstSelected = false;
+            if (!image_2.activeSelf)
+            {
+                image_2.SetActive(true);
+            }
+            if (image_1.activeSelf)
+            {
+                image_1.SetActive(false);
+            }
+        });
     }
 
     public override void UpdateViewWithArgs(params object[] args)
     {
         base.UpdateViewWithArgs(args);
-
+      
+        isFirstSelected = true;
+        image_1.SetActive(false);
+        image_2.SetActive(false);
     }
     void Update()
     {
