@@ -17,7 +17,7 @@ namespace Controller
                 sprite.DOFade(0, 0.1f);
 
                 skeletonAnimation.gameObject.SetActive(true);
-                skeletonAnimation.Initialize(true); // ⭐ 关键
+                skeletonAnimation.Initialize(true); 
                 skeletonAnimation.AnimationState.SetAnimation(0, "animation", true);
             }
             else

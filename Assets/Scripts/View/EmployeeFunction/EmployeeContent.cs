@@ -27,6 +27,18 @@ public class EmployeeContent : MonoBehaviour
     public UIButton removebtn;
     public Image removeMask;
 
+    private void OnEnable()
+    {
+        EventCenter.Instance.AddListener(EventMessages.UpdateYunDiZheInfo, HandleEmployeeStateChanged);
+        EventCenter.Instance.AddListener(EventMessages.UpdateLingChuGeWorkingInfo, HandleEmployeeStateChanged);
+    }
+
+    private void OnDisable()
+    {
+        EventCenter.Instance.RemoveListener(EventMessages.UpdateYunDiZheInfo, HandleEmployeeStateChanged);
+        EventCenter.Instance.RemoveListener(EventMessages.UpdateLingChuGeWorkingInfo, HandleEmployeeStateChanged);
+    }
+
 
 
 
@@ -45,7 +57,7 @@ public class EmployeeContent : MonoBehaviour
                 MapData mapData = DataController.Instance.mapDataDic[playerData.currentMapID];
                 for (int i = 0; i < mapData.monsterFamilyList.Count; i++)
                 {
-                    GameObject obj = Instantiate(assetHandle.Get<GameObject>("EmployeeInfoItem"), content, false);
+                    GameObject obj = Instantiate(assetHandle.Get<GameObject>("EmployInfoItem"), content, false);
 
                     obj.GetComponent<EmployeeInfoItem>().Init((MonsterFamily)mapData.monsterFamilyList[i], 2);
                 }
@@ -55,7 +67,7 @@ public class EmployeeContent : MonoBehaviour
                 MapData mapData = DataController.Instance.mapDataDic[playerData.currentMapID];
                 for (int i = 0; i < mapData.monsterFamilyList.Count; i++)
                 {
-                    GameObject obj = Instantiate(assetHandle.Get<GameObject>("EmployeeInfoItem"), content, false);
+                    GameObject obj = Instantiate(assetHandle.Get<GameObject>("EmployInfoItem"), content, false);
 
                     obj.GetComponent<EmployeeInfoItem>().Init((MonsterFamily)mapData.monsterFamilyList[i], 3);
                 }
@@ -123,6 +135,52 @@ public class EmployeeContent : MonoBehaviour
                     removeMask.gameObject.SetActive(true);
                 }
             });
+        }
+    }
+
+    private void HandleEmployeeStateChanged(params object[] args)
+    {
+        UpdatePeopleInfo();
+
+        if (employeeType == EmployeeType.YunDiZhe)
+        {
+            RefreshYunDiZheState();
+            return;
+        }
+
+        if (content == null)
+        {
+            return;
+        }
+
+        var items = content.GetComponentsInChildren<EmployeeInfoItem>(true);
+        foreach (var item in items)
+        {
+            item.UpdateInfo();
+        }
+    }
+
+    private void RefreshYunDiZheState()
+    {
+        var deliverData = PlayerDataModule.Instance.data?.deliverData;
+        if (deliverData == null)
+        {
+            return;
+        }
+
+        if (progressTxt != null)
+        {
+            progressTxt.text = deliverData.workingNum + "/" + deliverData.totalNum;
+        }
+
+        if (addMask != null)
+        {
+            addMask.gameObject.SetActive(deliverData.totalNum <= deliverData.workingNum);
+        }
+
+        if (removeMask != null)
+        {
+            removeMask.gameObject.SetActive(deliverData.workingNum <= 0);
         }
     }
 

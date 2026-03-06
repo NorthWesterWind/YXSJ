@@ -41,6 +41,39 @@ namespace Controller
         private static readonly Dictionary<ProductionStation, int> StationWorkingClerkCount =
             new Dictionary<ProductionStation, int>();
 
+        private static readonly HashSet<Production> ReservedProductsByFreight =
+            new HashSet<Production>();
+
+        public static void MarkProductReservedByFreight(Production production)
+        {
+            if (production == null)
+            {
+                return;
+            }
+
+            ReservedProductsByFreight.Add(production);
+        }
+
+        public static void UnmarkProductReservedByFreight(Production production)
+        {
+            if (production == null)
+            {
+                return;
+            }
+
+            ReservedProductsByFreight.Remove(production);
+        }
+
+        public static bool IsProductReservedByFreight(Production production)
+        {
+            if (production == null)
+            {
+                return false;
+            }
+
+            return ReservedProductsByFreight.Contains(production);
+        }
+
         private void UpdateSpeed(params object[] args)
         {
             _agent.maxSpeed = WorldData.speedLevelDic[PlayerDataModule.Instance.data.deliverData.speedLevel];
@@ -144,6 +177,10 @@ namespace Controller
                     yield return new WaitForSeconds(2f);
                     continue;
                 }
+                foreach (var product in productList)
+                {
+                    product.spriteRenderer.sortingOrder = renderer.sortingOrder + 1;
+                }
 
                 yield return new WaitForSeconds(0.5f + productList.Count);
 
@@ -178,12 +215,28 @@ namespace Controller
                 yield return null;
         }
 
+        private int CountPickableProducts(ProductionStation station)
+        {
+            int count = 0;
+            for (int i = 0; i < station.productionList.Count; i++)
+            {
+                var production = station.productionList[i];
+                if (production == null) continue;
+                if (production.isTaken) continue;
+                if (!production.canPickup) continue;
+                if (production.state != ItemState.OnWorkbench) continue;
+                count++;
+            }
+
+            return count;
+        }
+
 
         /// 查找有产品的生产台
         private ProductionStation FindValidProductionStation()
         {
             ProductionStation bestStation = null;
-            int bestWorkerCount = int.MaxValue;
+            int bestScore = int.MinValue;
 
             foreach (var ps in productionStationList)
             {
@@ -194,17 +247,31 @@ namespace Controller
                 if (stall == null || stall.isLock || stall.isCanUnlockState)
                     continue;
 
-                if (ps.productionList.Count <= 0)
+                int pickableCount = CountPickableProducts(ps);
+                if (pickableCount <= 0)
                     continue;
 
-                // 当前已有多少搬运工在服务这个生产台
                 int workingCount = 0;
                 StationWorkingClerkCount.TryGetValue(ps, out workingCount);
 
-                // 选择“已有搬运工最少”的生产台，尽量分散
-                if (workingCount < bestWorkerCount)
+                // 根据可搬运商品数限制同站分配，避免过度预占。
+                int capacityPerTrip = Mathf.Max(1, currentCapacity);
+                int neededClerkCount = Mathf.Max(1, Mathf.CeilToInt(pickableCount * 1f / capacityPerTrip));
+                if (workingCount >= neededClerkCount)
                 {
-                    bestWorkerCount = workingCount;
+                    continue;
+                }
+
+                // 已经有搬运工在服务的生产台优先级更高。
+                int activeBonus = workingCount > 0 ? 1000 : 0;
+                int quantityScore = pickableCount * 100;
+                int distancePenalty = Mathf.RoundToInt(Vector2.Distance(transform.position, ps.transferPoint.position) * 5f);
+                int workerPenalty = workingCount * 10;
+                int score = activeBonus + quantityScore - distancePenalty - workerPenalty;
+
+                if (score > bestScore)
+                {
+                    bestScore = score;
                     bestStation = ps;
                 }
             }
@@ -291,6 +358,10 @@ namespace Controller
             int newOrder = 30000 - Mathf.FloorToInt(transform.localPosition.y * 100);
             renderer.sortingOrder = newOrder;
             shadow.sortingOrder = newOrder - 1;
+            foreach (var product in productList)
+            {
+                product.spriteRenderer.sortingOrder = renderer.sortingOrder + 1;
+            }
         }
 
         void OnEnable()

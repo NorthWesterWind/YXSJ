@@ -174,6 +174,20 @@ namespace Module.Data
         {
 
         };
+
+        #region 场景运行时数据（随玩家存档）
+
+        /// <summary>
+        /// 场景中的顾客快照（按地图保存）
+        /// </summary>
+        public List<RuntimeCustomerData> runtimeCustomerDataList = new List<RuntimeCustomerData>();
+
+        /// <summary>
+        /// 场景中的商品/硬币快照（按地图保存）
+        /// </summary>
+        public List<RuntimeProductionData> runtimeProductionDataList = new List<RuntimeProductionData>();
+
+        #endregion
         #endregion      
 
 
@@ -319,8 +333,8 @@ namespace Module.Data
     {
         public int id;
         public float atk = 10;
-        public float bagCapacity = 20;
-        public float moveSpeed = 4f;     //移动速度
+        public float bagCapacity = 10;
+        public float moveSpeed = 2f;     //移动速度
         public MonsterFamily monsterType; //当前的目标怪物
         public CollectorType collectorType;
         public float maxHp = 30;
@@ -360,7 +374,7 @@ namespace Module.Data
         public int capacity = 60;
         public List<MonsterFamily> targetTypeList = new();
         public List<Collector> unworkingCollectorList = new();
-        public float atk = 20;
+        public float atk = 10;
         public int peopleNum = 1;
         public int atkLevel = 1;
         public int maxAtkLevel = 60;
@@ -415,6 +429,39 @@ namespace Module.Data
         {
             
         }
+    }
+
+    /// <summary>
+    /// 运行时顾客存档数据
+    /// </summary>
+    [Serializable]
+    public class RuntimeCustomerData
+    {
+        public int mapId;
+        public CustomerType customerType;
+        public GoodsType goodsType;
+        public BuildingType targetBuildingType;
+        public int state;
+        public float posX;
+        public float posY;
+        public float posZ;
+    }
+
+    /// <summary>
+    /// 运行时商品存档数据（包含收银台硬币）
+    /// </summary>
+    [Serializable]
+    public class RuntimeProductionData
+    {
+        public int mapId;
+        public GoodsType goodsType;
+        public int value;
+        public BuildingType stationBuildingType;
+        public int state;
+        public bool canPickup;
+        public float posX;
+        public float posY;
+        public float posZ;
     }
 
 }

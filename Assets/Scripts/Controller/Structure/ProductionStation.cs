@@ -51,7 +51,7 @@ namespace Controller.Structure
             EventCenter.Instance.RemoveListener(EventMessages.UpdateSturctureLockInfo, Init);
         }
 
-        protected override void Start()
+        public override void Start()
         {
             base.Start();
         }
@@ -229,25 +229,56 @@ namespace Controller.Structure
                 return list; // 返回空列表
             }
 
-            int num = freightClerk.currentCapacity;
-
-            if (productionList.Count <= num)
+            int num = Mathf.Min(freightClerk.currentCapacity, freightClerk.points.Count);
+            if (num <= 0)
             {
-                list.AddRange(productionList);
-                productionList.Clear();
+                return list;
             }
-            else
+
+            // 只挑选“未被占用”且“可被搬运”的商品，避免与玩家同帧抢夺
+            for (int i = 0; i < productionList.Count && list.Count < num; i++)
             {
-                list.AddRange(productionList.GetRange(0, num));
-                productionList.RemoveRange(0, num);
+                var production = productionList[i];
+                if (production == null) continue;
+                if (production.isTaken) continue;
+                if (!production.canPickup) continue;
+                if (production.state != ItemState.OnWorkbench) continue;
+
+                // 预占：一旦生效，玩家无法再抢到该商品
+                production.isTaken = true;
+                production.canPickup = false;
+                production.SetState(ItemState.HeldByAssistant);
+                FreightClerkController.MarkProductReservedByFreight(production);
+                list.Add(production);
+            }
+
+            // 从生产台列表移除已预占的商品
+            for (int i = 0; i < list.Count; i++)
+            {
+                productionList.Remove(list[i]);
             }
 
             for (int i = 0; i < list.Count; i++)
             {
-                list[i].canPickup = false;             // 标记为不可拾取，防止在飞行途中被玩家抢夺
-                list[i].SetState(ItemState.HeldByAssistant);
+                var production = list[i];
                 grid.ReleaseOne();
-                list[i].FlyTo(freightClerk.points[i].position);
+                var carryPoint = freightClerk.points[i];
+                var carryTarget = carryPoint != null ? carryPoint.position : freightClerk.transform.position;
+                production.FlyTo(carryTarget, () =>
+                {
+                    if (production != null)
+                    {
+                        // 到达搬运工挂点后释放占用标记，但保持不可被玩家拾取
+                        if (carryPoint != null)
+                        {
+                            production.transform.SetParent(carryPoint, true);
+                            production.transform.localPosition = Vector3.zero;
+                        }
+                        production.isTaken = false;
+                        production.canPickup = false;
+                        production.SetState(ItemState.HeldByAssistant);
+                    }
+                });
             }
 
             return list;

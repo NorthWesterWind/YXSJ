@@ -16,35 +16,57 @@ namespace View.LingChuGe
         public UIButton btn;
 
         public int ownnum;
-        public MonsterFamily type;
+        public DropItemType type;
         public LingChuGeController lingChuGeController;
         public WarehouseCategory warehouseCategory;
-        public void Init(LingChuGeController lcc, MonsterFamily monsterType)
+        private bool clickBound;
+
+        public void Init(LingChuGeController lcc, DropItemType dropItemType)
         {
             if (assetHandle == null)
             {
                 assetHandle = GetComponent<AssetHandle>();
             }
+
+            if (btn == null)
+            {
+                btn = GetComponent<UIButton>();
+            }
+
             lingChuGeController = lcc;
-            warehouseCategory = lcc.warehouseCategory;
-            type = monsterType;
-            ownnum = warehouseCategory.ownItemList.Get((int)monsterType);
-            iconImage.sprite = assetHandle.Get<Sprite>(Extensions.GetMonsterPictureNameByType(monsterType));
+            warehouseCategory = lcc != null ? lcc.warehouseCategory : null;
+            type = dropItemType;
+            if (warehouseCategory != null && warehouseCategory.ownItemList != null)
+            {
+                ownnum = warehouseCategory.ownItemList.Get((int)dropItemType);
+            }
+            if (iconImage != null && assetHandle != null)
+            {
+                iconImage.sprite = assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType(dropItemType));
+            }
+            BindClick();
             HandleUpdateLingChuGeInfo();
 
         }
 
-        private void Start()
+        private void BindClick()
         {
+            if (clickBound || btn == null)
+            {
+                return;
+            }
             btn.onClick.RemoveAllListeners();
             btn.onClick.AddListener((() =>
             {
-                EventCenter.Instance.TriggerEvent(EventMessages.LingChuGeDelivery, Extensions.ExchangeType(type));
+                EventCenter.Instance.TriggerEvent(EventMessages.LingChuGeDelivery, type);
             }));
+            clickBound = true;
         }
+
         private void OnEnable()
         {
             EventCenter.Instance.AddListener(EventMessages.UpdateLingChuGeInfo, HandleUpdateLingChuGeInfo);
+            BindClick();
         }
 
         private void OnDisable()
@@ -55,6 +77,11 @@ namespace View.LingChuGe
 
         public void HandleUpdateLingChuGeInfo(params object[] args)
         {
+            if (warehouseCategory == null || warehouseCategory.ownItemList == null || numtxt == null)
+            {
+                return;
+            }
+
             int ownnum = warehouseCategory.ownItemList.Get((int)type);
             numtxt.text = ownnum.ToString();
         }

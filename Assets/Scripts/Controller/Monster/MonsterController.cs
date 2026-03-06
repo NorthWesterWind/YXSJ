@@ -347,8 +347,6 @@ namespace Controller
             if (slowDownValue > 0 && behaviorType != MonsterBehavior.Giant)
             {
                 currentSpeed = Mathf.Max(1, data.movespeed - Convert.ToInt32(slowDownValue));
-                Debug.LogError("yj => currentSpeed:" + currentSpeed);
-                Debug.LogError("yj => slowDownValue:" + slowDownValue);
                 agent.maxSpeed = currentSpeed;
                 slowtime = 1f;
             }
@@ -439,6 +437,13 @@ namespace Controller
             {
                 hasHitPlayer = true;
                 EventCenter.Instance.TriggerEvent(EventMessages.PlayerTakeDamage, atk);
+                return;
+            }
+
+            if (other.TryGetComponent(out CollectorController collector))
+            {
+                hasHitPlayer = true;
+                collector.TakeDamage(atk);
             }
         }
 

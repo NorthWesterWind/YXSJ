@@ -10,6 +10,7 @@ namespace Controller.Pickups
     {
         public DropItemType itemType;
         public SpriteRenderer spriteRenderer;
+        public float spawnTime { get; private set; }
 
         [Header("飞行参数")]
 
@@ -18,11 +19,17 @@ namespace Controller.Pickups
         public void Init(DropItemType type)
         {
             itemType = type;
+            spawnTime = Time.time;
             canPickup = false;
             itemName = "DropObj";
             _onArrive = null;
             ScenePickupController.Instance.materials.Add(this);
             spriteRenderer.sprite = _assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType(type));
+        }
+        
+        public bool CanBePickedByCollector(float delay)
+        {
+            return Time.time - spawnTime >= Mathf.Max(0f, delay);
         }
         void OnDestroy()
         {
@@ -36,35 +43,44 @@ namespace Controller.Pickups
         /// </summary>
         public void FlyTo(Transform picker, Transform receivePoint, System.Action onArrive = null)
         {
-            if (!gameObject.activeInHierarchy) return;
+            if (!gameObject.activeInHierarchy || picker == null || receivePoint == null) return;
 
             this.picker = picker;
             this.pickerReceivePoint = receivePoint;
             this._onArrive = onArrive;
             StopAllCoroutines();
-            StartCoroutine(FlyCoroutine(true, picker.gameObject));
+            StartCoroutine(FlyCoroutine(true, picker.gameObject, true));
         }
         public void FlyTo(Transform receivePoint)
         {
-            if (!gameObject.activeInHierarchy) return;
+            if (!gameObject.activeInHierarchy || receivePoint == null) return;
+            this.picker = null;
             this.pickerReceivePoint = receivePoint;
+            this._onArrive = null;
             StopAllCoroutines();
-            StartCoroutine(FlyCoroutine());
+            StartCoroutine(FlyCoroutine(false, null, true));
         }
 
         public void ForceStop()
         {
             StopAllCoroutines();
         }
-        private IEnumerator FlyCoroutine(bool isPlayer = false, GameObject player = null)
+        private IEnumerator FlyCoroutine(bool isPlayer = false, GameObject player = null, bool destroyAfterArrive = true)
         {
+            if (pickerReceivePoint == null)
+            {
+                yield break;
+            }
+
             Vector2 start = transform.position;
             Vector2 end = pickerReceivePoint.position;
             Vector2 control = Vector2.Lerp(start, end, 0.5f) + Vector2.up * flyHeight;
             float timer = 0f;
             while (timer < flyDuration)
             {
-                if (picker == null || pickerReceivePoint == null)
+                if (pickerReceivePoint == null)
+                    yield break;
+                if (isPlayer && picker == null)
                     yield break;
                 float t = flyCurve.Evaluate(timer / flyDuration);
                 Vector2 pos =
@@ -77,11 +93,20 @@ namespace Controller.Pickups
             }
             transform.position = end;
             _onArrive?.Invoke();
-            if (isPlayer)
+            if (isPlayer && player != null)
             {
                 OnPicked(player);
             }
-          
+
+            if (destroyAfterArrive && gameObject != null)
+            {
+                if (ScenePickupController.Instance != null &&
+                    ScenePickupController.Instance.materials.Contains(this))
+                {
+                    ScenePickupController.Instance.materials.Remove(this);
+                }
+                Destroy(gameObject);
+            }
         }
 
         public void OnPicked(GameObject pickerObj)

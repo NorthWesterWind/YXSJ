@@ -117,7 +117,7 @@ namespace View
             {
                 if (PlayerDataModule.Instance.data.employeeFunction != 1)
                 {
-                    UIController.Instance.Show<TipView>("账号等级12时解锁!");
+                    UIController.Instance.Show<TipView>("建造云递阁后解锁!");
                     return;
                 }
                 UIController.Instance.Show<EmployeeFunctionView>();

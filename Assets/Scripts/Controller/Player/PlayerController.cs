@@ -509,26 +509,38 @@ namespace Controller.Player
                 if (item.isTaken) continue;
                 if (!item.canPickup) continue;
 
+                var production = item.GetComponent<Production>();
+                if (production == null) continue;
+
                 float dist = Vector2.Distance(transform.position, item.transform.position);
-                if (dist <= currentPinkUpRange && item.GetComponent<Production>().station is CashierCounter)
+                if (dist <= currentPinkUpRange && production.station is CashierCounter cashierCounter)
                 {
-                    ((CashierCounter)(item.GetComponent<Production>().station)).grid.ReleaseOne();
+                    bool wasTaken = item.isTaken;
                     item.StartAttract(this.transform, receiveTransform);
+                    if (!wasTaken && item.isTaken)
+                    {
+                        cashierCounter.grid.ReleaseOne();
+                    }
                 }
                 else if (dist <= currentPinkUpRange)
                 {
                     // 检查剩余容量（考虑正在飞行中的物品）
                     // 用 continue 而不是 break，确保后续的收银台铜币仍能被拾取
                     if (currentCarryNum + _pendingPickupCount >= maxCarryNum) continue;
+                    if (production.state != ItemState.OnWorkbench) continue;
+                    if (!(production.station is ProductionStation station)) continue;
+                    if (!station.productionList.Contains(production)) continue;
+                    if (Controller.FreightClerkController.IsProductReservedByFreight(production)) continue;
 
-                    if (item.GetComponent<Production>().state != ItemState.OnWorkbench)
-                        continue;
-                    ((ProductionStation)(item.GetComponent<Production>().station)).grid.ReleaseOne();
-                    ((ProductionStation)(item.GetComponent<Production>().station)).productionList.Remove(
-                        item.GetComponent<Production>());
+                    bool wasTaken = item.isTaken;
                     item.StartAttract(this.transform, receiveTransform,
                         () => _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1));
-                    _pendingPickupCount++;
+                    if (!wasTaken && item.isTaken)
+                    {
+                        station.grid.ReleaseOne();
+                        station.productionList.Remove(production);
+                        _pendingPickupCount++;
+                    }
                 }
 
             }

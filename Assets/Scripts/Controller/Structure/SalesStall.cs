@@ -24,7 +24,7 @@ namespace Controller.Structure
 
         public List<CustomerController> customerList = new();
 
-        protected override void Start()
+        public override void Start()
         {
             base.Start();
         }
@@ -133,6 +133,7 @@ namespace Controller.Structure
 
         public void AddGoods(Production p)
         {
+            FreightClerkController.UnmarkProductReservedByFreight(p);
             p.SetState(ItemState.OnShelf);
             p.canPickup = true;
             productList.Add(p);
@@ -203,9 +204,21 @@ namespace Controller.Structure
         }
         public void PlaceProduct(Production p)
         {
+            if (p == null) return;
+            p.transform.SetParent(null, true);
+            p.canPickup = false;
+            p.isTaken = false;
             var targetPos = grid.GetNextPosition();
-            p.FlyTo(targetPos);
-            p.SetState(ItemState.OnShelf);
+            p.SetState(ItemState.HeldByAssistant);
+            if (p.spriteRenderer != null)
+            {
+                p.spriteRenderer.sortingOrder = sprite.sortingOrder + 2;
+            }
+            p.FlyTo(targetPos, () =>
+            {
+                if (p == null) return;
+                AddGoods(p);
+            });
         }
 
         public void ReceiveProduct(FreightClerkController controller)

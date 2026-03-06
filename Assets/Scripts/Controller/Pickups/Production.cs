@@ -57,6 +57,7 @@ namespace Controller.Pickups
        }
         void OnDestroy()
         {
+            Controller.FreightClerkController.UnmarkProductReservedByFreight(this);
             if (ScenePickupController.Instance.products.Contains(this))
             {
                 ScenePickupController.Instance.products.Remove(this);

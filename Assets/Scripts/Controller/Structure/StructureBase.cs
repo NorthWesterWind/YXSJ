@@ -15,11 +15,11 @@ namespace Controller.Structure
         public GameObject content;
         public bool isLock;
         public bool isCanUnlockState;
-        void Awake()
+       public virtual void Awake()
         {
              _assetHandle = GetComponent<AssetHandle>();
         }
-        protected virtual void Start()
+        public virtual void Start()
         {
             int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
             sprite.sortingOrder = newOrder;

@@ -75,7 +75,7 @@ public class LingChuGePop : BaseView
         numtxt.text = warehouse.peopleNum.ToString();
         if (warehouse.atkLevel < warehouse.maxAtkLevel)
         {
-            gradefreeTxt_1.text = Extensions.FormatNumber (warehouse.atkLevel * 3000);
+            gradefreeTxt_1.text = Extensions.FormatNumber(warehouse.atkLevel * 3000);
         }
         else
         {
@@ -149,7 +149,7 @@ public class LingChuGePop : BaseView
             numgradeMask.SetActive(true);
             numgradeMaskTxt.text = "等级已满";
         }
-        if(_assetHandle == null)
+        if (_assetHandle == null)
         {
             _assetHandle = GetComponent<AssetHandle>();
         }
@@ -171,6 +171,8 @@ public class LingChuGePop : BaseView
         {
             icon.sprite = _assetHandle.Get<Sprite>("LingChuGe5");
         }
+
+        contentRect.DOAnchorPos(new Vector2(0, 0), 0.3f);
     }
 
 
@@ -194,7 +196,7 @@ public class LingChuGePop : BaseView
     public override void RemoveEventListener()
     {
         base.RemoveEventListener();
-          EventCenter.Instance.RemoveListener(EventMessages.UpdateCardInfo, UpdateViewWithArgs);
+        EventCenter.Instance.RemoveListener(EventMessages.UpdateCardInfo, UpdateViewWithArgs);
     }
     private IEnumerator HideAnimation()
     {

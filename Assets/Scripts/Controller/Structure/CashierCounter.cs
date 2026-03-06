@@ -62,7 +62,7 @@ namespace Controller.Structure
 
         [SerializeField] private int maxWaiters; // 最多服务员
         public int workingWaiters = 0;              // 当前忙的服务员数
-        protected override void Start()
+        public override void Start()
         {
             base.Start();
         }

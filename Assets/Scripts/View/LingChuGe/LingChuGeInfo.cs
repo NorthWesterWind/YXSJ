@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Controller;
 using Module.Data;
 using UnityEngine;
+using UnityEngine.UI;
 using Utils;
 
 namespace View.LingChuGe
@@ -18,16 +19,31 @@ namespace View.LingChuGe
 
         private void Start()
         {
+            
         }
 
         public void HideInfo()
         {
+            if (canvasGroup == null)
+            {
+                return;
+            }
+
             canvasGroup.alpha = 0;
+            canvasGroup.interactable = false;
+            canvasGroup.blocksRaycasts = false;
         }
 
         public void ShowInfo()
         {
+            if (canvasGroup == null)
+            {
+                return;
+            }
+
             canvasGroup.alpha = 1;
+            canvasGroup.interactable = true;
+            canvasGroup.blocksRaycasts = true;
         }
 
         private void OnDisable()
@@ -47,11 +63,18 @@ namespace View.LingChuGe
             }
 
             Extensions.ClearChildren(topTransform);
-            foreach (var value in warehouseCategory.targetTypeList)
+            var topBg = topTransform.GetComponent<Image>();
+            if (topBg != null)
+            {
+                topBg.raycastTarget = false;
+            }
+            foreach (var value in GameController.Instance.productionStationList)
             {
                 GameObject obj = GameObject.Instantiate(assetHandle.Get<GameObject>("topItem"), topTransform, false);
-                obj.GetComponent<TopItem>().Init( lingChuGeController ,value);
+                obj.GetComponent<TopItem>().Init( lingChuGeController ,value.dropItemType);
             }
+
+            ShowInfo();
         }
 
     }

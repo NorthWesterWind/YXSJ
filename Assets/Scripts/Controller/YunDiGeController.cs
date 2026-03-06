@@ -15,9 +15,6 @@ namespace Controller
         public BuildingType buildingType;
         public MeshRenderer renderer;
 
-        protected override void Start()
-        {
-        }
         void OnEnable()
         {
             EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo, Init);

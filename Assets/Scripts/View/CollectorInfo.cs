@@ -1,10 +1,7 @@
-using System.Collections;
 using Controller;
-using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Utils;
 
 public class CollectorInfo : MonoBehaviour
 {
@@ -13,35 +10,63 @@ public class CollectorInfo : MonoBehaviour
     public TextMeshProUGUI text;
     public CollectorController collector;
 
+    private void Awake()
+    {
+        if (collector == null)
+        {
+            collector = GetComponentInParent<CollectorController>();
+        }
 
+        HideHpInfo();
+        UpdateTxt();
+    }
+
+    public void Bind(CollectorController controller)
+    {
+        collector = controller;
+        if (collector == null)
+        {
+            return;
+        }
+
+        float maxHp = Mathf.Max(collector.maxHp, 0.001f);
+        UpdateFill(collector.currentHp / maxHp);
+    }
 
     public void HideHpInfo()
     {
-        fillBg.gameObject.SetActive(false);
+        if (fillBg != null)
+        {
+            fillBg.gameObject.SetActive(false);
+        }
     }
 
     public void ShowHpInfo()
     {
-        fillBg.gameObject.SetActive(true);
+        if (fillBg != null)
+        {
+            fillBg.gameObject.SetActive(true);
+        }
     }
 
     public void UpdateFill(float value)
     {
-        ShowHpInfo();
-        fillImage.DOFillAmount(Mathf.Min(value, 1), 0.3f);
-    }
+        if (fillImage == null)
+        {
+            return;
+        }
 
+        ShowHpInfo();
+        fillImage.fillAmount = Mathf.Clamp01(value);
+       
+    }
 
     public void UpdateTxt()
     {
-        if (collector.currentCarryNum >= collector.maxCarryNum)
+        if (text == null || collector == null)
         {
-            text.text = "已满";
+            return;
         }
-        else
-        {
-            text.text = $"{collector.currentCarryNum}/{collector.maxCarryNum}";
-        }
-        EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerCarryInfo);
+        text.text = $"{collector.currentCarryNum}/{collector.maxCarryNum}";
     }
 }

@@ -143,7 +143,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5113084610496985501}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -169,7 +169,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36abe17ac21184348be0a17b4ebe7407, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  structureType: 0
+  structureType: 2
   sprite: {fileID: 297194733359828695}
   structureLock: {fileID: 2633620236848425145}
   content: {fileID: 6139700853446352339}
@@ -193,12 +193,13 @@ MonoBehaviour:
   sendTransform: {fileID: 7937076602988080325}
   infoitem: {fileID: 5520889407832370305}
   collectorTransform: {fileID: 3739238168498332990}
-  categoryType: 0
+  categoryType: 1
   collectorControllerList: []
   maxcapacity: 0
   currentcapacity: 0
   characterController: {fileID: 0}
   bornTransform: {fileID: 3739238168498332990}
+  canvas: {fileID: 0}
 --- !u!114 &7808541874186702800
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215,6 +216,7 @@ MonoBehaviour:
   - {fileID: 845777481163941341, guid: 5001ecaeea02e894a84a60685735423f, type: 3}
   - {fileID: 2349623532666752954, guid: 0ba6ea1d8e8349d4fbfce2e80007d121, type: 3}
   - {fileID: 6728240818630394814, guid: 516e7d2f5e1ecdc458374d4d9b7587a1, type: 3}
+  - {fileID: 5412441200256446805, guid: 4d396d4bdab073d4d9965421432fe695, type: 3}
 --- !u!114 &9177907705661221321
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -251,7 +253,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 464
+  m_SortingOrder: 4047
   m_TargetDisplay: 0
 --- !u!114 &2915278274798694766
 MonoBehaviour:
@@ -344,7 +346,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 918
   m_Sprite: {fileID: 21300000, guid: 3fcbfe93dc5f4ca4a87e4ab23a6770f5, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

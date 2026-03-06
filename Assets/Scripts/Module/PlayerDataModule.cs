@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Controller;
+using Controller.Pickups;
 using Controller.Structure;
 using Module.Data;
 using Newtonsoft.Json;
@@ -17,6 +18,9 @@ namespace Module
     public class PlayerDataModule : MonoSingleton<PlayerDataModule>
     {
         public PlayerData data = new();
+        private Coroutine _runtimeRestoreCoroutine;
+        private int _runtimeRestoredMapId = -1;
+
         public override void Awake()
         {
             EventCenter.Instance.AddListener(EventMessages.BeginJugmentRemainTime, BeginJugmentRemainTime);
@@ -27,6 +31,7 @@ namespace Module
             EventCenter.Instance.AddListener(EventMessages.HarvestTask, HandleHarvestTask);
             EventCenter.Instance.AddListener(EventMessages.MakeTongBiTask, HandleMakeTongBiTask);
             EventCenter.Instance.AddListener(EventMessages.UnLockMapTask, HandleUnLockMapTask);
+            EventCenter.Instance.AddListener(EventMessages.MapDataPrepared, HandleMapDataPrepared);
         }
 
         public void FillStructureLockProgressData()
@@ -289,13 +294,371 @@ namespace Module
 #endif
         }
 
+        private void EnsureRuntimeWorldSaveData()
+        {
+            if (data.runtimeCustomerDataList == null)
+            {
+                data.runtimeCustomerDataList = new List<RuntimeCustomerData>();
+            }
+
+            if (data.runtimeProductionDataList == null)
+            {
+                data.runtimeProductionDataList = new List<RuntimeProductionData>();
+            }
+        }
+
+        private bool TryGetRuntimeContext(out GameController gameController, out ScenePickupController pickupController)
+        {
+            gameController = FindObjectOfType<GameController>();
+            pickupController = null;
+            if (gameController == null || gameController.buildings == null || gameController.buildings.Count == 0)
+            {
+                return false;
+            }
+
+            var pickupControllers = FindObjectsOfType<ScenePickupController>();
+            if (pickupControllers == null || pickupControllers.Length == 0)
+            {
+                return false;
+            }
+
+            pickupController = pickupControllers.FirstOrDefault(x => x.gameObject.scene.name.StartsWith("Game_"));
+            if (pickupController == null)
+            {
+                pickupController = pickupControllers[0];
+            }
+
+            return pickupController != null;
+        }
+
+        private void CaptureRuntimeWorldState()
+        {
+            EnsureRuntimeWorldSaveData();
+
+            if (!TryGetRuntimeContext(out _, out var pickupController))
+            {
+                return;
+            }
+
+            int currentMapId = data.currentMapID;
+            data.runtimeCustomerDataList.RemoveAll(x => x.mapId == currentMapId);
+            data.runtimeProductionDataList.RemoveAll(x => x.mapId == currentMapId);
+
+            var customers = FindObjectsOfType<CustomerController>();
+            foreach (var customer in customers)
+            {
+                if (customer == null || !customer.gameObject.activeInHierarchy) continue;
+                if (customer.data == null) continue;
+                if (customer.salesStall == null) continue;
+
+                BuildingType targetBuildingType = customer.salesStall.buildingType;
+                if (targetBuildingType == BuildingType.None)
+                {
+                    targetBuildingType = customer.salesStall.structureType;
+                }
+
+                Vector3 pos = customer.transform.position;
+                data.runtimeCustomerDataList.Add(new RuntimeCustomerData
+                {
+                    mapId = currentMapId,
+                    customerType = customer.data.type,
+                    goodsType = customer.goodsType,
+                    targetBuildingType = targetBuildingType,
+                    state = (int)customer.state,
+                    posX = pos.x,
+                    posY = pos.y,
+                    posZ = pos.z
+                });
+            }
+
+            var products = pickupController.products.ToArray();
+            foreach (var pickup in products)
+            {
+                if (pickup == null || !pickup.gameObject.activeInHierarchy) continue;
+                if (!(pickup is Production production)) continue;
+                if (production.station == null) continue;
+                if (!(production.station is StructureBase stationBase)) continue;
+                if (production.isTaken) continue;
+                if (!production.canPickup) continue;
+                if (production.state != ItemState.OnWorkbench && production.state != ItemState.OnShelf) continue;
+
+                Vector3 pos = production.transform.position;
+                data.runtimeProductionDataList.Add(new RuntimeProductionData
+                {
+                    mapId = currentMapId,
+                    goodsType = production.goodsType,
+                    value = production.value,
+                    stationBuildingType = stationBase.structureType,
+                    state = (int)production.state,
+                    canPickup = production.canPickup,
+                    posX = pos.x,
+                    posY = pos.y,
+                    posZ = pos.z
+                });
+            }
+        }
+
+        private void HandleMapDataPrepared(params object[] args)
+        {
+            if (_runtimeRestoreCoroutine != null)
+            {
+                StopCoroutine(_runtimeRestoreCoroutine);
+                _runtimeRestoreCoroutine = null;
+            }
+
+            _runtimeRestoredMapId = -1;
+            _runtimeRestoreCoroutine = StartCoroutine(RestoreRuntimeWorldStateCoroutine());
+        }
+
+        private IEnumerator RestoreRuntimeWorldStateCoroutine()
+        {
+            int waitFrame = 0;
+            while (waitFrame < 30)
+            {
+                var gameController = FindObjectOfType<GameController>();
+                if (gameController != null &&
+                    gameController.buildings != null &&
+                    gameController.buildings.Count > 0 &&
+                    gameController.unlockedBuildingTypes != null &&
+                    gameController.unlockedBuildingTypes.Count > 0 &&
+                    FindObjectOfType<ScenePickupController>() != null)
+                {
+                    break;
+                }
+
+                waitFrame++;
+                yield return null;
+            }
+
+            RestoreRuntimeWorldState();
+            _runtimeRestoreCoroutine = null;
+        }
+
+        private void RestoreRuntimeWorldState()
+        {
+            EnsureRuntimeWorldSaveData();
+
+            if (!TryGetRuntimeContext(out var gameController, out var pickupController))
+            {
+                return;
+            }
+
+            int currentMapId = data.currentMapID;
+            if (_runtimeRestoredMapId == currentMapId)
+            {
+                return;
+            }
+
+            RestoreProductsForCurrentMap(currentMapId, gameController, pickupController);
+            RestoreCustomersForCurrentMap(currentMapId, gameController);
+            _runtimeRestoredMapId = currentMapId;
+        }
+
+        private void RestoreCustomersForCurrentMap(int currentMapId, GameController gameController)
+        {
+            var customerFactory = FindObjectOfType<CustomerFactory>();
+            if (customerFactory == null)
+            {
+                return;
+            }
+
+            var assetHandle = customerFactory.GetComponent<AssetHandle>();
+            if (assetHandle == null)
+            {
+                return;
+            }
+
+            var customerSaves = data.runtimeCustomerDataList.Where(x => x.mapId == currentMapId).ToList();
+            for (int i = 0; i < customerSaves.Count; i++)
+            {
+                var saved = customerSaves[i];
+
+                SalesStall stall = null;
+                if (gameController.buildings.TryGetValue(saved.targetBuildingType, out var structure))
+                {
+                    stall = structure as SalesStall;
+                }
+
+                if (stall == null && gameController.goodBuild.TryGetValue(saved.goodsType, out var stallByGoods))
+                {
+                    stall = stallByGoods as SalesStall;
+                }
+
+                if (stall == null) continue;
+                if (gameController.unlockedBuildingTypes.Contains(stall.buildingType) == false &&
+                    gameController.unlockedBuildingTypes.Contains(stall.structureType) == false)
+                {
+                    continue;
+                }
+
+                if (!DataController.Instance.customerDataDic.TryGetValue(saved.customerType, out var customerData))
+                {
+                    continue;
+                }
+
+                var prefab = assetHandle.Get<GameObject>(Extensions.GetCustomerResNameByType(saved.customerType));
+                if (prefab == null)
+                {
+                    continue;
+                }
+
+                Vector3 spawnPos = new Vector3(saved.posX, saved.posY, saved.posZ);
+                GameObject obj = Instantiate(prefab);
+                obj.transform.position = spawnPos;
+
+                var customer = obj.GetComponent<CustomerController>();
+                if (customer == null)
+                {
+                    Destroy(obj);
+                    continue;
+                }
+
+                customer.Init(customerData, saved.goodsType, stall);
+                ApplySavedCustomerState(customer, (NpcState)saved.state, stall);
+            }
+        }
+
+        private void ApplySavedCustomerState(CustomerController customer, NpcState savedState, SalesStall stall)
+        {
+            switch (savedState)
+            {
+                case NpcState.QianWangGouMai:
+                default:
+                    break;
+                case NpcState.WaitGouMaiWanCheng:
+                    customer.WaitPurchase();
+                    EventCenter.Instance.TriggerEvent(EventMessages.CustomerArrivedSell, customer, stall);
+                    break;
+                case NpcState.QianWangShouYinTai:
+                    customer.state = NpcState.QianWangShouYinTai;
+                    customer.SetNextPosition();
+                    customer.agent.SetDestination(customer.nextPosition);
+                    break;
+                case NpcState.JieZhangChengGong:
+                case NpcState.Angry:
+                    customer.state = savedState;
+                    customer.SetNextPosition();
+                    customer.agent.SetDestination(customer.nextPosition);
+                    break;
+            }
+        }
+
+        private void RestoreProductsForCurrentMap(int currentMapId, GameController gameController, ScenePickupController pickupController)
+        {
+            var productSaves = data.runtimeProductionDataList.Where(x => x.mapId == currentMapId).ToList();
+            if (productSaves.Count == 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < productSaves.Count; i++)
+            {
+                var saved = productSaves[i];
+                if (!gameController.buildings.TryGetValue(saved.stationBuildingType, out var structure))
+                {
+                    continue;
+                }
+
+                if (!(structure is StructureBase stationBase))
+                {
+                    continue;
+                }
+
+                if (gameController.unlockedBuildingTypes.Contains(stationBase.structureType) == false)
+                {
+                    continue;
+                }
+
+                var assetHandle = stationBase.GetComponent<AssetHandle>();
+                if (assetHandle == null)
+                {
+                    continue;
+                }
+
+                var prefab = assetHandle.Get<GameObject>("Production");
+                if (prefab == null)
+                {
+                    continue;
+                }
+
+                GameObject obj = Instantiate(prefab);
+                obj.transform.position = new Vector3(saved.posX, saved.posY, saved.posZ);
+
+                var production = obj.GetComponent<Production>();
+                if (production == null)
+                {
+                    Destroy(obj);
+                    continue;
+                }
+
+                production.Init(saved.goodsType, saved.value);
+                production.SetStation(stationBase);
+                production.canPickup = saved.canPickup;
+                production.isTaken = false;
+                production.SetState((ItemState)saved.state);
+
+                if (stationBase.sprite != null && production.spriteRenderer != null)
+                {
+                    production.spriteRenderer.sortingOrder = stationBase.sprite.sortingOrder + 3;
+                }
+
+                if (stationBase is ProductionStation productionStation &&
+                    production.state == ItemState.OnWorkbench)
+                {
+                    productionStation.productionList.Add(production);
+                }
+
+                if (stationBase is SalesStall salesStall &&
+                    production.state == ItemState.OnShelf)
+                {
+                    salesStall.productList.Add(production);
+                }
+            }
+
+            foreach (var station in gameController.productionStationList)
+            {
+                station.productionList.RemoveAll(x => x == null);
+                station.grid.currentIndex = station.productionList.Count;
+            }
+
+            foreach (var stall in gameController.salesStallList)
+            {
+                stall.productList.RemoveAll(x => x == null);
+                stall.currentGoodsCount = stall.productList.Count;
+                stall.grid.currentIndex = stall.productList.Count;
+            }
+
+            if (gameController.buildings.TryGetValue(BuildingType.LingZhangTai, out var cashierBase))
+            {
+                var cashier = cashierBase as CashierCounter;
+                if (cashier != null)
+                {
+                    int coinCount = 0;
+                    var products = pickupController.products.ToArray();
+                    for (int i = 0; i < products.Length; i++)
+                    {
+                        if (!(products[i] is Production production)) continue;
+                        if (production.station != cashier) continue;
+                        if (production.goodsType != GoodsType.TongBi) continue;
+                        if (production.state != ItemState.OnWorkbench) continue;
+                        if (!production.canPickup) continue;
+                        coinCount++;
+                    }
+
+                    cashier.grid.currentIndex = coinCount;
+                }
+            }
+        }
+
         public async Task SavePlayerDataAsync()
         {
+            CaptureRuntimeWorldState();
             var path = Path.Combine(Application.persistentDataPath, JsonFileName.PlayerData + "." + data.userAccount);
             await JsonUtil.SaveDataAsync(data, path);
         }
         public void SavePlayerDataToSever()
         {
+            CaptureRuntimeWorldState();
             LoginUtil.Instance.SaveToServer();
         }
 
@@ -473,6 +836,9 @@ namespace Module
                          SavePlayerDataToSever();
 
                      }
+
+                     EnsureRuntimeWorldSaveData();
+                     _runtimeRestoredMapId = -1;
 
                      if (data.SeventRecentlyWeek != Extensions.GetCurrentWeekNumber())
                      {

@@ -1,5 +1,4 @@
-using System;
-using Module;
+﻿using Module;
 using Module.Data;
 using TMPro;
 using UnityEngine;
@@ -20,10 +19,10 @@ namespace View.EmployeeFunction
         private AssetHandle _assetHandle;
         public MonsterFamily monstertype;
         public BuildingType buildingType;
-        //public int workingnum;
-        // public WarehouseCategory category;
         public int value;
-        PlayerData playerData;
+
+        private PlayerData playerData;
+        private bool clickBound;
 
         public void Init(MonsterFamily type, int value)
         {
@@ -31,335 +30,321 @@ namespace View.EmployeeFunction
             {
                 _assetHandle = GetComponent<AssetHandle>();
             }
+
             this.value = value;
+            monstertype = type;
             playerData = PlayerDataModule.Instance.data;
-            // if (type is MonsterFamily familyType)
-            // {
-                monstertype =  type;
+
+            if (image != null && _assetHandle != null)
+            {
                 image.sprite = _assetHandle.Get<Sprite>(Extensions.GetMonsterPictureNameByType(type));
-                switch (type)
-                {
-                    case MonsterFamily.ShuangYunZhi:
-                        nametxt.text = "霜云芝";
-                        break;
-                    case MonsterFamily.YueLuCao:
-                        nametxt.text = "月露草";
-                        break;
+            }
 
-                    case MonsterFamily.ZiXinHua:
-                        nametxt.text = "栀心花";
-                        break;
+            if (nametxt != null)
+            {
+                nametxt.text = GetMonsterDisplayName(type);
+            }
 
-                    case MonsterFamily.YuHuiHe:
-                        nametxt.text = "玉穗禾";
-                        break;
-
-                    case MonsterFamily.XingWenGuo:
-                        nametxt.text = "星纹果";
-                        break;
-
-                    case MonsterFamily.WuRongJun:
-                        nametxt.text = "雾茸菌";
-                        break;
-
-                    case MonsterFamily.LingXuSheng:
-                        nametxt.text = "灵须参";
-                        break;
-
-                    case MonsterFamily.XueBanHua:
-                        nametxt.text = "雪瓣花";
-                        break;
-
-                    case MonsterFamily.MuLingYa:
-                        nametxt.text = "木灵芽";
-                        break;
-
-                    case MonsterFamily.JingRuiCao:
-                        nametxt.text = "晶蕊草";
-                        break;
-
-                    case MonsterFamily.TieKuangShi:
-                        nametxt.text = "铁矿石";
-                        break;
-
-                    case MonsterFamily.YinKuangShi:
-                        nametxt.text = "银矿石";
-                        break;
-
-                    case MonsterFamily.TongKuangShi:
-                        nametxt.text = "铜矿石";
-                        break;
-
-                    case MonsterFamily.ZiJingShi:
-                        nametxt.text = "紫晶石";
-                        break;
-
-                    case MonsterFamily.YueJingShi:
-                        nametxt.text = "月晶石";
-                        break;
-
-                }
-            //}
-            // else
-            // {
-            //     buildingType = (BuildingType)type;
-            //     if (buildingType == BuildingType.LingChaJia_1 || buildingType == BuildingType.LingChaJia_2 ||
-            //         buildingType == BuildingType.LingChaJia_3 || buildingType == BuildingType.LingChaJia_4)
-            //     {
-            //         image.sprite = _assetHandle.Get<Sprite>("LingChaJia");
-            //     }
-            //     else
-            //     {
-            //         image.sprite = _assetHandle.Get<Sprite>("LianQiJia");
-            //     }
-            //     switch (buildingType)
-            //     {
-            //         case BuildingType.LingChaJia_1:
-            //             nametxt.text = "一号灵茶架";
-            //             break;
-            //         case BuildingType.LingChaJia_2:
-            //             nametxt.text = "二号灵茶架";
-            //             break;
-            //         case BuildingType.LingChaJia_3:
-            //             nametxt.text = "三号灵茶架";
-            //             break;
-            //         case BuildingType.LingChaJia_4:
-            //             nametxt.text = "四号灵茶架";
-            //             break;
-            //         case BuildingType.LingQiJia_1:
-            //             nametxt.text = "一号灵器架";
-            //             break;
-            //         case BuildingType.LingQiJia_2:
-            //             nametxt.text = "二号炼器炉";
-            //             break;
-            //         case BuildingType.LingQiJia_3:
-            //             nametxt.text = "三号炼器炉";
-            //             break;
-            //     }
-
-            // }
+            BindButtons();
             UpdateInfo();
         }
 
-        private void Start()
+        private void OnEnable()
         {
-            removeBtn.onClick.RemoveAllListeners();
-            removeBtn.onClick.AddListener((() =>
+            BindButtons();
+        }
+
+        private void BindButtons()
+        {
+            if (clickBound)
             {
+                return;
+            }
 
-                //    if (workingnum<1)
-                //    {
-                //        return;
-                //    }
-                //    else
-                //    {
-                //        foreach (var data in category. workingCollectorList)
-                //        {
-                //            if (data.monsterType == monstertype)
-                //            {
-                //                data.monsterType = MonsterFamily.None;
-                //                var temp = data;
-                //                category.unworkingCollectorList.Add(temp);
-                //                break;
-                //            }
-                //        }
-                //        UpdateInfo();
-                //        EventCenter.Instance.TriggerEvent(EventMessages. LingChuGeStopDelivery);
-                //    }
-
-                switch (value)
-                {
-                    case 1:
-                        playerData.deliverData.yunDiZheWorkingBuildList.Remove(buildingType);
-                        playerData.deliverData.workingNum -= 1;
-                        UpdateInfo();
-                        EventCenter.Instance.TriggerEvent(EventMessages.UpdateYunDiZheInfo);
-                        break;
-
-                    case 2:
-                        // 一号灵储阁：从 working 列表中移除对应怪物类型的采集员，放回 unworking
-                        WarehouseCategory warehouseCategory1 = playerData.warehouselist
-                            .Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1);
-                        var collector1 = warehouseCategory1?.workingCollectorList
-                            .Find(x => x.monsterType == monstertype);
-                        if (collector1 != null)
-                        {
-                            warehouseCategory1.workingCollectorList.Remove(collector1);
-                            collector1.monsterType = MonsterFamily.None;
-                            warehouseCategory1.unworkingCollectorList.Add(collector1);
-                            UpdateInfo();
-                            EventCenter.Instance.TriggerEvent(EventMessages.UpdateLingChuGeWorkingInfo);
-                        }
-                        break;
-
-                    case 3:
-                        // 二号灵储阁：逻辑同上
-                        WarehouseCategory warehouseCategory2 = playerData.warehouselist
-                            .Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2);
-                        var collector2 = warehouseCategory2?.workingCollectorList
-                            .Find(x => x.monsterType == monstertype);
-                        if (collector2 != null)
-                        {
-                            warehouseCategory2.workingCollectorList.Remove(collector2);
-                            collector2.monsterType = MonsterFamily.None;
-                            warehouseCategory2.unworkingCollectorList.Add(collector2);
-                            UpdateInfo();
-                            EventCenter.Instance.TriggerEvent(EventMessages.UpdateLingChuGeWorkingInfo);
-                        }
-                        break;
-                }
-
-
-            }));
-
-            addBtn.onClick.RemoveAllListeners();
-            addBtn.onClick.AddListener((() =>
+            if (removeBtn != null)
             {
-                //    if (workingnum > 0)
-                //    {
-                //        UIController.Instance.Show<TipView>("当前已派遣玄采徒进行采集！");
-                //        return;
-                //    }
-                //    if (category.unworkingCollectorList.Count < 1)
-                //    {
-                //        UIController.Instance.Show<TipView>("当前无可以派遣的玄采徒！");
-                //        return;
-                //    }   
-                //    else
-                //    {
-                //        var temp = category.unworkingCollectorList[0];
-                //        temp.monsterType = monstertype;
-                //        category.unworkingCollectorList.RemoveAt(0);
-                //        category.workingCollectorList.Add(temp);
-                //        UpdateInfo();
-                //       EventCenter.Instance.TriggerEvent(EventMessages.LingChuGeBeginWorking);
-                //    }
-                switch (value)
-                {
-                    case 1:
-                        playerData.deliverData.yunDiZheWorkingBuildList.Add(buildingType);
-                        playerData.deliverData.workingNum += 1;
-                        UpdateInfo();
+                removeBtn.onClick.RemoveAllListeners();
+                removeBtn.onClick.AddListener(OnClickRemove);
+            }
+
+            if (addBtn != null)
+            {
+                addBtn.onClick.RemoveAllListeners();
+                addBtn.onClick.AddListener(OnClickAdd);
+            }
+
+            clickBound = true;
+        }
+
+        private void OnClickRemove()
+        {
+            playerData = PlayerDataModule.Instance.data;
+            if (playerData == null)
+            {
+                return;
+            }
+
+            bool changed = false;
+            switch (value)
+            {
+                case 1:
+                    changed = TryUnassignYunDi();
+                    if (changed)
+                    {
                         EventCenter.Instance.TriggerEvent(EventMessages.UpdateYunDiZheInfo);
-                        break;
-                    case 2:
-                        WarehouseCategory warehouseCategory1 = playerData.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1);
-                        var collector1 = warehouseCategory1.unworkingCollectorList[warehouseCategory1.unworkingCollectorList.Count - 1];
-                        warehouseCategory1.unworkingCollectorList.RemoveAt(warehouseCategory1.unworkingCollectorList.Count - 1);
-                        collector1.monsterType = monstertype;
-                        warehouseCategory1.workingCollectorList.Add(collector1);
-                        UpdateInfo();
+                    }
+                    break;
+                case 2:
+                case 3:
+                    changed = TryUnassignCollector();
+                    if (changed)
+                    {
                         EventCenter.Instance.TriggerEvent(EventMessages.UpdateLingChuGeWorkingInfo);
-                        break;
+                    }
+                    break;
+            }
 
-                    case 3:
-                        WarehouseCategory warehouseCategory2 = playerData.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2);
-                        var collector2 = warehouseCategory2.unworkingCollectorList[warehouseCategory2.unworkingCollectorList.Count - 1];
-                        warehouseCategory2.unworkingCollectorList.RemoveAt(warehouseCategory2.unworkingCollectorList.Count - 1);
-                        collector2.monsterType = monstertype;
-                        warehouseCategory2.workingCollectorList.Add(collector2);
-                        UpdateInfo();
+            if (changed)
+            {
+                UpdateInfo();
+            }
+        }
+
+        private void OnClickAdd()
+        {
+            playerData = PlayerDataModule.Instance.data;
+            if (playerData == null)
+            {
+                return;
+            }
+
+            bool changed = false;
+            switch (value)
+            {
+                case 1:
+                    changed = TryAssignYunDi();
+                    if (changed)
+                    {
+                        EventCenter.Instance.TriggerEvent(EventMessages.UpdateYunDiZheInfo);
+                    }
+                    break;
+                case 2:
+                case 3:
+                    changed = TryAssignCollector();
+                    if (changed)
+                    {
                         EventCenter.Instance.TriggerEvent(EventMessages.UpdateLingChuGeWorkingInfo);
-                        break;
-                }
+                    }
+                    break;
+            }
 
-            }));
+            if (changed)
+            {
+                UpdateInfo();
+            }
+        }
+
+        private bool TryAssignYunDi()
+        {
+            if (playerData?.deliverData == null)
+            {
+                return false;
+            }
+
+            var deliverData = playerData.deliverData;
+            if (deliverData.yunDiZheWorkingBuildList.Contains(buildingType))
+            {
+                return false;
+            }
+
+            if (deliverData.workingNum >= deliverData.totalNum)
+            {
+                return false;
+            }
+
+            deliverData.yunDiZheWorkingBuildList.Add(buildingType);
+            deliverData.workingNum += 1;
+            return true;
+        }
+
+        private bool TryUnassignYunDi()
+        {
+            if (playerData?.deliverData == null)
+            {
+                return false;
+            }
+
+            var deliverData = playerData.deliverData;
+            if (!deliverData.yunDiZheWorkingBuildList.Contains(buildingType))
+            {
+                return false;
+            }
+
+            deliverData.yunDiZheWorkingBuildList.Remove(buildingType);
+            deliverData.workingNum = Mathf.Max(0, deliverData.workingNum - 1);
+            return true;
+        }
+
+        private bool TryAssignCollector()
+        {
+            var warehouse = GetWarehouseByValue();
+            if (warehouse == null)
+            {
+                return false;
+            }
+
+            if (warehouse.workingCollectorList.Exists(x => x.monsterType == monstertype))
+            {
+                return false;
+            }
+
+            if (warehouse.unworkingCollectorList.Count <= 0)
+            {
+                return false;
+            }
+
+            var freeCollector = warehouse.unworkingCollectorList[warehouse.unworkingCollectorList.Count - 1];
+            warehouse.unworkingCollectorList.RemoveAt(warehouse.unworkingCollectorList.Count - 1);
+            freeCollector.monsterType = monstertype;
+            warehouse.workingCollectorList.Add(freeCollector);
+            return true;
+        }
+
+        private bool TryUnassignCollector()
+        {
+            var warehouse = GetWarehouseByValue();
+            if (warehouse == null)
+            {
+                return false;
+            }
+
+            var workingCollector = warehouse.workingCollectorList.Find(x => x.monsterType == monstertype);
+            if (workingCollector == null)
+            {
+                return false;
+            }
+
+            warehouse.workingCollectorList.Remove(workingCollector);
+            workingCollector.monsterType = MonsterFamily.None;
+            warehouse.unworkingCollectorList.Add(workingCollector);
+            return true;
+        }
+
+        private WarehouseCategory GetWarehouseByValue()
+        {
+            if (playerData?.warehouselist == null)
+            {
+                return null;
+            }
+
+            if (value == 2)
+            {
+                return playerData.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1);
+            }
+
+            if (value == 3)
+            {
+                return playerData.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2);
+            }
+
+            return null;
         }
 
         public void UpdateInfo()
         {
-            //    progresstxt.text = "0/1";
-            //    workingnum = 0;
-            //    foreach (var data in category.workingCollectorList)
-            //    {
-            //        if (data.monsterType == monstertype)
-            //        {
-            //            progresstxt.text = "1/1";
-            //            workingnum = 1;
-            //            break;
-            //        }
-            //    }
-            //    if (workingnum == 0)
-            //    {
-            //        mask1.enabled = false;
-            //    }
-            //    else
-            //    {
-            //        mask1.enabled = true;
-            //    }
+            playerData = PlayerDataModule.Instance.data;
+            if (playerData == null)
+            {
+                ApplyItemState(false, false, false);
+                return;
+            }
 
             switch (value)
             {
                 case 1:
-                    if (playerData.deliverData.yunDiZheWorkingBuildList.Contains(buildingType))
+                {
+                    if (playerData.deliverData == null)
                     {
-                        addBtnMask.gameObject.SetActive(true);
-                        removeBtnMask.gameObject.SetActive(false);
-                        progresstxt.text = "1/1";
+                        ApplyItemState(false, false, false);
+                        return;
                     }
-                    else
-                    {
-                        progresstxt.text = "0/1";
-                        if (playerData.deliverData.totalNum - playerData.deliverData.workingNum > 0)
-                        {
-                            addBtnMask.gameObject.SetActive(false);
-                            removeBtnMask.gameObject.SetActive(true);
-                        }
-                        else
-                        {
-                            addBtnMask.gameObject.SetActive(true);
-                            removeBtnMask.gameObject.SetActive(true);
-                        }
-                    }
+
+                    bool assigned = playerData.deliverData.yunDiZheWorkingBuildList.Contains(buildingType);
+                    bool canAdd = !assigned && (playerData.deliverData.totalNum - playerData.deliverData.workingNum > 0);
+                    bool canRemove = assigned;
+                    ApplyItemState(assigned, canAdd, canRemove);
                     break;
+                }
                 case 2:
-                    WarehouseCategory warehouseCategory1 = playerData.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1);
-                    var collector1 = warehouseCategory1.workingCollectorList.Find(x => x.monsterType == monstertype);
-                    if (collector1 != null)
-                    {
-                        addBtnMask.gameObject.SetActive(true);
-                        removeBtnMask.gameObject.SetActive(false);
-                        progresstxt.text = "1/1";
-                    }
-                    else
-                    {
-                        progresstxt.text = "0/1";
-                        if (warehouseCategory1.unworkingCollectorList.Count > 0)
-                        {
-                            addBtnMask.gameObject.SetActive(false);
-                            removeBtnMask.gameObject.SetActive(true);
-                        }
-                        else
-                        {
-                            addBtnMask.gameObject.SetActive(true);
-                            removeBtnMask.gameObject.SetActive(false);
-                        }
-                    }
-                    break;
                 case 3:
-                    WarehouseCategory warehouseCategory2 = playerData.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2);
-                    var collector2 = warehouseCategory2.workingCollectorList.Find(x => x.monsterType == monstertype);
-                    if (collector2 != null)
+                {
+                    var warehouse = GetWarehouseByValue();
+                    if (warehouse == null)
                     {
-                        addBtnMask.gameObject.SetActive(true);
-                        removeBtnMask.gameObject.SetActive(false);
-                        progresstxt.text = "1/1";
+                        ApplyItemState(false, false, false);
+                        return;
                     }
-                    else
-                    {
-                        progresstxt.text = "0/1";
-                        if (warehouseCategory2.unworkingCollectorList.Count > 0)
-                        {
-                            addBtnMask.gameObject.SetActive(false);
-                            removeBtnMask.gameObject.SetActive(true);
-                        }
-                        else
-                        {
-                            addBtnMask.gameObject.SetActive(true);
-                            removeBtnMask.gameObject.SetActive(false);
-                        }
-                    }
+
+                    bool assigned = warehouse.workingCollectorList.Exists(x => x.monsterType == monstertype);
+                    bool canAdd = !assigned && warehouse.unworkingCollectorList.Count > 0;
+                    bool canRemove = assigned;
+                    ApplyItemState(assigned, canAdd, canRemove);
                     break;
+                }
+                default:
+                    ApplyItemState(false, false, false);
+                    break;
+            }
+        }
+
+        private void ApplyItemState(bool assigned, bool canAdd, bool canRemove)
+        {
+            if (progresstxt != null)
+            {
+                progresstxt.text = assigned ? "1/1" : "0/1";
+            }
+
+            if (addBtnMask != null)
+            {
+                addBtnMask.gameObject.SetActive(!canAdd);
+            }
+
+            if (removeBtnMask != null)
+            {
+                removeBtnMask.gameObject.SetActive(!canRemove);
+            }
+
+            if (addBtn != null)
+            {
+                addBtn.interactable = canAdd;
+            }
+
+            if (removeBtn != null)
+            {
+                removeBtn.interactable = canRemove;
+            }
+        }
+
+        private string GetMonsterDisplayName(MonsterFamily type)
+        {
+            switch (type)
+            {
+                case MonsterFamily.ShuangYunZhi: return "霜云芝";
+                case MonsterFamily.YueLuCao: return "月露草";
+                case MonsterFamily.ZiXinHua: return "栀心花";
+                case MonsterFamily.YuHuiHe: return "玉穗禾";
+                case MonsterFamily.XingWenGuo: return "星纹果";
+                case MonsterFamily.WuRongJun: return "雾茸菌";
+                case MonsterFamily.LingXuSheng: return "灵须参";
+                case MonsterFamily.XueBanHua: return "雪瓣花";
+                case MonsterFamily.MuLingYa: return "木灵芽";
+                case MonsterFamily.JingRuiCao: return "晶蕊草";
+                case MonsterFamily.TieKuangShi: return "铁矿石";
+                case MonsterFamily.YinKuangShi: return "银矿石";
+                case MonsterFamily.TongKuangShi: return "铜矿石";
+                case MonsterFamily.ZiJingShi: return "紫晶石";
+                case MonsterFamily.YueJingShi: return "月晶石";
+                default: return type.ToString();
             }
         }
     }
