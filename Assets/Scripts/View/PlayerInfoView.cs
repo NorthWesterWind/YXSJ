@@ -187,6 +187,7 @@ namespace View
             EventCenter.Instance.RemoveListener(EventMessages.UpdateLevelProgress, HandleUpdateLevelProgress);
             EventCenter.Instance.RemoveListener(EventMessages.UpdateFunctionState, HandleUpdateFunctionState);
             EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerCarryInfo, HandleUpdatePlayerCarryInfo);
+            EventCenter.Instance.RemoveListener(EventMessages.HidePlayerInfoViewCartoon, HandleHidePlayerInfoViewCartoon);
         }
 
 
