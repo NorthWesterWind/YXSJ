@@ -241,6 +241,7 @@ public class LingChuGePop : BaseView
 
             UIController.Instance.Show<TipView>("升级成功。");
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
         }
     }
     private void OnClickUpgradeNumBtn()

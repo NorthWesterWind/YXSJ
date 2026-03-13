@@ -74,26 +74,26 @@ namespace View
                         case RewardType.XianYunBaoXia:
                             _callback = () =>
                             {
-                                UIController.Instance.Show<TipView>("兑换成功！");
+                                UIController.Instance.Show<TipView>("购买成功！");
                                 PlayerDataModule.Instance.data.lingJing -= costValue;
                                 PlayerDataModule.Instance.data.goldIngot += DataController.Instance.giftpackDataDic[3].JinYuanBao;
                                 var dic = PlayerDataModule.Instance.LotteryCard(DataController.Instance.giftpackDataDic[3]);
                                 UIController.Instance.Show<RewardConfirmView>(dic, new Dictionary<CurrencyType, int> { { CurrencyType.JingYuanBao, DataController.Instance.giftpackDataDic[3].JinYuanBao } });
                                 EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
-                                  PlayerDataModule.Instance.data.useLingJingTotalValue += costValue;
+                                PlayerDataModule.Instance.data.useLingJingTotalValue += costValue;
                             };
                             UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}灵晶购买仙韵宝匣？", _callback);
                             break;
                         case RewardType.LingYunBaoXia:
                             _callback = () =>
                             {
-                                UIController.Instance.Show<TipView>("兑换成功！");
+                                UIController.Instance.Show<TipView>("购买成功！");
                                 PlayerDataModule.Instance.data.lingJing -= costValue;
                                 PlayerDataModule.Instance.data.goldIngot += DataController.Instance.giftpackDataDic[2].JinYuanBao;
                                 var dic = PlayerDataModule.Instance.LotteryCard(DataController.Instance.giftpackDataDic[2]);
                                 UIController.Instance.Show<RewardConfirmView>(dic, new Dictionary<CurrencyType, int> { { CurrencyType.JingYuanBao, DataController.Instance.giftpackDataDic[2].JinYuanBao } });
                                 EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
-                                  PlayerDataModule.Instance.data.useLingJingTotalValue += costValue;
+                                PlayerDataModule.Instance.data.useLingJingTotalValue += costValue;
                             };
                             UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}灵晶购买灵韵宝匣？", _callback);
 
@@ -101,9 +101,10 @@ namespace View
                         case RewardType.XuanSuLing:
                             _callback = () =>
                             {
-                                UIController.Instance.Show<TipView>("兑换成功！");
+                                UIController.Instance.Show<TipView>("购买成功！");
                                 PlayerDataModule.Instance.data.lingJing -= costValue;
-                                  PlayerDataModule.Instance.data.useLingJingTotalValue += costValue;
+                                PlayerDataModule.Instance.data.speedTime += 60 * 60;
+                                PlayerDataModule.Instance.data.useLingJingTotalValue += costValue;
                                 EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                             };
                             UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}灵晶购买玄速令？", _callback);
@@ -111,9 +112,10 @@ namespace View
                         case RewardType.TianChiLing:
                             _callback = () =>
                             {
-                                UIController.Instance.Show<TipView>("兑换成功！");
+                                UIController.Instance.Show<TipView>("购买成功！");
                                 PlayerDataModule.Instance.data.lingJing -= costValue;
-                                  PlayerDataModule.Instance.data.useLingJingTotalValue += costValue;
+                                PlayerDataModule.Instance.data.speedTime += 2 * 60 * 60;
+                                PlayerDataModule.Instance.data.useLingJingTotalValue += costValue;
                                 EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                             };
                             UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}灵晶购买天驰令？", _callback);
@@ -121,7 +123,7 @@ namespace View
                         case RewardType.JingYuanBao:
                             _callback = () =>
                             {
-                                UIController.Instance.Show<TipView>("兑换成功！");
+                                UIController.Instance.Show<TipView>("购买成功！");
                                 PlayerDataModule.Instance.data.lingJing -= costValue;
                                 PlayerDataModule.Instance.data.goldIngot += rewardValue;
                                 PlayerDataModule.Instance.data.useLingJingTotalValue += costValue;
@@ -140,7 +142,7 @@ namespace View
                 {
                     if (PlayerDataModule.Instance.AddRecordMoney(costValue))
                     {
-                        UIController.Instance.Show<TipView>("兑换成功！");
+                        UIController.Instance.Show<TipView>("购买成功！");
                         PlayerDataModule.Instance.data.lingJing += rewardValue;
                         // PlayerDataModule.Instance.data.tongbi += rewardValue;
                         // EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask , rewardValue);
@@ -151,12 +153,18 @@ namespace View
             }
             else if (purchaseType == PurchaseType.Free)
             {
+                if (mask.activeSelf)
+                {
+                    return;
+                }
                 switch (rewardType)
                 {
                     case RewardType.LingShunLing:
+                        PlayerDataModule.Instance.data.speedTime += 20 * 60 ;
                         playerData.LingShunLingTime = DateTime.Now.ToString("yyyy-MM-dd");
                         mask?.SetActive(true);
                         UIController.Instance.Show<TipView>("领取成功！");
+
                         EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                         break;
                     case RewardType.FanPingBaoXia:

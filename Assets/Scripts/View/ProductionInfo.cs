@@ -73,7 +73,7 @@ namespace View
             productionTime = WorldData.productStationWorkingTimeDic[timelevel];
             if (PlayerDataModule.Instance.data.speedTime > 0)
             {
-                productionTime = 0.1f;
+                productionTime = 0.2f;
             }
             fillImage.fillAmount = 0;
             while (t < productionTime)

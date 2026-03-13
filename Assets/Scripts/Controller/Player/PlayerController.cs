@@ -42,7 +42,7 @@ namespace Controller.Player
 
 
         private float detectRadius = 6f; // 怪物检测半径
-        public LayerMask monsterLayer;   // 只检测怪物层
+        public LayerMask monsterLayer;   // 只检测怪物
         public LayerMask productLayer;
         public LayerMask productStationLayer;
 
@@ -63,8 +63,8 @@ namespace Controller.Player
         private Canvas canvas;
 
 
-        /// <summary>
-        /// 角色是否处于交互范围内（解锁）
+        // /// <summary>
+        // /// 角色是否处于交互范围内（解锁）
         // /// </summary>
         // public bool InteractionTriggerInRange = false;
         // public Transform InteractionTriggerTransform;
@@ -74,7 +74,7 @@ namespace Controller.Player
         [SerializeField] private float radiusX = 1.1f;   // 左右摆动距离
         [SerializeField] private float radiusZ = 0.55f;  // 前后景深（决定遮挡感）
         [SerializeField] private float minScale = 0.85f; // 在身后时的最小缩放
-        [SerializeField] private float maxScale = 1.15f; // 在身前时的最大缩放s
+        [SerializeField] private float maxScale = 1.15f; // 在身前时的最大缩放
 
         public bool InRange;
         private bool isThrowingCoin = false; // 防止重复抛币
@@ -200,10 +200,63 @@ namespace Controller.Player
             finger.SetActive(false);
             UpdatePlayerValueInfo();
             currentHp = maxHp;
+            TryRestoreInventoryFromData();
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerInfo);
+        }
+
+        private void TryRestoreInventoryFromData()
+        {
+            var data = dataModule != null ? dataModule.data : null;
+            if (data == null)
+            {
+                return;
+            }
+
+            if ((dropDic != null && dropDic.Count > 0) || (goodsDic != null && goodsDic.Count > 0))
+            {
+                return;
+            }
+
+            bool hasSnapshot = (data.runtimePlayerDropList != null && data.runtimePlayerDropList.Count > 0) ||
+                               (data.runtimePlayerGoodsList != null && data.runtimePlayerGoodsList.Count > 0);
+            if (!hasSnapshot)
+            {
+                return;
+            }
+
+            dropDic.Clear();
+            if (data.runtimePlayerDropList != null)
+            {
+                foreach (var entry in data.runtimePlayerDropList)
+                {
+                    if (entry == null) continue;
+                    if (entry.count <= 0) continue;
+                    dropDic[entry.itemType] = entry.count;
+                }
+            }
+
+            goodsDic.Clear();
+            if (data.runtimePlayerGoodsList != null)
+            {
+                foreach (var entry in data.runtimePlayerGoodsList)
+                {
+                    if (entry == null) continue;
+                    if (entry.count <= 0) continue;
+                    goodsDic[entry.goodsType] = entry.count;
+                }
+            }
+
+            if (playerInfo != null)
+            {
+                playerInfo.UpdateTxt();
+            }
+            else
+            {
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerInfo);
+            }
         }
 
         public void SetLayer()
@@ -361,8 +414,8 @@ namespace Controller.Player
 
 
 
-            coinCtrl.FlyTo(
-                target.position,
+            coinCtrl.FlyTo_1(
+                target.position,0.1f,
                 () =>
                 {
                     EventCenter.Instance.TriggerEvent(
@@ -375,7 +428,7 @@ namespace Controller.Player
                 }
             );
 
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.2f);
             isThrowingCoin = false; // 抛币结束
         }
 
@@ -435,7 +488,7 @@ namespace Controller.Player
             _dirValue = direction;
         }
 
-        //玩家生命值回复
+        // 玩家生命值回血
         private float lastDamageTime = -999f; // 上次受伤时间
         private bool isRegenerating = false;
         private Coroutine regenCoroutine;
@@ -470,7 +523,7 @@ namespace Controller.Player
 
             foreach (var item in list)
             {
-                if (item == null) continue;                       // 回收后 item 可能被销毁
+                if (item == null) continue;                       // 回收时 item 可能被销毁
                 if (!item.gameObject.activeInHierarchy) continue; // 避免 inactive
                 if (item.isTaken) continue;
                 if (!item.canPickup) continue;                    // 还在掉落动画中，不可拾取
@@ -501,6 +554,8 @@ namespace Controller.Player
         public void CheckProduct()
         {
             var list = ScenePickupController.Instance.products.ToArray();
+            HashSet<CashierCounter> handledCashiers = null;
+            HashSet<ProductionStation> handledStations = null;
 
             foreach (var item in list)
             {
@@ -512,33 +567,33 @@ namespace Controller.Player
                 var production = item.GetComponent<Production>();
                 if (production == null) continue;
 
-                float dist = Vector2.Distance(transform.position, item.transform.position);
-                if (dist <= currentPinkUpRange && production.station is CashierCounter cashierCounter)
+                if (production.station is CashierCounter cashierCounter)
                 {
-                    bool wasTaken = item.isTaken;
-                    item.StartAttract(this.transform, receiveTransform);
-                    if (!wasTaken && item.isTaken)
+                    handledCashiers ??= new HashSet<CashierCounter>();
+                    if (!handledCashiers.Add(cashierCounter)) continue;
+
+                    float rootDist = Vector2.Distance(transform.position, cashierCounter.GetPickupRootPosition());
+                    if (rootDist <= currentPinkUpRange)
                     {
-                        cashierCounter.grid.ReleaseOne();
+                        cashierCounter.TryAttractTopCoin(this.transform, receiveTransform);
                     }
                 }
-                else if (dist <= currentPinkUpRange)
+                else if (production.station is ProductionStation station)
                 {
-                    // 检查剩余容量（考虑正在飞行中的物品）
-                    // 用 continue 而不是 break，确保后续的收银台铜币仍能被拾取
-                    if (currentCarryNum + _pendingPickupCount >= maxCarryNum) continue;
-                    if (production.state != ItemState.OnWorkbench) continue;
-                    if (!(production.station is ProductionStation station)) continue;
-                    if (!station.productionList.Contains(production)) continue;
-                    if (Controller.FreightClerkController.IsProductReservedByFreight(production)) continue;
+                    handledStations ??= new HashSet<ProductionStation>();
+                    if (!handledStations.Add(station)) continue;
 
-                    bool wasTaken = item.isTaken;
-                    item.StartAttract(this.transform, receiveTransform,
+                    float rootDist = Vector2.Distance(transform.position, station.GetPickupRootPosition());
+                    if (rootDist > currentPinkUpRange) continue;
+                    if (Controller.FreightClerkController.IsStationClaimedByFreight(station)) continue;
+                    if (currentCarryNum + _pendingPickupCount >= maxCarryNum) continue;
+
+                    bool taken = station.TryAttractTopProduct(
+                        this.transform,
+                        receiveTransform,
                         () => _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1));
-                    if (!wasTaken && item.isTaken)
+                    if (taken)
                     {
-                        station.grid.ReleaseOne();
-                        station.productionList.Remove(production);
                         _pendingPickupCount++;
                     }
                 }
@@ -546,7 +601,7 @@ namespace Controller.Player
             }
         }
 
-        //怪物检测函数
+        // 怪物检测函数
         public void CheckMonster()
         {
             Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectRadius, monsterLayer);
@@ -574,7 +629,7 @@ namespace Controller.Player
 
 
         public AnimationCurve scatterCurve;
-        private float scatterDuration = 0.3f;
+        private float scatterDuration = 0.1f;
         private Dictionary<string, Coroutine> deliverCoroutines = new();
 
         public void CheckProductStation()
@@ -644,7 +699,7 @@ namespace Controller.Player
                 dropCtrl.spriteRenderer.sortingOrder = station.sprite.sortingOrder + 2;
                 Vector2 start = receiveTransform.position;
                 Vector2 target = station.recivePosition.position;
-                Vector2 control = Vector2.Lerp(start, target, 0.5f) + Vector2.up * 1.5f;
+                Vector2 control = Vector2.Lerp(start, target, 0.1f) + Vector2.up * 1.5f;
 
                 float timer = 0f;
 
@@ -696,8 +751,11 @@ namespace Controller.Player
                 dropCtrl.Init(station.currentGoodsType);
                 dropCtrl.SetStation(station);
                 Vector2 start = receiveTransform.position;
-                dropCtrl.spriteRenderer.sortingOrder = station.sprite.sortingOrder + 2;
                 Vector2 target = station.grid.GetNextPosition();
+                if (dropCtrl.spriteRenderer != null)
+                {
+                    dropCtrl.spriteRenderer.sortingOrder = station.grid.GetLastSortingOrder(station.sprite.sortingOrder, 2);
+                }
                 Vector2 control = Vector2.Lerp(start, target, 0.5f) + Vector2.up * 1.5f;
 
                 float timer = 0f;
@@ -768,11 +826,11 @@ namespace Controller.Player
 
             while (currentInteraction != null)
             {
-                if (!isMoving)   // ⭐ 核心判断
+                if (!isMoving)   // 核心判断
                 {
                     stayTime += Time.deltaTime;
 
-                    if (stayTime >= 0.5f) // 停 0.5 秒
+                    if (stayTime >= 0.5f) // 0.5 秒
                     {
                         currentInteraction.Interact();
                         yield break;
@@ -833,7 +891,7 @@ namespace Controller.Player
 
         // private void OnTriggerStay2D(Collider2D other)
         // {
-        //     Debug.Log("持续重叠：" + other.name);
+        //     Debug.Log("持续重叠" + other.name);
         //     if (other.GetComponent<InteractionTrigger>())
         //     {
         //     }
@@ -1032,7 +1090,7 @@ namespace Controller.Player
             Transform t = (Transform)args[0];
             EventCenter.Instance.TriggerEvent(EventMessages.FocusView); // 禁止输入
             // focusCamera.LookAt = t;
-            // focusCamera.Priority = 20; // > PlayerCam 的 10
+            // focusCamera.Priority = 20; // > PlayerCam 10
             StartCoroutine(ReturnAfterDelay(3f));
         }
         IEnumerator ReturnAfterDelay(float seconds)
@@ -1073,6 +1131,9 @@ namespace Controller.Player
             goodsDic.Clear();
             dropDic.Clear();
             _pendingPickupCount = 0;
+            playerInfo.UpdateTxt();
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerInfo);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerCarryInfo);
         }
 
         private IEnumerator InvincibleFrame()
@@ -1084,3 +1145,4 @@ namespace Controller.Player
 
     }
 }
+

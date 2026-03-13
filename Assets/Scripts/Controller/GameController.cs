@@ -46,10 +46,14 @@ namespace Controller
         {
             base.Awake();
             _assetHandle = GetComponent<AssetHandle>();
+            RefreshStructureCaches();
             foreach (var temp in goodBuild.Values)
             {
                 SalesStall  sale = temp as SalesStall;
-                RegisterQueue(temp , new Vector2(sale.parchaseTransform.position.x, sale.parchaseTransform.position.y)  );
+                if (sale != null && sale.parchaseTransform != null)
+                {
+                    RegisterQueue(temp, new Vector2(sale.parchaseTransform.position.x, sale.parchaseTransform.position.y));
+                }
             }
         }
 
@@ -66,6 +70,61 @@ namespace Controller
         {
             if (!queues.ContainsKey(building))
                 queues.Add(building, new QueueGroup(queueOrigin));
+        }
+
+        public void RefreshStructureCaches()
+        {
+            if (buildings == null) buildings = new Dictionary<BuildingType, StructureBase>();
+            if (goodBuild == null) goodBuild = new Dictionary<GoodsType, StructureBase>();
+            if (productionStationList == null) productionStationList = new List<ProductionStation>();
+            if (salesStallList == null) salesStallList = new List<SalesStall>();
+
+            var structures = FindObjectsOfType<StructureBase>(true);
+            foreach (var structure in structures)
+            {
+                if (structure == null) continue;
+
+                BuildingType buildingKey = structure.structureType;
+                if (structure is SalesStall stall)
+                {
+                    if (stall.buildingType != BuildingType.None)
+                    {
+                        buildingKey = stall.buildingType;
+                    }
+                    if (!salesStallList.Contains(stall))
+                    {
+                        salesStallList.Add(stall);
+                    }
+                    if (stall.currentGoodsType != GoodsType.None &&
+                        !goodBuild.ContainsKey(stall.currentGoodsType))
+                    {
+                        goodBuild.Add(stall.currentGoodsType, stall);
+                    }
+                }
+                else if (structure is ProductionStation station)
+                {
+                    if (station.buildingType != BuildingType.None)
+                    {
+                        buildingKey = station.buildingType;
+                    }
+                    if (!productionStationList.Contains(station))
+                    {
+                        productionStationList.Add(station);
+                    }
+                }
+                else if (structure is YunDiGeController yundi)
+                {
+                    if (yundi.buildingType != BuildingType.None)
+                    {
+                        buildingKey = yundi.buildingType;
+                    }
+                }
+
+                if (buildingKey != BuildingType.None && !buildings.ContainsKey(buildingKey))
+                {
+                    buildings.Add(buildingKey, structure);
+                }
+            }
         }
 
         

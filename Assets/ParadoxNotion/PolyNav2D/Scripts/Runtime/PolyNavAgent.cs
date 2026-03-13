@@ -195,7 +195,13 @@ namespace PolyNav
             //check if goal is valid
             if ( !map.PointIsValid(goal) ) {
                 if ( closerPointOnInvalid ) {
-                    SetDestination(map.GetCloserEdgePoint(goal), callback);
+                    var closer = map.GetCloserEdgePoint(goal);
+                    // Avoid infinite recursion when map returns an invalid or identical point.
+                    if ( ( closer - goal ).sqrMagnitude < 0.0001f || !map.PointIsValid(closer) ) {
+                        OnInvalid();
+                        return false;
+                    }
+                    SetDestination(closer, callback);
                     return true;
                 } else {
                     OnInvalid();

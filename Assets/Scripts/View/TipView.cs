@@ -10,13 +10,15 @@ namespace View
     {
         public TextMeshProUGUI title;
         public Image bg;
-        private Tween hideTween;  
-        private Sequence showSeq; 
+        private Tween hideTween;
+        private Sequence showSeq;
         public override void UpdateViewWithArgs(params object[] args)
         {
             title.text = args[0] as string ?? "";
 
             RectTransform rt = bg.rectTransform;
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(rt);
 
             // 初始状态：缩小 & 在屏幕下方
             rt.localScale = Vector3.one * 0.3f;

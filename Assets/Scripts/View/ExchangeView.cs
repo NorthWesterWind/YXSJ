@@ -29,7 +29,7 @@ namespace View
         {
             base.UpdateViewWithArgs(args);
             string info = args[0] as string;
-            infotxt.text = info;
+            infotxt.text =  info;
             callback =  args[1] as Action;
         }
     }

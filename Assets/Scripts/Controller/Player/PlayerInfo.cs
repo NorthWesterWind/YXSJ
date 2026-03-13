@@ -80,13 +80,36 @@ namespace Controller.Player
 
         public void UpdateTxt(params object[] args)
         {
-            if (player.currentCarryNum >= player.maxCarryNum)
+            int carryNum = 0;
+            if (player.dropDic != null)
             {
-                text.text = "储物袋已满";
+                foreach (var kv in player.dropDic)
+                {
+                    if (kv.Value > 0)
+                    {
+                        carryNum += kv.Value;
+                    }
+                }
+            }
+            if (player.goodsDic != null)
+            {
+                foreach (var kv in player.goodsDic)
+                {
+                    if (kv.Value > 0)
+                    {
+                        carryNum += kv.Value;
+                    }
+                }
+            }
+            player.currentCarryNum = carryNum;
+
+            if (carryNum >= player.maxCarryNum)
+            {
+                text.text = "\u50a8\u7269\u888b\u5df2\u6ee1";
             }
             else
             {
-                text.text = $"{player.currentCarryNum}/{player.maxCarryNum}";
+                text.text = $"{carryNum}/{player.maxCarryNum}";
             }
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerCarryInfo);
         }

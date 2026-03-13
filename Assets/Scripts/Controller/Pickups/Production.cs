@@ -58,6 +58,14 @@ namespace Controller.Pickups
         void OnDestroy()
         {
             Controller.FreightClerkController.UnmarkProductReservedByFreight(this);
+            if (station is ProductionStation productionStation)
+            {
+                productionStation.UnregisterProduct(this);
+            }
+            if (station is CashierCounter cashierCounter)
+            {
+                cashierCounter.UnregisterCoin(this);
+            }
             if (ScenePickupController.Instance.products.Contains(this))
             {
                 ScenePickupController.Instance.products.Remove(this);
@@ -75,6 +83,40 @@ namespace Controller.Pickups
            Vector3 start = transform.position;
            float t = 0;
            float duration = 0.5f;
+
+           while (t < 1f)
+           {
+               t += Time.deltaTime / duration;
+               Vector3 pos = Vector3.Lerp(start, target, t);
+
+               // 抛物线高度
+               float h = Mathf.Sin(t * Mathf.PI) * 0.5f;
+               pos.y += h;
+
+               // 倾斜（飞行中）
+               transform.rotation = Quaternion.Euler(0, 0, Mathf.Lerp(0, 25, t));
+
+               transform.position = pos;
+               yield return null;
+           }
+
+           // 落地直立
+           transform.rotation = Quaternion.identity;
+           callback?.Invoke();
+       }
+
+         public void FlyTo_1(Vector3 target ,float time, Action callback = null)
+       {
+           StartCoroutine(FlyRoutine_1(target , time, callback));
+       }
+
+       IEnumerator FlyRoutine_1(Vector3 target,float time = 0.1f , Action callback = null)
+       {
+           SetState(ItemState.Flying);
+
+           Vector3 start = transform.position;
+           float t = 0;
+           float duration = time;
 
            while (t < 1f)
            {

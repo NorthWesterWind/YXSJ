@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Controller;
 using Controller.Pickups;
+using Controller.Player;
 using Controller.Structure;
 using Module.Data;
 using Newtonsoft.Json;
@@ -19,7 +20,9 @@ namespace Module
     {
         public PlayerData data = new();
         private Coroutine _runtimeRestoreCoroutine;
+        private Coroutine _runtimeLayerFixCoroutine;
         private int _runtimeRestoredMapId = -1;
+        private int _lastSpeedTimeSecond = -1;
 
         public override void Awake()
         {
@@ -32,6 +35,54 @@ namespace Module
             EventCenter.Instance.AddListener(EventMessages.MakeTongBiTask, HandleMakeTongBiTask);
             EventCenter.Instance.AddListener(EventMessages.UnLockMapTask, HandleUnLockMapTask);
             EventCenter.Instance.AddListener(EventMessages.MapDataPrepared, HandleMapDataPrepared);
+            EventCenter.Instance.AddListener(EventMessages.UpdatePlayerInfo, HandlePlayerInventoryChanged);
+            EventCenter.Instance.AddListener(EventMessages.UpdatePlayerCarryInfo, HandlePlayerInventoryChanged);
+        }
+
+        private void Update()
+        {
+            UpdateSpeedTimeCountdown();
+        }
+
+        private void UpdateSpeedTimeCountdown()
+        {
+            if (data == null)
+            {
+                return;
+            }
+
+            if (data.speedTime <= 0f)
+            {
+                if (_lastSpeedTimeSecond != 0)
+                {
+                    _lastSpeedTimeSecond = 0;
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdateSpeedTime, 0);
+                }
+                return;
+            }
+
+            data.speedTime = Mathf.Max(0f, data.speedTime - Time.deltaTime);
+            int seconds = Mathf.CeilToInt(data.speedTime);
+            if (seconds != _lastSpeedTimeSecond)
+            {
+                _lastSpeedTimeSecond = seconds;
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdateSpeedTime, seconds);
+            }
+        }
+
+        private void HandlePlayerInventoryChanged(params object[] args)
+        {
+            if (_runtimeRestoredMapId != data.currentMapID)
+            {
+                bool hasSavedRuntime = (data.runtimePlayerDropList != null && data.runtimePlayerDropList.Count > 0) ||
+                                       (data.runtimePlayerGoodsList != null && data.runtimePlayerGoodsList.Count > 0);
+                if (hasSavedRuntime)
+                {
+                    return;
+                }
+            }
+
+            CapturePlayerInventory();
         }
 
         public void FillStructureLockProgressData()
@@ -305,13 +356,28 @@ namespace Module
             {
                 data.runtimeProductionDataList = new List<RuntimeProductionData>();
             }
+
+            if (data.runtimeProductionStationDataList == null)
+            {
+                data.runtimeProductionStationDataList = new List<RuntimeProductionStationData>();
+            }
+
+            if (data.runtimePlayerDropList == null)
+            {
+                data.runtimePlayerDropList = new List<RuntimeDropItemCount>();
+            }
+
+            if (data.runtimePlayerGoodsList == null)
+            {
+                data.runtimePlayerGoodsList = new List<RuntimeGoodsCount>();
+            }
         }
 
         private bool TryGetRuntimeContext(out GameController gameController, out ScenePickupController pickupController)
         {
             gameController = FindObjectOfType<GameController>();
             pickupController = null;
-            if (gameController == null || gameController.buildings == null || gameController.buildings.Count == 0)
+            if (gameController == null)
             {
                 return false;
             }
@@ -322,10 +388,14 @@ namespace Module
                 return false;
             }
 
-            pickupController = pickupControllers.FirstOrDefault(x => x.gameObject.scene.name.StartsWith("Game_"));
+            pickupController = pickupControllers.FirstOrDefault(x =>
+                x != null &&
+                x.gameObject != null &&
+                x.gameObject.scene.IsValid() &&
+                x.gameObject.scene.name.StartsWith("Game_"));
             if (pickupController == null)
             {
-                pickupController = pickupControllers[0];
+                pickupController = pickupControllers.FirstOrDefault(x => x != null && x.gameObject != null);
             }
 
             return pickupController != null;
@@ -335,14 +405,28 @@ namespace Module
         {
             EnsureRuntimeWorldSaveData();
 
-            if (!TryGetRuntimeContext(out _, out var pickupController))
+            CapturePlayerInventory();
+
+            if (!TryGetRuntimeContext(out var gameController, out var pickupController))
             {
                 return;
             }
 
             int currentMapId = data.currentMapID;
+            if (_runtimeRestoredMapId != currentMapId)
+            {
+                bool hasSavedRuntime = data.runtimeProductionDataList.Any(x => x.mapId == currentMapId) ||
+                                       data.runtimeProductionStationDataList.Any(x => x.mapId == currentMapId) ||
+                                       data.runtimeCustomerDataList.Any(x => x.mapId == currentMapId);
+                if (hasSavedRuntime && pickupController.products.Count == 0)
+                {
+                    return;
+                }
+            }
+
             data.runtimeCustomerDataList.RemoveAll(x => x.mapId == currentMapId);
             data.runtimeProductionDataList.RemoveAll(x => x.mapId == currentMapId);
+            data.runtimeProductionStationDataList.RemoveAll(x => x.mapId == currentMapId);
 
             var customers = FindObjectsOfType<CustomerController>();
             foreach (var customer in customers)
@@ -379,8 +463,17 @@ namespace Module
                 if (production.station == null) continue;
                 if (!(production.station is StructureBase stationBase)) continue;
                 if (production.isTaken) continue;
-                if (!production.canPickup) continue;
                 if (production.state != ItemState.OnWorkbench && production.state != ItemState.OnShelf) continue;
+
+                BuildingType stationBuildingType = stationBase.structureType;
+                if (stationBase is SalesStall stall && stall.buildingType != BuildingType.None)
+                {
+                    stationBuildingType = stall.buildingType;
+                }
+                else if (stationBase is ProductionStation productionStation && productionStation.buildingType != BuildingType.None)
+                {
+                    stationBuildingType = productionStation.buildingType;
+                }
 
                 Vector3 pos = production.transform.position;
                 data.runtimeProductionDataList.Add(new RuntimeProductionData
@@ -388,12 +481,98 @@ namespace Module
                     mapId = currentMapId,
                     goodsType = production.goodsType,
                     value = production.value,
-                    stationBuildingType = stationBase.structureType,
+                    stationBuildingType = stationBuildingType,
                     state = (int)production.state,
                     canPickup = production.canPickup,
                     posX = pos.x,
                     posY = pos.y,
                     posZ = pos.z
+                });
+            }
+
+            CaptureProductionStationMaterials(currentMapId, gameController);
+
+            int runtimeProductCount = data.runtimeProductionDataList.Count(x => x.mapId == currentMapId);
+            int runtimeStationCount = data.runtimeProductionStationDataList.Count(x => x.mapId == currentMapId);
+            int runtimeDropCount = data.runtimePlayerDropList?.Count ?? 0;
+            int runtimeGoodsCount = data.runtimePlayerGoodsList?.Count ?? 0;
+            Debug.Log($"[RuntimeSave] map={currentMapId} products={runtimeProductCount} stations={runtimeStationCount} drop={runtimeDropCount} goods={runtimeGoodsCount}");
+        }
+
+        private void CapturePlayerInventory()
+        {
+            var player = FindObjectOfType<PlayerController>();
+            if (player == null)
+            {
+                return;
+            }
+
+            if (_runtimeRestoredMapId != data.currentMapID)
+            {
+                bool hasSavedRuntime = (data.runtimePlayerDropList != null && data.runtimePlayerDropList.Count > 0) ||
+                                       (data.runtimePlayerGoodsList != null && data.runtimePlayerGoodsList.Count > 0);
+                bool playerEmpty = (player.dropDic == null || player.dropDic.Count == 0) &&
+                                   (player.goodsDic == null || player.goodsDic.Count == 0);
+                if (hasSavedRuntime && playerEmpty)
+                {
+                    return;
+                }
+            }
+
+            data.runtimePlayerDropList = new List<RuntimeDropItemCount>();
+            if (player.dropDic != null)
+            {
+                foreach (var kv in player.dropDic)
+                {
+                    if (kv.Value <= 0) continue;
+                    data.runtimePlayerDropList.Add(new RuntimeDropItemCount
+                    {
+                        itemType = kv.Key,
+                        count = kv.Value
+                    });
+                }
+            }
+
+            data.runtimePlayerGoodsList = new List<RuntimeGoodsCount>();
+            if (player.goodsDic != null)
+            {
+                foreach (var kv in player.goodsDic)
+                {
+                    if (kv.Value <= 0) continue;
+                    data.runtimePlayerGoodsList.Add(new RuntimeGoodsCount
+                    {
+                        goodsType = kv.Key,
+                        count = kv.Value
+                    });
+                }
+            }
+        }
+
+        private void CaptureProductionStationMaterials(int currentMapId, GameController gameController)
+        {
+            if (gameController == null || gameController.productionStationList == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < gameController.productionStationList.Count; i++)
+            {
+                var station = gameController.productionStationList[i];
+                if (station == null) continue;
+
+                if (station.currentMaterialCount <= 0) continue;
+
+                BuildingType stationBuildingType = station.structureType;
+                if (station.buildingType != BuildingType.None)
+                {
+                    stationBuildingType = station.buildingType;
+                }
+
+                data.runtimeProductionStationDataList.Add(new RuntimeProductionStationData
+                {
+                    mapId = currentMapId,
+                    stationBuildingType = stationBuildingType,
+                    currentMaterialCount = station.currentMaterialCount
                 });
             }
         }
@@ -412,26 +591,41 @@ namespace Module
 
         private IEnumerator RestoreRuntimeWorldStateCoroutine()
         {
-            int waitFrame = 0;
-            while (waitFrame < 30)
+            float waitTime = 0f;
+            const float maxWaitTime = 5f;
+            while (waitTime < maxWaitTime)
             {
                 var gameController = FindObjectOfType<GameController>();
                 if (gameController != null &&
-                    gameController.buildings != null &&
-                    gameController.buildings.Count > 0 &&
-                    gameController.unlockedBuildingTypes != null &&
-                    gameController.unlockedBuildingTypes.Count > 0 &&
-                    FindObjectOfType<ScenePickupController>() != null)
+                    FindObjectOfType<ScenePickupController>() != null &&
+                    FindObjectOfType<PlayerController>() != null)
                 {
-                    break;
+                    RestoreRuntimeWorldState();
+                    _runtimeRestoreCoroutine = null;
+                    yield break;
                 }
 
-                waitFrame++;
+                waitTime += Time.unscaledDeltaTime;
                 yield return null;
             }
 
             RestoreRuntimeWorldState();
             _runtimeRestoreCoroutine = null;
+        }
+
+        private void OnApplicationPause(bool pause)
+        {
+            if (pause)
+            {
+                SavePlayerDataAsync();
+                SavePlayerDataToSever();
+            }
+        }
+
+        private void OnApplicationQuit()
+        {
+            SavePlayerDataAsync();
+            SavePlayerDataToSever();
         }
 
         private void RestoreRuntimeWorldState()
@@ -444,6 +638,11 @@ namespace Module
             }
 
             int currentMapId = data.currentMapID;
+            int restoreProductCount = data.runtimeProductionDataList.Count(x => x.mapId == currentMapId);
+            int restoreStationCount = data.runtimeProductionStationDataList.Count(x => x.mapId == currentMapId);
+            int restoreDropCount = data.runtimePlayerDropList?.Count ?? 0;
+            int restoreGoodsCount = data.runtimePlayerGoodsList?.Count ?? 0;
+            Debug.Log($"[RuntimeRestore] map={currentMapId} products={restoreProductCount} stations={restoreStationCount} drop={restoreDropCount} goods={restoreGoodsCount}");
             if (_runtimeRestoredMapId == currentMapId)
             {
                 return;
@@ -451,7 +650,10 @@ namespace Module
 
             RestoreProductsForCurrentMap(currentMapId, gameController, pickupController);
             RestoreCustomersForCurrentMap(currentMapId, gameController);
+            RestoreProductionStationsForCurrentMap(currentMapId, gameController);
+            RestorePlayerInventory();
             _runtimeRestoredMapId = currentMapId;
+            ScheduleRuntimeSortingFix(gameController, pickupController);
         }
 
         private void RestoreCustomersForCurrentMap(int currentMapId, GameController gameController)
@@ -513,7 +715,7 @@ namespace Module
                     continue;
                 }
 
-                customer.Init(customerData, saved.goodsType, stall);
+                customer.Init(customerData, saved.goodsType, stall, spawnPos, 0f, 0f);
                 ApplySavedCustomerState(customer, (NpcState)saved.state, stall);
             }
         }
@@ -554,20 +756,38 @@ namespace Module
             for (int i = 0; i < productSaves.Count; i++)
             {
                 var saved = productSaves[i];
+                StructureBase stationBase = null;
                 if (!gameController.buildings.TryGetValue(saved.stationBuildingType, out var structure))
                 {
-                    continue;
+                    if (gameController.goodBuild != null &&
+                        gameController.goodBuild.TryGetValue(saved.goodsType, out var stallByGoods))
+                    {
+                        structure = stallByGoods;
+                    }
+                    else if (gameController.productionStationList != null)
+                    {
+                        structure = gameController.productionStationList
+                            .FirstOrDefault(s => s != null &&
+                                                 (s.buildingType == saved.stationBuildingType ||
+                                                  s.structureType == saved.stationBuildingType));
+                    }
                 }
 
-                if (!(structure is StructureBase stationBase))
+                if (saved.state == (int)ItemState.OnShelf &&
+                    !(structure is SalesStall) &&
+                    gameController.goodBuild != null &&
+                    gameController.goodBuild.TryGetValue(saved.goodsType, out var stallByGoodsForShelf) &&
+                    stallByGoodsForShelf is SalesStall)
+                {
+                    structure = stallByGoodsForShelf;
+                }
+
+                if (!(structure is StructureBase resolvedStructure))
                 {
                     continue;
                 }
 
-                if (gameController.unlockedBuildingTypes.Contains(stationBase.structureType) == false)
-                {
-                    continue;
-                }
+                stationBase = resolvedStructure;
 
                 var assetHandle = stationBase.GetComponent<AssetHandle>();
                 if (assetHandle == null)
@@ -597,9 +817,38 @@ namespace Module
                 production.isTaken = false;
                 production.SetState((ItemState)saved.state);
 
-                if (stationBase.sprite != null && production.spriteRenderer != null)
+                if (production.spriteRenderer != null)
                 {
-                    production.spriteRenderer.sortingOrder = stationBase.sprite.sortingOrder + 3;
+                    int baseOrder = 30000 - Mathf.RoundToInt(stationBase.transform.position.y * 100);
+                    if (stationBase.sprite != null && stationBase.sprite.sortingOrder > 0)
+                    {
+                        baseOrder = stationBase.sprite.sortingOrder;
+                    }
+
+                    int orderOffset = 3;
+                    if (production.state == ItemState.OnShelf || stationBase is SalesStall)
+                    {
+                        orderOffset = 2;
+                    }
+                    if (stationBase is ProductionStation stationWithGrid)
+                    {
+                        production.spriteRenderer.sortingOrder =
+                            stationWithGrid.grid.GetSortingOrderByPosition(baseOrder, orderOffset, production.transform.position);
+                    }
+                    else if (stationBase is SalesStall stallWithGrid)
+                    {
+                        production.spriteRenderer.sortingOrder =
+                            stallWithGrid.grid.GetSortingOrderByPosition(baseOrder, orderOffset, production.transform.position);
+                    }
+                    else if (stationBase is CashierCounter cashierWithGrid)
+                    {
+                        production.spriteRenderer.sortingOrder =
+                            cashierWithGrid.grid.GetSortingOrderByPosition(baseOrder, orderOffset, production.transform.position);
+                    }
+                    else
+                    {
+                        production.spriteRenderer.sortingOrder = baseOrder + orderOffset;
+                    }
                 }
 
                 if (stationBase is ProductionStation productionStation &&
@@ -617,15 +866,56 @@ namespace Module
 
             foreach (var station in gameController.productionStationList)
             {
-                station.productionList.RemoveAll(x => x == null);
-                station.grid.currentIndex = station.productionList.Count;
+                ReflowStationProducts(station);
             }
 
             foreach (var stall in gameController.salesStallList)
             {
                 stall.productList.RemoveAll(x => x == null);
                 stall.currentGoodsCount = stall.productList.Count;
-                stall.grid.currentIndex = stall.productList.Count;
+                ReflowStallProducts(stall);
+            }
+
+            ApplyRuntimeSortingFix(gameController, pickupController);
+        }
+
+        private void ScheduleRuntimeSortingFix(GameController gameController, ScenePickupController pickupController)
+        {
+            if (gameController == null || pickupController == null)
+            {
+                return;
+            }
+
+            if (_runtimeLayerFixCoroutine != null)
+            {
+                StopCoroutine(_runtimeLayerFixCoroutine);
+                _runtimeLayerFixCoroutine = null;
+            }
+
+            _runtimeLayerFixCoroutine = StartCoroutine(RuntimeSortingFixCoroutine(gameController, pickupController));
+        }
+
+        private IEnumerator RuntimeSortingFixCoroutine(GameController gameController, ScenePickupController pickupController)
+        {
+            yield return null;
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+            ApplyRuntimeSortingFix(gameController, pickupController);
+            _runtimeLayerFixCoroutine = null;
+        }
+
+        private void ApplyRuntimeSortingFix(GameController gameController, ScenePickupController pickupController)
+        {
+            foreach (var station in gameController.productionStationList)
+            {
+                if (station == null) continue;
+                ReflowStationProducts(station);
+            }
+
+            foreach (var stall in gameController.salesStallList)
+            {
+                if (stall == null) continue;
+                ReflowStallProducts(stall);
             }
 
             if (gameController.buildings.TryGetValue(BuildingType.LingZhangTai, out var cashierBase))
@@ -633,20 +923,266 @@ namespace Module
                 var cashier = cashierBase as CashierCounter;
                 if (cashier != null)
                 {
-                    int coinCount = 0;
-                    var products = pickupController.products.ToArray();
-                    for (int i = 0; i < products.Length; i++)
-                    {
-                        if (!(products[i] is Production production)) continue;
-                        if (production.station != cashier) continue;
-                        if (production.goodsType != GoodsType.TongBi) continue;
-                        if (production.state != ItemState.OnWorkbench) continue;
-                        if (!production.canPickup) continue;
-                        coinCount++;
-                    }
-
-                    cashier.grid.currentIndex = coinCount;
+                    ReflowCashierCoins(cashier, pickupController);
                 }
+            }
+        }
+
+        private void ReflowStationProducts(ProductionStation station)
+        {
+            if (station == null) return;
+
+            if (station.productPosition != null)
+            {
+                station.grid.basePosition = station.productPosition.position;
+            }
+            else
+            {
+                station.grid.basePosition = station.transform.position;
+            }
+
+            station.productionList.RemoveAll(p => p == null);
+            station.productionList.Sort((a, b) =>
+            {
+                if (a == null && b == null) return 0;
+                if (a == null) return -1;
+                if (b == null) return 1;
+                int yCompare = a.transform.position.y.CompareTo(b.transform.position.y);
+                if (yCompare != 0) return yCompare;
+                return a.transform.position.x.CompareTo(b.transform.position.x);
+            });
+
+            int baseOrder = 30000 - Mathf.RoundToInt(station.transform.position.y * 100);
+            if (station.sprite != null && station.sprite.sortingOrder > 0)
+            {
+                baseOrder = station.sprite.sortingOrder;
+            }
+
+            for (int i = 0; i < station.productionList.Count; i++)
+            {
+                var product = station.productionList[i];
+                if (product == null) continue;
+                Vector2 pos = station.grid.GetPositionByIndex(i);
+                product.transform.position = new Vector3(pos.x, pos.y, product.transform.position.z);
+                if (product.spriteRenderer != null)
+                {
+                    product.spriteRenderer.sortingOrder =
+                        station.grid.GetSortingOrderByIndex(baseOrder, 3, i);
+                }
+            }
+
+            station.grid.currentIndex = station.productionList.Count;
+        }
+
+        private void ReflowCashierCoins(CashierCounter cashier, ScenePickupController pickupController)
+        {
+            if (cashier == null) return;
+
+            if (cashier.content_2 != null && cashier.content_2.activeInHierarchy && cashier.exportTransform2 != null)
+            {
+                cashier.grid.basePosition = cashier.exportTransform2.position;
+            }
+            else if (cashier.exportTransform != null)
+            {
+                cashier.grid.basePosition = cashier.exportTransform.position;
+            }
+
+            cashier.coinList.RemoveAll(c => c == null);
+            if (pickupController != null)
+            {
+                cashier.coinList.Clear();
+                var products = pickupController.products.ToArray();
+                for (int i = 0; i < products.Length; i++)
+                {
+                    if (!(products[i] is Production production)) continue;
+                    if (production.station != cashier) continue;
+                    if (production.goodsType != GoodsType.TongBi) continue;
+                    if (production.state != ItemState.OnWorkbench) continue;
+                    cashier.coinList.Add(production);
+                }
+            }
+
+            cashier.coinList.Sort((a, b) =>
+            {
+                if (a == null && b == null) return 0;
+                if (a == null) return -1;
+                if (b == null) return 1;
+                int yCompare = a.transform.position.y.CompareTo(b.transform.position.y);
+                if (yCompare != 0) return yCompare;
+                return a.transform.position.x.CompareTo(b.transform.position.x);
+            });
+
+            int baseOrder = 30000 - Mathf.RoundToInt(cashier.transform.position.y * 100);
+            if (cashier.sprite != null && cashier.sprite.sortingOrder > 0)
+            {
+                baseOrder = cashier.sprite.sortingOrder;
+            }
+
+            for (int i = 0; i < cashier.coinList.Count; i++)
+            {
+                var coin = cashier.coinList[i];
+                if (coin == null) continue;
+                Vector2 pos = cashier.grid.GetPositionByIndex(i);
+                coin.transform.position = new Vector3(pos.x, pos.y, coin.transform.position.z);
+                if (coin.spriteRenderer != null)
+                {
+                    coin.spriteRenderer.sortingOrder =
+                        cashier.grid.GetSortingOrderByIndex(baseOrder, 3, i);
+                }
+                cashier.RegisterCoin(coin);
+            }
+
+            cashier.grid.currentIndex = cashier.coinList.Count;
+            cashier.SortCoinsByHeight();
+        }
+
+        private void ReflowStallProducts(SalesStall stall)
+        {
+            if (stall == null) return;
+
+            if (stall.baseTransform != null)
+            {
+                stall.grid.basePosition = stall.baseTransform.position;
+            }
+            else
+            {
+                stall.grid.basePosition = stall.transform.position;
+            }
+
+            stall.productList.RemoveAll(p => p == null);
+            stall.productList.Sort((a, b) =>
+            {
+                if (a == null && b == null) return 0;
+                if (a == null) return -1;
+                if (b == null) return 1;
+                int yCompare = a.transform.position.y.CompareTo(b.transform.position.y);
+                if (yCompare != 0) return yCompare;
+                return a.transform.position.x.CompareTo(b.transform.position.x);
+            });
+
+            int baseOrder = 30000 - Mathf.RoundToInt(stall.transform.position.y * 100);
+            if (stall.sprite != null && stall.sprite.sortingOrder > 0)
+            {
+                baseOrder = stall.sprite.sortingOrder;
+            }
+
+            for (int i = 0; i < stall.productList.Count; i++)
+            {
+                var product = stall.productList[i];
+                if (product == null) continue;
+                Vector2 pos = stall.grid.GetPositionByIndex(i);
+                product.transform.position = new Vector3(pos.x, pos.y, product.transform.position.z);
+                if (product.spriteRenderer != null)
+                {
+                    product.spriteRenderer.sortingOrder =
+                        stall.grid.GetSortingOrderByIndex(baseOrder, 2, i);
+                }
+            }
+
+            stall.currentGoodsCount = stall.productList.Count;
+            stall.grid.currentIndex = stall.productList.Count;
+        }
+
+        private void RestoreProductionStationsForCurrentMap(int currentMapId, GameController gameController)
+        {
+            if (data.runtimeProductionStationDataList == null || data.runtimeProductionStationDataList.Count == 0)
+            {
+                return;
+            }
+
+            var stationSaves = data.runtimeProductionStationDataList.Where(x => x.mapId == currentMapId).ToList();
+            if (stationSaves.Count == 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < stationSaves.Count; i++)
+            {
+                var saved = stationSaves[i];
+                ProductionStation station = null;
+                if (gameController.buildings.TryGetValue(saved.stationBuildingType, out var structure))
+                {
+                    station = structure as ProductionStation;
+                }
+                else if (gameController.productionStationList != null)
+                {
+                    station = gameController.productionStationList
+                        .FirstOrDefault(s => s != null &&
+                                             (s.buildingType == saved.stationBuildingType ||
+                                              s.structureType == saved.stationBuildingType));
+                }
+
+                if (station == null)
+                {
+                    continue;
+                }
+
+                int materialCount = Mathf.Max(0, saved.currentMaterialCount);
+                station.currentMaterialCount = materialCount;
+
+                if (station.productionInfo == null)
+                {
+                    continue;
+                }
+
+                station.productionInfo.Init(materialCount, station);
+                if (materialCount > 0)
+                {
+                    station.productionInfo.gameObject.SetActive(true);
+                    station.productionInfo.StartProductionLoop(station, station.structureType);
+                    if (station.icon != null && station.icon.AnimationState != null)
+                    {
+                        station.icon.AnimationState.SetAnimation(0, "animation", true);
+                    }
+                }
+                else
+                {
+                    station.productionInfo.gameObject.SetActive(false);
+                    if (station.icon != null && station.icon.AnimationState != null)
+                    {
+                        station.icon.AnimationState.ClearTracks();
+                    }
+                }
+            }
+        }
+
+        private void RestorePlayerInventory()
+        {
+            var player = FindObjectOfType<PlayerController>();
+            if (player == null)
+            {
+                return;
+            }
+
+            player.dropDic.Clear();
+            if (data.runtimePlayerDropList != null)
+            {
+                foreach (var entry in data.runtimePlayerDropList)
+                {
+                    if (entry == null) continue;
+                    if (entry.count <= 0) continue;
+                    player.dropDic[entry.itemType] = entry.count;
+                }
+            }
+
+            player.goodsDic.Clear();
+            if (data.runtimePlayerGoodsList != null)
+            {
+                foreach (var entry in data.runtimePlayerGoodsList)
+                {
+                    if (entry == null) continue;
+                    if (entry.count <= 0) continue;
+                    player.goodsDic[entry.goodsType] = entry.count;
+                }
+            }
+
+            if (player.playerInfo != null)
+            {
+                player.playerInfo.UpdateTxt();
+            }
+            else
+            {
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerInfo);
             }
         }
 
@@ -670,6 +1206,8 @@ namespace Module
         private IEnumerator AutoSaveCoroutine()
         {
             var wait = new WaitForSeconds(10f);
+            // Delay first save to avoid empty snapshot
+            yield return wait;
             while (true)
             {
                 SavePlayerDataAsync();
@@ -823,6 +1361,7 @@ namespace Module
                              ObjectCreationHandling = ObjectCreationHandling.Replace
                          });
                          data.age = respone.age;
+                         Debug.Log($"[RuntimeLoad] products={(data.runtimeProductionDataList?.Count ?? 0)} stations={(data.runtimeProductionStationDataList?.Count ?? 0)} drop={(data.runtimePlayerDropList?.Count ?? 0)} goods={(data.runtimePlayerGoodsList?.Count ?? 0)}");
                          SavePlayerDataAsync();
                      }
                      else

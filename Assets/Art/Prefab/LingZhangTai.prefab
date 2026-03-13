@@ -575,11 +575,11 @@ MonoBehaviour:
   parchaseTransform2: {fileID: 7901129263820782172}
   parchaseTransform: {fileID: 0}
   grid:
-    columns: 3
+    columns: 5
     rows: 5
-    layers: 30000
     xSpacing: 0.1
-    ySpacing: 0.1
+    rowSpacing: 0.15
+    layerSpacing: 0.4
     basePosition: {x: 0, y: 0}
     currentIndex: 0
   content_1: {fileID: 538481213446878237}
@@ -587,6 +587,7 @@ MonoBehaviour:
   exportTransform: {fileID: 5415673449401164502}
   exportTransform2: {fileID: 6328160714501173961}
   customerList: []
+  coinList: []
   speed: 1
   receiveTransform: {fileID: 4647107076743614315}
   receiveTransform1: {fileID: 9206250723923546175}

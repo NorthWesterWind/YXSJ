@@ -147,12 +147,13 @@ namespace Utils
         private string Loginurl = "http://game.zikunhh.com/php/denglu.php?app_name=Yjsj";
         private string realnameurl = "http://game.zikunhh.com/php/shiming.php?app_name=Yjsj";
         private string saveurl = "http://game.zikunhh.com/php/cunchu.php?app_name=Yjsj";
+        private string blockedwordsurl = "http://game.zikunhh.com/php/blocked.php?action=check";
 
         public void RegisterCheck(string user, string password, Action<ResponseRegister> callback)
         {
             if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))
             {
-                 UIController.Instance.Show<TipView>("账号或密码不能为空");
+                UIController.Instance.Show<TipView>("账号或密码不能为空");
                 return;
             }
 
@@ -222,12 +223,12 @@ namespace Utils
                         {
                             UIController.Instance.Show<TipView>("登录失败!");
                         }
-                         PlayerDataModule.Instance.data.user_id = responseLogin.id;
+                        PlayerDataModule.Instance.data.user_id = responseLogin.id;
                     }
                     catch (Exception ex)
                     {
                         Debug.LogError($"JSON解析错误: {ex.Message}");
-                       UIController.Instance.Show<TipView>("登录失败!");
+                        UIController.Instance.Show<TipView>("登录失败!");
                     }
                 }
                 else
@@ -284,13 +285,13 @@ namespace Utils
         }
 
 
-        public void RealName( string idnum, string chinese, string fcmLvl,
+        public void RealName(string idnum, string chinese, string fcmLvl,
             Action<ResponseRealName> callback)
         {
             StartCoroutine(GetRealNameCoroutine(idnum, chinese, fcmLvl, callback));
         }
 
-        private IEnumerator GetRealNameCoroutine( string idnum, string chinese, string fcmLvl,
+        private IEnumerator GetRealNameCoroutine(string idnum, string chinese, string fcmLvl,
             Action<ResponseRealName> callback)
         {
             WWWForm form = new WWWForm();
@@ -308,7 +309,7 @@ namespace Utils
                 {
                     Debug.Log("实名请求成功：" + webRequest.downloadHandler.text);
                     ResponseRealName responseRealName =
-                        JsonUtility.FromJson<ResponseRealName>(webRequest.downloadHandler.text);
+                        JsonConvert.DeserializeObject<ResponseRealName>(webRequest.downloadHandler.text);
                     callback(responseRealName);
                 }
                 else
@@ -317,6 +318,35 @@ namespace Utils
                 }
             }
         }
+
+        public void CheckBlockedWords(string str, Action<BlockedWordData> callback)
+        {
+            StartCoroutine(GetBlockedWordsCoroutine(str, callback));
+        }
+        private IEnumerator GetBlockedWordsCoroutine(string str, Action<BlockedWordData> callback)
+        {
+            WWWForm form = new WWWForm();
+            form.AddField("test", str);
+            using (UnityWebRequest webRequest = UnityWebRequest.Post(blockedwordsurl, form))
+            {
+                webRequest.timeout = 30;
+
+                yield return webRequest.SendWebRequest();
+                if (webRequest.result == UnityWebRequest.Result.Success)
+                {
+                    Debug.Log("敏感词请求成功：" + webRequest.downloadHandler.text);
+                    BlockedWordData response =
+                        JsonConvert.DeserializeObject<BlockedWordData>(webRequest.downloadHandler.text);
+                    callback(response);
+                }
+                else
+                {
+                    Debug.LogError("敏感词请求失败：" + webRequest.error);
+                }
+            }
+        }
+
+
 
         // public void ClearUser(string user, Action<ResponseClear> callback)
         // {
@@ -359,4 +389,20 @@ namespace Utils
             set => app_name = value;
         }
     }
+    public class BlockedWordData
+    {
+        public bool success;
+        public int code;
+        public string message;
+        public BlockedWordInternalData data;
+    }
+    public class BlockedWordInternalData
+    {
+        public string reason;
+        public string hit_word;
+        public string reason_type;
+        public bool has_sensitive;
+    }
+
+
 }

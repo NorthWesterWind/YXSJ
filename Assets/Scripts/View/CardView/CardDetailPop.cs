@@ -476,7 +476,7 @@ namespace View.CardView
                 //     fillImg.fillAmount = cardUpProgress.currentNum * 1f / WorldData.cardUpLevelArr[cardUpProgress.level - 1];
                 //     filltxt.text = $"{cardUpProgress.currentNum}/{WorldData.cardUpLevelArr[cardUpProgress.level - 1]}";
                 // }
-                UpdateViewWithArgs();
+                UpdateViewWithArgs(cardLevelData);
                 EventCenter.Instance.TriggerEvent(EventMessages.UpdateCardInfo, cardLevelData.developType);
             }));
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);

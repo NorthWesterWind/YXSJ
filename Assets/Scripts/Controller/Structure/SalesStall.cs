@@ -65,11 +65,17 @@ namespace Controller.Structure
 
         public void Init(params object[] args)
         {
+            var playerData = PlayerDataModule.Instance.data;
             if (GameController.Instance.unlockedBuildingTypes.Contains(buildingType))
             {
-                return;
+                var unlocked = playerData.structUnLockDataDic[playerData.currentMapID];
+                if (!unlocked.Contains(buildingType))
+                {
+                    unlocked.Add(buildingType);
+                }
+                playerData.structLockDataDic[playerData.currentMapID].Remove(buildingType);
+                playerData.structCanUnLockDataDic[playerData.currentMapID].Remove(buildingType);
             }
-            var playerData = PlayerDataModule.Instance.data;
             var lockData = GetLockData(playerData.currentMapID);
             var state = GetStructureState(playerData, lockData);
             RefreshView(state, lockData);
@@ -83,6 +89,8 @@ namespace Controller.Structure
 
         private void RefreshView(StructureState state, StructureLockData lockData)
         {
+            isLock = state == StructureState.Locked;
+            isCanUnlockState = state == StructureState.CanUnlock;
             switch (state)
             {
                 case StructureState.Locked:
@@ -106,6 +114,11 @@ namespace Controller.Structure
             productIcon.sortingOrder = newOrder + 2;
             productIconbg.sortingOrder = newOrder + 1;
             GameController.Instance.unlockedBuildingTypes.Add(buildingType);
+            var unlocked = PlayerDataModule.Instance.data.structUnLockDataDic[PlayerDataModule.Instance.data.currentMapID];
+            if (!unlocked.Contains(buildingType))
+            {
+                unlocked.Add(buildingType);
+            }
         }
 
         public StructureLockData GetLockData(int mapId)
@@ -195,7 +208,7 @@ namespace Controller.Structure
                 int lastIndex = productList.Count - 1;
                 Production p = productList[lastIndex];
                 productList.RemoveAt(lastIndex);
-                p.FlyTo(customer.receiveTransform.position);
+                p.FlyTo_1(customer.receiveTransform.position , 0.05f);
                 grid.ReleaseOne();
                 outList.Add(p);
                 currentGoodsCount--;
@@ -212,7 +225,7 @@ namespace Controller.Structure
             p.SetState(ItemState.HeldByAssistant);
             if (p.spriteRenderer != null)
             {
-                p.spriteRenderer.sortingOrder = sprite.sortingOrder + 2;
+                p.spriteRenderer.sortingOrder = grid.GetLastSortingOrder(sprite.sortingOrder, 2);
             }
             p.FlyTo(targetPos, () =>
             {
@@ -232,3 +245,5 @@ namespace Controller.Structure
         }
     }
 }
+
+

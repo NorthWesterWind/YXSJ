@@ -344,13 +344,17 @@ namespace Controller
         {
             foreach (var buildingType in buildingTypes)
             {
-                if (buildingType == BuildingType.YuShaHu_1)
+                if (GameController.Instance != null &&
+                    GameController.Instance.buildings != null &&
+                    GameController.Instance.buildings.TryGetValue(buildingType, out var structure) &&
+                    structure is ProductionStation productionStation)
                 {
-                    var productionData = PlayerDataModule.Instance.data.ProductStationDataList.Find(x => x.buildingType == BuildingType.YuShaHu_1);
+                    var productionData = PlayerDataModule.Instance.data.ProductStationDataList
+                        .Find(x => x.buildingType == buildingType);
                     if (productionData == null)
                     {
-                      
-                        PlayerDataModule.Instance.data.ProductStationDataList.Add(new ProductStationData(BuildingType.YuShaHu_1,  GameController.Instance.buildings[BuildingType.YuShaHu_1].GetComponent<ProductionStation>().goodsType));
+                        PlayerDataModule.Instance.data.ProductStationDataList.Add(
+                            new ProductStationData(buildingType, productionStation.goodsType));
                     }
                 }
                 if (buildingType == BuildingType.LingZhangTai)
@@ -374,13 +378,13 @@ namespace Controller
                     {
                         PlayerDataModule.Instance.data.warehouselist.Add(new WarehouseCategory(WarehouseCategoryType.LingChuGe_1));
                     }
-                    if (buildingType == BuildingType.LingChuGe_2)
+                }
+                if (buildingType == BuildingType.LingChuGe_2)
+                {
+                    var warehouseCategory1 = PlayerDataModule.Instance.data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2);
+                    if (warehouseCategory1 == null)
                     {
-                        var warehouseCategory1 = PlayerDataModule.Instance.data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2);
-                        if (warehouseCategory1 == null)
-                        {
-                            PlayerDataModule.Instance.data.warehouselist.Add(new WarehouseCategory(WarehouseCategoryType.LingChuGe_2));
-                        }
+                        PlayerDataModule.Instance.data.warehouselist.Add(new WarehouseCategory(WarehouseCategoryType.LingChuGe_2));
                     }
                 }
             }

@@ -114,7 +114,7 @@ public class LoginView : BaseView
         passwordInput.onValueChanged.AddListener(OnPasswordValueChanged);
         registerPasswordInput.onValidateInput += ValidateAlphaNumeric;
         registerPasswordInput.onValueChanged.AddListener(OnPassword2ValueChanged);
-       // setNameInput.onValueChanged.AddListener(OnCreateNameValueChanged);
+        // setNameInput.onValueChanged.AddListener(OnCreateNameValueChanged);
         realAccountInput.onValueChanged.AddListener(OnNumberValueChanged);
 
         loginBtn.onClick.RemoveAllListeners();
@@ -131,7 +131,7 @@ public class LoginView : BaseView
         realNameReturnBtn.onClick.RemoveAllListeners();
         realNameReturnBtn.onClick.AddListener(SwitchToLoginPanel);
         realNameBtn.onClick.RemoveAllListeners();
-        realNameBtn.onClick.AddListener(OnRealName);
+        realNameBtn.onClick.AddListener(OnRealNameStrict);
 
         // setNameBtn.onClick.RemoveAllListeners();
         // setNameBtn.onClick.AddListener(OnSetName);
@@ -165,13 +165,30 @@ public class LoginView : BaseView
             UIController.Instance.Show<TipView>("账号长度应为4到8!");
             return;
         }
-        if (!IsTextValid(accountInput.text))
-        {
-            UIController.Instance.Show<TipView>("账号包含敏感词!");
-            return;
-        }
 
-        PlayerDataModule.Instance.Login(accountInput.text, passwordInput.text, OnLogin);
+        LoginUtil.Instance.CheckBlockedWords(accountInput.text, (data) =>
+        {
+            if (data.code != 200)
+            {
+                UIController.Instance.Show<TipView>("网络状态异常!");
+                return;
+            }
+            else
+            {
+                if (data.data.has_sensitive)
+                {
+                    UIController.Instance.Show<TipView>("账号包含敏感词!");
+                    Debug.LogWarning($"账号 '{accountInput.text}' 包含敏感词 '{data.data.hit_word}'，原因类型: {data.data.reason_type}，具体原因: {data.data.reason}");
+                    return;
+                }
+                else
+                {
+                    PlayerDataModule.Instance.Login(accountInput.text, passwordInput.text, OnLogin);
+                }
+            }
+        });
+
+
     }
 
     private void OnLogin(int fcm)
@@ -189,7 +206,7 @@ public class LoginView : BaseView
         //     SwitchToSetNamePanel();
         // }
         // else
-            OnCanLogin();
+        OnCanLogin();
     }
 
     private void OnCanLogin()
@@ -302,21 +319,40 @@ public class LoginView : BaseView
             UIController.Instance.Show<TipView>("账号长度应为4到8!");
             return;
         }
-
-        if (!IsTextValid(registerAccountInput.text))
-        {
-            UIController.Instance.Show<TipView>("账号包含敏感词!");
-            return;
-        }
-
         if (registerPasswordInput.text.Length < 4)
         {
             UIController.Instance.Show<TipView>("密码长度不能少于4位!");
             return;
         }
 
-        PlayerDataModule.Instance.Register(str1, str2,
-            OnRegisterSuccess, OnRegisterFail);
+        // if (!IsTextValid(registerAccountInput.text))
+        // {
+        //     UIController.Instance.Show<TipView>("账号包含敏感词!");
+        //     return;
+        // }
+        LoginUtil.Instance.CheckBlockedWords(registerAccountInput.text, (data) =>
+        {
+            if (data.code != 200)
+            {
+                UIController.Instance.Show<TipView>("网络状态异常!");
+                return;
+            }
+            else
+            {
+                if (data.data.has_sensitive)
+                {
+                    UIController.Instance.Show<TipView>("账号包含敏感词!");
+                    Debug.LogWarning($"注册账号 '{registerAccountInput.text}' 包含敏感词 '{data.data.hit_word}'，原因类型: {data.data.reason_type}，具体原因: {data.data.reason}");
+                    return;
+                }
+                else
+                {
+                    PlayerDataModule.Instance.Register(str1, str2,
+                        OnRegisterSuccess, OnRegisterFail);
+                }
+            }
+        });
+
     }
 
     private void OnRegisterSuccess()
@@ -328,6 +364,71 @@ public class LoginView : BaseView
     private void OnRegisterFail(string msg)
     {
         UIController.Instance.Show<TipView>(msg);
+    }
+
+    private void OnRealNameStrict()
+    {
+        string realName = realNameInput.text?.Trim();
+        string idCard = realAccountInput.text?.Trim().ToUpperInvariant();
+
+        if (string.IsNullOrEmpty(realName) || string.IsNullOrEmpty(idCard))
+        {
+            UIController.Instance.Show<TipView>("姓名或身份证号不能为空!");
+            return;
+        }
+
+        if (!Extensions.IsAllChinese(realName) || realName.Length < 2 || realName.Length > 8)
+        {
+            UIController.Instance.Show<TipView>("请输入2-8位中文姓名！");
+            return;
+        }
+
+        if (!IsValidChineseIdCard(idCard))
+        {
+            UIController.Instance.Show<TipView>("请输入18位有效身份证号！");
+            return;
+        }
+
+        realNameInput.text = realName;
+        realAccountInput.text = idCard;
+        OnRealName();
+    }
+
+    private static readonly int[] IdCardWeight = { 7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2 };
+    private static readonly char[] IdCardCheckCode = { '1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2' };
+
+    private bool IsValidChineseIdCard(string idCard)
+    {
+        if (string.IsNullOrWhiteSpace(idCard))
+        {
+            return false;
+        }
+
+        if (!Regex.IsMatch(idCard, @"^\d{17}[\dX]$"))
+        {
+            return false;
+        }
+
+        if (!DateTime.TryParseExact(idCard.Substring(6, 8), "yyyyMMdd",
+                System.Globalization.CultureInfo.InvariantCulture,
+                System.Globalization.DateTimeStyles.None, out DateTime birthday))
+        {
+            return false;
+        }
+
+        if (birthday < new DateTime(1900, 1, 1) || birthday > DateTime.Today)
+        {
+            return false;
+        }
+
+        int sum = 0;
+        for (int i = 0; i < 17; i++)
+        {
+            sum += (idCard[i] - '0') * IdCardWeight[i];
+        }
+
+        char checkCode = IdCardCheckCode[sum % 11];
+        return idCard[17] == checkCode;
     }
 
     private void OnRealName()
@@ -344,6 +445,68 @@ public class LoginView : BaseView
             return;
         }
 
+      StartCoroutine(SendAuthRequest(realNameInput.text, realAccountInput.text));
+    }
+
+
+    private IEnumerator SendAuthRequest(string name, string idCard)
+    {
+        string rawParams = $"idnum={idCard}&name={name}";
+        byte[] payload = Encoding.UTF8.GetBytes(rawParams);
+
+        using UnityWebRequest request = new UnityWebRequest("https://banhao2.dyhyyx.com/php/yanzheng1.php", "POST")
+        {
+            uploadHandler = new UploadHandlerRaw(payload),
+            downloadHandler = new DownloadHandlerBuffer()
+        };
+        request.SetRequestHeader("Content-Type",
+            "application/x-www-form-urlencoded; charset=UTF-8");
+
+        yield return request.SendWebRequest();
+
+        Debug.Log("服务器返回原始数据: " + request.downloadHandler.text);
+        //loadingPanel.SetActive(false);
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            HandleResponse(request.downloadHandler.text);
+        }
+        else
+        {
+            Debug.Log($"网络错误: {request.error}！");
+            UIController.Instance.Show<TipView>($"网络错误！");
+        }
+    }
+
+    // 处理服务器响应
+    private void HandleResponse(string responseText)
+    {
+        AuthResponse response = JsonUtility.FromJson<AuthResponse>(responseText);
+        if (response == null)
+        {
+            Debug.Log("服务器返回数据解析失败");
+            UIController.Instance.Show<TipView>("服务器未响应！");
+            return;
+        }
+
+        // 检查错误码
+        if (response.error_code != 0)
+        {
+            Debug.Log($"认证失败: {response.reason}");
+            UIController.Instance.Show<TipView>($"认证失败!");
+            return;
+        }
+
+        // 检查是否验证通过
+        if (!response.result.isok)
+        {
+            UIController.Instance.Show<TipView>("身份证信息不匹配！");
+            return;
+        }
+
+        // 全部验证通过
+        Debug.Log($"认证成功！\n姓名：{response.result.realname}\n地区：{response.result.IdCardInfor.area}");
+
         PlayerDataModule.Instance.RealName(realAccountInput.text, realNameInput.text,
            "0",
            response =>
@@ -356,14 +519,7 @@ public class LoginView : BaseView
                        PlayerDataModule.Instance.data.age = age;
                        PlayerDataModule.Instance.SavePlayerDataAsync();
                        PlayerDataModule.Instance.SavePlayerDataToSever();
-
-                    //    if (!PlayerDataModule.Instance.data.isCreated)
-                    //    {
-                    //        HideAllPanels();
-                    //        SwitchToSetNamePanel();
-                    //    }
-                    //    else
-                           OnCanLogin();
+                       OnCanLogin();
                        break;
                    case 3:
                        UIController.Instance.Show<TipView>("实名失败输入18位身份证号数字！");
@@ -381,7 +537,7 @@ public class LoginView : BaseView
     private void OnSetName()
     {
 
-       // string name = setNameInput.text;
+        // string name = setNameInput.text;
         if (string.IsNullOrEmpty(name))
         {
             UIController.Instance.Show<TipView>("昵称不能为空!");
@@ -400,19 +556,40 @@ public class LoginView : BaseView
             return;
         }
 
-        if (!IsTextValid(name))
+        // if (!IsTextValid(name))
+        // {
+        //     UIController.Instance.Show<TipView>("昵称包含敏感词!");
+        //     return;
+        // }
+        LoginUtil.Instance.CheckBlockedWords(name, (data) =>
         {
-            UIController.Instance.Show<TipView>("昵称包含敏感词!");
-            return;
-        }
+            if (data.code != 200)
+            {
+                UIController.Instance.Show<TipView>("网络状态异常!");
+                return;
+            }
+            else
+            {
+                if (data.data.has_sensitive)
+                {
+                    UIController.Instance.Show<TipView>("昵称包含敏感词!");
+                    Debug.LogWarning($"昵称 '{name}' 包含敏感词 '{data.data.hit_word}'，原因类型: {data.data.reason_type}，具体原因: {data.data.reason}");
+                    return;
+                }
+                else
+                {
+                    HideAllPanels();
+                    PlayerData playerData = PlayerDataModule.Instance.data;
+                    playerData.userName = name;
+                    playerData.isCreated = true;
+                    PlayerDataModule.Instance.SavePlayerDataAsync();
+                    PlayerDataModule.Instance.SavePlayerDataToSever();
+                    StartCoroutine(No18LoadGame());
+                }
+            }
+        });
 
-        HideAllPanels();
-        PlayerData playerData = PlayerDataModule.Instance.data;
-        playerData.userName = name;
-        playerData.isCreated = true;
-        PlayerDataModule.Instance.SavePlayerDataAsync();
-        PlayerDataModule.Instance.SavePlayerDataToSever();
-        StartCoroutine(No18LoadGame());
+
 
 
     }
@@ -502,21 +679,29 @@ public class LoginView : BaseView
     private void OnNumberValueChanged(string text)
     {
         // 用 StringBuilder 过滤出数字
-        var filtered = new System.Text.StringBuilder();
+        var filtered = new StringBuilder(18);
         if (Input.compositionString.Length > 0)
         {
-            filtered.Clear();
             return;
         }
 
         foreach (char c in text)
         {
             // 只允许英文(a-zA-Z)或数字(0-9)，且长度限制为10
-            if ((c >= 'a' && c <= 'z') ||
-                (c >= 'A' && c <= 'Z') ||
-                (c >= '0' && c <= '9'))
+            if (filtered.Length >= 18)
+            {
+                break;
+            }
+
+            if (char.IsDigit(c))
             {
                 filtered.Append(c);
+                continue;
+            }
+
+            if ((c == 'x' || c == 'X') && filtered.Length == 17)
+            {
+                filtered.Append('X');
             }
         }
 
@@ -524,6 +709,7 @@ public class LoginView : BaseView
         if (filtered.ToString() != text)
         {
             realAccountInput.text = filtered.ToString();
+            realAccountInput.caretPosition = filtered.Length;
         }
     }
 
@@ -598,60 +784,60 @@ public class LoginView : BaseView
     /// <summary>
     /// 检查文本是否合法（true = 合法）
     /// </summary>
-    public bool IsTextValid(string input)
-    {
-        if (!isInitialized)
-        {
-            Debug.LogWarning("敏感词检测器未初始化完成");
-            return true;
-        }
+    // public bool IsTextValid(string input)
+    // {
+    //     if (!isInitialized)
+    //     {
+    //         Debug.LogWarning("敏感词检测器未初始化完成");
+    //         return true;
+    //     }
 
-        if (string.IsNullOrEmpty(input))
-        {
-            return true;
-        }
+    //     if (string.IsNullOrEmpty(input))
+    //     {
+    //         return true;
+    //     }
 
-        string lowerInput = input.ToLower();
+    //     string lowerInput = input.ToLower();
 
-        // --- 第一步：直接匹配检查 ---
-        // 这一步能捕获到像 "4399" 这样包含数字的敏感词
-        int index = 0;
-        for (int i = 0; i < sensitiveWords.Count; i++)
-        {
-            string sensitiveWord = sensitiveWords[i];
+    //     // --- 第一步：直接匹配检查 ---
+    //     // 这一步能捕获到像 "4399" 这样包含数字的敏感词
+    //     int index = 0;
+    //     for (int i = 0; i < sensitiveWords.Count; i++)
+    //     {
+    //         string sensitiveWord = sensitiveWords[i];
 
-            if (lowerInput.Contains(sensitiveWord))
-            {
-                Debug.Log($"[直接匹配] 检测到敏感词: {sensitiveWord}");
-                Debug.Log($"[直接匹配】检测到敏感词：{sensitiveWord},差不多在敏感词列表第‘{i}'位)");
-                return false;
-            }
-        }
+    //         if (lowerInput.Contains(sensitiveWord))
+    //         {
+    //             Debug.Log($"[直接匹配] 检测到敏感词: {sensitiveWord}");
+    //             Debug.Log($"[直接匹配】检测到敏感词：{sensitiveWord},差不多在敏感词列表第‘{i}'位)");
+    //             return false;
+    //         }
+    //     }
 
-        // --- 第二步：过滤干扰字符后检查 ---
-        // 只有在第一步没发现问题时才执行，用于防范 "c n m" 或 "c23nm" 这样的绕过
+    //     // --- 第二步：过滤干扰字符后检查 ---
+    //     // 只有在第一步没发现问题时才执行，用于防范 "c n m" 或 "c23nm" 这样的绕过
 
-        // 移除所有非字母和非中文字符的“干扰项”
-        string filteredInput = Regex.Replace(lowerInput, @"[^a-z\u4e00-\u9fa5]", "");
+    //     // 移除所有非字母和非中文字符的“干扰项”
+    //     string filteredInput = Regex.Replace(lowerInput, @"[^a-z\u4e00-\u9fa5]", "");
 
-        // 如果过滤后和过滤前一样，且第一步已检查过，那么无需再查
-        if (filteredInput == lowerInput)
-        {
-            return true;
-        }
+    //     // 如果过滤后和过滤前一样，且第一步已检查过，那么无需再查
+    //     if (filteredInput == lowerInput)
+    //     {
+    //         return true;
+    //     }
 
-        foreach (string sensitiveWord in sensitiveWords)
-        {
-            if (filteredInput.Contains(sensitiveWord))
-            {
-                Debug.Log($"[绕过匹配] 通过过滤 '{input}' -> '{filteredInput}' 检测到敏感词 '{sensitiveWord}'");
-                return false;
-            }
-        }
+    //     foreach (string sensitiveWord in sensitiveWords)
+    //     {
+    //         if (filteredInput.Contains(sensitiveWord))
+    //         {
+    //             Debug.Log($"[绕过匹配] 通过过滤 '{input}' -> '{filteredInput}' 检测到敏感词 '{sensitiveWord}'");
+    //             return false;
+    //         }
+    //     }
 
-        // 如果两步检查都通过了，则判定为合法
-        return true;
-    }
+    //     // 如果两步检查都通过了，则判定为合法
+    //     return true;
+    // }
 
 
     #region 🔸 未成年人时间限制

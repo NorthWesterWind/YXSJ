@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Controller.Structure;
 using Module;
 using Module.Data;
@@ -28,11 +28,17 @@ namespace Controller
 
         public void Init(params object[] args)
         {
+            var playerData = PlayerDataModule.Instance.data;
             if (GameController.Instance.unlockedBuildingTypes.Contains(buildingType))
             {
-                return;
+                var unlocked = playerData.structUnLockDataDic[playerData.currentMapID];
+                if (!unlocked.Contains(buildingType))
+                {
+                    unlocked.Add(buildingType);
+                }
+                playerData.structLockDataDic[playerData.currentMapID].Remove(buildingType);
+                playerData.structCanUnLockDataDic[playerData.currentMapID].Remove(buildingType);
             }
-            var playerData = PlayerDataModule.Instance.data;
             var lockData = GetLockData(playerData.currentMapID);
             var state = GetStructureState(playerData, lockData);
             for (int i = freightClerkList.Count; i > 0; i++)

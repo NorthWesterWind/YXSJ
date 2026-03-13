@@ -2280,11 +2280,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6977136156692966086, guid: eca4f10c72abb3443b8aa0f0a88d4a8d, type: 3}
       propertyPath: patrolAreaSize.x
-      value: 9.54
+      value: 8.13
       objectReference: {fileID: 0}
     - target: {fileID: 6977136156692966086, guid: eca4f10c72abb3443b8aa0f0a88d4a8d, type: 3}
       propertyPath: patrolAreaSize.y
-      value: 6.75
+      value: 6.51
       objectReference: {fileID: 0}
     - target: {fileID: 8483947419661596445, guid: eca4f10c72abb3443b8aa0f0a88d4a8d, type: 3}
       propertyPath: m_Name
@@ -2300,7 +2300,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8962808923001906714, guid: eca4f10c72abb3443b8aa0f0a88d4a8d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 29.947369
+      value: 30.02
       objectReference: {fileID: 0}
     - target: {fileID: 8962808923001906714, guid: eca4f10c72abb3443b8aa0f0a88d4a8d, type: 3}
       propertyPath: m_LocalPosition.y
@@ -3300,8 +3300,8 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_VertexColorAlwaysGammaSpace: 1
-  m_AdditionalShaderChannelsFlag: 25
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 30020
@@ -9648,8 +9648,8 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
-  m_VertexColorAlwaysGammaSpace: 1
-  m_AdditionalShaderChannelsFlag: 25
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 30010
@@ -16916,6 +16916,15 @@ MonoBehaviour:
       Entry: 6
       Data: 
     - Name: runtimeProductionDataList
+      Entry: 6
+      Data: 
+    - Name: runtimeProductionStationDataList
+      Entry: 6
+      Data: 
+    - Name: runtimePlayerDropList
+      Entry: 6
+      Data: 
+    - Name: runtimePlayerGoodsList
       Entry: 6
       Data: 
     - Name: orderDataprogressList

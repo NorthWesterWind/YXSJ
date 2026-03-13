@@ -46,6 +46,8 @@ namespace View
         public Image mask4;
         public UIButton ordenFunctionBtn;
         public Image mask5;
+        
+        public TextMeshProUGUI speedTimeTxt;
 
         public TextMeshProUGUI tongbitxt;
         protected override void Start()
@@ -60,6 +62,7 @@ namespace View
             HandleShowPlayerInfoViewCartoon();
             HandleUpdateFunctionState();
             HandleUpdateMoneyInfo();
+            HandleUpdateSpeedTime();
         }
 
 
@@ -72,6 +75,7 @@ namespace View
             EventCenter.Instance.AddListener(EventMessages.UpdateLevelProgress, HandleUpdateLevelProgress);
             EventCenter.Instance.AddListener(EventMessages.UpdateFunctionState, HandleUpdateFunctionState);
             EventCenter.Instance.AddListener(EventMessages.UpdatePlayerCarryInfo, HandleUpdatePlayerCarryInfo);
+            EventCenter.Instance.AddListener(EventMessages.UpdateSpeedTime, HandleUpdateSpeedTime);
 
             settingBtn.onClick.RemoveAllListeners();
             settingBtn.onClick.AddListener(OnClickSettingBtn);
@@ -188,6 +192,7 @@ namespace View
             EventCenter.Instance.RemoveListener(EventMessages.UpdateFunctionState, HandleUpdateFunctionState);
             EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerCarryInfo, HandleUpdatePlayerCarryInfo);
             EventCenter.Instance.RemoveListener(EventMessages.HidePlayerInfoViewCartoon, HandleHidePlayerInfoViewCartoon);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateSpeedTime, HandleUpdateSpeedTime);
         }
 
 
@@ -254,6 +259,35 @@ namespace View
             tongbitxt.text = Extensions.FormatNumber(player.dataModule.data.tongbi);
 
 
+        }
+
+        public void HandleUpdateSpeedTime(params object[] args)
+        {
+            if (speedTimeTxt == null)
+            {
+                return;
+            }
+
+            int seconds = 0;
+            if (args != null && args.Length > 0)
+            {
+                seconds = Mathf.Max(0, (int)args[0]);
+            }
+            else if (player != null && player.dataModule != null)
+            {
+                seconds = Mathf.Max(0, Mathf.CeilToInt(player.dataModule.data.speedTime));
+            }
+
+            if (seconds <= 0)
+            {
+                speedTimeTxt.text = "生产加速时间剩余：\n 00:00:00";
+                return;
+            }
+
+            int hours = seconds / 3600;
+            int minutes = (seconds % 3600) / 60;
+            int remain = seconds % 60;
+            speedTimeTxt.text = $"生产加速时间剩余：\n {hours:D2}:{minutes:D2}:{remain:D2}";
         }
 
         public void HandleShowPlayerInfoViewCartoon(params object[] args)

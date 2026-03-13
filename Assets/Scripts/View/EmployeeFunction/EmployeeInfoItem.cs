@@ -193,6 +193,12 @@ namespace View.EmployeeFunction
                 return false;
             }
 
+            if (!IsMonsterAreaUnlocked(monstertype))
+            {
+                UIController.Instance.Show<global::View.TipView>("该区域未解锁，无法派遣");
+                return false;
+            }
+
             if (warehouse.workingCollectorList.Exists(x => x.monsterType == monstertype))
             {
                 return false;
@@ -250,6 +256,25 @@ namespace View.EmployeeFunction
             return null;
         }
 
+        private bool IsMonsterAreaUnlocked(MonsterFamily type)
+        {
+            if (playerData == null || playerData.mapLockDataProgressList == null)
+            {
+                return false;
+            }
+
+            (MonsterType monsterType, DropItemType _) = Extensions.ExchangeFamilyType(type);
+            if (monsterType == MonsterType.None)
+            {
+                return false;
+            }
+
+            var progress = playerData.mapLockDataProgressList.Find(x =>
+                x.mapId == playerData.currentMapID && x.monsterType == monsterType);
+
+            return progress != null && progress.isUnlock;
+        }
+
         public void UpdateInfo()
         {
             playerData = PlayerDataModule.Instance.data;
@@ -286,7 +311,8 @@ namespace View.EmployeeFunction
                     }
 
                     bool assigned = warehouse.workingCollectorList.Exists(x => x.monsterType == monstertype);
-                    bool canAdd = !assigned && warehouse.unworkingCollectorList.Count > 0;
+                    bool areaUnlocked = IsMonsterAreaUnlocked(monstertype);
+                    bool canAdd = !assigned && areaUnlocked && warehouse.unworkingCollectorList.Count > 0;
                     bool canRemove = assigned;
                     ApplyItemState(assigned, canAdd, canRemove);
                     break;

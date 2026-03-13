@@ -21,6 +21,7 @@ namespace Controller.Structure
         public Transform exportTransform;
         public Transform exportTransform2;
         public List<CustomerController> customerList = new();
+        public List<Production> coinList = new();
         public float speed = 1f;
 
         public Transform receiveTransform;
@@ -211,6 +212,8 @@ namespace Controller.Structure
         }
         private void RefreshView(StructureState state, StructureLockData lockData)
         {
+            isLock = state == StructureState.Locked;
+            isCanUnlockState = state == StructureState.CanUnlock;
             switch (state)
             {
                 case StructureState.Locked:
@@ -235,6 +238,11 @@ namespace Controller.Structure
                     PlayerData playerData = PlayerDataModule.Instance.data;
                     maxWaiters = playerData.cashierData.totalNum;
                     GameController.Instance.unlockedBuildingTypes.Add(structureType);
+                    var unlocked = playerData.structUnLockDataDic[playerData.currentMapID];
+                    if (!unlocked.Contains(structureType))
+                    {
+                        unlocked.Add(structureType);
+                    }
                     break;
             }
         }
@@ -441,13 +449,76 @@ namespace Controller.Structure
             Production product = productObj.GetComponent<Production>();
             product.Init(GoodsType.TongBi, (int)value);
             product.SetStation(this);
-            product.spriteRenderer.sortingOrder = sprite.sortingOrder + 3;
-            product.FlyTo(grid.GetNextPosition(), (() =>
+            RegisterCoin(product);
+            Vector2 targetPos = grid.GetNextPosition();
+            if (product.spriteRenderer != null)
+            {
+                product.spriteRenderer.sortingOrder = grid.GetLastSortingOrder(sprite.sortingOrder, 3);
+            }
+            product.FlyTo(targetPos, (() =>
             {
                 product.canPickup = true;
                 product.state = ItemState.OnWorkbench;
             }));
 
+        }
+
+        public Vector2 GetPickupRootPosition()
+        {
+            return grid.basePosition;
+        }
+
+        public void RegisterCoin(Production coin)
+        {
+            if (coin == null) return;
+            if (!coinList.Contains(coin))
+            {
+                coinList.Add(coin);
+            }
+        }
+
+        public void UnregisterCoin(Production coin)
+        {
+            if (coin == null) return;
+            coinList.Remove(coin);
+        }
+
+        public void SortCoinsByHeight()
+        {
+            coinList.RemoveAll(c => c == null);
+            coinList.Sort((a, b) =>
+            {
+                if (a == null && b == null) return 0;
+                if (a == null) return -1;
+                if (b == null) return 1;
+                return a.transform.position.y.CompareTo(b.transform.position.y);
+            });
+        }
+
+        public bool TryAttractTopCoin(Transform picker, Transform receivePoint)
+        {
+            if (picker == null || receivePoint == null) return false;
+
+            coinList.RemoveAll(c => c == null);
+
+            for (int i = coinList.Count - 1; i >= 0; i--)
+            {
+                var coin = coinList[i];
+                if (coin == null) continue;
+                if (!coin.canPickup) continue;
+                if (coin.isTaken) continue;
+                if (coin.state != ItemState.OnWorkbench) continue;
+
+                bool wasTaken = coin.isTaken;
+                coin.StartAttract(picker, receivePoint);
+                if (!wasTaken && coin.isTaken)
+                {
+                    grid.ReleaseOne();
+                    return true;
+                }
+            }
+
+            return false;
         }
         public void HandleStructureSpeedUp(params object[] args)
         {
@@ -469,3 +540,4 @@ namespace Controller.Structure
         }
     }
 }
+

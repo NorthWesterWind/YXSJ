@@ -4,6 +4,7 @@ using DG.Tweening;
 using Module;
 using Module.Data;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
@@ -118,6 +119,10 @@ namespace View
             UpdateInfo();
             content.DOAnchorPos(new Vector2(0, 0), 0.5f).SetEase(Ease.OutBack);
         }
+        public void HandleUpdateCardInfo(params object[] args)
+        {
+            UpdateInfo();
+        }
 
         protected override void OnShowComplete()
         {
@@ -207,12 +212,12 @@ namespace View
             closeBtn.onClick.RemoveAllListeners();
             closeBtn.onClick.AddListener(() => { StartCoroutine(ShowAnimation()); });
 
-            EventCenter.Instance.AddListener(EventMessages.UpdateCardInfo, UpdateViewWithArgs);
+            EventCenter.Instance.AddListener(EventMessages.UpdateCardInfo, HandleUpdateCardInfo  );
         }
         public override void RemoveEventListener()
         {
             base.RemoveEventListener();
-               EventCenter.Instance.RemoveListener(EventMessages.UpdateCardInfo, UpdateViewWithArgs);
+               EventCenter.Instance.RemoveListener(EventMessages.UpdateCardInfo, HandleUpdateCardInfo);
         }
 
         private IEnumerator ShowAnimation()

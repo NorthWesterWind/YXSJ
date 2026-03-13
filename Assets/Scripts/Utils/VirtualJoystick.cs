@@ -62,7 +62,7 @@ public class VirtualJoystick : MonoBehaviour,
     }
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (TryPassThroughToUnderlyingClickable(eventData))
+        if (!isTrial && TryPassThroughToUnderlyingClickable(eventData))
         {
             ignoreCurrentPointer = true;
             return;

@@ -244,6 +244,15 @@ namespace Controller
                 return;
             }
 
+            if (weapon != null)
+            {
+                bool shouldActive = currentState == CollectorState.Fight;
+                if (weapon.activeSelf != shouldActive)
+                {
+                    weapon.SetActive(shouldActive);
+                }
+            }
+
             if (weapon != null && weapon.activeSelf)
             {
                 weaponRoot.Rotate(0f, 0f, -weaponSpinSpeed * Time.deltaTime);
@@ -510,20 +519,8 @@ namespace Controller
                 }
             }
 
-            if (hasMonsterNearby)
+            if (!hasMonsterNearby)
             {
-                if (weapon != null)
-                {
-                    weapon.gameObject.SetActive(true);
-                }
-            }
-            else
-            {
-                if (weapon != null)
-                {
-                    weapon.gameObject.SetActive(false);
-                }
-
                 // 鑷姩鍥炶妫€锟?
                 if (currentHp < maxHp && !isRegenerating)
                 {
@@ -832,7 +829,7 @@ namespace Controller
             var current = state.GetCurrent(0);
 
             bool moving = agent.hasPath && agent.remainingDistance > 1f;
-            bool fighting = weapon != null && weapon.gameObject.activeSelf;
+            bool fighting = currentState == CollectorState.Fight;
 
             string anim = fighting
                 ? (moving ? AnimWalkAttack : AnimAttack)
@@ -915,6 +912,5 @@ namespace Controller
 
     }
 }
-
 
 

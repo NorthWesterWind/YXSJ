@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Module;
 using Utils;
 using World.Controller;
 
@@ -42,10 +43,11 @@ namespace View
             loginoutBtn.onClick.AddListener(Logout);
             quitBtn.onClick.AddListener((() =>
                          {
+                             SavePlayerDataBeforeExit();
 #if UNITY_EDITOR
-                             UnityEditor.EditorApplication.isPlaying = false; // 在编辑器中停止播放
+                             UnityEditor.EditorApplication.isPlaying = false; // 在编辑器中停止播�?
 #else
-    Application.Quit(); // 在打包后的应用中退出
+    Application.Quit(); // 在打包后的应用中退�?
 #endif
                          }));
             musicSlider.onValueChanged.RemoveAllListeners();
@@ -101,7 +103,19 @@ namespace View
 
         private void Logout()
         {
+            SavePlayerDataBeforeExit();
             StartCoroutine(LoadNextSceneCoroutine());
+        }
+
+        private void SavePlayerDataBeforeExit()
+        {
+            if (PlayerDataModule.Instance == null)
+            {
+                return;
+            }
+
+            PlayerDataModule.Instance.SavePlayerDataAsync();
+            PlayerDataModule.Instance.SavePlayerDataToSever();
         }
 
         private IEnumerator LoadNextSceneCoroutine()

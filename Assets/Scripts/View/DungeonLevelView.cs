@@ -2,7 +2,6 @@ using System;
 using Module;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 using Utils;
 using View;
 
@@ -104,7 +103,7 @@ public class DungeonLevelView : BaseView
             int minutes = Mathf.FloorToInt((float)remainSeconds / 60f);
             int seconds = Mathf.CeilToInt((float)remainSeconds % 60f);
 
-            infotxt_2.text = $"{minutes:D2}:{seconds:D2} 后可进行挑战";
+            infotxt_2.text = $"{minutes:D2}:{seconds:D2} 后可进行挑战。";
         }
 
 

@@ -16,6 +16,8 @@ namespace Controller
         public MapData mapData;
         public List<int> customerTypeList = new();
         public float spawnTime;
+        public float spawnRadiusX = 3f;
+        public float spawnRadiusY = 1.5f;
 
         private const int MaxCustomerPerPlace = 5;
         private Coroutine createCustomerCoroutine;
@@ -44,6 +46,10 @@ namespace Controller
 
         public void HandleCustomerCreat(params object[] args)
         {
+            if (GameController.Instance != null)
+            {
+                GameController.Instance.RefreshStructureCaches();
+            }
             customerTypeList.Clear();
             mapData = DataController.Instance.mapDataDic[
                PlayerDataModule.Instance.data.currentMapID];
@@ -58,10 +64,23 @@ namespace Controller
             createCustomerCoroutine = StartCoroutine(CreatCustomer());
         }
 
-        bool IsStructureUnlocked(BuildingType buildingType)
+        private BuildingType GetStallBuildingType(SalesStall stall)
         {
+            if (stall == null) return BuildingType.None;
+            return stall.buildingType != BuildingType.None ? stall.buildingType : stall.structureType;
+        }
+
+        bool IsStructureLocked(BuildingType buildingType)
+        {
+            if (buildingType == BuildingType.None)
+            {
+                return false;
+            }
             var playerData = PlayerDataModule.Instance.data;
-            return !playerData.structUnLockDataDic[playerData.currentMapID].Contains(buildingType);
+            bool unlockedByData = playerData.structUnLockDataDic[playerData.currentMapID].Contains(buildingType);
+            bool unlockedByRuntime = GameController.Instance != null &&
+                                     GameController.Instance.unlockedBuildingTypes.Contains(buildingType);
+            return !(unlockedByData || unlockedByRuntime);
         }
 
         public IEnumerator CreatCustomer()
@@ -69,52 +88,59 @@ namespace Controller
             yield return new WaitForSeconds(2f);
             while (true)
             {
-                if (!PlayerDataModule.Instance.data.structUnLockDataDic[PlayerDataModule.Instance.data.currentMapID].Contains(BuildingType.LingZhangTai))
+                if (IsStructureLocked(BuildingType.LingZhangTai))
                 {
                     yield return new WaitForSeconds(0.5f);
                     continue;
                 }
                 // 过滤出还能继续排队的地点
-                var availableStructures = GameController.Instance.goodBuild
-                    .Where(pair =>
-                    {
-                        if (IsStructureUnlocked((pair.Value as SalesStall).buildingType))
-                            return false;
-                        switch ((pair.Value as SalesStall).buildingType)
-                        {
-                            case BuildingType.LingChaJia_1:
-                                if (IsStructureUnlocked(BuildingType.YuShaHu_1))
-                                    return false;
-                                break;
-                            case BuildingType.LingChaJia_2:
-                                if (IsStructureUnlocked(BuildingType.YuShaHu_2))
-                                    return false;
-                                break;
-                            case BuildingType.LingChaJia_3:
-                                if (IsStructureUnlocked(BuildingType.YuShaHu_3))
-                                    return false;
-                                break;
-                            case BuildingType.LingChaJia_4:
-                                if (IsStructureUnlocked(BuildingType.YuShaHu_4))
-                                    return false;
-                                break;
+                var availableStructures = new List<KeyValuePair<GoodsType, StructureBase>>();
+                var stalls = GameController.Instance.salesStallList;
+                for (int i = 0; i < stalls.Count; i++)
+                {
+                    var stall = stalls[i];
+                    if (stall == null) continue;
+                    if (stall.currentGoodsType == GoodsType.None) continue;
 
-                            case BuildingType.LingQiJia_1:
-                                if (IsStructureUnlocked(BuildingType.LianQiLu_1))
-                                    return false;
-                                break;
-                            case BuildingType.LingQiJia_2:
-                                if (IsStructureUnlocked(BuildingType.LianQiLu_2))
-                                    return false;
-                                break;
-                            case BuildingType.LingQiJia_3:
-                                if (IsStructureUnlocked(BuildingType.LianQiLu_3))
-                                    return false;
-                                break;
-                        }
-                        return true;
-                    })
-                    .ToList();
+                    var stallType = GetStallBuildingType(stall);
+                    if (IsStructureLocked(stallType))
+                        continue;
+
+                    switch (stallType)
+                    {
+                        case BuildingType.LingChaJia_1:
+                            if (IsStructureLocked(BuildingType.YuShaHu_1))
+                                continue;
+                            break;
+                        case BuildingType.LingChaJia_2:
+                            if (IsStructureLocked(BuildingType.YuShaHu_2))
+                                continue;
+                            break;
+                        case BuildingType.LingChaJia_3:
+                            if (IsStructureLocked(BuildingType.YuShaHu_3))
+                                continue;
+                            break;
+                        case BuildingType.LingChaJia_4:
+                            if (IsStructureLocked(BuildingType.YuShaHu_4))
+                                continue;
+                            break;
+
+                        case BuildingType.LingQiJia_1:
+                            if (IsStructureLocked(BuildingType.LianQiLu_1))
+                                continue;
+                            break;
+                        case BuildingType.LingQiJia_2:
+                            if (IsStructureLocked(BuildingType.LianQiLu_2))
+                                continue;
+                            break;
+                        case BuildingType.LingQiJia_3:
+                            if (IsStructureLocked(BuildingType.LianQiLu_3))
+                                continue;
+                            break;
+                    }
+
+                    availableStructures.Add(new KeyValuePair<GoodsType, StructureBase>(stall.currentGoodsType, stall));
+                }
 
                 // 如果所有点位都满了，不生成顾客
                 if (availableStructures.Count == 0)
@@ -140,7 +166,8 @@ namespace Controller
 
                 obj.transform.position = GetRandomPosition();
 
-                obj.GetComponent<CustomerController>().Init(tempData, goodsType, structure);
+                obj.GetComponent<CustomerController>()
+                    .Init(tempData, goodsType, structure, transform.position, spawnRadiusX, spawnRadiusY);
                 yield return null;
                 Debug.Log($"生成顾客：{obj.name},目标结构：{structure.name}, 目标位置：{obj.GetComponent<CustomerController>().nextPosition}");
                
@@ -152,9 +179,60 @@ namespace Controller
 
         private Vector3 GetRandomPosition()
         {
-            Vector3 position = transform.position;
-            position.x += Random.Range(-3f, 3f);
-            return position;
+            Vector3 origin = transform.position;
+            var map = PolyNav.PolyNavMap.current;
+            if (map == null)
+            {
+                var mapObj = GameObject.FindWithTag("Map");
+                if (mapObj != null)
+                {
+                    map = mapObj.GetComponent<PolyNav.PolyNavMap>();
+                }
+                if (map == null)
+                {
+                    var mapObjByName = GameObject.Find("Map");
+                    if (mapObjByName != null)
+                    {
+                        map = mapObjByName.GetComponent<PolyNav.PolyNavMap>();
+                    }
+                }
+            }
+            if (map != null && map.nodesCount == 0)
+            {
+                map.GenerateMap();
+            }
+
+            for (int i = 0; i < 8; i++)
+            {
+                Vector3 position = origin;
+                position.x += Random.Range(-spawnRadiusX, spawnRadiusX);
+                position.y += Random.Range(-spawnRadiusY, spawnRadiusY);
+
+                if (map == null)
+                {
+                    return position;
+                }
+
+                Vector2 pos2 = new Vector2(position.x, position.y);
+                if (map.PointIsValid(pos2))
+                {
+                    return position;
+                }
+            }
+
+            Vector3 fallback = origin;
+            fallback.x += Random.Range(-spawnRadiusX, spawnRadiusX);
+            fallback.y += Random.Range(-spawnRadiusY, spawnRadiusY);
+            if (map != null)
+            {
+                Vector2 pos2 = new Vector2(fallback.x, fallback.y);
+                if (!map.PointIsValid(pos2))
+                {
+                    pos2 = map.GetCloserEdgePoint(pos2);
+                }
+                fallback = new Vector3(pos2.x, pos2.y, fallback.z);
+            }
+            return fallback;
         }
 
 

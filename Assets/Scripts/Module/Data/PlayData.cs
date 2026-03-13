@@ -187,6 +187,21 @@ namespace Module.Data
         /// </summary>
         public List<RuntimeProductionData> runtimeProductionDataList = new List<RuntimeProductionData>();
 
+        /// <summary>
+        /// 生产台材料数量快照（按地图保存）
+        /// </summary>
+        public List<RuntimeProductionStationData> runtimeProductionStationDataList = new List<RuntimeProductionStationData>();
+
+        /// <summary>
+        /// 玩家背包材料快照
+        /// </summary>
+        public List<RuntimeDropItemCount> runtimePlayerDropList = new List<RuntimeDropItemCount>();
+
+        /// <summary>
+        /// 玩家背包商品快照
+        /// </summary>
+        public List<RuntimeGoodsCount> runtimePlayerGoodsList = new List<RuntimeGoodsCount>();
+
         #endregion
         #endregion      
 
@@ -230,8 +245,7 @@ namespace Module.Data
 
 
     }
-
-    public class StructureLockProgressData
+     public class StructureLockProgressData
     {
         public BuildingType buildType;
         public int needMoney;
@@ -448,6 +462,26 @@ namespace Module.Data
     }
 
     /// <summary>
+    /// 运行时玩家背包材料存档数据
+    /// </summary>
+    [Serializable]
+    public class RuntimeDropItemCount
+    {
+        public DropItemType itemType;
+        public int count;
+    }
+
+    /// <summary>
+    /// 运行时玩家背包商品存档数据
+    /// </summary>
+    [Serializable]
+    public class RuntimeGoodsCount
+    {
+        public GoodsType goodsType;
+        public int count;
+    }
+
+    /// <summary>
     /// 运行时商品存档数据（包含收银台硬币）
     /// </summary>
     [Serializable]
@@ -462,6 +496,17 @@ namespace Module.Data
         public float posX;
         public float posY;
         public float posZ;
+    }
+
+    /// <summary>
+    /// 运行时生产台材料存档数据
+    /// </summary>
+    [Serializable]
+    public class RuntimeProductionStationData
+    {
+        public int mapId;
+        public BuildingType stationBuildingType;
+        public int currentMaterialCount;
     }
 
 }

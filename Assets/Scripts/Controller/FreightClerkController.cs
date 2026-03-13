@@ -33,6 +33,7 @@ namespace Controller
         private SalesStall targetStall;          // 对应销售摊位
         private bool isWorking;
         private bool needDestory;  // 是否需要销毁
+        private bool mapWarningShown;
 
         /// <summary>
         /// 静态字典：记录每个生产台当前有多少搬运工在“前往 / 服务”
@@ -74,6 +75,16 @@ namespace Controller
             return ReservedProductsByFreight.Contains(production);
         }
 
+        public static bool IsStationClaimedByFreight(ProductionStation station)
+        {
+            if (station == null)
+            {
+                return false;
+            }
+
+            return StationWorkingClerkCount.TryGetValue(station, out var count) && count > 0;
+        }
+
         private void UpdateSpeed(params object[] args)
         {
             _agent.maxSpeed = WorldData.speedLevelDic[PlayerDataModule.Instance.data.deliverData.speedLevel];
@@ -103,12 +114,58 @@ namespace Controller
 
             productionStationList = GameController.Instance.productionStationList;
             salesStallList = GameController.Instance.salesStallList;
+            if ((productionStationList == null || productionStationList.Count == 0) &&
+                GameController.Instance != null)
+            {
+                GameController.Instance.RefreshStructureCaches();
+                productionStationList = GameController.Instance.productionStationList;
+                salesStallList = GameController.Instance.salesStallList;
+            }
             // 初始化导航
-            _agent.map = GameObject.FindWithTag("Map").transform.GetComponent<PolyNavMap>();
-            normalPos = productionStationList[0].transferPoint;
-            _agent.SetDestination(normalPos.position);
+            EnsureMap();
+            SnapToValidPosition();
+            ResolveIdlePosition();
+            if (normalPos != null)
+            {
+                if (EnsureMap())
+                {
+                    _agent.SetDestination(ClampToNav(normalPos.position));
+                }
+            }
             _agent.maxSpeed = WorldData.speedLevelDic[deliverData.speedLevel];
             StartCoroutine(WorkerLoop());
+        }
+
+        private void ResolveIdlePosition()
+        {
+            if (normalPos != null)
+            {
+                return;
+            }
+
+            if (productionStationList != null)
+            {
+                for (int i = 0; i < productionStationList.Count; i++)
+                {
+                    var station = productionStationList[i];
+                    if (station == null) continue;
+                    if (station.transferPoint != null)
+                    {
+                        normalPos = station.transferPoint;
+                        return;
+                    }
+                    normalPos = station.transform;
+                    return;
+                }
+            }
+
+            var fallbackStation = FindObjectOfType<ProductionStation>();
+            if (fallbackStation != null)
+            {
+                normalPos = fallbackStation.transferPoint != null
+                    ? fallbackStation.transferPoint
+                    : fallbackStation.transform;
+            }
         }
 
         public void StopWorking()
@@ -137,6 +194,14 @@ namespace Controller
                 targetStation = FindValidProductionStation();
                 if (targetStation == null)
                 {
+                    if ((productionStationList == null || productionStationList.Count == 0 ||
+                         salesStallList == null || salesStallList.Count == 0) &&
+                        GameController.Instance != null)
+                    {
+                        GameController.Instance.RefreshStructureCaches();
+                        productionStationList = GameController.Instance.productionStationList;
+                        salesStallList = GameController.Instance.salesStallList;
+                    }
                     // 没有任何生产台有产品，让搬运工回到待命点 normalPos 原地待命
                     if (normalPos != null)
                     {
@@ -210,9 +275,115 @@ namespace Controller
         }
         private IEnumerator MoveTo(Vector2 target)
         {
-            _agent.SetDestination(target);
-            while (_agent.hasPath && _agent.remainingDistance > 1f)
+            if (!EnsureMap())
+            {
+                yield break;
+            }
+
+            Vector2 clamped = ClampToNav(target);
+            const int maxAttempts = 3;
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
+            {
+                bool finished = false;
+                bool success = false;
+                _agent.SetDestination(clamped, ok =>
+                {
+                    finished = true;
+                    success = ok;
+                });
+
+                while (!finished)
+                {
+                    if (_agent == null)
+                    {
+                        yield break;
+                    }
+                    yield return null;
+                }
+
+                if (success || Vector2.Distance(transform.position, clamped) <= 1f)
+                {
+                    yield break;
+                }
+
+                if (EnsureMap())
+                {
+                    SnapToValidPosition();
+                    clamped = ClampToNav(target);
+                }
+
                 yield return null;
+            }
+        }
+
+        private Vector2 ClampToNav(Vector2 pos)
+        {
+            if (!EnsureMap())
+            {
+                return pos;
+            }
+            var map = _agent.map;
+            return map.PointIsValid(pos) ? pos : map.GetCloserEdgePoint(pos);
+        }
+
+        private void SnapToValidPosition()
+        {
+            if (!EnsureMap())
+            {
+                return;
+            }
+            var map = _agent.map;
+            Vector2 pos = transform.position;
+            if (!map.PointIsValid(pos))
+            {
+                Vector2 fixedPos = map.GetCloserEdgePoint(pos);
+                transform.position = new Vector3(fixedPos.x, fixedPos.y, transform.position.z);
+            }
+        }
+
+        private bool EnsureMap()
+        {
+            if (_agent == null)
+            {
+                return false;
+            }
+
+            if (_agent.map != null)
+            {
+                return true;
+            }
+
+            PolyNavMap map = null;
+            var mapObj = GameObject.FindWithTag("Map");
+            if (mapObj != null)
+            {
+                map = mapObj.GetComponent<PolyNavMap>();
+            }
+            if (map == null)
+            {
+                var mapObjByName = GameObject.Find("Map");
+                if (mapObjByName != null)
+                {
+                    map = mapObjByName.GetComponent<PolyNavMap>();
+                }
+            }
+            if (map == null)
+            {
+                map = FindObjectOfType<PolyNavMap>();
+            }
+
+            _agent.map = map;
+            if (_agent.map != null && _agent.map.nodesCount == 0)
+            {
+                _agent.map.GenerateMap();
+            }
+
+            if ((_agent.map == null || _agent.map.nodesCount == 0) && !mapWarningShown)
+            {
+                mapWarningShown = true;
+                Debug.LogWarning("[FreightClerk] PolyNavMap not ready, movement disabled.");
+            }
+            return _agent.map != null && _agent.map.nodesCount > 0;
         }
 
         private int CountPickableProducts(ProductionStation station)

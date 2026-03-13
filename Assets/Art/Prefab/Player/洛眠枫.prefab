@@ -627,9 +627,12 @@ PolygonCollider2D:
       - {x: -0.30871916, y: 0.4421382}
       - {x: -0.34757417, y: 0.33000898}
       - {x: -0.5308833, y: 0.04219365}
-      - {x: 0.26561248, y: -0.011517525}
-      - {x: 0.33899587, y: -0.011708736}
-      - {x: 0.38096482, y: 0.019480228}
+      - {x: -0.13031006, y: -0.08782959}
+      - {x: -0.051330566, y: -0.10046387}
+      - {x: 0.17559814, y: -0.08148193}
+      - {x: 0.2793454, y: -0.057110786}
+      - {x: 0.33899587, y: -0.016286373}
+      - {x: 0.2850786, y: 0.06971216}
       - {x: 0.46895194, y: 0.07543826}
       - {x: 0.45295864, y: 0.13446689}
       - {x: 0.39183182, y: 0.20214248}
@@ -716,8 +719,8 @@ Transform:
   m_GameObject: {fileID: 5927329427296098708}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.03, z: 0}
-  m_LocalScale: {x: 6.2056475, y: 2.433764, z: 4.171725}
+  m_LocalPosition: {x: 0.072, y: -0.056, z: 0}
+  m_LocalScale: {x: 4.73, y: 1.94, z: 4.171725}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8093564936679117812}
@@ -764,7 +767,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.56078434}
+  m_Color: {r: 0.3882353, g: 0.3882353, b: 0.3882353, a: 0.49803922}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -911,6 +914,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isPlayer: 1
+  hitInterval: 0.25
+  warehouseCategoryType: 0
   atkValue: 0
 --- !u!212 &2493875982373059207
 SpriteRenderer:
