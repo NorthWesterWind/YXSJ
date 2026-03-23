@@ -64,7 +64,18 @@ namespace Utils
             {
                 if (handler is EventHandler eventHandler)
                 {
-                    eventHandler.Invoke(data);
+                    var invocationList = eventHandler.GetInvocationList();
+                    for (int i = 0; i < invocationList.Length; i++)
+                    {
+                        try
+                        {
+                            ((EventHandler)invocationList[i]).Invoke(data);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogError($"[EventCenter] Event '{eventType}' listener threw: {ex}");
+                        }
+                    }
                     Debug.Log("yj == > 触发事件 " + eventType);
                 }
                 else

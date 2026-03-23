@@ -1,4 +1,3 @@
-
 using Module;
 using Module.Data;
 using UnityEngine;
@@ -82,7 +81,7 @@ namespace View.OrderFunction
             {
                 for (int i = 0; i < orderDataprogressList.Count; i++)
                 {
-                    GameObject obj = Instantiate(_assetHandle.Get<GameObject>("OrderItem"), content, false);
+                    GameObject obj = Instantiate(_assetHandle.Get<GameObject>("orderItem"), content, false);
 
                     obj.GetComponent<OrderItem>().Init(orderDataprogressList[i]);
                 }
@@ -101,7 +100,7 @@ namespace View.OrderFunction
             {
                 for (int i = 0; i < orderDataprogressList.Count; i++)
                 {
-                    GameObject obj = Instantiate(_assetHandle.Get<GameObject>("OrderItem"), content, false);
+                    GameObject obj = Instantiate(_assetHandle.Get<GameObject>("orderItem"), content, false);
 
                     obj.GetComponent<OrderItem>().Init(orderDataprogressList[i]);
                 }

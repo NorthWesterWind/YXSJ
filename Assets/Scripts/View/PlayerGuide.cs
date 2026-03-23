@@ -55,6 +55,12 @@ public class PlayerGuide : BaseView
         base.UpdateViewWithArgs(args);
         EventCenter.Instance.TriggerEvent(EventMessages.HideGuideFinger);
         currentIndex = (int)PlayerDataModule.Instance.data.guideStep;
+        if (currentIndex <= 0 || currentIndex > info.Length)
+        {
+            Debug.LogWarning($"[PlayerGuide] Invalid guide step index: {currentIndex}, info length: {info.Length}");
+            Hide();
+            return;
+        }
         bg.gameObject.SetActive(true);
         ShowText(info[currentIndex - 1]);
     }

@@ -85,6 +85,17 @@ namespace Controller
             return StationWorkingClerkCount.TryGetValue(station, out var count) && count > 0;
         }
 
+        public static void ResetStationReservations()
+        {
+            StationWorkingClerkCount.Clear();
+            ReservedProductsByFreight.Clear();
+        }
+
+        public void CleanupBeforeDestroy()
+        {
+            ReleaseStationReservation();
+        }
+
         private void UpdateSpeed(params object[] args)
         {
             _agent.maxSpeed = WorldData.speedLevelDic[PlayerDataModule.Instance.data.deliverData.speedLevel];
@@ -114,8 +125,7 @@ namespace Controller
 
             productionStationList = GameController.Instance.productionStationList;
             salesStallList = GameController.Instance.salesStallList;
-            if ((productionStationList == null || productionStationList.Count == 0) &&
-                GameController.Instance != null)
+            if (GameController.Instance != null)
             {
                 GameController.Instance.RefreshStructureCaches();
                 productionStationList = GameController.Instance.productionStationList;
@@ -138,10 +148,7 @@ namespace Controller
 
         private void ResolveIdlePosition()
         {
-            if (normalPos != null)
-            {
-                return;
-            }
+            normalPos = null;
 
             if (productionStationList != null)
             {
@@ -149,6 +156,7 @@ namespace Controller
                 {
                     var station = productionStationList[i];
                     if (station == null) continue;
+                    if (station.isLock || station.isCanUnlockState) continue;
                     if (station.transferPoint != null)
                     {
                         normalPos = station.transferPoint;
@@ -162,9 +170,73 @@ namespace Controller
             var fallbackStation = FindObjectOfType<ProductionStation>();
             if (fallbackStation != null)
             {
+                if (fallbackStation.isLock || fallbackStation.isCanUnlockState)
+                {
+                    return;
+                }
+
                 normalPos = fallbackStation.transferPoint != null
                     ? fallbackStation.transferPoint
                     : fallbackStation.transform;
+            }
+        }
+
+        private bool IsIdlePositionValid()
+        {
+            if (normalPos == null)
+            {
+                return false;
+            }
+
+            if (productionStationList == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < productionStationList.Count; i++)
+            {
+                var station = productionStationList[i];
+                if (station == null) continue;
+                if (station.isLock || station.isCanUnlockState) continue;
+                if (station.transferPoint == normalPos || station.transform == normalPos)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private void RefreshWorkTargets()
+        {
+            if (GameController.Instance != null)
+            {
+                GameController.Instance.RefreshStructureCaches();
+                productionStationList = GameController.Instance.productionStationList;
+                salesStallList = GameController.Instance.salesStallList;
+            }
+
+            if (productionStationList == null)
+            {
+                productionStationList = new List<ProductionStation>();
+            }
+            else
+            {
+                productionStationList.RemoveAll(x => x == null);
+            }
+
+            if (salesStallList == null)
+            {
+                salesStallList = new List<SalesStall>();
+            }
+            else
+            {
+                salesStallList.RemoveAll(x => x == null);
+            }
+
+            if (!IsIdlePositionValid())
+            {
+                ResolveIdlePosition();
             }
         }
 
@@ -182,6 +254,7 @@ namespace Controller
 
             while (true)
             {
+                RefreshWorkTargets();
                 // 如果被要求停止工作，并且身上已经没有货物，安全销毁自己
                 if (needDestory && productList.Count == 0)
                 {
@@ -194,14 +267,6 @@ namespace Controller
                 targetStation = FindValidProductionStation();
                 if (targetStation == null)
                 {
-                    if ((productionStationList == null || productionStationList.Count == 0 ||
-                         salesStallList == null || salesStallList.Count == 0) &&
-                        GameController.Instance != null)
-                    {
-                        GameController.Instance.RefreshStructureCaches();
-                        productionStationList = GameController.Instance.productionStationList;
-                        salesStallList = GameController.Instance.salesStallList;
-                    }
                     // 没有任何生产台有产品，让搬运工回到待命点 normalPos 原地待命
                     if (normalPos != null)
                     {
@@ -297,6 +362,22 @@ namespace Controller
                     if (_agent == null)
                     {
                         yield break;
+                    }
+
+                    float distance = Vector2.Distance(transform.position, clamped);
+                    if (distance <= 0.6f)
+                    {
+                        success = true;
+                        finished = true;
+                        break;
+                    }
+
+                    if (!_agent.pathPending && distance <= 1f &&
+                        (!_agent.hasPath || _agent.remainingDistance <= 0.15f))
+                    {
+                        success = true;
+                        finished = true;
+                        break;
                     }
                     yield return null;
                 }
@@ -411,11 +492,20 @@ namespace Controller
 
             foreach (var ps in productionStationList)
             {
+                if (ps == null)
+                    continue;
+
                 if (ps.isLock || ps.isCanUnlockState)
+                    continue;
+
+                if (ps.transferPoint == null)
                     continue;
 
                 var stall = FindSalesStall(ps.goodsType);
                 if (stall == null || stall.isLock || stall.isCanUnlockState)
+                    continue;
+
+                if (stall.transferPoint == null)
                     continue;
 
                 int pickableCount = CountPickableProducts(ps);
@@ -488,6 +578,9 @@ namespace Controller
         {
             foreach (var stall in salesStallList)
             {
+                if (stall == null)
+                    continue;
+
                 if (stall.currentGoodsType == type)
                     return stall;
             }
@@ -543,6 +636,7 @@ namespace Controller
 
         void OnDisable()
         {
+            ReleaseStationReservation();
             _agent.OnDestinationReached -= OnReachDestination;
             EventCenter.Instance.RemoveListener(EventMessages.UpdateYunDiZheSpeed, UpdateSpeed);
         }

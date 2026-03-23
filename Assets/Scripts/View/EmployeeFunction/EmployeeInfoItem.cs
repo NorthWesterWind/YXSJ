@@ -1,5 +1,6 @@
 ﻿using Module;
 using Module.Data;
+using Controller;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -258,7 +259,7 @@ namespace View.EmployeeFunction
 
         private bool IsMonsterAreaUnlocked(MonsterFamily type)
         {
-            if (playerData == null || playerData.mapLockDataProgressList == null)
+            if (playerData == null)
             {
                 return false;
             }
@@ -269,10 +270,51 @@ namespace View.EmployeeFunction
                 return false;
             }
 
+            var mapLockList = GetCurrentMapLockList();
+            if (mapLockList == null)
+            {
+                return true;
+            }
+
+            var lockData = mapLockList.Find(x => x.monsterType == monsterType);
+            if (lockData == null)
+            {
+                return true;
+            }
+
+            if (playerData.mapLockDataProgressList == null)
+            {
+                return false;
+            }
+
             var progress = playerData.mapLockDataProgressList.Find(x =>
                 x.mapId == playerData.currentMapID && x.monsterType == monsterType);
 
             return progress != null && progress.isUnlock;
+        }
+
+        private System.Collections.Generic.List<MapLockData> GetCurrentMapLockList()
+        {
+            if (DataController.Instance == null)
+            {
+                return null;
+            }
+
+            switch (playerData.currentMapID)
+            {
+                case 1:
+                    return DataController.Instance.mapLockDataList_1;
+                case 2:
+                    return DataController.Instance.mapLockDataList_2;
+                case 3:
+                    return DataController.Instance.mapLockDataList_3;
+                case 4:
+                    return DataController.Instance.mapLockDataList_4;
+                case 5:
+                    return DataController.Instance.mapLockDataList_5;
+                default:
+                    return null;
+            }
         }
 
         public void UpdateInfo()

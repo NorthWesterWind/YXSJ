@@ -133,10 +133,27 @@ namespace Controller.Structure
                 baseProductionTime = WorldData.productStationWorkingTimeDic[1];
             }
 
-            productionInfo.Init(currentMaterialCount, this);
-            if (currentMaterialCount == 0)
+            if (productionInfo != null)
             {
-                productionInfo.gameObject.SetActive(false);
+                productionInfo.Init(currentMaterialCount, this);
+                if (currentMaterialCount > 0)
+                {
+                    productionInfo.gameObject.SetActive(true);
+                    productionInfo.StartProductionLoop(this, structureType);
+                    if (icon != null && icon.AnimationState != null)
+                    {
+                        // 结构刷新后也要把恢复出来的生产流程重新拉起。
+                        icon.AnimationState.SetAnimation(0, "animation", true);
+                    }
+                }
+                else
+                {
+                    productionInfo.gameObject.SetActive(false);
+                    if (icon != null && icon.AnimationState != null)
+                    {
+                        icon.AnimationState.ClearTracks();
+                    }
+                }
             }
             if (productPosition != null)
             {

@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Controller;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using Utils;
@@ -80,7 +83,8 @@ namespace Module.Data
         public int tongbi = 3000;  //铜币
         public int goldIngot = 0;   //金元宝
         public int lingJing = 0;    //灵晶
-        public int jingMangZhu = 0; //金芒珠
+        public int star = 0; //星星
+        public int talentPoint = 0; //翠芒珠
         public int currentMapID = 1;
 
         public float speedTime = 0; //生产台加速时长
@@ -295,18 +299,260 @@ namespace Module.Data
 
 
 
+    [JsonConverter(typeof(OrderDataProgressJsonConverter))]
     public class OrderDataProgress
     {
         public int orderId;
-        public Dictionary<GoodsType, (int, int)> goodDic = new Dictionary<GoodsType, (int, int)>() { { GoodsType.None, (0, 0) } };
-        public Dictionary<DropItemType, (int, int)> dropDic = new Dictionary<DropItemType, (int, int)>() { { DropItemType.None, (0, 0) } };
+        public Dictionary<GoodsType, OrderProgressValue> goodDic = new Dictionary<GoodsType, OrderProgressValue>() { { GoodsType.None, new OrderProgressValue(0, 0) } };
+        public Dictionary<DropItemType, OrderProgressValue> dropDic = new Dictionary<DropItemType, OrderProgressValue>() { { DropItemType.None, new OrderProgressValue(0, 0) } };
 
 
-        public OrderDataProgress(int orderId, Dictionary<GoodsType, (int, int)> goodDic, Dictionary<DropItemType, (int, int)> dropDic)
+        public OrderDataProgress(int orderId, Dictionary<GoodsType, OrderProgressValue> goodDic, Dictionary<DropItemType, OrderProgressValue> dropDic)
         {
             this.orderId = orderId;
             this.goodDic = goodDic;
             this.dropDic = dropDic;
+        }
+    }
+
+    public class OrderDataProgressJsonConverter : JsonConverter<OrderDataProgress>
+    {
+        public override void WriteJson(JsonWriter writer, OrderDataProgress value, JsonSerializer serializer)
+        {
+            writer.WriteStartObject();
+            writer.WritePropertyName(nameof(OrderDataProgress.orderId));
+            writer.WriteValue(value?.orderId ?? 0);
+            writer.WritePropertyName(nameof(OrderDataProgress.goodDic));
+            WriteProgressDictionary(writer, value?.goodDic, serializer);
+            writer.WritePropertyName(nameof(OrderDataProgress.dropDic));
+            WriteProgressDictionary(writer, value?.dropDic, serializer);
+            writer.WriteEndObject();
+        }
+
+        public override OrderDataProgress ReadJson(JsonReader reader, Type objectType, OrderDataProgress existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null)
+            {
+                return new OrderDataProgress(0,
+                    new Dictionary<GoodsType, OrderProgressValue>(),
+                    new Dictionary<DropItemType, OrderProgressValue>());
+            }
+
+            JObject obj = JObject.Load(reader);
+            int orderId = obj[nameof(OrderDataProgress.orderId)]?.Value<int>() ?? 0;
+            var goodDic = ReadProgressDictionary<GoodsType>(obj[nameof(OrderDataProgress.goodDic)], serializer);
+            var dropDic = ReadProgressDictionary<DropItemType>(obj[nameof(OrderDataProgress.dropDic)], serializer);
+            return new OrderDataProgress(orderId, goodDic, dropDic);
+        }
+
+        private static void WriteProgressDictionary<TEnum>(JsonWriter writer, Dictionary<TEnum, OrderProgressValue> dic, JsonSerializer serializer)
+            where TEnum : struct, Enum
+        {
+            writer.WriteStartObject();
+            if (dic != null)
+            {
+                foreach (var kv in dic)
+                {
+                    writer.WritePropertyName(kv.Key.ToString());
+                    serializer.Serialize(writer, kv.Value);
+                }
+            }
+            writer.WriteEndObject();
+        }
+
+        private static Dictionary<TEnum, OrderProgressValue> ReadProgressDictionary<TEnum>(JToken token, JsonSerializer serializer)
+            where TEnum : struct, Enum
+        {
+            var result = new Dictionary<TEnum, OrderProgressValue>();
+            if (token == null || token.Type == JTokenType.Null)
+            {
+                return result;
+            }
+
+            if (token.Type == JTokenType.Object)
+            {
+                foreach (var property in ((JObject)token).Properties())
+                {
+                    if (!TryParseEnumKey(property.Name, out TEnum key))
+                    {
+                        continue;
+                    }
+
+                    result[key] = property.Value?.ToObject<OrderProgressValue>(serializer) ?? new OrderProgressValue();
+                }
+                return result;
+            }
+
+            if (token.Type == JTokenType.Array)
+            {
+                foreach (var item in (JArray)token)
+                {
+                    if (!TryReadArrayEntry(item, serializer, out TEnum key, out var value))
+                    {
+                        continue;
+                    }
+
+                    result[key] = value;
+                }
+            }
+
+            return result;
+        }
+
+        private static bool TryReadArrayEntry<TEnum>(JToken item, JsonSerializer serializer, out TEnum key, out OrderProgressValue value)
+            where TEnum : struct, Enum
+        {
+            key = default;
+            value = new OrderProgressValue();
+
+            if (item == null || item.Type == JTokenType.Null)
+            {
+                return false;
+            }
+
+            if (item.Type == JTokenType.Object)
+            {
+                var obj = (JObject)item;
+                var keyToken = obj["Key"] ?? obj["key"];
+                var valueToken = obj["Value"] ?? obj["value"];
+
+                if (keyToken != null && TryParseEnumKey(keyToken, out key))
+                {
+                    value = valueToken?.ToObject<OrderProgressValue>(serializer) ?? new OrderProgressValue();
+                    return true;
+                }
+
+                if (obj.Properties().Count() == 1)
+                {
+                    var property = obj.Properties().First();
+                    if (TryParseEnumKey(property.Name, out key))
+                    {
+                        value = property.Value?.ToObject<OrderProgressValue>(serializer) ?? new OrderProgressValue();
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
+            if (item.Type == JTokenType.Array)
+            {
+                var array = (JArray)item;
+                if (array.Count < 2 || !TryParseEnumKey(array[0], out key))
+                {
+                    return false;
+                }
+
+                value = array[1]?.ToObject<OrderProgressValue>(serializer) ?? new OrderProgressValue();
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool TryParseEnumKey<TEnum>(string raw, out TEnum key)
+            where TEnum : struct, Enum
+        {
+            if (Enum.TryParse(raw, true, out key))
+            {
+                return true;
+            }
+
+            if (int.TryParse(raw, out int intValue))
+            {
+                key = (TEnum)Enum.ToObject(typeof(TEnum), intValue);
+                return true;
+            }
+
+            key = default;
+            return false;
+        }
+
+        private static bool TryParseEnumKey<TEnum>(JToken token, out TEnum key)
+            where TEnum : struct, Enum
+        {
+            if (token == null)
+            {
+                key = default;
+                return false;
+            }
+
+            if (token.Type == JTokenType.Integer)
+            {
+                key = (TEnum)Enum.ToObject(typeof(TEnum), token.Value<int>());
+                return true;
+            }
+
+            return TryParseEnumKey(token.ToString(), out key);
+        }
+    }
+
+    [Serializable]
+    [JsonConverter(typeof(OrderProgressValueJsonConverter))]
+    public class OrderProgressValue
+    {
+        public int current;
+        public int target;
+
+        public OrderProgressValue()
+        {
+        }
+
+        public OrderProgressValue(int current, int target)
+        {
+            this.current = current;
+            this.target = target;
+        }
+    }
+
+    public class OrderProgressValueJsonConverter : JsonConverter<OrderProgressValue>
+    {
+        public override void WriteJson(JsonWriter writer, OrderProgressValue value, JsonSerializer serializer)
+        {
+            writer.WriteStartObject();
+            writer.WritePropertyName(nameof(OrderProgressValue.current));
+            writer.WriteValue(value?.current ?? 0);
+            writer.WritePropertyName(nameof(OrderProgressValue.target));
+            writer.WriteValue(value?.target ?? 0);
+            writer.WriteEndObject();
+        }
+
+        public override OrderProgressValue ReadJson(JsonReader reader, Type objectType, OrderProgressValue existingValue, bool hasExistingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null)
+            {
+                return new OrderProgressValue();
+            }
+
+            if (reader.TokenType == JsonToken.StartArray)
+            {
+                JArray array = JArray.Load(reader);
+                int current = array.Count > 0 ? array[0]?.Value<int>() ?? 0 : 0;
+                int target = array.Count > 1 ? array[1]?.Value<int>() ?? 0 : 0;
+                return new OrderProgressValue(current, target);
+            }
+
+            if (reader.TokenType == JsonToken.StartObject)
+            {
+                JObject obj = JObject.Load(reader);
+                int current = obj["current"]?.Value<int>()
+                              ?? obj["Current"]?.Value<int>()
+                              ?? obj["Item1"]?.Value<int>()
+                              ?? 0;
+                int target = obj["target"]?.Value<int>()
+                             ?? obj["Target"]?.Value<int>()
+                             ?? obj["Item2"]?.Value<int>()
+                             ?? 0;
+                return new OrderProgressValue(current, target);
+            }
+
+            if (reader.TokenType == JsonToken.Integer)
+            {
+                int value = Convert.ToInt32(reader.Value);
+                return new OrderProgressValue(value, value);
+            }
+
+            return new OrderProgressValue();
         }
     }
 
@@ -456,6 +702,12 @@ namespace Module.Data
         public GoodsType goodsType;
         public BuildingType targetBuildingType;
         public int state;
+        public int routeIndex = -1;
+        public int routePhase;
+        public int routeWaypointIndex = -1;
+        public float bornPosX;
+        public float bornPosY;
+        public float bornPosZ;
         public float posX;
         public float posY;
         public float posZ;

@@ -10,6 +10,14 @@ using Random = UnityEngine.Random;
 
 namespace Controller
 {
+    [System.Serializable]
+    public class CustomerRoute
+    {
+        public string routeName;
+        public Transform spawnPoint;
+        public List<Transform> waypoints = new();
+    }
+
     public class CustomerFactory : MonoBehaviour
     {
         private AssetHandle _assetHandle;
@@ -18,6 +26,7 @@ namespace Controller
         public float spawnTime;
         public float spawnRadiusX = 3f;
         public float spawnRadiusY = 1.5f;
+        public List<CustomerRoute> routes = new();
 
         private const int MaxCustomerPerPlace = 5;
         private Coroutine createCustomerCoroutine;
@@ -81,6 +90,98 @@ namespace Controller
             bool unlockedByRuntime = GameController.Instance != null &&
                                      GameController.Instance.unlockedBuildingTypes.Contains(buildingType);
             return !(unlockedByData || unlockedByRuntime);
+        }
+
+        public int GetRandomRouteIndex()
+        {
+            var availableRouteIndices = new List<int>();
+            for (int i = 0; i < routes.Count; i++)
+            {
+                if (HasRouteData(routes[i]))
+                {
+                    availableRouteIndices.Add(i);
+                }
+            }
+
+            if (availableRouteIndices.Count == 0)
+            {
+                return -1;
+            }
+
+            return availableRouteIndices[Random.Range(0, availableRouteIndices.Count)];
+        }
+
+        public Vector3 GetSpawnPositionForRoute(int routeIndex)
+        {
+            if (TryGetRoute(routeIndex, out var route))
+            {
+                return route.spawnPoint != null ? route.spawnPoint.position : transform.position;
+            }
+
+            return GetRandomPosition();
+        }
+
+        public bool TryBuildRoute(int routeIndex, out Vector2 routeStart, out List<Vector2> routeWaypoints)
+        {
+            routeStart = transform.position;
+            routeWaypoints = new List<Vector2>();
+            if (!TryGetRoute(routeIndex, out var route))
+            {
+                return false;
+            }
+
+            if (route.spawnPoint != null)
+            {
+                routeStart = route.spawnPoint.position;
+            }
+
+            for (int i = 0; i < route.waypoints.Count; i++)
+            {
+                var waypoint = route.waypoints[i];
+                if (waypoint == null)
+                {
+                    continue;
+                }
+
+                routeWaypoints.Add(waypoint.position);
+            }
+
+            return route.spawnPoint != null || routeWaypoints.Count > 0;
+        }
+
+        private bool TryGetRoute(int routeIndex, out CustomerRoute route)
+        {
+            route = null;
+            if (routeIndex < 0 || routeIndex >= routes.Count)
+            {
+                return false;
+            }
+
+            route = routes[routeIndex];
+            return route != null;
+        }
+
+        private bool HasRouteData(CustomerRoute route)
+        {
+            if (route == null)
+            {
+                return false;
+            }
+
+            if (route.spawnPoint != null)
+            {
+                return true;
+            }
+
+            for (int i = 0; i < route.waypoints.Count; i++)
+            {
+                if (route.waypoints[i] != null)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public IEnumerator CreatCustomer()
@@ -164,10 +265,12 @@ namespace Controller
                 // 生成顾客
                 GameObject obj = Instantiate(_assetHandle.Get<GameObject>(Extensions.GetCustomerResNameByType(tempData.type)));
 
-                obj.transform.position = GetRandomPosition();
+                int routeIndex = GetRandomRouteIndex();
+                Vector3 spawnPosition = GetSpawnPositionForRoute(routeIndex);
+                obj.transform.position = spawnPosition;
 
                 obj.GetComponent<CustomerController>()
-                    .Init(tempData, goodsType, structure, transform.position, spawnRadiusX, spawnRadiusY);
+                    .Init(tempData, goodsType, structure, spawnPosition, this, routeIndex);
                 yield return null;
                 Debug.Log($"生成顾客：{obj.name},目标结构：{structure.name}, 目标位置：{obj.GetComponent<CustomerController>().nextPosition}");
                
@@ -205,8 +308,8 @@ namespace Controller
             for (int i = 0; i < 8; i++)
             {
                 Vector3 position = origin;
-                position.x += Random.Range(-spawnRadiusX, spawnRadiusX);
-                position.y += Random.Range(-spawnRadiusY, spawnRadiusY);
+                // position.x += Random.Range(-spawnRadiusX, spawnRadiusX);
+                // position.y += Random.Range(-spawnRadiusY, spawnRadiusY);
 
                 if (map == null)
                 {
@@ -221,8 +324,8 @@ namespace Controller
             }
 
             Vector3 fallback = origin;
-            fallback.x += Random.Range(-spawnRadiusX, spawnRadiusX);
-            fallback.y += Random.Range(-spawnRadiusY, spawnRadiusY);
+            // fallback.x += Random.Range(-spawnRadiusX, spawnRadiusX);
+            // fallback.y += Random.Range(-spawnRadiusY, spawnRadiusY);
             if (map != null)
             {
                 Vector2 pos2 = new Vector2(fallback.x, fallback.y);

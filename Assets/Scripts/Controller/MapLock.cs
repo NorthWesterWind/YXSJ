@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using Controller;
 using Controller.Player;
@@ -25,6 +26,8 @@ public class MapLock : MonoBehaviour
     private PlayerController player;
 
     public Transform receiveTransform;
+    private Coroutine autoThrowCoroutine;
+    private const float AutoThrowInterval = 0.25f;
 
     void OnEnable()
     {
@@ -36,6 +39,7 @@ public class MapLock : MonoBehaviour
     {
         EventCenter.Instance.RemoveListener(EventMessages.ThrowOutTongBi, OnPlayerThrowTongBi);
         EventCenter.Instance.RemoveListener(EventMessages.UpdateMapLockState, HandleUpdateState);
+        StopAutoThrow();
     }
 
     private void OnPlayerThrowTongBi(params object[] args)
@@ -44,6 +48,8 @@ public class MapLock : MonoBehaviour
         if (t != receiveTransform)
             return;
         var progress = GetProgressData();
+        if (progress == null)
+            return;
         progress.currentOwnMoney += 100;
         UpdateProgress(progress.currentOwnMoney);
     }
@@ -131,13 +137,6 @@ public class MapLock : MonoBehaviour
         {
             Unlock();
         }
-        else
-        {
-            if (player != null && lockObject.activeSelf && !player.isMoving)
-            {
-                player.ThrowOutTongBi(receiveTransform);
-            }
-        }
     }
 
     private MapLockDataProgress GetProgressData()
@@ -163,10 +162,7 @@ public class MapLock : MonoBehaviour
         player = other.GetComponent<PlayerController>();
         player.InRange = true;
         Debug.Log("yj = > 进入区域解锁范围");
-        if (GetProgressData() != null && lockObject.activeSelf && !player.isMoving)
-        {
-            player.ThrowOutTongBi(receiveTransform);
-        }
+        StartAutoThrow();
 
 
     }
@@ -177,6 +173,7 @@ public class MapLock : MonoBehaviour
         if (!other.CompareTag("Player")) return;
         player.InRange = false;
         playerInRange = false;
+        StopAutoThrow();
         player = null;
     }
 
@@ -185,6 +182,7 @@ public class MapLock : MonoBehaviour
     private void Unlock()
     {
         isLocked = false;
+        StopAutoThrow();
         lockObject.SetActive(false);
         bg.SetActive(false);
 
@@ -200,5 +198,45 @@ public class MapLock : MonoBehaviour
         EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
         EventCenter.Instance.TriggerEvent(EventMessages.MapLockUnlocked, mapLockData);
         EventCenter.Instance.TriggerEvent(EventMessages.UnLockMapTask, monsterType);
+    }
+
+    private void StartAutoThrow()
+    {
+        if (autoThrowCoroutine != null)
+            return;
+        autoThrowCoroutine = StartCoroutine(AutoThrowCoinCoroutine());
+    }
+
+    private void StopAutoThrow()
+    {
+        if (autoThrowCoroutine == null)
+            return;
+        StopCoroutine(autoThrowCoroutine);
+        autoThrowCoroutine = null;
+    }
+
+    private IEnumerator AutoThrowCoinCoroutine()
+    {
+        while (CanAutoThrow())
+        {
+            if (player != null && !player.isMoving)
+            {
+                player.ThrowOutTongBi(receiveTransform);
+            }
+            yield return new WaitForSeconds(AutoThrowInterval);
+        }
+
+        autoThrowCoroutine = null;
+    }
+
+    private bool CanAutoThrow()
+    {
+        return isLocked &&
+               playerInRange &&
+               player != null &&
+               receiveTransform != null &&
+               lockObject != null &&
+               lockObject.activeSelf &&
+               GetProgressData() != null;
     }
 }

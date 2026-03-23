@@ -98,13 +98,13 @@ namespace View.CharacterInfoView
         public void OnClickUptalentBtn()
         {
             PlayerData data = PlayerDataModule.Instance.data;
-            if (data.jingMangZhu < 4)
+            if (data.talentPoint < 4)
             {
                 UIController.Instance.Show<TipView>("翠芒珠数量不足！");
             }
             else
             {
-                data.jingMangZhu -= 4;
+                data.talentPoint -= 4;
                 data.talentLevel += 1;
                 UIController.Instance.Show<TipView>("升级成功！");
                 TalentData talentData = DataController.Instance.talentDataDic[data.talentLevel];
@@ -173,7 +173,7 @@ namespace View.CharacterInfoView
         public void UpdateTalentState(params object[] args)
         {
             PlayerData data = PlayerDataModule.Instance.data;
-            Jmztxt.text = data.jingMangZhu.ToString();
+            Jmztxt.text = data.talentPoint.ToString();
             int level = data.talentLevel + 1;
             if (level > 80)
             {

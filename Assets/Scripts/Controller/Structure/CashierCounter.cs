@@ -222,10 +222,6 @@ namespace Controller.Structure
                     break;
 
                 case StructureState.Unlocked:
-                    if (GameController.Instance.unlockedBuildingTypes.Contains(structureType))
-                    {
-                        return;
-                    }
                     content.SetActive(true);
                     if (PlayerDataModule.Instance.data.ordenFunction == 1)
                     {
@@ -237,7 +233,11 @@ namespace Controller.Structure
                     }
                     PlayerData playerData = PlayerDataModule.Instance.data;
                     maxWaiters = playerData.cashierData.totalNum;
-                    GameController.Instance.unlockedBuildingTypes.Add(structureType);
+                    if (!GameController.Instance.unlockedBuildingTypes.Contains(structureType))
+                    {
+                        GameController.Instance.unlockedBuildingTypes.Add(structureType);
+                    }
+                    TryProcessNextCustomer();
                     var unlocked = playerData.structUnLockDataDic[playerData.currentMapID];
                     if (!unlocked.Contains(structureType))
                     {
@@ -378,9 +378,7 @@ namespace Controller.Structure
             customer.fillBg.gameObject.SetActive(false);
             GoodsType goodsType = customer.salesStall.currentGoodsType;
             customer.state = NpcState.JieZhangChengGong;
-
-            customer.SetNextPosition();
-            customer.agent.SetDestination(customer.nextPosition);
+            customer.RefreshMovementByState();
 
             EventCenter.Instance.TriggerEvent(
                 EventMessages.SellTask,

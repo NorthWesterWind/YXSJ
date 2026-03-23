@@ -41,11 +41,7 @@ namespace Controller
             }
             var lockData = GetLockData(playerData.currentMapID);
             var state = GetStructureState(playerData, lockData);
-            for (int i = freightClerkList.Count; i > 0; i++)
-            {
-                Destroy(freightClerkList[i - 1].gameObject);
-                freightClerkList.RemoveAt(i - 1);
-            }
+            ClearFreightClerks();
             RefreshView(state, lockData);
 
         }
@@ -101,36 +97,108 @@ namespace Controller
         public void UpdateYunDiZheInfo(params object[] args)
         {
             PlayerData playerData = PlayerDataModule.Instance.data;
-            int targetCount = playerData.deliverData.workingNum;
+            if (playerData.deliverData == null)
+            {
+                ClearFreightClerks();
+                return;
+            }
 
-            // 增加搬运工
+            freightClerkList.RemoveAll(x => x == null);
+            int targetCount = Mathf.Max(0, playerData.deliverData.workingNum);
+
             if (targetCount > freightClerkList.Count)
             {
                 for (int i = freightClerkList.Count; i < targetCount; i++)
                 {
-                    FreightClerkController freightClerk =
-                        Instantiate(_assetHandle.Get<GameObject>("FreightClerk"))
-                            .GetComponent<FreightClerkController>();
-                    freightClerk.transform.position = bornTransform.position;
-                    freightClerk.Init();
-                    freightClerkList.Add(freightClerk);
+                    CreateFreightClerk();
                 }
             }
-            // 减少搬运工：多余的先停止工作，再从列表移除
             else if (targetCount < freightClerkList.Count)
             {
                 for (int i = freightClerkList.Count - 1; i >= targetCount; i--)
                 {
                     var clerk = freightClerkList[i];
                     freightClerkList.RemoveAt(i);
-                    if (clerk != null)
+                    if (clerk == null)
+                    {
+                        continue;
+                    }
+
+                    if (clerk.productList != null && clerk.productList.Count > 0)
                     {
                         clerk.StopWorking();
                     }
+                    else
+                    {
+                        DestroyFreightClerk(clerk);
+                    }
                 }
             }
+        }
 
+        private void CreateFreightClerk()
+        {
+            if (_assetHandle == null)
+            {
+                _assetHandle = GetComponent<AssetHandle>();
+            }
 
+            if (_assetHandle == null)
+            {
+                Debug.LogWarning("[YunDiGe] Missing AssetHandle, cannot create FreightClerk.");
+                return;
+            }
+
+            var prefab = _assetHandle.Get<GameObject>("FreightClerk");
+            if (prefab == null)
+            {
+                Debug.LogWarning("[YunDiGe] Missing FreightClerk prefab.");
+                return;
+            }
+
+            FreightClerkController freightClerk = Instantiate(prefab).GetComponent<FreightClerkController>();
+            if (freightClerk == null)
+            {
+                return;
+            }
+
+            var spawnPoint = bornTransform != null ? bornTransform.position : transform.position;
+            freightClerk.transform.position = spawnPoint;
+            freightClerk.Init();
+            freightClerkList.Add(freightClerk);
+        }
+
+        private void ClearFreightClerks()
+        {
+            FreightClerkController.ResetStationReservations();
+            if (freightClerkList == null || freightClerkList.Count == 0)
+            {
+                return;
+            }
+
+            var clerks = freightClerkList.ToArray();
+            freightClerkList.Clear();
+            for (int i = 0; i < clerks.Length; i++)
+            {
+                var clerk = clerks[i];
+                if (clerk == null)
+                {
+                    continue;
+                }
+
+                DestroyFreightClerk(clerk);
+            }
+        }
+
+        private void DestroyFreightClerk(FreightClerkController clerk)
+        {
+            if (clerk == null)
+            {
+                return;
+            }
+
+            clerk.CleanupBeforeDestroy();
+            Destroy(clerk.gameObject);
         }
         public override void AddEvent()
         {

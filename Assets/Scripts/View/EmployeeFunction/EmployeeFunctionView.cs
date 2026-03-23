@@ -29,10 +29,7 @@ namespace View.EmployeeFunction
         {
             base.UpdateViewWithArgs(args);
             UpdateInfo();
-            if (yundizheObj.activeSelf)
-            {
-                 ShowContent_1();
-            }
+            ShowContent_1();
         }
 
         protected override void AddEventListener()

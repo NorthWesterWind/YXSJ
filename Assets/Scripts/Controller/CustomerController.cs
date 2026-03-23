@@ -7,14 +7,31 @@ using PolyNav;
 using Spine.Unity;
 using UnityEngine;
 using Utils;
+
 namespace Controller
 {
     public enum NpcState
-    { None, QianWangGouMai, WaitGouMaiWanCheng, QianWangShouYinTai, JieZhangChengGong, Angry, }
+    {
+        None,
+        QianWangGouMai,
+        WaitGouMaiWanCheng,
+        QianWangShouYinTai,
+        JieZhangChengGong,
+        Angry,
+    }
+
     public class CustomerController : MonoBehaviour
     {
+        private enum RouteMovePhase
+        {
+            None,
+            EnterRouteForward,
+            MoveToStateTarget,
+            MoveToRouteTail,
+            ReturnAlongRoute,
+        }
+
         public PolyNavAgent agent;
-        // public NavMeshAgent navAgent;
         public CustomerData data;
         public NpcState state;
         public Vector2 bornPosition;
@@ -31,23 +48,36 @@ namespace Controller
         public GameObject fillBg;
         public GameObject fill;
         public bool severing = false;
+
+        public int SelectedRouteIndex => routeIndex;
+        public int SavedRouteMovePhase => (int)routeMovePhase;
+        public int SavedRouteWaypointIndex => routeWaypointIndex;
+
         private Vector2 spawnOrigin;
         private float spawnRadiusX = 3f;
         private float spawnRadiusY = 1.5f;
-        private float returnRepathTimer = 0f;
-        private const float ReturnRepathInterval = 0.5f;
+        private float travelRepathTimer = 0f;
+        private const float TravelRepathInterval = 0.5f;
         private bool mapWarningShown;
         private Coroutine ensureMoveCoroutine;
         private Coroutine invalidRecoverCoroutine;
+        private Coroutine purchaseRoutineCoroutine;
         private float purchaseIdleTimer = 0f;
         private int spawnRelocateAttempts = 0;
         private const float PurchaseIdleRelocateDelay = 0.6f;
         private const int MaxSpawnRelocateAttempts = 3;
         private NpcState lastState;
+        private CustomerFactory customerFactory;
+        private int routeIndex = -1;
+        private readonly List<Vector2> routeWaypoints = new();
+        private RouteMovePhase routeMovePhase = RouteMovePhase.None;
+        private int routeWaypointIndex = -1;
+        private Vector2 stateTargetPosition;
+
         void Start()
         {
-
         }
+
         void Update()
         {
             if (state != lastState)
@@ -75,26 +105,22 @@ namespace Controller
             }
 
             Vector2 dir = agent != null ? agent.movingDirection : Vector2.zero;
-            // Vector2 dir = navAgent.velocity;
             if (dir != Vector2.zero && Mathf.Abs(dir.x) > 0.01f)
             {
                 skeletonAnimation.skeleton.ScaleX = dir.x < 0 ? -1 : 1;
             }
 
             EnsureMap();
-            EnsureReturnToBorn();
+            EnsureTravelMovement();
             EnsurePurchaseMovement();
-
-            // if (ReachedDestination())
-            // {
-            //     OnReachDestination();
-            // }
-
         }
+
         public void SetLayer()
         {
             if (_meshRenderer == null)
+            {
                 _meshRenderer = skeletonAnimation.GetComponent<MeshRenderer>();
+            }
 
             int order = 30000 - Mathf.RoundToInt(transform.position.y * 100);
             _meshRenderer.sortingOrder = order;
@@ -109,85 +135,196 @@ namespace Controller
                 }
             }
         }
-        public void Init(CustomerData outdata, GoodsType type, StructureBase structureBase, Vector2 origin, float radiusX, float radiusY)
+
+        public void Init(
+            CustomerData outdata,
+            GoodsType type,
+            StructureBase structureBase,
+            Vector2 routeStartPosition,
+            CustomerFactory factory = null,
+            int selectedRouteIndex = -1,
+            bool startMovement = true)
         {
             severing = false;
-            goodsType = type; data = outdata;
+            goodsType = type;
+            data = outdata;
             state = NpcState.QianWangGouMai;
             lastState = state;
             purchaseIdleTimer = 0f;
             spawnRelocateAttempts = 0;
-            bornPosition = transform.position;
-            spawnOrigin = origin;
-            if (radiusX > 0f) spawnRadiusX = radiusX;
-            if (radiusY > 0f) spawnRadiusY = radiusY;
+            customerFactory = factory;
+            routeIndex = selectedRouteIndex;
+            bornPosition = routeStartPosition;
+            spawnOrigin = routeStartPosition;
+            routeMovePhase = RouteMovePhase.None;
+            routeWaypointIndex = -1;
             salesStall = structureBase as SalesStall;
             agent = GetComponent<PolyNavAgent>();
             EnsureMap();
+            ConfigureRoute();
             SnapToValidPosition();
 
-            SetNextPosition();
-            TrySetDestination(nextPosition);
-            if (ensureMoveCoroutine != null)
+            if (Vector2.Distance((Vector2)transform.position, bornPosition) < 0.5f)
             {
-                StopCoroutine(ensureMoveCoroutine);
+                bornPosition = (Vector2)transform.position;
+                spawnOrigin = bornPosition;
             }
-            ensureMoveCoroutine = StartCoroutine(EnsureMoveStarted());
-            Vector2 dir = (nextPosition - (Vector2)transform.position).normalized;
+
             fillBg.gameObject.SetActive(false);
             fill.gameObject.transform.localScale = new Vector3(0, 1, 1);
 
-            Debug.Log($"顾客生成点: {gameObject.transform.position}, 购买点: {nextPosition}, 距离: {(Vector2)transform.position - nextPosition}");
+            if (startMovement)
+            {
+                RefreshMovementByState();
+            }
         }
-        /// <summary>
-        /// 初始化完成后强制顾客开始移动和逻辑
-        /// 用于解决生成后原地待机问题
-        /// </summary>
-        // public void StartBehavior()
-        // {
-        //     if (agent.map == null)
-        //     {
-        //         agent.map = GameObject.FindWithTag("Map")?.GetComponent<PolyNavMap>();
-        //         if (agent.map == null)
-        //         {
-        //             Debug.LogError($"{name} 找不到 PolyNavMap");
-        //             return;
-        //         }
-        //     }
-        //     // 设置目标点
-        //     agent.SetDestination(nextPosition);
-        // }
 
-        // bool ReachedDestination()
-        // {
-        //     if (navAgent.pathPending) return false;
+        public void RestoreRuntimeState(NpcState savedState, int savedRoutePhase, int savedRouteWaypointIndex)
+        {
+            state = savedState;
+            lastState = state;
+            purchaseIdleTimer = 0f;
+            spawnRelocateAttempts = 0;
+            SetNextPosition();
 
-        //     return navAgent.remainingDistance <= navAgent.stoppingDistance
-        //            && (!navAgent.hasPath || navAgent.velocity.sqrMagnitude == 0f);
-        // }
+            routeMovePhase = ParseRouteMovePhase(savedRoutePhase);
+            routeWaypointIndex = savedRouteWaypointIndex;
+
+            if (!ResumeSavedMovement())
+            {
+                RefreshMovementByState();
+            }
+        }
+
+        public void WaitPurchase()
+        {
+            routeMovePhase = RouteMovePhase.None;
+            routeWaypointIndex = -1;
+            state = NpcState.WaitGouMaiWanCheng;
+            if (purchaseRoutineCoroutine != null)
+            {
+                StopCoroutine(purchaseRoutineCoroutine);
+            }
+
+            purchaseRoutineCoroutine = StartCoroutine(PurchaseRoutine());
+        }
+
+        public void SetNextPosition()
+        {
+            if (state == NpcState.QianWangGouMai)
+            {
+                stateTargetPosition = salesStall != null ? salesStall.GetPurchasePosition() : (Vector2)transform.position;
+            }
+            else if (state == NpcState.QianWangShouYinTai)
+            {
+                if (GameController.Instance != null &&
+                    GameController.Instance.buildings.TryGetValue(BuildingType.LingZhangTai, out var cashierBase))
+                {
+                    var cashier = cashierBase as CashierCounter;
+                    if (cashier != null && cashier.parchaseTransform != null)
+                    {
+                        purchasePosition = cashier.parchaseTransform.position;
+                        stateTargetPosition = purchasePosition;
+                    }
+                    else
+                    {
+                        stateTargetPosition = (Vector2)transform.position;
+                    }
+                }
+                else
+                {
+                    stateTargetPosition = (Vector2)transform.position;
+                }
+            }
+            else if (state is NpcState.JieZhangChengGong or NpcState.Angry)
+            {
+                stateTargetPosition = bornPosition;
+            }
+            else
+            {
+                stateTargetPosition = (Vector2)transform.position;
+            }
+
+            stateTargetPosition = GetValidMapPoint(stateTargetPosition);
+            nextPosition = stateTargetPosition;
+        }
+
+        public void RefreshMovementByState()
+        {
+            SetNextPosition();
+
+            switch (state)
+            {
+                case NpcState.QianWangGouMai:
+                    if (HasRouteWaypoints)
+                    {
+                        routeMovePhase = RouteMovePhase.EnterRouteForward;
+                        routeWaypointIndex = 0;
+                        TrySetDestination(routeWaypoints[routeWaypointIndex]);
+                    }
+                    else
+                    {
+                        routeMovePhase = RouteMovePhase.MoveToStateTarget;
+                        routeWaypointIndex = -1;
+                        TrySetDestination(stateTargetPosition);
+                    }
+                    break;
+                case NpcState.QianWangShouYinTai:
+                    routeMovePhase = RouteMovePhase.MoveToStateTarget;
+                    routeWaypointIndex = -1;
+                    TrySetDestination(stateTargetPosition);
+                    break;
+                case NpcState.JieZhangChengGong:
+                case NpcState.Angry:
+                    BeginReturnMovement();
+                    break;
+                default:
+                    routeMovePhase = RouteMovePhase.None;
+                    routeWaypointIndex = -1;
+                    nextPosition = (Vector2)transform.position;
+                    break;
+            }
+
+            RestartEnsureMoveStarted();
+        }
 
         void OnEnable()
         {
-            agent.OnDestinationReached += OnReachDestination;
-            agent.OnDestinationInvalid += OnDestinationInvalid;
+            if (agent == null)
+            {
+                agent = GetComponent<PolyNavAgent>();
+            }
+
+            if (agent != null)
+            {
+                agent.OnDestinationReached += OnReachDestination;
+                agent.OnDestinationInvalid += OnDestinationInvalid;
+            }
         }
+
         void OnDisable()
         {
-            agent.OnDestinationReached -= OnReachDestination;
-            agent.OnDestinationInvalid -= OnDestinationInvalid;
+            if (agent != null)
+            {
+                agent.OnDestinationReached -= OnReachDestination;
+                agent.OnDestinationInvalid -= OnDestinationInvalid;
+            }
         }
 
         void OnReachDestination()
         {
-            // 回家后销毁
-            if (Vector2.Distance(transform.position, bornPosition) < 1f &&
+            if (Vector2.Distance((Vector2)transform.position, bornPosition) < 1f &&
                 (state == NpcState.Angry || state == NpcState.JieZhangChengGong))
             {
                 Destroy(gameObject);
                 return;
             }
 
-            // 到达购买点
+            if (HandleRouteArrival())
+            {
+                return;
+            }
+
             if (state == NpcState.QianWangGouMai)
             {
                 WaitPurchase();
@@ -195,12 +332,164 @@ namespace Controller
                 return;
             }
 
-            // 到达收银台
             if (state == NpcState.QianWangShouYinTai)
             {
                 EventCenter.Instance.TriggerEvent(EventMessages.CustomerArrived, this, salesStall);
+            }
+        }
+
+        private void ConfigureRoute()
+        {
+            routeWaypoints.Clear();
+            if (customerFactory == null)
+            {
                 return;
             }
+
+            if (!customerFactory.TryBuildRoute(routeIndex, out var routeStart, out var waypoints))
+            {
+                return;
+            }
+
+            bornPosition = GetValidMapPoint(routeStart);
+            spawnOrigin = bornPosition;
+
+            for (int i = 0; i < waypoints.Count; i++)
+            {
+                routeWaypoints.Add(GetValidMapPoint(waypoints[i]));
+            }
+        }
+
+        private bool ResumeSavedMovement()
+        {
+            switch (state)
+            {
+                case NpcState.WaitGouMaiWanCheng:
+                case NpcState.None:
+                    routeMovePhase = RouteMovePhase.None;
+                    routeWaypointIndex = -1;
+                    return true;
+            }
+
+            switch (routeMovePhase)
+            {
+                case RouteMovePhase.EnterRouteForward:
+                    if (!HasRouteWaypoints || routeWaypointIndex < 0 || routeWaypointIndex >= routeWaypoints.Count)
+                    {
+                        return false;
+                    }
+
+                    return TrySetDestination(routeWaypoints[routeWaypointIndex]);
+                case RouteMovePhase.MoveToStateTarget:
+                    routeWaypointIndex = -1;
+                    return TrySetDestination(stateTargetPosition);
+                case RouteMovePhase.MoveToRouteTail:
+                    if (!HasRouteWaypoints)
+                    {
+                        return false;
+                    }
+
+                    routeWaypointIndex = routeWaypoints.Count - 1;
+                    return TrySetDestination(routeWaypoints[routeWaypointIndex]);
+                case RouteMovePhase.ReturnAlongRoute:
+                    if (routeWaypointIndex >= 0)
+                    {
+                        if (!HasRouteWaypoints || routeWaypointIndex >= routeWaypoints.Count)
+                        {
+                            return false;
+                        }
+
+                        return TrySetDestination(routeWaypoints[routeWaypointIndex]);
+                    }
+
+                    return TrySetDestination(bornPosition);
+                default:
+                    return false;
+            }
+        }
+
+        private void BeginReturnMovement()
+        {
+            if (!HasRouteWaypoints)
+            {
+                routeMovePhase = RouteMovePhase.ReturnAlongRoute;
+                routeWaypointIndex = -1;
+                TrySetDestination(bornPosition);
+                return;
+            }
+
+            int tailIndex = routeWaypoints.Count - 1;
+            Vector2 tailPoint = routeWaypoints[tailIndex];
+            if (Vector2.Distance((Vector2)transform.position, tailPoint) <= 0.5f)
+            {
+                routeMovePhase = RouteMovePhase.ReturnAlongRoute;
+                routeWaypointIndex = tailIndex - 1;
+                TrySetDestination(routeWaypointIndex >= 0 ? routeWaypoints[routeWaypointIndex] : bornPosition);
+                return;
+            }
+
+            routeMovePhase = RouteMovePhase.MoveToRouteTail;
+            routeWaypointIndex = tailIndex;
+            TrySetDestination(tailPoint);
+        }
+
+        private bool HandleRouteArrival()
+        {
+            switch (routeMovePhase)
+            {
+                case RouteMovePhase.EnterRouteForward:
+                    if (routeWaypointIndex < routeWaypoints.Count - 1)
+                    {
+                        routeWaypointIndex++;
+                        TrySetDestination(routeWaypoints[routeWaypointIndex]);
+                    }
+                    else
+                    {
+                        routeMovePhase = RouteMovePhase.MoveToStateTarget;
+                        routeWaypointIndex = -1;
+                        TrySetDestination(stateTargetPosition);
+                    }
+
+                    RestartEnsureMoveStarted();
+                    return true;
+                case RouteMovePhase.MoveToRouteTail:
+                    routeMovePhase = RouteMovePhase.ReturnAlongRoute;
+                    routeWaypointIndex = routeWaypoints.Count - 2;
+                    TrySetDestination(routeWaypointIndex >= 0 ? routeWaypoints[routeWaypointIndex] : bornPosition);
+                    RestartEnsureMoveStarted();
+                    return true;
+                case RouteMovePhase.ReturnAlongRoute:
+                    if (routeWaypointIndex > 0)
+                    {
+                        routeWaypointIndex--;
+                        TrySetDestination(routeWaypoints[routeWaypointIndex]);
+                        RestartEnsureMoveStarted();
+                        return true;
+                    }
+
+                    if (routeWaypointIndex == 0)
+                    {
+                        routeWaypointIndex = -1;
+                        TrySetDestination(bornPosition);
+                        RestartEnsureMoveStarted();
+                        return true;
+                    }
+
+                    routeMovePhase = RouteMovePhase.None;
+                    return false;
+                default:
+                    return false;
+            }
+        }
+
+        private void RestartEnsureMoveStarted()
+        {
+            if (ensureMoveCoroutine != null)
+            {
+                StopCoroutine(ensureMoveCoroutine);
+            }
+
+            ensureMoveCoroutine = StartCoroutine(EnsureMoveStarted());
         }
 
         private void EnsurePurchaseMovement()
@@ -235,27 +524,32 @@ namespace Controller
             }
             spawnRelocateAttempts++;
 
-            if (TryRelocateSpawn())
+            if (routeIndex >= 0)
             {
-                SetNextPosition();
                 TrySetDestination(nextPosition);
-                if (ensureMoveCoroutine != null)
-                {
-                    StopCoroutine(ensureMoveCoroutine);
-                }
-                ensureMoveCoroutine = StartCoroutine(EnsureMoveStarted());
-            }
-        }
-
-        private void EnsureReturnToBorn()
-        {
-            if (state != NpcState.Angry && state != NpcState.JieZhangChengGong)
-            {
-                returnRepathTimer = 0f;
+                RestartEnsureMoveStarted();
                 return;
             }
 
-            if (agent == null) return;
+            if (TryRelocateSpawn())
+            {
+                RefreshMovementByState();
+            }
+        }
+
+        private void EnsureTravelMovement()
+        {
+            if (routeMovePhase == RouteMovePhase.None)
+            {
+                travelRepathTimer = 0f;
+                return;
+            }
+
+            if (agent == null)
+            {
+                return;
+            }
+
             if (agent.map == null)
             {
                 EnsureMap();
@@ -265,10 +559,10 @@ namespace Controller
                 }
             }
 
-            float dist = Vector2.Distance(transform.position, bornPosition);
+            float dist = Vector2.Distance((Vector2)transform.position, nextPosition);
             if (dist <= 0.5f)
             {
-                returnRepathTimer = 0f;
+                travelRepathTimer = 0f;
                 return;
             }
 
@@ -280,16 +574,16 @@ namespace Controller
 
             if (needsRepath)
             {
-                returnRepathTimer += Time.deltaTime;
-                if (returnRepathTimer >= ReturnRepathInterval)
+                travelRepathTimer += Time.deltaTime;
+                if (travelRepathTimer >= TravelRepathInterval)
                 {
-                    TrySetDestination(bornPosition);
-                    returnRepathTimer = 0f;
+                    TrySetDestination(nextPosition);
+                    travelRepathTimer = 0f;
                 }
             }
             else
             {
-                returnRepathTimer = 0f;
+                travelRepathTimer = 0f;
             }
         }
 
@@ -338,13 +632,29 @@ namespace Controller
             return agent.map != null && agent.map.nodesCount > 0;
         }
 
+        private Vector2 GetValidMapPoint(Vector2 point)
+        {
+            if (!EnsureMap())
+            {
+                return point;
+            }
+
+            if (!agent.map.PointIsValid(point))
+            {
+                point = agent.map.GetCloserEdgePoint(point);
+            }
+
+            return point;
+        }
+
         private void SnapToValidPosition()
         {
             if (agent == null || agent.map == null)
             {
                 return;
             }
-            Vector2 pos = transform.position;
+
+            Vector2 pos = (Vector2)transform.position;
             if (!agent.map.PointIsValid(pos))
             {
                 Vector2 fixedPos = agent.map.GetCloserEdgePoint(pos);
@@ -352,98 +662,182 @@ namespace Controller
             }
         }
 
-
-        public void WaitPurchase()
-        {
-            //            Debug.LogError($"{name} 到达购买点，开始等待购买");
-            state = NpcState.WaitGouMaiWanCheng;
-            StartCoroutine(PurchaseRoutine());
-
-        }
-
-        private bool purchaseConfirmed = false;
         private IEnumerator PurchaseRoutine()
         {
             float timer = 0f;
             while (timer < data.waitTime)
             {
+                if (state != NpcState.WaitGouMaiWanCheng)
+                {
+                    purchaseRoutineCoroutine = null;
+                    yield break;
+                }
+
                 if (purchaseList.Count >= data.carryNum)
                 {
                     Purchase();
                     yield break;
                 }
+
                 if (severing)
                 {
                     yield return null;
                     continue;
                 }
+
                 timer += Time.deltaTime;
                 yield return null;
             }
-            if (!severing && purchaseList.Count < data.carryNum)
+
+            if (state != NpcState.WaitGouMaiWanCheng)
+            {
+                purchaseRoutineCoroutine = null;
+                yield break;
+            }
+
+            if (purchaseList.Count > 0)
+            {
+                Purchase();
+                yield break;
+            }
+
+            if (severing)
+            {
+                float graceTimer = 0.2f;
+                while (graceTimer > 0f && state == NpcState.WaitGouMaiWanCheng && severing && purchaseList.Count == 0)
+                {
+                    graceTimer -= Time.deltaTime;
+                    yield return null;
+                }
+
+                if (state != NpcState.WaitGouMaiWanCheng)
+                {
+                    purchaseRoutineCoroutine = null;
+                    yield break;
+                }
+
+                if (purchaseList.Count > 0)
+                {
+                    Purchase();
+                    yield break;
+                }
+            }
+
+            if (purchaseList.Count < data.carryNum)
             {
                 skeletonAnimation.AnimationState.SetAnimation(0, "angry", false);
                 yield return new WaitForSeconds(1f);
+
+                if (state != NpcState.WaitGouMaiWanCheng)
+                {
+                    purchaseRoutineCoroutine = null;
+                    yield break;
+                }
+
+                if (purchaseList.Count > 0)
+                {
+                    Purchase();
+                    yield break;
+                }
+
                 OnPurchaseTimeout();
             }
 
+            purchaseRoutineCoroutine = null;
         }
+
         private void Purchase()
         {
+            if (state != NpcState.WaitGouMaiWanCheng)
+            {
+                purchaseRoutineCoroutine = null;
+                return;
+            }
+
             for (int i = 0; i < purchaseList.Count; i++)
             {
                 var obj = purchaseList[i];
-                purchaseList[i].FlyTo(receiveTransform.position, () =>
-                 {
-                     obj.transform.SetParent(transform, false);
-                     obj.transform.position = receiveTransform.position;
-                 });
-            }
-            severing = false;
-            Debug.Log($"{name} 成功购买 {data.carryNum} 件商品");
-            state = NpcState.QianWangShouYinTai;
-            SetNextPosition();
-            TrySetDestination(nextPosition);
-        }
-        private void OnPurchaseTimeout()
-        {
-            state = NpcState.Angry;
-            SetNextPosition();
-            TrySetDestination(nextPosition);
-            EventCenter.Instance.TriggerEvent(EventMessages.CustomerLeave, salesStall, this);
-        }
-        public void SetNextPosition()
-        {
-            if (state == NpcState.QianWangGouMai)
-            {
-                var pos = salesStall.GetPurchasePosition();
-                nextPosition = pos;
-            }
-            else if (state == NpcState.QianWangShouYinTai)
-            {
-                // GameController.Instance.RemoveCustomerFromQueue(salesStall, this);
-                purchasePosition = (GameController.Instance.buildings[BuildingType.LingZhangTai] as CashierCounter).parchaseTransform.position;
-                nextPosition = purchasePosition;
-            }
-            else if (state is NpcState.JieZhangChengGong or NpcState.Angry)
-            {
-                //GameController.Instance.RemoveCustomerFromQueue(salesStall, this);
-                nextPosition = bornPosition;
+                if (obj == null)
+                {
+                    continue;
+                }
+
+                obj.SetState(ItemState.HeldByCustomer);
+                obj.transform.SetParent(transform, false);
+                obj.transform.position = receiveTransform.position;
             }
 
-            if (EnsureMap())
+            severing = false;
+            purchaseRoutineCoroutine = null;
+            state = NpcState.QianWangShouYinTai;
+            RefreshMovementByState();
+        }
+
+        private void OnPurchaseTimeout()
+        {
+            if (state != NpcState.WaitGouMaiWanCheng)
             {
-                var map = agent.map;
-                if (map != null)
-                {
-                    Vector2 pos2 = nextPosition;
-                    if (!map.PointIsValid(pos2))
-                    {
-                        pos2 = map.GetCloserEdgePoint(pos2);
-                    }
-                    nextPosition = pos2;
-                }
+                purchaseRoutineCoroutine = null;
+                return;
             }
+
+            purchaseRoutineCoroutine = null;
+            severing = false;
+            ReturnPurchasedProductsToStall();
+            state = NpcState.Angry;
+            RefreshMovementByState();
+            EventCenter.Instance.TriggerEvent(EventMessages.CustomerLeave, salesStall, this);
+        }
+
+        private void ReturnPurchasedProductsToStall()
+        {
+            if (purchaseList.Count == 0)
+            {
+                return;
+            }
+
+            for (int i = purchaseList.Count - 1; i >= 0; i--)
+            {
+                Production product = purchaseList[i];
+                purchaseList.RemoveAt(i);
+                if (product == null)
+                {
+                    continue;
+                }
+
+                salesStall?.PlaceProduct(product);
+            }
+        }
+
+        public bool CanReceivePurchasedProduct()
+        {
+            return this != null &&
+                   gameObject != null &&
+                   gameObject.activeInHierarchy &&
+                   state == NpcState.WaitGouMaiWanCheng;
+        }
+
+        public void ReceivePurchasedProduct(Production product)
+        {
+            if (product == null)
+            {
+                return;
+            }
+
+            if (!CanReceivePurchasedProduct())
+            {
+                salesStall?.PlaceProduct(product);
+                return;
+            }
+
+            if (!purchaseList.Contains(product))
+            {
+                purchaseList.Add(product);
+            }
+
+            product.SetState(ItemState.HeldByCustomer);
+            product.transform.SetParent(transform, false);
+            product.transform.position = receiveTransform.position;
         }
 
         private bool TrySetDestination(Vector2 target)
@@ -456,15 +850,18 @@ namespace Controller
             {
                 return false;
             }
+
             var map = agent.map;
             if (map == null)
             {
                 return false;
             }
+
             if (!map.PointIsValid(target))
             {
                 target = map.GetCloserEdgePoint(target);
             }
+
             nextPosition = target;
             return agent.SetDestination(target);
         }
@@ -480,10 +877,12 @@ namespace Controller
                 {
                     yield break;
                 }
+
                 if (agent.pathPending)
                 {
                     continue;
                 }
+
                 if (agent.hasPath || agent.remainingDistance > 0.1f)
                 {
                     yield break;
@@ -492,7 +891,6 @@ namespace Controller
                 attempts++;
                 if (EnsureMap())
                 {
-                    // 修正当前位置到可走区域，再重新寻路
                     SnapToValidPosition();
                     TrySetDestination(nextPosition);
                 }
@@ -500,12 +898,12 @@ namespace Controller
 
             if (EnsureMap())
             {
-                // 仍无法移动时，强制把起点贴近目标所在的可走区域
                 if (!TryRelocateSpawn())
                 {
-                    Vector2 rescue = agent.map.GetCloserEdgePoint(transform.position);
+                    Vector2 rescue = agent.map.GetCloserEdgePoint((Vector2)transform.position);
                     transform.position = new Vector3(rescue.x, rescue.y, transform.position.z);
                 }
+
                 TrySetDestination(nextPosition);
             }
         }
@@ -516,12 +914,12 @@ namespace Controller
             {
                 return;
             }
+
             invalidRecoverCoroutine = StartCoroutine(RecoverFromInvalidPath());
         }
 
         private IEnumerator RecoverFromInvalidPath()
         {
-            // Avoid recursive path requests during PolyNav callbacks
             yield return null;
             const int maxAttempts = 3;
             int attempts = 0;
@@ -557,11 +955,13 @@ namespace Controller
             {
                 if (!TryRelocateSpawn())
                 {
-                    Vector2 rescue = agent.map.GetCloserEdgePoint(transform.position);
+                    Vector2 rescue = agent.map.GetCloserEdgePoint((Vector2)transform.position);
                     transform.position = new Vector3(rescue.x, rescue.y, transform.position.z);
                 }
+
                 TrySetDestination(nextPosition);
             }
+
             invalidRecoverCoroutine = null;
         }
 
@@ -572,12 +972,12 @@ namespace Controller
                 return false;
             }
 
-            if (state != NpcState.QianWangGouMai)
+            if (state != NpcState.QianWangGouMai || routeIndex >= 0)
             {
                 return false;
             }
 
-            if (Vector2.Distance(transform.position, bornPosition) > 0.5f)
+            if (Vector2.Distance((Vector2)transform.position, bornPosition) > 0.5f)
             {
                 return false;
             }
@@ -608,5 +1008,17 @@ namespace Controller
 
             return false;
         }
+
+        private RouteMovePhase ParseRouteMovePhase(int savedValue)
+        {
+            if (savedValue < (int)RouteMovePhase.None || savedValue > (int)RouteMovePhase.ReturnAlongRoute)
+            {
+                return RouteMovePhase.None;
+            }
+
+            return (RouteMovePhase)savedValue;
+        }
+
+        private bool HasRouteWaypoints => routeWaypoints.Count > 0;
     }
 }

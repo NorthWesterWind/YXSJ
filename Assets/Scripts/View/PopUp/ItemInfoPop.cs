@@ -16,6 +16,7 @@ namespace View.PopUp
         DaiJieSuo,
         JieSuo,
     }
+
     public class ItemInfoPop : BaseView
     {
         public TextMeshProUGUI tiptxt;
@@ -24,284 +25,209 @@ namespace View.PopUp
         public TextMeshProUGUI btntxt;
         public UIButton btn;
         public Image icon;
-        BtnState state = BtnState.None;
         public GameObject fillContent;
         public Image fill;
         public TextMeshProUGUI filltxt;
         public bool isWeapon = false;
-        WeaponData weaponData;
+
+        private BtnState state = BtnState.None;
+        private WeaponData weaponData;
         public StotageBagData stotageBagData;
 
         public override void UpdateViewWithArgs(params object[] args)
         {
-            PlayerData playerdata = PlayerDataModule.Instance.data;
-            if (args[0] is WeaponData)
+            if (args == null || args.Length == 0 || args[0] == null)
             {
-                isWeapon = true;
-                weaponData = args[0] as WeaponData;
+                return;
+            }
+
+            weaponData = args[0] as WeaponData;
+            stotageBagData = args[0] as StotageBagData;
+            isWeapon = weaponData != null;
+
+            RefreshViewState();
+        }
+
+        private void RefreshViewState()
+        {
+            PlayerData playerData = PlayerDataModule.Instance.data;
+            if (isWeapon && weaponData != null)
+            {
                 tiptxt.text = weaponData.name;
                 locktxt.text = weaponData.unlockStr;
                 icon.sprite = _assetHandle.Get<Sprite>(weaponData.name);
-                if (playerdata.ownWeaponList.Contains(weaponData.id))
+
+                if (playerData.ownWeaponList.Contains(weaponData.id))
                 {
-                    if (playerdata.currentWeapon == weaponData.id)
-                    {
-                        btntxt.text = "已装备";
-                        state = BtnState.YiZhuangBei;
-                    }
-                    else
-                    {
-                        state = BtnState.ZhuangBei;
-                        btntxt.text = "装备";
-                    }
-                    locktxt.text = "攻击力：" + (playerdata.atk + weaponData.atkValue);
+                    state = playerData.currentWeapon == weaponData.id ? BtnState.YiZhuangBei : BtnState.ZhuangBei;
+                    btntxt.text = state == BtnState.YiZhuangBei ? "已装备" : "装备";
+                    locktxt.text = "攻击力：" + (playerData.atk + weaponData.atkValue);
                     fillContent.SetActive(false);
+                    return;
                 }
-                else
-                {
 
-                    fillContent.SetActive(true);
-                    switch (weaponData.lockType)
-                    {
-                        case UnlockType.accountLevel:
-                            fill.fillAmount = playerdata.accountLevel * 1f / weaponData.value;
-                            filltxt.text = "(" + playerdata.accountLevel + "/" + weaponData.value + ")";
-                            if (playerdata.accountLevel >= weaponData.value)
-                            {
-                                state = BtnState.JieSuo;
-                                btntxt.text = "解锁";
-                            }
-                            else
-                            {
-                                state = BtnState.DaiJieSuo;
-                                btntxt.text = "待解锁";
-                            }
-                            break;
-                        case UnlockType.CardLevel:
-                            fill.fillAmount = playerdata.cardLevelMax * 1f / weaponData.value;
-                            filltxt.text = "(" + playerdata.cardLevelMax + "/" + weaponData.value + ")";
-                            if (playerdata.cardLevelMax >= weaponData.value)
-                            {
-                                state = BtnState.JieSuo;
-                                btntxt.text = "解锁";
-                            }
-                            else
-                            {
-                                state = BtnState.DaiJieSuo;
-                                btntxt.text = "待解锁";
-                            }
-                            break;
-                        case UnlockType.talentLevel:
-                            fill.fillAmount = playerdata.talentLevel * 1f / weaponData.value;
-                            filltxt.text = "(" + playerdata.talentLevel + "/" + weaponData.value + ")";
-                            if (playerdata.talentLevel >= weaponData.value)
-                            {
-                                state = BtnState.JieSuo;
-                                btntxt.text = "解锁";
-                            }
-                            else
-                            {
-                                state = BtnState.DaiJieSuo;
-                                btntxt.text = "待解锁";
-                            }
-                            break;
-                        case UnlockType.UseLingJing:
-                            fill.fillAmount = playerdata.useLingJingTotalValue * 1f / weaponData.value;
-                            filltxt.text = "(" + playerdata.useLingJingTotalValue + "/" + weaponData.value + ")";
-                            if (playerdata.useLingJingTotalValue >= weaponData.value)
-                            {
-                                state = BtnState.JieSuo;
-                                btntxt.text = "解锁";
-                            }
-                            else
-                            {
-                                state = BtnState.DaiJieSuo;
-                                btntxt.text = "待解锁";
-                            }
-                            break;
-                        case UnlockType.XianYunZhuanPan:
-                            fill.fillAmount = playerdata.useZhuanPanTotalValue * 1f / weaponData.value;
-                            filltxt.text = "(" + playerdata.useZhuanPanTotalValue + "/" + weaponData.value + ")";
-                            if (playerdata.useZhuanPanTotalValue >= weaponData.value)
-                            {
-                                state = BtnState.JieSuo;
-                                btntxt.text = "解锁";
-                            }
-                            else
-                            {
-                                state = BtnState.DaiJieSuo;
-                                btntxt.text = "待解锁";
-                            }
-                            break;
-
-                    }
-
-                }
+                fillContent.SetActive(true);
+                RefreshUnlockState(weaponData.lockType, weaponData.value);
+                return;
             }
-            else if (args[0] is StotageBagData)
+
+            if (stotageBagData == null)
             {
-                isWeapon = false;
-                stotageBagData = args[0] as StotageBagData;
-                tiptxt.text = stotageBagData.name;
-                locktxt.text = stotageBagData.unlockStr;
-                icon.sprite = _assetHandle.Get<Sprite>(stotageBagData.name);
-                if (playerdata.ownBagList.Contains(stotageBagData.id))
-                {
-                    if (playerdata.currentBag == stotageBagData.id)
-                    {
-                        btntxt.text = "已装备";
-                        state = BtnState.YiZhuangBei;
-                    }
-                    else
-                    {
-                        state = BtnState.ZhuangBei;
-                        btntxt.text = "装备";
-                    }
+                return;
+            }
 
-                    fillContent.SetActive(false);
-                    locktxt.text = "储物容量：" + (playerdata.bagCapacity + stotageBagData.capacity);
-                }
-                else
-                {
+            tiptxt.text = stotageBagData.name;
+            locktxt.text = stotageBagData.unlockStr;
+            icon.sprite = _assetHandle.Get<Sprite>(stotageBagData.name);
 
-                    fillContent.SetActive(true);
-                    switch (stotageBagData.lockType)
-                    {
-                        case UnlockType.accountLevel:
-                            fill.fillAmount = playerdata.accountLevel * 1f / stotageBagData.value;
-                            filltxt.text = "(" + playerdata.accountLevel + "/" + stotageBagData.value + ")";
-                            if (playerdata.accountLevel >= stotageBagData.value)
-                            {
-                                state = BtnState.JieSuo;
-                                btntxt.text = "解锁";
-                            }
-                            else
-                            {
-                                state = BtnState.DaiJieSuo;
-                                btntxt.text = "待解锁";
-                            }
-                            break;
-                        case UnlockType.CardLevel:
-                            fill.fillAmount = playerdata.cardLevelMax * 1f / stotageBagData.value;
-                            filltxt.text = "(" + playerdata.cardLevelMax + "/" + stotageBagData.value + ")";
-                            if (playerdata.cardLevelMax >= stotageBagData.value)
-                            {
-                                state = BtnState.JieSuo;
-                                btntxt.text = "解锁";
-                            }
-                            else
-                            {
-                                state = BtnState.DaiJieSuo;
-                                btntxt.text = "待解锁";
-                            }
-                            break;
-                        case UnlockType.talentLevel:
-                            fill.fillAmount = playerdata.talentLevel * 1f / stotageBagData.value;
-                            filltxt.text = "(" + playerdata.talentLevel + "/" + stotageBagData.value + ")";
-                            if (playerdata.talentLevel >= stotageBagData.value)
-                            {
-                                state = BtnState.JieSuo;
-                                btntxt.text = "解锁";
-                            }
-                            else
-                            {
-                                state = BtnState.DaiJieSuo;
-                                btntxt.text = "待解锁";
-                            }
-                            break;
-                        case UnlockType.UseLingJing:
-                            fill.fillAmount = playerdata.useLingJingTotalValue * 1f / stotageBagData.value;
-                            filltxt.text = "(" + playerdata.useLingJingTotalValue + "/" + stotageBagData.value + ")";
-                            if (playerdata.useLingJingTotalValue >= stotageBagData.value)
-                            {
-                                state = BtnState.JieSuo;
-                                btntxt.text = "解锁";
-                            }
-                            else
-                            {
-                                state = BtnState.DaiJieSuo;
-                                btntxt.text = "待解锁";
-                            }
+            if (playerData.ownBagList.Contains(stotageBagData.id))
+            {
+                state = playerData.currentBag == stotageBagData.id ? BtnState.YiZhuangBei : BtnState.ZhuangBei;
+                btntxt.text = state == BtnState.YiZhuangBei ? "已装备" : "装备";
+                locktxt.text = "储物容量：" + (playerData.bagCapacity + stotageBagData.capacity);
+                fillContent.SetActive(false);
+                return;
+            }
 
-                            break;
-                        case UnlockType.XianYunZhuanPan:
-                            fill.fillAmount = playerdata.useZhuanPanTotalValue * 1f / stotageBagData.value;
-                            filltxt.text = "(" + playerdata.useZhuanPanTotalValue + "/" + stotageBagData.value + ")";
-                            if (playerdata.useZhuanPanTotalValue >= stotageBagData.value)
-                            {
-                                state = BtnState.JieSuo;
-                                btntxt.text = "解锁";
-                            }
-                            else
-                            {
-                                state = BtnState.DaiJieSuo;
-                                btntxt.text = "待解锁";
-                            }
-                            break;
+            fillContent.SetActive(true);
+            RefreshUnlockState(stotageBagData.lockType, stotageBagData.value);
+        }
 
-                    }
-
-
-                }
+        private void RefreshUnlockState(UnlockType unlockType, int targetValue)
+        {
+            PlayerData playerData = PlayerDataModule.Instance.data;
+            switch (unlockType)
+            {
+                case UnlockType.accountLevel:
+                    SetUnlockProgress(playerData.accountLevel, targetValue);
+                    break;
+                case UnlockType.CardLevel:
+                    SetUnlockProgress(playerData.cardLevelMax, targetValue);
+                    break;
+                case UnlockType.talentLevel:
+                    SetUnlockProgress(playerData.talentLevel, targetValue);
+                    break;
+                case UnlockType.UseLingJing:
+                    SetUnlockProgress(playerData.useLingJingTotalValue, targetValue);
+                    break;
+                case UnlockType.XianYunZhuanPan:
+                    SetUnlockProgress(playerData.useZhuanPanTotalValue, targetValue);
+                    break;
+                case UnlockType.Purchase:
+                    fill.fillAmount = 1f;
+                    filltxt.text = string.Empty;
+                    state = BtnState.JieSuo;
+                    btntxt.text = "解锁";
+                    break;
+                default:
+                    fill.fillAmount = 0f;
+                    filltxt.text = string.Empty;
+                    state = BtnState.DaiJieSuo;
+                    btntxt.text = "待解锁";
+                    break;
             }
         }
 
+        private void SetUnlockProgress(int currentValue, int targetValue)
+        {
+            int safeTarget = Mathf.Max(1, targetValue);
+            fill.fillAmount = Mathf.Clamp01(currentValue * 1f / safeTarget);
+            filltxt.text = "(" + currentValue + "/" + safeTarget + ")";
 
+            if (currentValue >= targetValue)
+            {
+                state = BtnState.JieSuo;
+                btntxt.text = "解锁";
+            }
+            else
+            {
+                state = BtnState.DaiJieSuo;
+                btntxt.text = "待解锁";
+            }
+        }
 
         protected override void AddEventListener()
         {
             base.AddEventListener();
+
             closeBtn.onClick.RemoveAllListeners();
-            closeBtn.onClick.AddListener((() =>
+            closeBtn.onClick.AddListener(() =>
             {
                 Hide();
-            }));
+            });
 
             btn.onClick.RemoveAllListeners();
-            btn.onClick.AddListener((() =>
+            btn.onClick.AddListener(() =>
             {
                 if (state == BtnState.ZhuangBei)
                 {
-
-                    if (isWeapon)
-                    {
-                        WeaponData weapondata = DataController.Instance.weaponDataDic[PlayerDataModule.Instance.data.currentWeapon];
-                        PlayerDataModule.Instance.data.addAtk -= weapondata.atkValue;
-                        PlayerDataModule.Instance.data.currentWeapon = weaponData.id;
-                        PlayerDataModule.Instance.data.addAtk += DataController.Instance.weaponDataDic[weaponData.id].atkValue;
-
-                    }
-                    else
-                    {
-                        StotageBagData stotageBagdata = DataController.Instance.storageBagDataDic[PlayerDataModule.Instance.data.currentBag];
-                        PlayerDataModule.Instance.data.addBagCapacity -= stotageBagdata.capacity;
-                        PlayerDataModule.Instance.data.currentBag = stotageBagData.id;
-                        Debug.LogError("playerData.currentBag = " + PlayerDataModule.Instance.data.currentBag);
-                        PlayerDataModule.Instance.data.addBagCapacity += DataController.Instance.storageBagDataDic[stotageBagData.id].capacity;
-                    }
+                    EquipCurrentItem();
+                    RefreshViewState();
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
-                    state = BtnState.YiZhuangBei;
-                    btntxt.text = "已装备";
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
+                    return;
+                }
+
+                if (state == BtnState.JieSuo)
+                {
+                    UnlockCurrentItem();
+                    RefreshViewState();
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
                 }
-                else if (state == BtnState.JieSuo)
+            });
+        }
+
+        private void EquipCurrentItem()
+        {
+            PlayerData playerData = PlayerDataModule.Instance.data;
+            if (isWeapon && weaponData != null)
+            {
+                if (DataController.Instance.weaponDataDic.TryGetValue(playerData.currentWeapon, out var currentWeaponData))
                 {
-
-
-                    if (isWeapon)
-                    {
-
-                        PlayerDataModule.Instance.data.ownWeaponList.Add(weaponData.id);
-                    }
-                    else
-                    {
-                        PlayerDataModule.Instance.data.ownBagList.Add(stotageBagData.id);
-                    }
-                    state = BtnState.ZhuangBei;
-                    btntxt.text = "装备";
+                    playerData.addAtk -= currentWeaponData.atkValue;
                 }
-            }));
 
+                playerData.currentWeapon = weaponData.id;
+                playerData.addAtk += weaponData.atkValue;
+                return;
+            }
+
+            if (stotageBagData == null)
+            {
+                return;
+            }
+
+            if (DataController.Instance.storageBagDataDic.TryGetValue(playerData.currentBag, out var currentBagData))
+            {
+                playerData.addBagCapacity -= currentBagData.capacity;
+            }
+
+            playerData.currentBag = stotageBagData.id;
+            playerData.addBagCapacity += stotageBagData.capacity;
+        }
+
+        private void UnlockCurrentItem()
+        {
+            PlayerData playerData = PlayerDataModule.Instance.data;
+            if (isWeapon && weaponData != null)
+            {
+                if (!playerData.ownWeaponList.Contains(weaponData.id))
+                {
+                    playerData.ownWeaponList.Add(weaponData.id);
+                }
+
+                return;
+            }
+
+            if (stotageBagData == null)
+            {
+                return;
+            }
+
+            if (!playerData.ownBagList.Contains(stotageBagData.id))
+            {
+                playerData.ownBagList.Add(stotageBagData.id);
+            }
         }
     }
 }

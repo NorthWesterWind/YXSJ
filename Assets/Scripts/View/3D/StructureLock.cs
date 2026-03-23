@@ -1,3 +1,4 @@
+using System.Collections;
 using Controller.Player;
 using Module;
 using Module.Data;
@@ -23,6 +24,8 @@ public class StructureLock : MonoBehaviour
     private PlayerController player;
     public bool isLocked = true;
     public TextMeshPro nametxt;
+    private Coroutine autoThrowCoroutine;
+    private const float AutoThrowInterval = 0.25f;
 
 
     public void InitInfo(StructureLockData data)
@@ -179,6 +182,7 @@ public class StructureLock : MonoBehaviour
     void OnDisable()
     {
         EventCenter.Instance.RemoveListener(EventMessages.ThrowOutTongBi, OnPlayerThrowTongBi);
+        StopAutoThrow();
     }
 
     private void OnPlayerThrowTongBi(params object[] args)
@@ -187,12 +191,15 @@ public class StructureLock : MonoBehaviour
         if (t != receiveTransform)
             return;
         var progress = GetProgressData();
+        if (progress == null)
+            return;
         progress.currentOwnMoney += 100;
         UpdateProgress(progress.currentOwnMoney);
     }
 
     public void OnExit()
     {
+        StopAutoThrow();
         PlayerData playerData = PlayerDataModule.Instance.data;
         StructureLockProgressData progressData = playerData.structureLockProgressDataList.Find(s => s.buildType == buildType && s.mapId == playerData.currentMapID);
         if (progressData != null)
@@ -205,8 +212,7 @@ public class StructureLock : MonoBehaviour
 
     public void OnEnter()
     {
-        if (player != null && !player.isMoving)
-            player.ThrowOutTongBi(receiveTransform);
+        StartAutoThrow();
     }
 
 
@@ -218,11 +224,6 @@ public class StructureLock : MonoBehaviour
         if (percent >= 1f && isLocked)
         {
             Unlock();
-        }
-        else
-        {
-            if (player != null && !player.isMoving)
-                player.ThrowOutTongBi(receiveTransform);
         }
     }
 
@@ -238,6 +239,7 @@ public class StructureLock : MonoBehaviour
     private void Unlock()
     {
         isLocked = false;
+        StopAutoThrow();
         bg.SetActive(false);
         var data = GetProgressData();
         if (data != null)
@@ -251,6 +253,44 @@ public class StructureLock : MonoBehaviour
         EventCenter.Instance.TriggerEvent(EventMessages.ConstructTask, buildType);
 
 
+    }
+
+    private void StartAutoThrow()
+    {
+        if (autoThrowCoroutine != null)
+            return;
+        autoThrowCoroutine = StartCoroutine(AutoThrowCoinCoroutine());
+    }
+
+    private void StopAutoThrow()
+    {
+        if (autoThrowCoroutine == null)
+            return;
+        StopCoroutine(autoThrowCoroutine);
+        autoThrowCoroutine = null;
+    }
+
+    private IEnumerator AutoThrowCoinCoroutine()
+    {
+        while (CanAutoThrow())
+        {
+            if (player != null && !player.isMoving)
+            {
+                player.ThrowOutTongBi(receiveTransform);
+            }
+            yield return new WaitForSeconds(AutoThrowInterval);
+        }
+
+        autoThrowCoroutine = null;
+    }
+
+    private bool CanAutoThrow()
+    {
+        if (!isLocked || !playerInRange || player == null || receiveTransform == null)
+            return false;
+        if (_data == null || GetProgressData() == null)
+            return false;
+        return PlayerDataModule.Instance.data.structCanUnLockDataDic[PlayerDataModule.Instance.data.currentMapID].Contains(buildType);
     }
 
 }

@@ -107,10 +107,11 @@ public class LingZhangTaiPop : BaseView
             }
             btnMask_2.SetActive(true);
             btnMaskTxt_2.text = "需要2级";
-            donatetxt.text =  "x" + "0%";
+            donatetxt.text = "x" + "0%";
         }
         else
         {
+            cardMask.SetActive(false);
             cardLeveltxt.text = cardprogress.level.ToString();
             fillContent.SetActive(true);
             lockObj.SetActive(false);

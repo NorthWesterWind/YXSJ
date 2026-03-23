@@ -305,8 +305,8 @@ namespace View
         public void HandleUpdateLevelProgress(params object[] args)
         {
             accountLevelTxt.text = player.dataModule.data.accountLevel.ToString();
-            accountLevelProgressTxt.text = player.dataModule.data.jingMangZhu + "/" + WorldData.LevelRequirementDic[player.dataModule.data.currentMapID];
-            fillImage.fillAmount = player.dataModule.data.jingMangZhu * 1f / WorldData.LevelRequirementDic[player.dataModule.data.currentMapID];
+            accountLevelProgressTxt.text = player.dataModule.data.star + "/" + WorldData.LevelRequirementDic[player.dataModule.data.currentMapID];
+            fillImage.fillAmount = player.dataModule.data.star * 1f / WorldData.LevelRequirementDic[player.dataModule.data.currentMapID];
         }
 
         #endregion

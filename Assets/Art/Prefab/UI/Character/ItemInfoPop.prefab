@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 0, y: 0.79999924}
+  m_SizeDelta: {x: 248, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &596951026336945583
 CanvasRenderer:
@@ -95,9 +95,9 @@ MonoBehaviour:
   m_fontSize: 36
   m_fontSizeBase: 36
   m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_enableAutoSizing: 1
+  m_fontSizeMin: 14
+  m_fontSizeMax: 36
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -1158,6 +1158,15 @@ MonoBehaviour:
   fill: {fileID: 2786044830621439248}
   filltxt: {fileID: 5228384183922263716}
   isWeapon: 0
+  stotageBagData:
+    id: 0
+    name: 
+    capacity: 0
+    unlockStr: 
+    lockType: 0
+    value: 0
+    attachmentName: 
+    slotName: 
 --- !u!114 &6542571202883385423
 MonoBehaviour:
   m_ObjectHideFlags: 0

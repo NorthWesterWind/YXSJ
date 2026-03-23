@@ -35,7 +35,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 79.4315, y: 79.4315}
+  m_SizeDelta: {x: 88.4219, y: 85.4227}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2938790335019916513
 CanvasRenderer:
@@ -65,7 +65,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: cd1437ea1764a2b40b65def0dbd2ac2f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: b142c5035358aed40a2cea46b80368a5, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -87,6 +87,7 @@ GameObject:
   - component: {fileID: 7936955901873546058}
   - component: {fileID: 8391238966630363126}
   - component: {fileID: 5766203309515218719}
+  - component: {fileID: 2812144622238626456}
   m_Layer: 5
   m_Name: OrderNeedItem
   m_TagString: Untagged
@@ -196,6 +197,21 @@ MonoBehaviour:
   - {fileID: 2800000, guid: b9eb963b94cc61f4ab443e3a52bbcccb, type: 3}
   - {fileID: 2800000, guid: 57fd532ada5e6b74b85638f784cdb899, type: 3}
   - {fileID: 2800000, guid: 79db7992ecee51141b4651eeb2274c53, type: 3}
+--- !u!114 &2812144622238626456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3100336545698351043}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0d5a1cd421baae43ba9631400ad1f1a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  icon: {fileID: 2861474100476694223}
+  num: {fileID: 88310249341100393}
+  assetHandle: {fileID: 5766203309515218719}
 --- !u!1 &3807188807251554022
 GameObject:
   m_ObjectHideFlags: 0
@@ -230,7 +246,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 2.7, y: -9}
+  m_AnchoredPosition: {x: 2.7, y: -13.8}
   m_SizeDelta: {x: 116.0956, y: 29.024}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &7783059911248915197
@@ -288,13 +304,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30
-  m_fontSizeBase: 30
+  m_fontSize: 40
+  m_fontSizeBase: 40
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535

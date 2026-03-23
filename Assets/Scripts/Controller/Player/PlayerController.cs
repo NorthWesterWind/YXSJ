@@ -585,7 +585,6 @@ namespace Controller.Player
 
                     float rootDist = Vector2.Distance(transform.position, station.GetPickupRootPosition());
                     if (rootDist > currentPinkUpRange) continue;
-                    if (Controller.FreightClerkController.IsStationClaimedByFreight(station)) continue;
                     if (currentCarryNum + _pendingPickupCount >= maxCarryNum) continue;
 
                     bool taken = station.TryAttractTopProduct(
@@ -750,33 +749,8 @@ namespace Controller.Player
                 dropCtrl.canPickup = false;
                 dropCtrl.Init(station.currentGoodsType);
                 dropCtrl.SetStation(station);
-                Vector2 start = receiveTransform.position;
-                Vector2 target = station.grid.GetNextPosition();
-                if (dropCtrl.spriteRenderer != null)
-                {
-                    dropCtrl.spriteRenderer.sortingOrder = station.grid.GetLastSortingOrder(station.sprite.sortingOrder, 2);
-                }
-                Vector2 control = Vector2.Lerp(start, target, 0.5f) + Vector2.up * 1.5f;
-
-                float timer = 0f;
-
-                while (timer < scatterDuration)
-                {
-                    if (isMoving) break;
-
-                    float t = scatterCurve.Evaluate(timer / scatterDuration);
-                    Vector2 pos = (1 - t) * (1 - t) * start +
-                                  2 * (1 - t) * t * control +
-                                  t * t * target;
-
-                    drop.transform.position = pos;
-                    timer += Time.deltaTime;
-                    yield return null;
-                }
-
-                drop.transform.position = target;
-
-                station.AddGoods(dropCtrl);
+                drop.transform.position = receiveTransform.position;
+                station.PlaceProduct(dropCtrl);
                 // 递减材料计数
                 goodsDic[station.currentGoodsType]--;
                 currentCarryNum--;

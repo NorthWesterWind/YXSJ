@@ -35,6 +35,7 @@ namespace Controller
         public SkeletonAnimation skeletonAnimation;
         [Header("巡逻范围设置")] public Vector2 patrolCenter;
         Vector2 patrolSize;
+        private bool hasPatrolCenter;
 
         [Header("行为参数")] public float idleTimeMin = 1.5f;
         public float idleTimeMax = 3f;
@@ -42,6 +43,7 @@ namespace Controller
         public float fleeDuration = 5f;
 
         private PolyNavAgent agent;
+        private PolyNavMap cachedMap;
         private Coroutine stateRoutine;
         private Transform attacker;
 
@@ -69,6 +71,7 @@ namespace Controller
 
         private bool isFleeing = false;
         private float fleeCooldown = 3f;
+        private const float PatrolInnerInset = 0.6f;
 
 
         private float _damageInterval = 0.2f;
@@ -87,6 +90,7 @@ namespace Controller
         {
             agent = GetComponent<PolyNavAgent>();
             agent.map = GameObject.Find("Map").transform.GetComponent<PolyNavMap>();
+            cachedMap = agent.map;
             _assetHandle = GetComponent<AssetHandle>();
             impulseSource = GetComponent<CinemachineImpulseSource>();
         }
@@ -96,6 +100,7 @@ namespace Controller
             currentHp = data.hp;
             currentSpeed = data.movespeed;
             patrolCenter = center;
+            hasPatrolCenter = true;
             monsterType = data.type;
             behaviorType = behavior;
             factorID = Id;
@@ -214,6 +219,17 @@ namespace Controller
                 }
             }
 
+            if (state == MonsterState.Patrol &&
+                agent != null &&
+                !agent.pathPending &&
+                !agent.hasPath &&
+                IsNearPatrolBoundary(transform.position))
+            {
+                ForceState(MonsterState.Patrol);
+                return;
+            }
+
+            EnforcePatrolBounds();
         }
         private bool hasHitPlayer = false;
         private Coroutine chargeCoroutine;
@@ -232,6 +248,16 @@ namespace Controller
         {
             if (state == newState) return;
 
+            ApplyState(newState);
+        }
+
+        private void ForceState(MonsterState newState)
+        {
+            ApplyState(newState);
+        }
+
+        private void ApplyState(MonsterState newState)
+        {
             if (stateRoutine != null)
             {
                 StopCoroutine(stateRoutine);
@@ -256,6 +282,12 @@ namespace Controller
 
         IEnumerator IdleState()
         {
+            if (IsNearPatrolBoundary(transform.position))
+            {
+                ForceState(MonsterState.Patrol);
+                yield break;
+            }
+
             agent.Stop();
             float wait = Random.Range(idleTimeMin, idleTimeMax);
             yield return new WaitForSeconds(wait);
@@ -264,7 +296,15 @@ namespace Controller
 
         IEnumerator PatrolState()
         {
-            agent.SetDestination(GetRandomPointWithinPatrolArea());
+            if (TryGetPatrolDestination(out var destination))
+            {
+                SetFacingByTarget(destination);
+                agent.SetDestination(destination);
+            }
+            else
+            {
+                ChangeState(MonsterState.Idle);
+            }
             yield break;
         }
 
@@ -311,28 +351,19 @@ namespace Controller
             Vector2 targetPoint = (Vector2)transform.position + fleeDir * fleeDistance;
 
             // 矩形限制
-            float halfWidth = patrolSize.x / 2f;
-            float halfHeight = patrolSize.y / 2f;
-
-            Vector2 clamped;
-            clamped.x = Mathf.Clamp(targetPoint.x, patrolCenter.x - halfWidth, patrolCenter.x + halfWidth);
-            clamped.y = Mathf.Clamp(targetPoint.y, patrolCenter.y - halfHeight, patrolCenter.y + halfHeight);
+            Vector2 clamped = GetSafePatrolPoint(targetPoint);
 
             // 避免太靠近当前位置
             if (Vector2.Distance(transform.position, clamped) < 0.5f)
             {
-                clamped += Random.insideUnitCircle.normalized * 1f;
+                clamped = GetSafePatrolPoint(clamped + Random.insideUnitCircle.normalized * 1f);
 
                 // 再次保证不出矩形
-                clamped.x = Mathf.Clamp(clamped.x, patrolCenter.x - halfWidth, patrolCenter.x + halfWidth);
-                clamped.y = Mathf.Clamp(clamped.y, patrolCenter.y - halfHeight, patrolCenter.y + halfHeight);
             }
 
             // 设置导航目标
+            SetFacingByTarget(clamped);
             agent.SetDestination(clamped);
-
-            // 翻转角色
-            skeletonAnimation.skeleton.ScaleX = fleeDir.x < 0 ? -1 : 1;
         }
 
 
@@ -412,12 +443,9 @@ namespace Controller
                 Vector2 targetPoint = (Vector2)playerTransform.position;
 
                 // 矩形限制
-                float halfWidth = patrolSize.x / 2f;
-                float halfHeight = patrolSize.y / 2f;
-                Vector2 clamped;
-                clamped.x = Mathf.Clamp(targetPoint.x, patrolCenter.x - halfWidth, patrolCenter.x + halfWidth);
-                clamped.y = Mathf.Clamp(targetPoint.y, patrolCenter.y - halfHeight, patrolCenter.y + halfHeight);
+                Vector2 clamped = GetValidPointWithinPatrolArea(targetPoint);
                 // 设置导航目标
+                SetFacingByTarget(clamped);
                 agent.SetDestination(clamped);
                 chargeCoroutine = StartCoroutine(GiantChargeSequence(clamped));
             }
@@ -550,23 +578,289 @@ namespace Controller
         private void OnReachDestination()
         {
             if (state == MonsterState.Patrol)
-                ChangeState(MonsterState.Idle);
+            {
+                if (IsNearPatrolBoundary(transform.position))
+                {
+                    ForceState(MonsterState.Patrol);
+                }
+                else
+                {
+                    ChangeState(MonsterState.Idle);
+                }
+            }
         }
+
+        private void EnforcePatrolBounds()
+        {
+            if (isDead || patrolSize.x <= 0f || patrolSize.y <= 0f)
+            {
+                return;
+            }
+
+            Vector2 currentPos = transform.position;
+            if (IsInsidePatrolArea(currentPos, 0.05f))
+            {
+                return;
+            }
+
+            Vector2 correctedPos = GetValidPointWithinPatrolArea(currentPos);
+            if (Vector2.Distance(currentPos, correctedPos) <= 0.01f)
+            {
+                return;
+            }
+
+            if (chargeCoroutine != null)
+            {
+                StopCoroutine(chargeCoroutine);
+                chargeCoroutine = null;
+            }
+
+            if (stateRoutine != null)
+            {
+                StopCoroutine(stateRoutine);
+                stateRoutine = null;
+            }
+
+            isFleeing = false;
+            agent.Stop();
+            transform.position = new Vector3(correctedPos.x, correctedPos.y, transform.position.z);
+            InAtking = false;
+            ForceState(MonsterState.Patrol);
+        }
+
+        private Vector2 GetPatrolCenter()
+        {
+            return hasPatrolCenter ? patrolCenter : (Vector2)transform.position;
+        }
+
+        private bool IsInsidePatrolArea(Vector2 point, float padding = 0f)
+        {
+            Vector2 center = GetPatrolCenter();
+            float halfWidth = patrolSize.x * 0.5f + padding;
+            float halfHeight = patrolSize.y * 0.5f + padding;
+            return point.x >= center.x - halfWidth &&
+                   point.x <= center.x + halfWidth &&
+                   point.y >= center.y - halfHeight &&
+                   point.y <= center.y + halfHeight;
+        }
+
+        private float GetPatrolInset()
+        {
+            float maxInset = Mathf.Min(patrolSize.x, patrolSize.y) * 0.25f;
+            return Mathf.Min(PatrolInnerInset, maxInset);
+        }
+
+        private Vector2 ClampToPatrolArea(Vector2 point)
+        {
+            return ClampToPatrolArea(point, 0f);
+        }
+
+        private Vector2 ClampToPatrolArea(Vector2 point, float inset)
+        {
+            Vector2 center = GetPatrolCenter();
+            float halfWidth = Mathf.Max(0.05f, patrolSize.x * 0.5f - inset);
+            float halfHeight = Mathf.Max(0.05f, patrolSize.y * 0.5f - inset);
+            return new Vector2(
+                Mathf.Clamp(point.x, center.x - halfWidth, center.x + halfWidth),
+                Mathf.Clamp(point.y, center.y - halfHeight, center.y + halfHeight));
+        }
+
+        private Vector2 GetValidPointWithinPatrolArea(Vector2 desiredPoint)
+        {
+            Vector2 clamped = ClampToPatrolArea(desiredPoint);
+            if (!TryGetPolyNavMap(out var map))
+            {
+                return clamped;
+            }
+
+            if (map.PointIsValid(clamped))
+            {
+                return clamped;
+            }
+
+            Vector2 snapped = map.GetCloserEdgePoint(clamped);
+            snapped = ClampToPatrolArea(snapped);
+            if (map.PointIsValid(snapped))
+            {
+                return snapped;
+            }
+
+            float desiredProbeRadius = Mathf.Max(0.5f, Mathf.Min(patrolSize.x, patrolSize.y) * 0.2f);
+            for (int i = 0; i < 8; i++)
+            {
+                Vector2 probe = ClampToPatrolArea(clamped + Random.insideUnitCircle * desiredProbeRadius);
+                if (map.PointIsValid(probe))
+                {
+                    return probe;
+                }
+            }
+
+            Vector2 center = ClampToPatrolArea(GetPatrolCenter());
+            if (map.PointIsValid(center))
+            {
+                return center;
+            }
+
+            float probeRadius = Mathf.Max(0.5f, Mathf.Min(patrolSize.x, patrolSize.y) * 0.25f);
+            for (int i = 0; i < 8; i++)
+            {
+                Vector2 probe = ClampToPatrolArea(center + Random.insideUnitCircle * probeRadius);
+                if (map.PointIsValid(probe))
+                {
+                    return probe;
+                }
+            }
+
+            return clamped;
+        }
+
+        private bool TryGetPolyNavMap(out PolyNavMap map)
+        {
+            map = cachedMap;
+            if (map == null)
+            {
+                map = agent != null ? agent.map : null;
+            }
+
+            if (map == null)
+            {
+                var mapObj = GameObject.FindWithTag("Map");
+                if (mapObj != null)
+                {
+                    map = mapObj.GetComponent<PolyNavMap>();
+                }
+            }
+
+            if (map == null)
+            {
+                var mapObjByName = GameObject.Find("Map");
+                if (mapObjByName != null)
+                {
+                    map = mapObjByName.GetComponent<PolyNavMap>();
+                }
+            }
+
+            if (map != null && map.nodesCount == 0)
+            {
+                map.GenerateMap();
+            }
+
+            cachedMap = map;
+            return map != null && map.nodesCount > 0;
+        }
+
+        private bool TryGetPatrolDestination(out Vector2 destination)
+        {
+            Vector2 currentPos = transform.position;
+            if (IsNearPatrolBoundary(currentPos))
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    destination = GetBoundaryRecoveryTarget(currentPos);
+                    if (Vector2.Distance(currentPos, destination) > 0.35f)
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            for (int i = 0; i < 8; i++)
+            {
+                destination = GetRandomPointWithinPatrolArea();
+                if (Vector2.Distance(currentPos, destination) > 0.35f)
+                {
+                    return true;
+                }
+            }
+
+            Vector2 center = GetSafePatrolPoint(GetPatrolCenter());
+            if (Vector2.Distance(currentPos, center) > 0.35f)
+            {
+                destination = center;
+                return true;
+            }
+
+            destination = currentPos;
+            return false;
+        }
+
+        private bool IsNearPatrolBoundary(Vector2 point)
+        {
+            Vector2 center = GetPatrolCenter();
+            float halfWidth = patrolSize.x * 0.5f;
+            float halfHeight = patrolSize.y * 0.5f;
+            float margin = Mathf.Max(0.35f, Mathf.Min(halfWidth, halfHeight) * 0.18f);
+
+            return point.x <= center.x - halfWidth + margin ||
+                   point.x >= center.x + halfWidth - margin ||
+                   point.y <= center.y - halfHeight + margin ||
+                   point.y >= center.y + halfHeight - margin;
+        }
+
+        private Vector2 GetBoundaryRecoveryTarget(Vector2 currentPos)
+        {
+            Vector2 center = GetPatrolCenter();
+            Vector2 inwardDir = center - currentPos;
+            if (inwardDir.sqrMagnitude <= 0.0001f)
+            {
+                inwardDir = Random.insideUnitCircle;
+            }
+
+            inwardDir.Normalize();
+            Vector2 tangent = new Vector2(-inwardDir.y, inwardDir.x);
+
+            float inwardDistance = Mathf.Max(0.8f, Mathf.Min(patrolSize.x, patrolSize.y) * 0.18f);
+            float tangentDistance = Mathf.Max(0.4f, Mathf.Min(patrolSize.x, patrolSize.y) * 0.12f);
+            float tangentOffset = Random.Range(-tangentDistance, tangentDistance);
+
+            Vector2 rawTarget = currentPos + inwardDir * inwardDistance + tangent * tangentOffset;
+            return GetSafePatrolPoint(rawTarget);
+        }
+
+        private Vector2 GetSafePatrolPoint(Vector2 desiredPoint)
+        {
+            float inset = GetPatrolInset();
+            Vector2 safePoint = ClampToPatrolArea(desiredPoint, inset);
+            Vector2 validPoint = GetValidPointWithinPatrolArea(safePoint);
+            return ClampToPatrolArea(validPoint, inset * 0.5f);
+        }
+
+        private void SetFacingByTarget(Vector2 target)
+        {
+            if (skeletonAnimation == null || skeletonAnimation.skeleton == null)
+            {
+                return;
+            }
+
+            float deltaX = target.x - transform.position.x;
+            if (Mathf.Abs(deltaX) <= 0.01f)
+            {
+                return;
+            }
+
+            skeletonAnimation.skeleton.ScaleX = deltaX < 0f ? -1f : 1f;
+        }
+
         Vector2 GetRandomPointWithinPatrolArea()
         {
             // 生成矩形内随机点
-            float halfWidth = patrolSize.x / 2f;
-            float halfHeight = patrolSize.y / 2f;
+            float inset = GetPatrolInset();
+            float halfWidth = Mathf.Max(0.05f, patrolSize.x * 0.5f - inset);
+            float halfHeight = Mathf.Max(0.05f, patrolSize.y * 0.5f - inset);
 
-            Vector2 center = (patrolCenter == Vector2.zero) ? (Vector2)transform.position : patrolCenter;
+            Vector2 center = GetPatrolCenter();
+            Vector2 randomPoint = center;
 
-            float randomX = Random.Range(center.x - halfWidth, center.x + halfWidth);
-            float randomY = Random.Range(center.y - halfHeight, center.y + halfHeight);
-
-            Vector2 randomPoint = new Vector2(randomX, randomY);
-
-            // 设置角色翻转
-            skeletonAnimation.skeleton.ScaleX = (randomPoint.x < transform.position.x) ? -1 : 1;
+            for (int i = 0; i < 10; i++)
+            {
+                float randomX = Random.Range(center.x - halfWidth, center.x + halfWidth);
+                float randomY = Random.Range(center.y - halfHeight, center.y + halfHeight);
+                randomPoint = GetSafePatrolPoint(new Vector2(randomX, randomY));
+                if (IsInsidePatrolArea(randomPoint))
+                {
+                    break;
+                }
+            }
 
             return randomPoint;
         }

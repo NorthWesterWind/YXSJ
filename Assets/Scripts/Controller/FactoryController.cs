@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Controller.Pickups;
 using Module.Data;
+using PolyNav;
 using UnityEngine;
 using Utils;
 using Random = UnityEngine.Random;
@@ -41,18 +42,16 @@ namespace Controller
         public bool showGizmos = true;  // 是否显示矩形辅助线
 
         public YuanBaoKuangDongCtr dongCtr;
+        private PolyNavMap _cachedMap;
 
         public Vector3 GetRandomSpawnPos()
         {
-            float halfWidth = patrolAreaSize.x / 2f;
-            float halfHeight = patrolAreaSize.y / 2f;
+            if (TryGetValidSpawnPos(out Vector2 validPos))
+            {
+                return new Vector3(validPos.x, validPos.y, -1f);
+            }
 
-            float randomX = Random.Range(-halfWidth, halfWidth);
-            float randomY = Random.Range(-halfHeight, halfHeight);
-
-            return new Vector3(transform.position.x + randomX,
-                               transform.position.y + randomY,
-                               -1f);
+            return new Vector3(transform.position.x, transform.position.y, -1f);
         }
 
 
@@ -74,6 +73,121 @@ namespace Controller
         private void Awake()
         {
             _assetHandle = GetComponent<AssetHandle>();
+        }
+
+        private bool TryGetValidSpawnPos(out Vector2 spawnPos)
+        {
+            const int maxAttempts = 12;
+            Vector2 center = transform.position;
+
+            if (!TryGetPolyNavMap(out var map))
+            {
+                spawnPos = GetRandomPointInPatrolArea();
+                return true;
+            }
+
+            for (int i = 0; i < maxAttempts; i++)
+            {
+                Vector2 candidate = GetRandomPointInPatrolArea();
+                if (map.PointIsValid(candidate))
+                {
+                    spawnPos = candidate;
+                    return true;
+                }
+
+                Vector2 snapped = map.GetCloserEdgePoint(candidate);
+                if (IsPointInsidePatrolArea(snapped) && map.PointIsValid(snapped))
+                {
+                    spawnPos = snapped;
+                    return true;
+                }
+            }
+
+            Vector2 fallback = ClampToPatrolArea(center, map.GetCloserEdgePoint(center));
+            if (map.PointIsValid(fallback))
+            {
+                spawnPos = fallback;
+                return true;
+            }
+
+            spawnPos = center;
+            return false;
+        }
+
+        private Vector2 GetRandomPointInPatrolArea()
+        {
+            float halfWidth = patrolAreaSize.x / 2f;
+            float halfHeight = patrolAreaSize.y / 2f;
+
+            float randomX = Random.Range(-halfWidth, halfWidth);
+            float randomY = Random.Range(-halfHeight, halfHeight);
+
+            return new Vector2(transform.position.x + randomX, transform.position.y + randomY);
+        }
+
+        private bool IsPointInsidePatrolArea(Vector2 point)
+        {
+            float halfWidth = patrolAreaSize.x * 0.5f;
+            float halfHeight = patrolAreaSize.y * 0.5f;
+            return point.x >= transform.position.x - halfWidth &&
+                   point.x <= transform.position.x + halfWidth &&
+                   point.y >= transform.position.y - halfHeight &&
+                   point.y <= transform.position.y + halfHeight;
+        }
+
+        private Vector2 ClampToPatrolArea(Vector2 start, Vector2 target)
+        {
+            float halfW = patrolAreaSize.x * 0.5f;
+            float halfH = patrolAreaSize.y * 0.5f;
+
+            float minX = start.x - halfW;
+            float maxX = start.x + halfW;
+            float minY = start.y - halfH;
+            float maxY = start.y + halfH;
+
+            return new Vector2(
+                Mathf.Clamp(target.x, minX, maxX),
+                Mathf.Clamp(target.y, minY, maxY));
+        }
+
+        private bool TryGetPolyNavMap(out PolyNavMap map)
+        {
+            map = _cachedMap;
+            if (map == null)
+            {
+                map = PolyNavMap.current;
+            }
+
+            if (map == null)
+            {
+                var mapObj = GameObject.FindWithTag("Map");
+                if (mapObj != null)
+                {
+                    map = mapObj.GetComponent<PolyNavMap>();
+                }
+            }
+
+            if (map == null)
+            {
+                var mapObjByName = GameObject.Find("Map");
+                if (mapObjByName != null)
+                {
+                    map = mapObjByName.GetComponent<PolyNavMap>();
+                }
+            }
+
+            if (map == null)
+            {
+                map = FindObjectOfType<PolyNavMap>();
+            }
+
+            if (map != null && map.nodesCount == 0)
+            {
+                map.GenerateMap();
+            }
+
+            _cachedMap = map;
+            return map != null && map.nodesCount > 0;
         }
 
 

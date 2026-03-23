@@ -6,6 +6,7 @@ using Module;
 using Module.Data;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Utils;
 using View;
 
@@ -14,6 +15,8 @@ public class OrderDetailPop : MonoBehaviour
     public UIButton closeBtn;
     public UIButton refuseBtn;
     public UIButton acceptBtn;
+
+    public Image peopleIcon;
 
     public TextMeshProUGUI tongbiTxt;
     public TextMeshProUGUI jingyuanbaoTxt;
@@ -43,18 +46,19 @@ public class OrderDetailPop : MonoBehaviour
             var list = _data.goodDic.Keys.ToList();
             foreach (var item in list)
             {
+                var progress = _data.goodDic[item];
                 if (playerController.goodsDic.ContainsKey(item) &&
-                 _data.goodDic[item].Item2 - _data.goodDic[item].Item1 > 0)
+                 progress.target - progress.current > 0)
                 {
-                    if (playerController.goodsDic[item] < _data.goodDic[item].Item2 - _data.goodDic[item].Item1)
+                    if (playerController.goodsDic[item] < progress.target - progress.current)
                     {
-                        _data.goodDic[item] = (_data.goodDic[item].Item1 + playerController.goodsDic[item], _data.goodDic[item].Item2);
+                        progress.current += playerController.goodsDic[item];
                         playerController.goodsDic[item] = 0;
                     }
                     else
                     {
-                        int value = _data.goodDic[item].Item2 - _data.goodDic[item].Item1;
-                        _data.goodDic[item] = (_data.goodDic[item].Item2, _data.goodDic[item].Item2);
+                        int value = progress.target - progress.current;
+                        progress.current = progress.target;
                         playerController.goodsDic[item] -= value;
                     }
                 }
@@ -62,32 +66,33 @@ public class OrderDetailPop : MonoBehaviour
             var list_1 = _data.dropDic.Keys.ToList();
             foreach (var item1 in list_1)
             {
+                var progress = _data.dropDic[item1];
                 if (playerController.dropDic.ContainsKey(item1) &&
-                 _data.dropDic[item1].Item2 - _data.dropDic[item1].Item1 > 0)
+                 progress.target - progress.current > 0)
                 {
-                    if (playerController.dropDic[item1] < _data.dropDic[item1].Item2 - _data.dropDic[item1].Item1)
+                    if (playerController.dropDic[item1] < progress.target - progress.current)
                     {
-                        _data.dropDic[item1] = (_data.dropDic[item1].Item1 + playerController.dropDic[item1], _data.dropDic[item1].Item2);
+                        progress.current += playerController.dropDic[item1];
                         playerController.dropDic[item1] = 0;
                     }
                     else
                     {
-                        int value = _data.dropDic[item1].Item2 - _data.dropDic[item1].Item1;
-                        _data.dropDic[item1] = (_data.dropDic[item1].Item2, _data.dropDic[item1].Item2);
+                        int value = progress.target - progress.current;
+                        progress.current = progress.target;
                         playerController.dropDic[item1] -= value;
                     }
                 }
             }
             foreach (var item in _data.goodDic.Keys.ToList())
             {
-                if (_data.goodDic[item].Item1 == _data.goodDic[item].Item2)
+                if (_data.goodDic[item].current == _data.goodDic[item].target)
                 {
                     _data.goodDic.Remove(item);
                 }
             }
             foreach (var item in _data.dropDic.Keys.ToList())
             {
-                if (_data.dropDic[item].Item1 == _data.dropDic[item].Item2)
+                if (_data.dropDic[item].current == _data.dropDic[item].target)
                 {
                     _data.dropDic.Remove(item);
                 }
@@ -148,16 +153,18 @@ public class OrderDetailPop : MonoBehaviour
         {
             GameObject obj = Instantiate(assetHandle.Get<GameObject>("OrderNeedItem"), content, false);
             var item = obj.GetComponent<OrderNeedItem>();
-            item.Init(goods.Key, goods.Value.Item1
-            + "/" + goods.Value.Item2);
+            item.Init(goods.Key, goods.Value.current
+            + "/" + goods.Value.target);
         }
         foreach (var goods in data.dropDic)
         {
             GameObject obj = Instantiate(assetHandle.Get<GameObject>("OrderNeedItem"), content, false);
             var item = obj.GetComponent<OrderNeedItem>();
-            item.Init(goods.Key, goods.Value.Item1
-            + "/" + goods.Value.Item2);
+            item.Init(goods.Key, goods.Value.current
+            + "/" + goods.Value.target);
         }
+        OrderData data_ = DataController.Instance.orderDataDic[data.orderId];   
+        peopleIcon.sprite = assetHandle.Get<Sprite>(data_.elderType.ToString());
 
     }
 

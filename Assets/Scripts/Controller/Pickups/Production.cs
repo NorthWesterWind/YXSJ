@@ -27,6 +27,7 @@ namespace Controller.Pickups
 
        private Vector3 startPos;
        private Vector3 endPos;
+       private Coroutine activeFlyCoroutine;
         
        public bool CanPlayerPick => state == ItemState.OnWorkbench;
        public bool CanAssistantPick => state == ItemState.OnWorkbench;
@@ -73,7 +74,7 @@ namespace Controller.Pickups
         }
         public void FlyTo(Vector3 target , Action callback = null)
        {
-           StartCoroutine(FlyRoutine(target , callback));
+           StartFly(FlyRoutine(target , callback));
        }
 
        IEnumerator FlyRoutine(Vector3 target , Action callback = null)
@@ -107,7 +108,23 @@ namespace Controller.Pickups
 
          public void FlyTo_1(Vector3 target ,float time, Action callback = null)
        {
-           StartCoroutine(FlyRoutine_1(target , time, callback));
+           StartFly(FlyRoutine_1(target , time, callback));
+       }
+
+       private void StartFly(IEnumerator routine)
+       {
+           if (activeFlyCoroutine != null)
+           {
+               StopCoroutine(activeFlyCoroutine);
+           }
+
+           activeFlyCoroutine = StartCoroutine(RunFlyRoutine(routine));
+       }
+
+       private IEnumerator RunFlyRoutine(IEnumerator routine)
+       {
+           yield return StartCoroutine(routine);
+           activeFlyCoroutine = null;
        }
 
        IEnumerator FlyRoutine_1(Vector3 target,float time = 0.1f , Action callback = null)

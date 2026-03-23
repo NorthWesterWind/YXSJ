@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Controller.Structure;
 using Module.Data;
@@ -6,6 +7,15 @@ using Utils;
 
 namespace Controller
 {
+    [Serializable]
+    public class CollectorRouteConfig
+    {
+        public string routeName;
+        public WarehouseCategoryType warehouseCategoryType;
+        public MonsterFamily targetMonsterType;
+        public List<Transform> waypoints = new();
+    }
+
     public class GameController : MonoUtil<GameController>
     {
         [Header("每种怪物的出生点")]
@@ -38,6 +48,9 @@ namespace Controller
         /// 场景中的所有售卖摊位
         /// </summary>
         public List<SalesStall> salesStallList = new();
+
+        [Header("Collector Routes")]
+        public List<CollectorRouteConfig> collectorRoutes = new();
 
         public List<BuildingType> unlockedBuildingTypes = new();
         
@@ -78,6 +91,11 @@ namespace Controller
             if (goodBuild == null) goodBuild = new Dictionary<GoodsType, StructureBase>();
             if (productionStationList == null) productionStationList = new List<ProductionStation>();
             if (salesStallList == null) salesStallList = new List<SalesStall>();
+
+            buildings.Clear();
+            goodBuild.Clear();
+            productionStationList.Clear();
+            salesStallList.Clear();
 
             var structures = FindObjectsOfType<StructureBase>(true);
             foreach (var structure in structures)
@@ -125,6 +143,46 @@ namespace Controller
                     buildings.Add(buildingKey, structure);
                 }
             }
+        }
+
+        public bool TryBuildCollectorRoute(WarehouseCategoryType warehouseCategoryType, MonsterFamily targetMonsterType, out List<Vector2> routeWaypoints)
+        {
+            routeWaypoints = new List<Vector2>();
+            if (targetMonsterType == MonsterFamily.None || collectorRoutes == null || collectorRoutes.Count == 0)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < collectorRoutes.Count; i++)
+            {
+                var route = collectorRoutes[i];
+                if (route == null ||
+                    route.warehouseCategoryType != warehouseCategoryType ||
+                    route.targetMonsterType != targetMonsterType)
+                {
+                    continue;
+                }
+
+                if (route.waypoints == null)
+                {
+                    return false;
+                }
+
+                for (int j = 0; j < route.waypoints.Count; j++)
+                {
+                    var waypoint = route.waypoints[j];
+                    if (waypoint == null)
+                    {
+                        continue;
+                    }
+
+                    routeWaypoints.Add(waypoint.position);
+                }
+
+                return routeWaypoints.Count > 0;
+            }
+
+            return false;
         }
 
         

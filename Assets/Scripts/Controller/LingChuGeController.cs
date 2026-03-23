@@ -132,39 +132,94 @@ namespace Controller
                 return;
             }
 
+            collectorControllerList.RemoveAll(x => x == null);
             int targetCount = warehouseCategory.workingCollectorList.Count;
+            int sharedCount = Mathf.Min(targetCount, collectorControllerList.Count);
 
+            for (int i = 0; i < sharedCount; i++)
+            {
+                var runtimeCollector = collectorControllerList[i];
+                var targetCollectorData = warehouseCategory.workingCollectorList[i];
+                if (runtimeCollector == null || targetCollectorData == null)
+                {
+                    continue;
+                }
+
+                if (runtimeCollector.collectorData == targetCollectorData &&
+                    runtimeCollector.collectorData.monsterType == targetCollectorData.monsterType)
+                {
+                    continue;
+                }
+
+                runtimeCollector.Init(targetCollectorData, this);
+            }
 
             if (targetCount > collectorControllerList.Count)
             {
                 for (int i = collectorControllerList.Count; i < targetCount; i++)
                 {
-                    CollectorController cc = Instantiate(_assetHandle.Get<GameObject>("XuanCaiTu"))
-                        .GetComponent<CollectorController>();
-                    cc.transform.position = collectorTransform.position;
-                    cc.Init(warehouseCategory.workingCollectorList[i], this);
-                    collectorControllerList.Add(cc);
+                    CreateCollector(warehouseCategory.workingCollectorList[i]);
                 }
             }
-            // 鍑忓皯閲囬泦锟?
             else if (targetCount < collectorControllerList.Count)
             {
                 for (int i = collectorControllerList.Count - 1; i >= targetCount; i--)
                 {
                     var collector = collectorControllerList[i];
                     collectorControllerList.RemoveAt(i);
-                    if (collector != null)
-                    {
-                        Destroy(collector.gameObject);
-                    }
+                    DestroyCollector(collector);
                 }
             }
 
-            // 鍒锋柊淇℃伅灞曠ず
             if (infoitem != null)
             {
                 infoitem.Init(warehouseCategory, this);
             }
+        }
+
+        private void CreateCollector(Collector collectorData)
+        {
+            if (collectorData == null)
+            {
+                return;
+            }
+
+            if (_assetHandle == null)
+            {
+                _assetHandle = GetComponent<AssetHandle>();
+            }
+
+            if (_assetHandle == null)
+            {
+                return;
+            }
+
+            var prefab = _assetHandle.Get<GameObject>("XuanCaiTu");
+            if (prefab == null)
+            {
+                return;
+            }
+
+            CollectorController collector = Instantiate(prefab).GetComponent<CollectorController>();
+            if (collector == null)
+            {
+                return;
+            }
+
+            Transform spawnPoint = collectorTransform != null ? collectorTransform : (bornTransform != null ? bornTransform : transform);
+            collector.transform.position = spawnPoint.position;
+            collector.Init(collectorData, this);
+            collectorControllerList.Add(collector);
+        }
+
+        private void DestroyCollector(CollectorController collector)
+        {
+            if (collector == null)
+            {
+                return;
+            }
+
+            Destroy(collector.gameObject);
         }
 
         public StructureLockData GetLockData(int mapId)

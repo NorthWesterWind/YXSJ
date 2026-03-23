@@ -12,7 +12,7 @@ public class OrderNeedItem : MonoBehaviour
     public Image icon;
     public TextMeshProUGUI num;
 
-    AssetHandle assetHandle;
+    public AssetHandle assetHandle;
     public void Init(object type , string info)
     {
         if(type is GoodsType)

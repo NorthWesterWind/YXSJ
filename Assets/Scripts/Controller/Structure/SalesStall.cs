@@ -203,14 +203,45 @@ namespace Controller.Structure
             }
             customer.severing = true;
             outList.Clear();
+            int resolvedCount = 0;
             for (int i = 0; i < count; i++)
             {
                 int lastIndex = productList.Count - 1;
                 Production p = productList[lastIndex];
                 productList.RemoveAt(lastIndex);
-                p.FlyTo_1(customer.receiveTransform.position , 0.05f);
+                p.canPickup = false;
+                p.isTaken = true;
+                p.FlyTo_1(customer.receiveTransform.position, 0.05f, () =>
+                {
+                    if (p == null)
+                    {
+                        resolvedCount++;
+                        if (resolvedCount >= count && customer != null && customer.state == NpcState.WaitGouMaiWanCheng &&
+                            customer.purchaseList.Count < customer.data.carryNum)
+                        {
+                            customer.severing = false;
+                        }
+
+                        return;
+                    }
+
+                    if (customer != null && customer.CanReceivePurchasedProduct())
+                    {
+                        customer.ReceivePurchasedProduct(p);
+                    }
+                    else
+                    {
+                        PlaceProduct(p);
+                    }
+
+                    resolvedCount++;
+                    if (resolvedCount >= count && customer != null && customer.state == NpcState.WaitGouMaiWanCheng &&
+                        customer.purchaseList.Count < customer.data.carryNum)
+                    {
+                        customer.severing = false;
+                    }
+                });
                 grid.ReleaseOne();
-                outList.Add(p);
                 currentGoodsCount--;
             }
             return true;

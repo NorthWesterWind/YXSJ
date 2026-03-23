@@ -10,9 +10,11 @@ using Controller.Player;
 using Controller.Structure;
 using Module.Data;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using Utils;
 using View;
+using Extensions = Utils.Extensions;
 
 namespace Module
 {
@@ -449,6 +451,12 @@ namespace Module
                     goodsType = customer.goodsType,
                     targetBuildingType = targetBuildingType,
                     state = (int)customer.state,
+                    routeIndex = customer.SelectedRouteIndex,
+                    routePhase = customer.SavedRouteMovePhase,
+                    routeWaypointIndex = customer.SavedRouteWaypointIndex,
+                    bornPosX = customer.bornPosition.x,
+                    bornPosY = customer.bornPosition.y,
+                    bornPosZ = customer.transform.position.z,
                     posX = pos.x,
                     posY = pos.y,
                     posZ = pos.z
@@ -705,6 +713,13 @@ namespace Module
                 }
 
                 Vector3 spawnPos = new Vector3(saved.posX, saved.posY, saved.posZ);
+                Vector3 bornPos = saved.routeIndex >= 0
+                    ? customerFactory.GetSpawnPositionForRoute(saved.routeIndex)
+                    : customerFactory.transform.position;
+                if (Mathf.Abs(saved.bornPosX) > 0.01f || Mathf.Abs(saved.bornPosY) > 0.01f || Mathf.Abs(saved.bornPosZ) > 0.01f)
+                {
+                    bornPos = new Vector3(saved.bornPosX, saved.bornPosY, saved.bornPosZ);
+                }
                 GameObject obj = Instantiate(prefab);
                 obj.transform.position = spawnPos;
 
@@ -715,32 +730,31 @@ namespace Module
                     continue;
                 }
 
-                customer.Init(customerData, saved.goodsType, stall, spawnPos, 0f, 0f);
-                ApplySavedCustomerState(customer, (NpcState)saved.state, stall);
+                customer.Init(customerData, saved.goodsType, stall, bornPos, customerFactory, saved.routeIndex, false);
+                ApplySavedCustomerState(customer, saved, stall);
             }
         }
 
-        private void ApplySavedCustomerState(CustomerController customer, NpcState savedState, SalesStall stall)
+        private void ApplySavedCustomerState(CustomerController customer, RuntimeCustomerData saved, SalesStall stall)
         {
+            var savedState = (NpcState)saved.state;
             switch (savedState)
             {
                 case NpcState.QianWangGouMai:
-                default:
+                    customer.RestoreRuntimeState(savedState, saved.routePhase, saved.routeWaypointIndex);
                     break;
                 case NpcState.WaitGouMaiWanCheng:
                     customer.WaitPurchase();
                     EventCenter.Instance.TriggerEvent(EventMessages.CustomerArrivedSell, customer, stall);
                     break;
                 case NpcState.QianWangShouYinTai:
-                    customer.state = NpcState.QianWangShouYinTai;
-                    customer.SetNextPosition();
-                    customer.agent.SetDestination(customer.nextPosition);
+                    customer.RestoreRuntimeState(savedState, saved.routePhase, saved.routeWaypointIndex);
                     break;
                 case NpcState.JieZhangChengGong:
                 case NpcState.Angry:
-                    customer.state = savedState;
-                    customer.SetNextPosition();
-                    customer.agent.SetDestination(customer.nextPosition);
+                    customer.RestoreRuntimeState(savedState, saved.routePhase, saved.routeWaypointIndex);
+                    break;
+                default:
                     break;
             }
         }
@@ -1356,10 +1370,8 @@ namespace Module
                      if (respone.more != null && !string.IsNullOrEmpty(respone.more))
                      {
                          data = null;
-                         data = JsonConvert.DeserializeObject<PlayerData>(respone.more, new JsonSerializerSettings
-                         {
-                             ObjectCreationHandling = ObjectCreationHandling.Replace
-                         });
+                         data = DeserializePlayerDataWithLegacyFallback(respone.more);
+                         NormalizeOrderProgressData();
                          data.age = respone.age;
                          Debug.Log($"[RuntimeLoad] products={(data.runtimeProductionDataList?.Count ?? 0)} stations={(data.runtimeProductionStationDataList?.Count ?? 0)} drop={(data.runtimePlayerDropList?.Count ?? 0)} goods={(data.runtimePlayerGoodsList?.Count ?? 0)}");
                          SavePlayerDataAsync();
@@ -1432,11 +1444,214 @@ namespace Module
                     dropItemTypeList.Add(Extensions.GetDropTypeByMonsterType(item.monsterType));
                 }
                 data.orderDataprogressList.Add(new OrderDataProgress(randomKey,
-                    new Dictionary<GoodsType, (int, int)>() { { goodsTypeList[UnityEngine.Random.Range(0, goodsTypeList.Count)], (0, randomValue.needNum) } },
-                     new Dictionary<DropItemType, (int, int)>() { { dropItemTypeList[UnityEngine.Random.Range(0, dropItemTypeList.Count)], (0, randomValue.needNum) } }
+                    new Dictionary<GoodsType, OrderProgressValue>() { { goodsTypeList[UnityEngine.Random.Range(0, goodsTypeList.Count)], new OrderProgressValue(0, randomValue.needNum) } },
+                     new Dictionary<DropItemType, OrderProgressValue>() { { dropItemTypeList[UnityEngine.Random.Range(0, dropItemTypeList.Count)], new OrderProgressValue(0, randomValue.needNum) } }
                            ));
             }
         }
+
+        private PlayerData DeserializePlayerDataWithLegacyFallback(string json)
+        {
+            var settings = new JsonSerializerSettings
+            {
+                ObjectCreationHandling = ObjectCreationHandling.Replace
+            };
+
+            try
+            {
+                return JsonConvert.DeserializeObject<PlayerData>(json, settings);
+            }
+            catch (JsonException ex)
+            {
+                Debug.LogWarning($"[PlayerDataLoad] Primary deserialize failed: {ex.Message}");
+            }
+
+            if (TryNormalizeLegacyOrderProgressJson(json, out string repairedJson))
+            {
+                try
+                {
+                    Debug.LogWarning("[PlayerDataLoad] Retrying with normalized legacy order progress JSON.");
+                    return JsonConvert.DeserializeObject<PlayerData>(repairedJson, settings);
+                }
+                catch (JsonException ex)
+                {
+                    Debug.LogWarning($"[PlayerDataLoad] Normalized retry failed: {ex.Message}");
+                }
+            }
+
+            if (TryRemoveOrderProgressJson(json, out string strippedJson))
+            {
+                Debug.LogWarning("[PlayerDataLoad] Falling back to empty order progress list for legacy save.");
+                return JsonConvert.DeserializeObject<PlayerData>(strippedJson, settings);
+            }
+
+            return JsonConvert.DeserializeObject<PlayerData>(json, settings);
+        }
+
+        private bool TryNormalizeLegacyOrderProgressJson(string json, out string repairedJson)
+        {
+            repairedJson = null;
+            try
+            {
+                var root = JObject.Parse(json);
+                if (root["orderDataprogressList"] is not JArray orderArray)
+                {
+                    return false;
+                }
+
+                foreach (var orderToken in orderArray)
+                {
+                    if (orderToken is not JObject orderObj)
+                    {
+                        continue;
+                    }
+
+                    orderObj["goodDic"] = NormalizeLegacyProgressDictionaryToken(orderObj["goodDic"]);
+                    orderObj["dropDic"] = NormalizeLegacyProgressDictionaryToken(orderObj["dropDic"]);
+                }
+
+                repairedJson = root.ToString(Formatting.None);
+                return true;
+            }
+            catch (JsonException ex)
+            {
+                Debug.LogWarning($"[PlayerDataLoad] Normalize legacy order progress JSON failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        private bool TryRemoveOrderProgressJson(string json, out string strippedJson)
+        {
+            strippedJson = null;
+            try
+            {
+                var root = JObject.Parse(json);
+                root["orderDataprogressList"] = new JArray();
+                strippedJson = root.ToString(Formatting.None);
+                return true;
+            }
+            catch (JsonException ex)
+            {
+                Debug.LogWarning($"[PlayerDataLoad] Remove order progress JSON failed: {ex.Message}");
+                return false;
+            }
+        }
+
+        private JObject NormalizeLegacyProgressDictionaryToken(JToken token)
+        {
+            var result = new JObject();
+            if (token == null || token.Type == JTokenType.Null)
+            {
+                return result;
+            }
+
+            if (token.Type == JTokenType.Object)
+            {
+                foreach (var property in ((JObject)token).Properties())
+                {
+                    result[property.Name] = NormalizeLegacyProgressValueToken(property.Value);
+                }
+                return result;
+            }
+
+            if (token.Type != JTokenType.Array)
+            {
+                return result;
+            }
+
+            foreach (var item in (JArray)token)
+            {
+                if (item is JObject obj)
+                {
+                    var keyToken = obj["Key"] ?? obj["key"];
+                    var valueToken = obj["Value"] ?? obj["value"];
+                    if (keyToken != null)
+                    {
+                        result[keyToken.ToString()] = NormalizeLegacyProgressValueToken(valueToken);
+                        continue;
+                    }
+
+                    if (obj.Properties().Count() == 1)
+                    {
+                        var property = obj.Properties().First();
+                        result[property.Name] = NormalizeLegacyProgressValueToken(property.Value);
+                    }
+                    continue;
+                }
+
+                if (item is JArray pair && pair.Count >= 2)
+                {
+                    result[pair[0]?.ToString() ?? string.Empty] = NormalizeLegacyProgressValueToken(pair[1]);
+                }
+            }
+
+            return result;
+        }
+
+        private JObject NormalizeLegacyProgressValueToken(JToken token)
+        {
+            int current = 0;
+            int target = 0;
+
+            if (token is JArray array)
+            {
+                current = array.Count > 0 ? array[0]?.Value<int>() ?? 0 : 0;
+                target = array.Count > 1 ? array[1]?.Value<int>() ?? 0 : 0;
+            }
+            else if (token is JObject obj)
+            {
+                current = obj["current"]?.Value<int>()
+                          ?? obj["Current"]?.Value<int>()
+                          ?? obj["Item1"]?.Value<int>()
+                          ?? 0;
+                target = obj["target"]?.Value<int>()
+                         ?? obj["Target"]?.Value<int>()
+                         ?? obj["Item2"]?.Value<int>()
+                         ?? 0;
+            }
+            else if (token != null && token.Type == JTokenType.Integer)
+            {
+                current = token.Value<int>();
+                target = current;
+            }
+
+            return new JObject
+            {
+                ["current"] = current,
+                ["target"] = target
+            };
+        }
+
+        private void NormalizeOrderProgressData()
+        {
+            if (data == null)
+            {
+                return;
+            }
+
+            data.orderDataprogressList ??= new List<OrderDataProgress>();
+            foreach (var order in data.orderDataprogressList)
+            {
+                if (order == null)
+                {
+                    continue;
+                }
+
+                order.goodDic ??= new Dictionary<GoodsType, OrderProgressValue>();
+                order.dropDic ??= new Dictionary<DropItemType, OrderProgressValue>();
+
+                foreach (var key in order.goodDic.Keys.ToList())
+                {
+                    order.goodDic[key] ??= new OrderProgressValue();
+                }
+
+                foreach (var key in order.dropDic.Keys.ToList())
+                {
+                    order.dropDic[key] ??= new OrderProgressValue();
+                }
+            }
+        }
+
         public void AddOrderData()
         {
             if (data.orderDataprogressList.Count < 4)
@@ -1497,8 +1712,8 @@ namespace Module
                     }
                 }
                 data.orderDataprogressList.Add(new OrderDataProgress(randomKey,
-                    new Dictionary<GoodsType, (int, int)>() { { goodsTypeList[UnityEngine.Random.Range(0, goodsTypeList.Count)], (0, randomValue.needNum) } },
-                     new Dictionary<DropItemType, (int, int)>() { { dropItemTypeList[UnityEngine.Random.Range(0, dropItemTypeList.Count)], (0, randomValue.needNum) } }
+                    new Dictionary<GoodsType, OrderProgressValue>() { { goodsTypeList[UnityEngine.Random.Range(0, goodsTypeList.Count)], new OrderProgressValue(0, randomValue.needNum) } },
+                     new Dictionary<DropItemType, OrderProgressValue>() { { dropItemTypeList[UnityEngine.Random.Range(0, dropItemTypeList.Count)], new OrderProgressValue(0, randomValue.needNum) } }
                            ));
             }
         }
@@ -1710,11 +1925,12 @@ namespace Module
         public void GetTaskReward(int rewardId)
         {
             RewardData rewardData = DataController.Instance.taskRewardDataDic[rewardId];
-            data.jingMangZhu += rewardData.Jmz;
+            data.star += rewardData.Jmz;
             data.taskPopCompleted += rewardData.Jmz;
-            if (data.jingMangZhu >= WorldData.LevelRequirementDic[data.currentMapID])
+            if (data.star >= WorldData.LevelRequirementDic[data.currentMapID])
             {
-                data.jingMangZhu -= WorldData.LevelRequirementDic[data.currentMapID];
+                data.star -= WorldData.LevelRequirementDic[data.currentMapID];
+                data.talentPoint += WorldData.LevelRequirementDic[data.currentMapID];
                 UpgradeAccountLevel();
             }
             data.tongbi += rewardData.Tq;
@@ -1880,7 +2096,11 @@ namespace Module
         {
             try
             {
-                BuildingType buildingType = (BuildingType)args[0];
+                if (args == null || args.Length == 0 || args[0] is not BuildingType buildingType)
+                {
+                    Debug.LogWarning("[HandleConstructTask] Missing or invalid buildingType argument.");
+                    return;
+                }
                 if (PlayerDataModule.Instance.data.currentMapID == 1)
                 {
                     if (buildingType == BuildingType.YuShaHu_1 && data.guideStep == GuideStep.BuildYushaPot)

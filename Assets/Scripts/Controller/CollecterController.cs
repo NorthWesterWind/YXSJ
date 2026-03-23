@@ -22,6 +22,16 @@ namespace Controller
         Wait
     }
 
+    public enum CollectorRouteMovePhase
+    {
+        None,
+        EnterRouteForward,
+        MoveToResource,
+        MoveToRouteTail,
+        ReturnAlongRoute,
+        MoveToDepot
+    }
+
     public class CollectorController : MonoBehaviour
     {
         #region Fields
@@ -58,8 +68,12 @@ namespace Controller
 
         // 鐘讹拷?
         private CollectorState currentState;
+        private CollectorRouteMovePhase routeMovePhase;
         private FactoryController currentTarget;
         private bool hasMonsterNearby;
+        private readonly List<Vector2> routeWaypoints = new();
+        private int routeWaypointIndex = -1;
+        private const float RouteArriveDistance = 0.35f;
 
         // 灞烇拷?
         public float currentHp;
@@ -72,6 +86,7 @@ namespace Controller
         private Transform playerTransform;
         private float ignorePickupUntil;
         private float nextUnloadTime;
+        private int pendingPickupCount;
 
         // 鍥炶鐩稿叧
         private float lastDamageTime = -999f;
@@ -174,7 +189,7 @@ namespace Controller
             SetLayer();
             UpdateAnimation();
 
-            if (inventory.IsFull() && !IsInDepotWorkflow())
+            if (ShouldReturnToDepot() && !IsInDepotWorkflow())
             {
                 ChangeState(CollectorState.ReturnToDepot);
                 return;
@@ -274,6 +289,14 @@ namespace Controller
             monsterType = v.Item1;
             targetType = v.Item2;
             depot = structure;
+            currentTarget = null;
+            ConfigureRoute();
+            ResetRouteMovement();
+            if (agent != null)
+            {
+                agent.Stop();
+            }
+            currentState = CollectorState.Idle;
 
             inventory.max = (int)c.bagCapacity;
             if (agent != null)
@@ -290,6 +313,7 @@ namespace Controller
 
             currentCarryNum = 0;
             maxCarryNum = (int)c.bagCapacity;
+            pendingPickupCount = 0;
             if (collectorInfo != null)
             {
                 collectorInfo.Bind(this);
@@ -298,6 +322,264 @@ namespace Controller
             RefreshCarryInfo();
             weaponController.warehouseCategoryType = structure.warehouseCategory.warehouseCategoryType;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
+        }
+
+        private void ConfigureRoute()
+        {
+            routeWaypoints.Clear();
+            routeWaypointIndex = -1;
+            routeMovePhase = CollectorRouteMovePhase.None;
+
+            if (depot == null || collectorData == null)
+            {
+                return;
+            }
+
+            if (GameController.Instance == null ||
+                depot == null ||
+                !GameController.Instance.TryBuildCollectorRoute(
+                    depot.categoryType,
+                    collectorData.monsterType,
+                    out var waypoints))
+            {
+                return;
+            }
+
+            routeWaypoints.AddRange(waypoints);
+        }
+
+        private void ResetRouteMovement()
+        {
+            routeMovePhase = CollectorRouteMovePhase.None;
+            routeWaypointIndex = -1;
+        }
+
+        private bool HasRouteWaypoints()
+        {
+            return routeWaypoints != null && routeWaypoints.Count > 0;
+        }
+
+        private bool HasReachedRoutePoint(Vector2 target)
+        {
+            float distance = Vector2.Distance(transform.position, target);
+            if (distance <= RouteArriveDistance)
+            {
+                return true;
+            }
+
+            if (agent == null)
+            {
+                return false;
+            }
+
+            if (agent.pathPending)
+            {
+                return false;
+            }
+
+            if (distance <= 0.8f && (!agent.hasPath || agent.remainingDistance <= 0.15f))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private void SetAgentDestination(Vector2 target)
+        {
+            if (agent == null)
+            {
+                return;
+            }
+
+            agent.SetDestination(target);
+        }
+
+        private void SetDepotDestination()
+        {
+            Transform depotTarget = GetDepotTargetTransform();
+            if (depotTarget == null)
+            {
+                return;
+            }
+
+            SetAgentDestination(depotTarget.position);
+        }
+
+        private void BeginMoveToResource()
+        {
+            if (currentTarget == null)
+            {
+                ResetRouteMovement();
+                return;
+            }
+
+            if (!HasRouteWaypoints())
+            {
+                routeMovePhase = CollectorRouteMovePhase.MoveToResource;
+                routeWaypointIndex = -1;
+                SetAgentDestination(currentTarget.transform.position);
+                return;
+            }
+
+            routeMovePhase = CollectorRouteMovePhase.EnterRouteForward;
+            routeWaypointIndex = 0;
+            SetAgentDestination(routeWaypoints[routeWaypointIndex]);
+        }
+
+        private bool UpdateGoToResourceRoute()
+        {
+            if (routeMovePhase != CollectorRouteMovePhase.EnterRouteForward)
+            {
+                return false;
+            }
+
+            if (!HasRouteWaypoints() || routeWaypointIndex < 0 || routeWaypointIndex >= routeWaypoints.Count)
+            {
+                routeMovePhase = CollectorRouteMovePhase.MoveToResource;
+                routeWaypointIndex = -1;
+                if (currentTarget != null)
+                {
+                    SetAgentDestination(currentTarget.transform.position);
+                }
+                return false;
+            }
+
+            Vector2 currentWaypoint = routeWaypoints[routeWaypointIndex];
+            if (HasReachedRoutePoint(currentWaypoint))
+            {
+                if (routeWaypointIndex < routeWaypoints.Count - 1)
+                {
+                    routeWaypointIndex++;
+                    SetAgentDestination(routeWaypoints[routeWaypointIndex]);
+                    return true;
+                }
+
+                // 到达路线终点后，直接切回原有寻怪/战斗逻辑，
+                // 避免继续强依赖 FactoryController 中心点导致停在终点不动。
+                ResetRouteMovement();
+                ChangeState(CollectorState.Fight);
+                return true;
+            }
+
+            if (agent != null && !agent.hasPath)
+            {
+                SetAgentDestination(currentWaypoint);
+            }
+
+            return true;
+        }
+
+        private void BeginReturnToDepot()
+        {
+            if (GetDepotTargetTransform() == null)
+            {
+                ResetRouteMovement();
+                return;
+            }
+
+            if (!HasRouteWaypoints())
+            {
+                routeMovePhase = CollectorRouteMovePhase.MoveToDepot;
+                routeWaypointIndex = -1;
+                SetDepotDestination();
+                return;
+            }
+
+            int tailIndex = routeWaypoints.Count - 1;
+            Vector2 tailPoint = routeWaypoints[tailIndex];
+            if (HasReachedRoutePoint(tailPoint))
+            {
+                if (tailIndex <= 0)
+                {
+                    routeMovePhase = CollectorRouteMovePhase.MoveToDepot;
+                    routeWaypointIndex = -1;
+                    SetDepotDestination();
+                    return;
+                }
+
+                routeMovePhase = CollectorRouteMovePhase.ReturnAlongRoute;
+                routeWaypointIndex = tailIndex - 1;
+                SetAgentDestination(routeWaypoints[routeWaypointIndex]);
+                return;
+            }
+
+            routeMovePhase = CollectorRouteMovePhase.MoveToRouteTail;
+            routeWaypointIndex = tailIndex;
+            SetAgentDestination(tailPoint);
+        }
+
+        private bool UpdateReturnToDepotRoute()
+        {
+            switch (routeMovePhase)
+            {
+                case CollectorRouteMovePhase.MoveToRouteTail:
+                    if (!HasRouteWaypoints() || routeWaypointIndex < 0 || routeWaypointIndex >= routeWaypoints.Count)
+                    {
+                        routeMovePhase = CollectorRouteMovePhase.MoveToDepot;
+                        routeWaypointIndex = -1;
+                        SetDepotDestination();
+                        return false;
+                    }
+
+                    Vector2 tailPoint = routeWaypoints[routeWaypointIndex];
+                    if (HasReachedRoutePoint(tailPoint))
+                    {
+                        if (routeWaypointIndex <= 0)
+                        {
+                            routeMovePhase = CollectorRouteMovePhase.MoveToDepot;
+                            routeWaypointIndex = -1;
+                            SetDepotDestination();
+                            return false;
+                        }
+
+                        routeMovePhase = CollectorRouteMovePhase.ReturnAlongRoute;
+                        routeWaypointIndex--;
+                        SetAgentDestination(routeWaypoints[routeWaypointIndex]);
+                        return true;
+                    }
+
+                    if (agent != null && !agent.hasPath)
+                    {
+                        SetAgentDestination(tailPoint);
+                    }
+
+                    return true;
+
+                case CollectorRouteMovePhase.ReturnAlongRoute:
+                    if (routeWaypointIndex < 0 || routeWaypointIndex >= routeWaypoints.Count)
+                    {
+                        routeMovePhase = CollectorRouteMovePhase.MoveToDepot;
+                        routeWaypointIndex = -1;
+                        SetDepotDestination();
+                        return false;
+                    }
+
+                    Vector2 currentWaypoint = routeWaypoints[routeWaypointIndex];
+                    if (HasReachedRoutePoint(currentWaypoint))
+                    {
+                        routeWaypointIndex--;
+                        if (routeWaypointIndex >= 0)
+                        {
+                            SetAgentDestination(routeWaypoints[routeWaypointIndex]);
+                            return true;
+                        }
+
+                        routeMovePhase = CollectorRouteMovePhase.MoveToDepot;
+                        routeWaypointIndex = -1;
+                        SetDepotDestination();
+                        return false;
+                    }
+
+                    if (agent != null && !agent.hasPath)
+                    {
+                        SetAgentDestination(currentWaypoint);
+                    }
+
+                    return true;
+            }
+
+            return false;
         }
 
         #endregion
@@ -335,9 +617,11 @@ namespace Controller
             switch (state)
             {
                 case CollectorState.Idle:
+                    ResetRouteMovement();
                     break;
 
                 case CollectorState.FindResource:
+                    ResetRouteMovement();
                     if (TryGetFactoryController(out var targetFactory))
                     {
                         currentTarget = targetFactory;
@@ -351,20 +635,15 @@ namespace Controller
                     break;
 
                 case CollectorState.GoToResource:
-                    if (agent != null && currentTarget != null)
-                    {
-                        agent.SetDestination(currentTarget.transform.position);
-                    }
+                    BeginMoveToResource();
                     break;
 
                 case CollectorState.ReturnToDepot:
-                    if (agent != null && depot != null && depot.collectorTransform != null)
-                    {
-                        agent.SetDestination(depot.collectorTransform.position);
-                    }
+                    BeginReturnToDepot();
                     break;
 
                 case CollectorState.Unloading:
+                    ResetRouteMovement();
                     if (agent != null)
                     {
                         agent.Stop();
@@ -373,6 +652,7 @@ namespace Controller
                     break;
 
                 case CollectorState.WaitDepotSpace:
+                    ResetRouteMovement();
                     if (agent != null)
                     {
                         agent.Stop();
@@ -380,6 +660,7 @@ namespace Controller
                     break;
 
                 case CollectorState.Wait:
+                    ResetRouteMovement();
                     Invoke(nameof(BackToIdle), waitTime);
                     break;
             }
@@ -395,7 +676,7 @@ namespace Controller
             switch (currentState)
             {
                 case CollectorState.Idle:
-                    if (inventory.IsFull())
+                    if (ShouldReturnToDepot())
                     {
                         ChangeState(CollectorState.ReturnToDepot);
                     }
@@ -413,6 +694,11 @@ namespace Controller
                         break;
                     }
 
+                    if (UpdateGoToResourceRoute())
+                    {
+                        break;
+                    }
+
                     float targetDist = Vector2.Distance(transform.position, currentTarget.transform.position);
                     if (targetDist <= detectRadius * 0.8f || (agent != null && agent.hasPath && agent.remainingDistance < 0.1f))
                     {
@@ -420,7 +706,8 @@ namespace Controller
                     }
                     else if (agent != null && !agent.hasPath)
                     {
-                        agent.SetDestination(currentTarget.transform.position);
+                        routeMovePhase = CollectorRouteMovePhase.MoveToResource;
+                        SetAgentDestination(currentTarget.transform.position);
                     }
                     break;
 
@@ -429,20 +716,29 @@ namespace Controller
                     break;
 
                 case CollectorState.ReturnToDepot:
-                    if (depot == null || depot.collectorTransform == null)
+                    if (GetDepotTargetTransform() == null)
                     {
                         ChangeState(CollectorState.Idle);
                         break;
                     }
 
-                    float depotDist = Vector2.Distance(transform.position, depot.collectorTransform.position);
+                    if (UpdateReturnToDepotRoute())
+                    {
+                        break;
+                    }
+
+                    Transform depotTarget = GetDepotTargetTransform();
+                    float depotDist = depotTarget == null
+                        ? float.MaxValue
+                        : Vector2.Distance(transform.position, depotTarget.position);
                     if (depotDist <= Mathf.Max(0.2f, depotArriveDistance))
                     {
                         ChangeState(CollectorState.Unloading);
                     }
                     else if (agent != null && !agent.hasPath)
                     {
-                        agent.SetDestination(depot.collectorTransform.position);
+                        routeMovePhase = CollectorRouteMovePhase.MoveToDepot;
+                        SetDepotDestination();
                     }
                     break;
 
@@ -601,14 +897,23 @@ namespace Controller
 
         public void AddDropItem(DropItemType itemType)
         {
+            ReleasePendingPickupSlot();
+
             if (isDead || Time.time < ignorePickupUntil)
             {
                 return;
             }
 
+            if (inventory.GetTotalCount() >= inventory.max)
+            {
+                RefreshCarryInfo();
+                ChangeState(CollectorState.ReturnToDepot);
+                return;
+            }
+
             inventory.Add(itemType);
             RefreshCarryInfo();
-            if (inventory.IsFull())
+            if (GetReservedCarryNum() >= maxCarryNum)
             {
                 ChangeState(CollectorState.ReturnToDepot);
             }
@@ -654,9 +959,29 @@ namespace Controller
                 if (IsDropNearPlayer(item.transform)) continue;
 
                 float dist = Vector2.Distance(transform.position, item.transform.position);
-                if (dist <= collectRadius && !inventory.IsFull())
+                if (dist > collectRadius)
                 {
-                    item.StartAttract(this.transform, receiveTransform);
+                    continue;
+                }
+
+                if (!HasCarryCapacityForOne())
+                {
+                    ChangeState(CollectorState.ReturnToDepot);
+                    return;
+                }
+
+                ReservePendingPickupSlot();
+                item.StartAttract(this.transform, receiveTransform, ReleasePendingPickupSlot);
+                if (!item.isTaken)
+                {
+                    ReleasePendingPickupSlot();
+                    continue;
+                }
+
+                if (GetReservedCarryNum() >= maxCarryNum)
+                {
+                    ChangeState(CollectorState.ReturnToDepot);
+                    return;
                 }
             }
         }
@@ -746,6 +1071,7 @@ namespace Controller
             lastWorldPos = transform.position;
             ignorePickupUntil = Time.time + 1f;
             currentHp = maxHp;
+            pendingPickupCount = 0;
             if (collectorInfo != null)
             {
                 collectorInfo.ShowHpInfo();
@@ -864,6 +1190,51 @@ namespace Controller
                    || currentState == CollectorState.WaitDepotSpace;
         }
 
+        private bool ShouldReturnToDepot()
+        {
+            return GetReservedCarryNum() >= maxCarryNum;
+        }
+
+        private Transform GetDepotTargetTransform()
+        {
+            if (depot == null)
+            {
+                return null;
+            }
+
+            if (depot.collectorTransform != null)
+            {
+                return depot.collectorTransform;
+            }
+
+            if (depot.bornTransform != null)
+            {
+                return depot.bornTransform;
+            }
+
+            return depot.transform;
+        }
+
+        private int GetReservedCarryNum()
+        {
+            return inventory.GetTotalCount() + pendingPickupCount;
+        }
+
+        private bool HasCarryCapacityForOne()
+        {
+            return GetReservedCarryNum() < maxCarryNum;
+        }
+
+        private void ReservePendingPickupSlot()
+        {
+            pendingPickupCount++;
+        }
+
+        private void ReleasePendingPickupSlot()
+        {
+            pendingPickupCount = Mathf.Max(0, pendingPickupCount - 1);
+        }
+
         #endregion
     }
 
@@ -912,5 +1283,3 @@ namespace Controller
 
     }
 }
-
-

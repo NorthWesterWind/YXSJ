@@ -193,7 +193,7 @@ namespace View.CardView
                 {
                     //到达等级解锁条件，未拥有
                     fillContent.SetActive(false);
-                    filltxt.gameObject.SetActive(false);
+                    filltxt.gameObject.SetActive(true);
                     mask.gameObject.SetActive(false);
                 }
                 topleftLock.gameObject.SetActive(true);
