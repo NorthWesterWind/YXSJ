@@ -11,15 +11,18 @@ namespace Controller.Pickups
         public DropItemType itemType;
         public SpriteRenderer spriteRenderer;
         public float spawnTime { get; private set; }
+        [SerializeField] private float autoDestroyDelay = 15f;
 
         [Header("飞行参数")]
 
 
         private System.Action _onArrive;
+        private float pickableStartTime = -1f;
         public void Init(DropItemType type)
         {
             itemType = type;
             spawnTime = Time.time;
+            pickableStartTime = -1f;
             canPickup = false;
             itemName = "DropObj";
             _onArrive = null;
@@ -31,6 +34,35 @@ namespace Controller.Pickups
         {
             return Time.time - spawnTime >= Mathf.Max(0f, delay);
         }
+
+        private void Update()
+        {
+            if (!canPickup || isTaken)
+            {
+                pickableStartTime = -1f;
+                return;
+            }
+
+            if (pickableStartTime < 0f)
+            {
+                pickableStartTime = Time.time;
+                return;
+            }
+
+            if (Time.time - pickableStartTime < autoDestroyDelay)
+            {
+                return;
+            }
+
+            if (ScenePickupController.Instance != null &&
+                ScenePickupController.Instance.materials.Contains(this))
+            {
+                ScenePickupController.Instance.materials.Remove(this);
+            }
+
+            Destroy(gameObject);
+        }
+
         void OnDestroy()
         {
             if (ScenePickupController.Instance.materials.Contains(this))
@@ -76,6 +108,7 @@ namespace Controller.Pickups
             Vector2 end = pickerReceivePoint.position;
             Vector2 control = Vector2.Lerp(start, end, 0.5f) + Vector2.up * flyHeight;
             float timer = 0f;
+            int originalSortingOrder = spriteRenderer != null ? spriteRenderer.sortingOrder : 0;
             while (timer < flyDuration)
             {
                 if (pickerReceivePoint == null)
@@ -87,10 +120,12 @@ namespace Controller.Pickups
                     (1 - t) * (1 - t) * start +
                     2 * (1 - t) * t * control +
                     t * t * end;
+                ApplyFlyingSortingOrder(spriteRenderer, picker, end.y, originalSortingOrder);
                 transform.position = pos;
                 timer += Time.deltaTime;
                 yield return null;
             }
+            ApplyFlyingSortingOrder(spriteRenderer, picker, end.y, originalSortingOrder);
             transform.position = end;
             _onArrive?.Invoke();
             if (isPlayer && player != null)

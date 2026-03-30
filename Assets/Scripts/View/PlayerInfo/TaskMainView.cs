@@ -67,10 +67,12 @@ namespace View.PlayerInfo
                 if (data.type == TaskType.Construct)
                 {
                     if (PlayerDataModule.Instance.data.structureLockProgressDataList.Find(x =>
-                            x.buildType == (BuildingType)data.aimId) != null)
+                            x.buildType == (BuildingType)data.aimId &&
+                            x.mapId == PlayerDataModule.Instance.data.currentMapID) != null)
                     {
                         if (PlayerDataModule.Instance.data.structureLockProgressDataList
-                            .Find(x => x.buildType == (BuildingType)data.aimId).isUnlock)
+                            .Find(x => x.buildType == (BuildingType)data.aimId &&
+                                       x.mapId == PlayerDataModule.Instance.data.currentMapID).isUnlock)
                         {
                             PlayerDataModule.Instance.data.taskProgressDic[data.taskId] = 1;
                         }
@@ -174,6 +176,25 @@ namespace View.PlayerInfo
                         str += "5";
                     }
                 }
+                if(str == "MapLock")
+            {
+                  if (PlayerDataModule.Instance.data.currentMapID == 1 || PlayerDataModule.Instance.data.currentMapID == 2)
+                {
+
+                }
+                else if (PlayerDataModule.Instance.data.currentMapID == 3)
+                {
+                    str += "3";
+                }
+                else if (PlayerDataModule.Instance.data.currentMapID == 4)
+                {
+                    str += "4";
+                }
+                else
+                {
+                    str += "5";
+                }
+            }
                 iconImage.sprite = _assetHandle.Get<Sprite>(str);
                 if (task.type == TaskType.Upgrade || task.type == TaskType.Construct)
                 {

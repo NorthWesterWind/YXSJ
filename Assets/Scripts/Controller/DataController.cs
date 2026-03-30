@@ -201,6 +201,7 @@ namespace Controller
         {
             ///根据当前解锁的任务数据  进行可解锁建筑数据划分
             PlayerData playerData = PlayerDataModule.Instance.data;
+            PlayerDataModule.Instance.RefreshStructureUnlockData();
             for (int i = 0; i < structureLockDataList_1.Count; i++)
             {
                 var list1 = playerData.structLockDataDic[1];
@@ -349,12 +350,10 @@ namespace Controller
                     GameController.Instance.buildings.TryGetValue(buildingType, out var structure) &&
                     structure is ProductionStation productionStation)
                 {
-                    var productionData = PlayerDataModule.Instance.data.ProductStationDataList
-                        .Find(x => x.buildingType == buildingType);
+                    var productionData = PlayerDataModule.Instance.GetProductStationData(buildingType);
                     if (productionData == null)
                     {
-                        PlayerDataModule.Instance.data.ProductStationDataList.Add(
-                            new ProductStationData(buildingType, productionStation.goodsType));
+                        PlayerDataModule.Instance.GetOrCreateProductStationData(buildingType, productionStation.goodsType);
                     }
                 }
                 if (buildingType == BuildingType.LingZhangTai)

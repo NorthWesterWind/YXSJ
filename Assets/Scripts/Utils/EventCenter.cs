@@ -1,19 +1,17 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
+using UnityEngine;
+
 namespace Utils
 {
     public class EventCenter : SingletonBase<EventCenter>
     {
-        // 事件委托定义
+        private const bool EnableVerboseLogs = false;
+
         public delegate void EventHandler(params object[] args);
 
-        // 存储所有事件监听器的字典
         private readonly Dictionary<string, Delegate> eventHandlers = new();
-        
-
-        #region 注册事件监听
 
         public void AddListener(string eventType, EventHandler handler)
         {
@@ -22,97 +20,90 @@ namespace Utils
             if (eventHandlers.TryGetValue(eventType, out var existingHandler))
             {
                 if (existingHandler != null && existingHandler.GetInvocationList().Contains((Delegate)handler))
-                    return; 
+                {
+                    return;
+                }
+
                 eventHandlers[eventType] = Delegate.Combine(existingHandler, handler);
             }
             else
+            {
                 eventHandlers[eventType] = handler;
-            Debug.Log("yj == > 添加监听逻辑 "+ eventType);
+            }
+
+            if (EnableVerboseLogs)
+            {
+                Debug.Log("yj == > 娣诲姞鐩戝惉閫昏緫 " + eventType);
+            }
         }
-
-        #endregion
-
-        #region 移除事件监听
 
         public void RemoveListener(string eventType, EventHandler handler)
         {
             if (string.IsNullOrEmpty(eventType) || handler == null) return;
-            Debug.LogWarning("清除监听 >" +  eventType);
+
             if (eventHandlers.TryGetValue(eventType, out var existingHandler))
             {
                 var newHandler = Delegate.Remove(existingHandler, handler);
                 if (newHandler == null)
+                {
                     eventHandlers.Remove(eventType);
+                }
                 else
+                {
                     eventHandlers[eventType] = newHandler;
+                }
             }
         }
 
-        #endregion
-
-        #region 触发事件
-
-        /// <summary>
-        ///     触发带参数的事件
-        /// </summary>
         public void TriggerEvent(string eventType, params object[] data)
         {
             if (string.IsNullOrEmpty(eventType)) return;
-            
-          
-            if (eventHandlers.TryGetValue(eventType, out var handler))
+
+            if (!eventHandlers.TryGetValue(eventType, out var handler))
             {
-                if (handler is EventHandler eventHandler)
-                {
-                    var invocationList = eventHandler.GetInvocationList();
-                    for (int i = 0; i < invocationList.Length; i++)
-                    {
-                        try
-                        {
-                            ((EventHandler)invocationList[i]).Invoke(data);
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.LogError($"[EventCenter] Event '{eventType}' listener threw: {ex}");
-                        }
-                    }
-                    Debug.Log("yj == > 触发事件 " + eventType);
-                }
-                else
-                    Debug.LogWarning($"[EventCenter] 事件 {eventType} 的委托类型不匹配");
+                return;
             }
-            
+
+            if (handler is not EventHandler eventHandler)
+            {
+                Debug.LogWarning($"[EventCenter] 浜嬩欢 {eventType} 鐨勫鎵樼被鍨嬩笉鍖归厤");
+                return;
+            }
+
+            var invocationList = eventHandler.GetInvocationList();
+            for (int i = 0; i < invocationList.Length; i++)
+            {
+                try
+                {
+                    ((EventHandler)invocationList[i]).Invoke(data);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError($"[EventCenter] Event '{eventType}' listener threw: {ex}");
+                }
+            }
+
+            if (EnableVerboseLogs)
+            {
+                Debug.Log("yj == > 瑙﹀彂浜嬩欢 " + eventType);
+            }
         }
 
-        #endregion
-
-        #region 清空事件
-
-        /// <summary>
-        ///     清空特定类型的所有事件监听
-        /// </summary>
         public void ClearEvent(string eventType)
         {
             if (string.IsNullOrEmpty(eventType)) return;
 
-            if (eventHandlers.ContainsKey(eventType)) eventHandlers.Remove(eventType);
+            if (eventHandlers.ContainsKey(eventType))
+            {
+                eventHandlers.Remove(eventType);
+            }
         }
 
-        /// <summary>
-        ///     清空所有事件监听
-        /// </summary>
         public void ClearAllEvents()
         {
             eventHandlers.Clear();
         }
 
-        #endregion
-
-        #region 安全检查方法
-
-        /// <summary>
-        ///     检查特定事件类型是否有监听器
-        /// </summary>
         public bool HasListeners(string eventType)
         {
             return !string.IsNullOrEmpty(eventType) &&
@@ -120,18 +111,16 @@ namespace Utils
                    handler != null;
         }
 
-        /// <summary>
-        ///     获取特定事件类型的监听器数量
-        /// </summary>
         public int GetListenerCount(string eventType)
         {
             if (string.IsNullOrEmpty(eventType)) return 0;
 
             if (eventHandlers.TryGetValue(eventType, out var handler) && handler != null)
+            {
                 return handler.GetInvocationList().Length;
+            }
+
             return 0;
         }
-
-        #endregion
     }
 }

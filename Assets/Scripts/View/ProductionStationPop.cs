@@ -212,12 +212,12 @@ namespace View
             closeBtn.onClick.RemoveAllListeners();
             closeBtn.onClick.AddListener(() => { StartCoroutine(ShowAnimation()); });
 
-            EventCenter.Instance.AddListener(EventMessages.UpdateCardInfo, HandleUpdateCardInfo  );
+            EventCenter.Instance.AddListener(EventMessages.UpdateCardInfo, HandleUpdateCardInfo);
         }
         public override void RemoveEventListener()
         {
             base.RemoveEventListener();
-               EventCenter.Instance.RemoveListener(EventMessages.UpdateCardInfo, HandleUpdateCardInfo);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateCardInfo, HandleUpdateCardInfo);
         }
 
         private IEnumerator ShowAnimation()
@@ -232,7 +232,7 @@ namespace View
         public void UpdateInfo()
         {
             PlayerData player = PlayerDataModule.Instance.data;
-            productStationdata = player.ProductStationDataList.Find(x => x.buildingType == type);
+            productStationdata = PlayerDataModule.Instance.GetOrCreateProductStationData(type, goodsType);
             CardLevelData cardLevelData;
             InitBaseInfo(player, out cardLevelData);
             UpdateStationInfo(productStationdata);
@@ -348,10 +348,10 @@ namespace View
                 {
                     bottompreviewtxt1.text =
                               "x" + Extensions.FormatNumber(WorldData.goodsPriceDic[goodsType] *
-                                     DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price* cardData.level +
+                                     DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price * cardData.level +
                                      (productStationdata.priceLevel - 1) * 25);
 
-                    bottompreviewtxt2.text = "x" + Extensions.FormatNumber(WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price* cardData.level + (productStationdata.priceLevel) * 25);
+                    bottompreviewtxt2.text = "x" + Extensions.FormatNumber(WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price * cardData.level + (productStationdata.priceLevel) * 25);
 
                 }
 
@@ -360,21 +360,21 @@ namespace View
             else
             {
 
-                 if (cardData == null)
+                if (cardData == null)
                 {
-                           bottompreviewtxt1.text =
-              "x" + Extensions.FormatNumber(WorldData.goodsPriceDic[goodsType] *
-                     DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price +
-                     productStationdata.priceLevel * 25);
+                    bottompreviewtxt1.text =
+       "x" + Extensions.FormatNumber(WorldData.goodsPriceDic[goodsType] *
+              DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price +
+              productStationdata.priceLevel * 25);
                 }
                 else
                 {
-                      bottompreviewtxt1.text =
-              "x" + Extensions.FormatNumber(WorldData.goodsPriceDic[goodsType] *
-                     DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price*cardData.level +
-                     productStationdata.priceLevel * 25);
+                    bottompreviewtxt1.text =
+            "x" + Extensions.FormatNumber(WorldData.goodsPriceDic[goodsType] *
+                   DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price * cardData.level +
+                   productStationdata.priceLevel * 25);
                 }
-             
+
                 bottompreviewtxt2.text = "";
                 bootomBtntxt1.text = "已满级";
             }
@@ -402,23 +402,14 @@ namespace View
                 fillContent.SetActive(false);
                 cardleveltxt.text = "0";
                 lockObj.SetActive(true);
-                if (PlayerDataModule.Instance.data.accountLevel < cardLevelData.unlockLevel)
-                {
-                    mask.SetActive(true);
-                    masktxt.text = cardLevelData.unlockLevel.ToString();
-                }
-                else
-                {
-                    mask.SetActive(false);
-                }
+
             }
             else
             {
                 lockObj.SetActive(false);
-                mask.SetActive(false);
                 cardleveltxt.text = cardData.level.ToString();
 
-                if (cardData.level == WorldData.cardUpLevelArr.Length +1)
+                if (cardData.level == WorldData.cardUpLevelArr.Length + 1)
                 {
                     cardprogressfill.fillAmount = 1;
                     cardprogresstxt.text = "已满级";
@@ -430,6 +421,15 @@ namespace View
                     cardprogresstxt.text =
                         cardData.currentNum + "/" + WorldData.cardUpLevelArr[cardData.level - 1];
                 }
+            }
+            if (PlayerDataModule.Instance.data.accountLevel < cardLevelData.unlockLevel)
+            {
+                mask.SetActive(true);
+                masktxt.text = cardLevelData.unlockLevel.ToString();
+            }
+            else
+            {
+                mask.SetActive(false);
             }
         }
     }

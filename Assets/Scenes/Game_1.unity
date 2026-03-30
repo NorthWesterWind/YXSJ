@@ -606,7 +606,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 65687376868369449, guid: 81ecb74c4d5f64c46a86f7c7112bb131, type: 3}
       propertyPath: m_Mesh
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 100091065559653126, guid: 81ecb74c4d5f64c46a86f7c7112bb131, type: 3}
       propertyPath: m_SortingOrder
@@ -614,7 +614,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 872061624020370327, guid: 81ecb74c4d5f64c46a86f7c7112bb131, type: 3}
       propertyPath: m_Mesh
-      value: 
+      value:
       objectReference: {fileID: 0}
     - target: {fileID: 1265540070873859420, guid: 81ecb74c4d5f64c46a86f7c7112bb131, type: 3}
       propertyPath: m_Name
@@ -772,10 +772,7 @@ PrefabInstance:
     - {fileID: 809818376601331354, guid: 81ecb74c4d5f64c46a86f7c7112bb131, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5992178422750155173, guid: 81ecb74c4d5f64c46a86f7c7112bb131, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 81ecb74c4d5f64c46a86f7c7112bb131, type: 3}
 --- !u!1 &103518601
 GameObject:
@@ -14427,6 +14424,7 @@ MonoBehaviour:
   salesStallList:
   - {fileID: 3413044805392555816}
   - {fileID: 1390901042}
+  collectorRoutes: []
   unlockedBuildingTypes: 
 --- !u!4 &1618143724
 Transform:
@@ -16057,6 +16055,54 @@ MonoBehaviour:
   buttonSource: {fileID: 0}
   inGameAudioClip: {fileID: 8300000, guid: 635dcde6260fd6940a65f45d7d1be0c4, type: 3}
   buttonClip: {fileID: 0}
+  monsterHitClips:
+  - {fileID: 8300000, guid: d922853f1e507e1438e8d8253a86d102, type: 3}
+  monsterHitSfxConfigs:
+  - monsterType: 31
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 32
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 33
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 34
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 35
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 36
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 37
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 38
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 39
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 40
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 41
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 42
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 43
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 44
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 45
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
   soundVolume: 1
   musicVolume: 1
   sfxSourcePrefab: {fileID: 0}
@@ -16224,9 +16270,12 @@ MonoBehaviour:
     - Name: lingJing
       Entry: 3
       Data: 500000
-    - Name: jingMangZhu
+    - Name: star
       Entry: 3
-      Data: 10000
+      Data: 0
+    - Name: talentPoint
+      Entry: 3
+      Data: 0
     - Name: currentMapID
       Entry: 3
       Data: 1
@@ -19962,10 +20011,14 @@ PrefabInstance:
       objectReference: {fileID: 238023733269891623}
     - target: {fileID: 5684804839702769719, guid: 33eee2a6b83ff494f885293813e5c72e, type: 3}
       propertyPath: routes.Array.data[0].waypoints.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5684804839702769719, guid: 33eee2a6b83ff494f885293813e5c72e, type: 3}
       propertyPath: routes.Array.data[0].waypoints.Array.data[0]
+      value: 
+      objectReference: {fileID: 6356740729875230312}
+    - target: {fileID: 5684804839702769719, guid: 33eee2a6b83ff494f885293813e5c72e, type: 3}
+      propertyPath: routes.Array.data[0].waypoints.Array.data[1]
       value: 
       objectReference: {fileID: 6356740729875230312}
     m_RemovedComponents: []

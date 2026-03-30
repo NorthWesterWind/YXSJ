@@ -26,6 +26,7 @@ namespace Controller.Player
         public float maxHp;
 
         public int RemainCapacity => (int)maxCarryNum - currentCarryNum;
+        public int CurrentSortingOrder => renderer != null ? renderer.sortingOrder : 0;
 
 
         private SkeletonAnimation _skeletonAnimation;
@@ -41,8 +42,8 @@ namespace Controller.Player
         public SkeletonAnimation weaponEffect;
 
 
-        private float detectRadius = 6f; // æ€ªç‰©æ£€æµ‹åŠå¾„
-        public LayerMask monsterLayer;   // åªæ£€æµ‹æ€ªç‰©
+        private float detectRadius = 6f; // ¹ÖÎï¼ì²â°ë¾¶
+        public LayerMask monsterLayer;   // Ö»¼ì²â¹ÖÎï
         public LayerMask productLayer;
         public LayerMask productStationLayer;
 
@@ -54,8 +55,18 @@ namespace Controller.Player
         public Dictionary<GoodsType, int> goodsDic = new();
         public Dictionary<DropItemType, int> dropDic = new();
 
-        // æ­£åœ¨é£è¡Œä¸­å¾…æ‹¾å–çš„ç‰©å“æ•°é‡ï¼ˆç”¨äºé˜²æ­¢è¶…å‡ºå®¹é‡ä¸Šé™ï¼‰
+        // ÕıÔÚ·ÉĞĞÖĞ´ıÊ°È¡µÄÎïÆ·ÊıÁ¿£¨ÓÃÓÚ·ÀÖ¹³¬³öÈİÁ¿ÉÏÏŞ£©
         private int _pendingPickupCount = 0;
+        private const float PickupScanInterval = 0.05f;
+        private const float ProductScanInterval = 0.05f;
+        private const float InteractionScanInterval = 0.05f;
+        private const float MonsterScanInterval = 0.1f;
+        private float pickupScanTimer;
+        private float productScanTimer;
+        private float interactionScanTimer;
+        private float monsterScanTimer;
+        private readonly HashSet<CashierCounter> handledCashiers = new();
+        private readonly HashSet<ProductionStation> handledStations = new();
 
         public bool isDead = false;
 
@@ -64,20 +75,20 @@ namespace Controller.Player
 
 
         // /// <summary>
-        // /// è§’è‰²æ˜¯å¦å¤„äºäº¤äº’èŒƒå›´å†…ï¼ˆè§£é”ï¼‰
+        // /// ½ÇÉ«ÊÇ·ñ´¦ÓÚ½»»¥·¶Î§ÄÚ£¨½âËø£©
         // /// </summary>
         // public bool InteractionTriggerInRange = false;
         // public Transform InteractionTriggerTransform;
 
         public Transform weaponRoot;
         public float speed;
-        [SerializeField] private float radiusX = 1.1f;   // å·¦å³æ‘†åŠ¨è·ç¦»
-        [SerializeField] private float radiusZ = 0.55f;  // å‰åæ™¯æ·±ï¼ˆå†³å®šé®æŒ¡æ„Ÿï¼‰
-        [SerializeField] private float minScale = 0.85f; // åœ¨èº«åæ—¶çš„æœ€å°ç¼©æ”¾
-        [SerializeField] private float maxScale = 1.15f; // åœ¨èº«å‰æ—¶çš„æœ€å¤§ç¼©æ”¾
+        [SerializeField] private float radiusX = 1.1f;   // ×óÓÒ°Ú¶¯¾àÀë
+        [SerializeField] private float radiusZ = 0.55f;  // Ç°ºó¾°Éî£¨¾ö¶¨ÕÚµ²¸Ğ£©
+        [SerializeField] private float minScale = 0.85f; // ÔÚÉíºóÊ±µÄ×îĞ¡Ëõ·Å
+        [SerializeField] private float maxScale = 1.15f; // ÔÚÉíÇ°Ê±µÄ×î´óËõ·Å
 
         public bool InRange;
-        private bool isThrowingCoin = false; // é˜²æ­¢é‡å¤æŠ›å¸
+        private bool isThrowingCoin = false; // ·ÀÖ¹ÖØ¸´Å×±Ò
 
         public GameObject finger;
         public Transform fingerRoot;
@@ -102,14 +113,14 @@ namespace Controller.Player
             renderer = transform.Find("Character").GetComponent<MeshRenderer>();
             var data = _skeletonAnimation.AnimationState.Data;
 
-            data.SetMix("å¾…æœº", "èµ°è·¯", 0.2f);
-            data.SetMix("èµ°è·¯", "å¾…æœº", 0.2f);
+            data.SetMix("´ı»ú", "×ßÂ·", 0.2f);
+            data.SetMix("×ßÂ·", "´ı»ú", 0.2f);
 
-            data.SetMix("èµ°è·¯", "æ”»å‡»", 0.1f);
-            data.SetMix("å¾…æœº", "æ”»å‡»", 0.1f);
+            data.SetMix("×ßÂ·", "¹¥»÷", 0.1f);
+            data.SetMix("´ı»ú", "¹¥»÷", 0.1f);
 
-            data.SetMix("æ”»å‡»", "å¾…æœº", 0.15f);
-            data.SetMix("æ”»å‡»", "èµ°è·¯", 0.15f);
+            data.SetMix("¹¥»÷", "´ı»ú", 0.15f);
+            data.SetMix("¹¥»÷", "×ßÂ·", 0.15f);
         }
 
         private MeshRenderer renderer;
@@ -294,17 +305,17 @@ namespace Controller.Player
                 var current = state.GetCurrent(0);
                 if (weapon.gameObject.activeSelf)
                 {
-                    if (current == null || current.Animation.Name != "æ”»å‡»")
+                    if (current == null || current.Animation.Name != "¹¥»÷")
                     {
-                        state.SetAnimation(0, "æ”»å‡»", true);
+                        state.SetAnimation(0, "¹¥»÷", true);
                     }
 
                 }
                 else
                 {
-                    if (current == null || current.Animation.Name != "èµ°è·¯")
+                    if (current == null || current.Animation.Name != "×ßÂ·")
                     {
-                        state.SetAnimation(0, "èµ°è·¯", true);
+                        state.SetAnimation(0, "×ßÂ·", true);
                     }
                 }
             }
@@ -316,26 +327,51 @@ namespace Controller.Player
 
                 if (weapon.gameObject.activeSelf)
                 {
-                    if (current == null || current.Animation.Name != "æ”»å‡»è…¿ä¸åŠ¨")
+                    if (current == null || current.Animation.Name != "¹¥»÷ÍÈ²»¶¯")
                     {
-                        state.SetAnimation(0, "æ”»å‡»è…¿ä¸åŠ¨", true);
+                        state.SetAnimation(0, "¹¥»÷ÍÈ²»¶¯", true);
                     }
                 }
                 else
                 {
 
-                    if (current == null || current.Animation.Name != "å¾…æœº")
+                    if (current == null || current.Animation.Name != "´ı»ú")
                     {
-                        state.SetAnimation(0, "å¾…æœº", true);
+                        state.SetAnimation(0, "´ı»ú", true);
                     }
                 }
             }
 
-            CheckMonster();
-            CheckDrop();
-            CheckProductStation();
-            CheckProduct();
-            CheckSaleStall();
+            float deltaTime = Time.deltaTime;
+
+            monsterScanTimer -= deltaTime;
+            if (monsterScanTimer <= 0f)
+            {
+                monsterScanTimer = MonsterScanInterval;
+                CheckMonster();
+            }
+
+            pickupScanTimer -= deltaTime;
+            if (pickupScanTimer <= 0f)
+            {
+                pickupScanTimer = PickupScanInterval;
+                CheckDrop();
+            }
+
+            productScanTimer -= deltaTime;
+            if (productScanTimer <= 0f)
+            {
+                productScanTimer = ProductScanInterval;
+                CheckProduct();
+            }
+
+            interactionScanTimer -= deltaTime;
+            if (interactionScanTimer <= 0f)
+            {
+                interactionScanTimer = InteractionScanInterval;
+                CheckProductStation();
+                CheckSaleStall();
+            }
 
             if (weapon.gameObject.activeSelf)
             {
@@ -387,11 +423,11 @@ namespace Controller.Player
 
         public void ThrowOutTongBi(Transform target)
         {
-            Debug.Log(" yj = > åˆ¤æ–­æŠ•æ·é“œå¸");
+            Debug.Log(" yj = > ÅĞ¶ÏÍ¶ÖÀÍ­±Ò");
 
             if (CanThrowTongBi())
             {
-                Debug.Log(" yj = > åˆ¤æ–­é€šè¿‡");
+                Debug.Log(" yj = > ÅĞ¶ÏÍ¨¹ı");
                 StartCoroutine(ThrowOutTongBiCoroutine(target));
             }
 
@@ -399,8 +435,8 @@ namespace Controller.Player
 
         private IEnumerator ThrowOutTongBiCoroutine(Transform target)
         {
-            isThrowingCoin = true; // æ ‡è®°æ­£åœ¨æŠ›å¸
-            Debug.Log("yj = >æŠ•æ·é“œå¸");
+            isThrowingCoin = true; // ±ê¼ÇÕıÔÚÅ×±Ò
+            Debug.Log("yj = >Í¶ÖÀÍ­±Ò");
 
             GameObject coinObj = Instantiate(
                 _assetHandle.Get<GameObject>("Production"),
@@ -415,7 +451,7 @@ namespace Controller.Player
 
 
             coinCtrl.FlyTo_1(
-                target.position,0.1f,
+                target.position,0.1f, target,
                 () =>
                 {
                     EventCenter.Instance.TriggerEvent(
@@ -429,7 +465,7 @@ namespace Controller.Player
             );
 
             yield return new WaitForSeconds(0.2f);
-            isThrowingCoin = false; // æŠ›å¸ç»“æŸ
+            isThrowingCoin = false; // Å×±Ò½áÊø
         }
 
 
@@ -488,8 +524,8 @@ namespace Controller.Player
             _dirValue = direction;
         }
 
-        // ç©å®¶ç”Ÿå‘½å€¼å›è¡€
-        private float lastDamageTime = -999f; // ä¸Šæ¬¡å—ä¼¤æ—¶é—´
+        // Íæ¼ÒÉúÃüÖµ»ØÑª
+        private float lastDamageTime = -999f; // ÉÏ´ÎÊÜÉËÊ±¼ä
         private bool isRegenerating = false;
         private Coroutine regenCoroutine;
         private float regenDelay = 3f;
@@ -519,14 +555,21 @@ namespace Controller.Player
 
         public void CheckDrop()
         {
-            var list = ScenePickupController.Instance.materials.ToArray();
-
-            foreach (var item in list)
+            var scenePickup = ScenePickupController.Instance;
+            if (scenePickup == null)
             {
-                if (item == null) continue;                       // å›æ”¶æ—¶ item å¯èƒ½è¢«é”€æ¯
-                if (!item.gameObject.activeInHierarchy) continue; // é¿å… inactive
+                return;
+            }
+
+            var list = scenePickup.materials;
+
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                var item = list[i];
+                if (item == null) continue;                       // »ØÊÕÊ± item ¿ÉÄÜ±»Ïú»Ù
+                if (!item.gameObject.activeInHierarchy) continue; // ±ÜÃâ inactive
                 if (item.isTaken) continue;
-                if (!item.canPickup) continue;                    // è¿˜åœ¨æ‰è½åŠ¨ç”»ä¸­ï¼Œä¸å¯æ‹¾å–
+                if (!item.canPickup) continue;                    // »¹ÔÚµôÂä¶¯»­ÖĞ£¬²»¿ÉÊ°È¡
 
                 float dist = Vector2.Distance(transform.position, item.transform.position);
                 if (dist > currentPinkUpRange) continue;
@@ -534,15 +577,15 @@ namespace Controller.Player
                 var drop = item as DropController;
                 if (drop == null) continue;
 
-                // é‡‘å…ƒå®å’Œé“¶é’±ä¸å èƒŒåŒ…å®¹é‡ï¼Œæ— éœ€æ£€æŸ¥ä¸Šé™
+                // ½ğÔª±¦ºÍÒøÇ®²»Õ¼±³°üÈİÁ¿£¬ÎŞĞè¼ì²éÉÏÏŞ
                 if (drop.itemType == DropItemType.JingYuanBao || drop.itemType == DropItemType.YingQian)
                 {
                     item.StartAttract(this.transform, receiveTransform);
                 }
                 else
                 {
-                    // æ£€æŸ¥å‰©ä½™å®¹é‡ï¼ˆè€ƒè™‘æ­£åœ¨é£è¡Œä¸­çš„ç‰©å“ï¼‰
-                    // ç”¨ continue è€Œä¸æ˜¯ breakï¼Œç¡®ä¿åç»­çš„é“¶é’±/é‡‘å…ƒå®ä»èƒ½è¢«æ‹¾å–
+                    // ¼ì²éÊ£ÓàÈİÁ¿£¨¿¼ÂÇÕıÔÚ·ÉĞĞÖĞµÄÎïÆ·£©
+                    // ÓÃ continue ¶ø²»ÊÇ break£¬È·±£ºóĞøµÄÒøÇ®/½ğÔª±¦ÈÔÄÜ±»Ê°È¡
                     if (currentCarryNum + _pendingPickupCount >= maxCarryNum) continue;
                     item.StartAttract(this.transform, receiveTransform,
                         () => _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1));
@@ -553,23 +596,29 @@ namespace Controller.Player
 
         public void CheckProduct()
         {
-            var list = ScenePickupController.Instance.products.ToArray();
-            HashSet<CashierCounter> handledCashiers = null;
-            HashSet<ProductionStation> handledStations = null;
-
-            foreach (var item in list)
+            var scenePickup = ScenePickupController.Instance;
+            if (scenePickup == null)
             {
+                return;
+            }
+
+            var list = scenePickup.products;
+            handledCashiers.Clear();
+            handledStations.Clear();
+
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                var item = list[i];
                 if (item == null) continue;
                 if (!item.gameObject.activeInHierarchy) continue;
                 if (item.isTaken) continue;
                 if (!item.canPickup) continue;
 
-                var production = item.GetComponent<Production>();
+                var production = item as Production;
                 if (production == null) continue;
 
                 if (production.station is CashierCounter cashierCounter)
                 {
-                    handledCashiers ??= new HashSet<CashierCounter>();
                     if (!handledCashiers.Add(cashierCounter)) continue;
 
                     float rootDist = Vector2.Distance(transform.position, cashierCounter.GetPickupRootPosition());
@@ -580,7 +629,6 @@ namespace Controller.Player
                 }
                 else if (production.station is ProductionStation station)
                 {
-                    handledStations ??= new HashSet<ProductionStation>();
                     if (!handledStations.Add(station)) continue;
 
                     float rootDist = Vector2.Distance(transform.position, station.GetPickupRootPosition());
@@ -600,7 +648,7 @@ namespace Controller.Player
             }
         }
 
-        // æ€ªç‰©æ£€æµ‹å‡½æ•°
+        // ¹ÖÎï¼ì²âº¯Êı
         public void CheckMonster()
         {
             Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectRadius, monsterLayer);
@@ -615,7 +663,7 @@ namespace Controller.Player
 
                 UpdatePlayerEquimentInfo();
                 weapon.gameObject.SetActive(false);
-                // è‡ªåŠ¨å›è¡€æ£€æµ‹
+                // ×Ô¶¯»ØÑª¼ì²â
                 if (currentHp < maxHp && !isRegenerating)
                 {
                     if (Time.time - lastDamageTime >= regenDelay)
@@ -671,7 +719,7 @@ namespace Controller.Player
                     if (!goodsDic.ContainsKey(station.currentGoodsType)) continue;
                     if (goodsDic[station.currentGoodsType] <= 0) continue;
 
-                    // ç¡®ä¿åç¨‹ä¸ä¼šå¹¶å‘é‡å¤å¯åŠ¨
+                    // È·±£Ğ­³Ì²»»á²¢·¢ÖØ¸´Æô¶¯
                     if (!deliverCoroutines.ContainsKey("SaleStall"))
                     {
                         deliverCoroutines["SaleStall"] = StartCoroutine(DeliverProduct(station));
@@ -721,12 +769,12 @@ namespace Controller.Player
                 station.AddMaterial(1);
                 Destroy(drop);
 
-                // é€’å‡ææ–™è®¡æ•°
+                // µİ¼õ²ÄÁÏ¼ÆÊı
                 dropDic[station.dropItemType]--;
                 currentCarryNum--;
                 playerInfo.UpdateTxt();
 
-                yield return new WaitForSeconds(0.05f); // å¤šä¸ªææ–™é—´éš”
+                yield return new WaitForSeconds(0.05f); // ¶à¸ö²ÄÁÏ¼ä¸ô
             }
 
             deliverCoroutines["ProductStation"] = null;
@@ -751,7 +799,7 @@ namespace Controller.Player
                 dropCtrl.SetStation(station);
                 drop.transform.position = receiveTransform.position;
                 station.PlaceProduct(dropCtrl);
-                // é€’å‡ææ–™è®¡æ•°
+                // µİ¼õ²ÄÁÏ¼ÆÊı
                 goodsDic[station.currentGoodsType]--;
                 currentCarryNum--;
                 playerInfo.UpdateTxt();
@@ -800,11 +848,11 @@ namespace Controller.Player
 
             while (currentInteraction != null)
             {
-                if (!isMoving)   // æ ¸å¿ƒåˆ¤æ–­
+                if (!isMoving)   // ºËĞÄÅĞ¶Ï
                 {
                     stayTime += Time.deltaTime;
 
-                    if (stayTime >= 0.5f) // 0.5 ç§’
+                    if (stayTime >= 0.5f) // 0.5 Ãë
                     {
                         currentInteraction.Interact();
                         yield break;
@@ -812,7 +860,7 @@ namespace Controller.Player
                 }
                 else
                 {
-                    stayTime = 0f; // ä¸€åŠ¨å°±æ¸…é›¶
+                    stayTime = 0f; // Ò»¶¯¾ÍÇåÁã
                 }
 
                 yield return null;
@@ -865,7 +913,7 @@ namespace Controller.Player
 
         // private void OnTriggerStay2D(Collider2D other)
         // {
-        //     Debug.Log("æŒç»­é‡å " + other.name);
+        //     Debug.Log("³ÖĞøÖØµş" + other.name);
         //     if (other.GetComponent<InteractionTrigger>())
         //     {
         //     }
@@ -1062,7 +1110,7 @@ namespace Controller.Player
         public void HandleFocusNew(params object[] args)
         {
             Transform t = (Transform)args[0];
-            EventCenter.Instance.TriggerEvent(EventMessages.FocusView); // ç¦æ­¢è¾“å…¥
+            EventCenter.Instance.TriggerEvent(EventMessages.FocusView); // ½ûÖ¹ÊäÈë
             // focusCamera.LookAt = t;
             // focusCamera.Priority = 20; // > PlayerCam 10
             StartCoroutine(ReturnAfterDelay(3f));
@@ -1071,8 +1119,8 @@ namespace Controller.Player
         {
             yield return new WaitForSeconds(seconds);
             // focusCamera.LookAt = transform;
-            // focusCamera.Priority = 5;                                             // æ¢å¤ä¸ºä½
-            EventCenter.Instance.TriggerEvent(EventMessages.RestoreFocusView); // æ¢å¤è¾“å…¥
+            // focusCamera.Priority = 5;                                             // »Ö¸´ÎªµÍ
+            EventCenter.Instance.TriggerEvent(EventMessages.RestoreFocusView); // »Ö¸´ÊäÈë
         }
 
         private bool invincible = false;

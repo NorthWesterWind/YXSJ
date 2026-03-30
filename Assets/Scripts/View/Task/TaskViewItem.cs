@@ -182,6 +182,25 @@ namespace View.Task
                     str += "5";
                 }
             }
+            if(str == "MapLock")
+            {
+                  if (PlayerDataModule.Instance.data.currentMapID == 1 || PlayerDataModule.Instance.data.currentMapID == 2)
+                {
+                    
+                }
+                else if (PlayerDataModule.Instance.data.currentMapID == 3)
+                {
+                    str += "3";
+                }
+                else if (PlayerDataModule.Instance.data.currentMapID == 4)
+                {
+                    str += "4";
+                }
+                else
+                {
+                    str += "5";
+                }
+            }
             iconImage.sprite = _assetHandle.Get<Sprite>(str);
             if (data.type == TaskType.Upgrade || data.type == TaskType.Construct)
             {

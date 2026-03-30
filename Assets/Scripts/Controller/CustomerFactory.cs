@@ -6,7 +6,6 @@ using Module;
 using Module.Data;
 using UnityEngine;
 using Utils;
-using Random = UnityEngine.Random;
 
 namespace Controller
 {
@@ -24,8 +23,6 @@ namespace Controller
         public MapData mapData;
         public List<int> customerTypeList = new();
         public float spawnTime;
-        public float spawnRadiusX = 3f;
-        public float spawnRadiusY = 1.5f;
         public List<CustomerRoute> routes = new();
 
         private const int MaxCustomerPerPlace = 5;
@@ -92,33 +89,48 @@ namespace Controller
             return !(unlockedByData || unlockedByRuntime);
         }
 
-        public int GetRandomRouteIndex()
+        public int GetBestRouteIndex(StructureBase targetStructure)
         {
-            var availableRouteIndices = new List<int>();
+            Vector2 targetPosition = GetTargetPosition(targetStructure);
+            int bestRouteIndex = -1;
+            float bestDistanceSqr = float.MaxValue;
+
             for (int i = 0; i < routes.Count; i++)
             {
-                if (HasRouteData(routes[i]))
+                if (!HasRouteData(routes[i]))
                 {
-                    availableRouteIndices.Add(i);
+                    continue;
+                }
+
+                Vector2 routeAnchor = GetRouteAnchorPosition(routes[i]);
+                float distanceSqr = (routeAnchor - targetPosition).sqrMagnitude;
+                if (distanceSqr < bestDistanceSqr)
+                {
+                    bestDistanceSqr = distanceSqr;
+                    bestRouteIndex = i;
                 }
             }
 
-            if (availableRouteIndices.Count == 0)
-            {
-                return -1;
-            }
-
-            return availableRouteIndices[Random.Range(0, availableRouteIndices.Count)];
+            return bestRouteIndex;
         }
 
         public Vector3 GetSpawnPositionForRoute(int routeIndex)
         {
             if (TryGetRoute(routeIndex, out var route))
             {
-                return route.spawnPoint != null ? route.spawnPoint.position : transform.position;
+                if (route.spawnPoint != null)
+                {
+                    return route.spawnPoint.position;
+                }
+
+                int firstWaypointIndex = GetFirstValidWaypointIndex(route);
+                if (firstWaypointIndex >= 0)
+                {
+                    return route.waypoints[firstWaypointIndex].position;
+                }
             }
 
-            return GetRandomPosition();
+            return transform.position;
         }
 
         public bool TryBuildRoute(int routeIndex, out Vector2 routeStart, out List<Vector2> routeWaypoints)
@@ -130,12 +142,22 @@ namespace Controller
                 return false;
             }
 
+            int waypointStartIndex = 0;
             if (route.spawnPoint != null)
             {
                 routeStart = route.spawnPoint.position;
             }
+            else
+            {
+                int firstWaypointIndex = GetFirstValidWaypointIndex(route);
+                if (firstWaypointIndex >= 0)
+                {
+                    routeStart = route.waypoints[firstWaypointIndex].position;
+                    waypointStartIndex = firstWaypointIndex + 1;
+                }
+            }
 
-            for (int i = 0; i < route.waypoints.Count; i++)
+            for (int i = waypointStartIndex; i < route.waypoints.Count; i++)
             {
                 var waypoint = route.waypoints[i];
                 if (waypoint == null)
@@ -161,6 +183,24 @@ namespace Controller
             return route != null;
         }
 
+        private int GetFirstValidWaypointIndex(CustomerRoute route)
+        {
+            if (route == null || route.waypoints == null)
+            {
+                return -1;
+            }
+
+            for (int i = 0; i < route.waypoints.Count; i++)
+            {
+                if (route.waypoints[i] != null)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
         private bool HasRouteData(CustomerRoute route)
         {
             if (route == null)
@@ -182,6 +222,47 @@ namespace Controller
             }
 
             return false;
+        }
+
+        private Vector2 GetRouteAnchorPosition(CustomerRoute route)
+        {
+            if (route == null)
+            {
+                return transform.position;
+            }
+
+            if (route.waypoints != null)
+            {
+                for (int i = route.waypoints.Count - 1; i >= 0; i--)
+                {
+                    if (route.waypoints[i] != null)
+                    {
+                        return route.waypoints[i].position;
+                    }
+                }
+            }
+
+            if (route.spawnPoint != null)
+            {
+                return route.spawnPoint.position;
+            }
+
+            return transform.position;
+        }
+
+        private Vector2 GetTargetPosition(StructureBase targetStructure)
+        {
+            if (targetStructure is SalesStall stall && stall.parchaseTransform != null)
+            {
+                return stall.parchaseTransform.position;
+            }
+
+            if (targetStructure != null)
+            {
+                return targetStructure.transform.position;
+            }
+
+            return transform.position;
         }
 
         public IEnumerator CreatCustomer()
@@ -265,7 +346,13 @@ namespace Controller
                 // 生成顾客
                 GameObject obj = Instantiate(_assetHandle.Get<GameObject>(Extensions.GetCustomerResNameByType(tempData.type)));
 
-                int routeIndex = GetRandomRouteIndex();
+                int routeIndex = GetBestRouteIndex(structure);
+                if (routeIndex < 0)
+                {
+                    yield return new WaitForSeconds(spawnTime);
+                    continue;
+                }
+
                 Vector3 spawnPosition = GetSpawnPositionForRoute(routeIndex);
                 obj.transform.position = spawnPosition;
 
@@ -278,67 +365,5 @@ namespace Controller
 
             }
         }
-
-
-        private Vector3 GetRandomPosition()
-        {
-            Vector3 origin = transform.position;
-            var map = PolyNav.PolyNavMap.current;
-            if (map == null)
-            {
-                var mapObj = GameObject.FindWithTag("Map");
-                if (mapObj != null)
-                {
-                    map = mapObj.GetComponent<PolyNav.PolyNavMap>();
-                }
-                if (map == null)
-                {
-                    var mapObjByName = GameObject.Find("Map");
-                    if (mapObjByName != null)
-                    {
-                        map = mapObjByName.GetComponent<PolyNav.PolyNavMap>();
-                    }
-                }
-            }
-            if (map != null && map.nodesCount == 0)
-            {
-                map.GenerateMap();
-            }
-
-            for (int i = 0; i < 8; i++)
-            {
-                Vector3 position = origin;
-                // position.x += Random.Range(-spawnRadiusX, spawnRadiusX);
-                // position.y += Random.Range(-spawnRadiusY, spawnRadiusY);
-
-                if (map == null)
-                {
-                    return position;
-                }
-
-                Vector2 pos2 = new Vector2(position.x, position.y);
-                if (map.PointIsValid(pos2))
-                {
-                    return position;
-                }
-            }
-
-            Vector3 fallback = origin;
-            // fallback.x += Random.Range(-spawnRadiusX, spawnRadiusX);
-            // fallback.y += Random.Range(-spawnRadiusY, spawnRadiusY);
-            if (map != null)
-            {
-                Vector2 pos2 = new Vector2(fallback.x, fallback.y);
-                if (!map.PointIsValid(pos2))
-                {
-                    pos2 = map.GetCloserEdgePoint(pos2);
-                }
-                fallback = new Vector3(pos2.x, pos2.y, fallback.z);
-            }
-            return fallback;
-        }
-
-
-
     }
 }

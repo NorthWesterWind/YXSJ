@@ -18,7 +18,7 @@ namespace Utils
             targetButton = args[2] as RectTransform;
 
             tiptxt.text = name;
-            infotxt.text = desc;
+            infotxt.text = desc + "。";
 
             RectTransform itemRt = targetButton;
             Canvas canvas = GameObject.Find("Canvas").GetComponent<Canvas>();

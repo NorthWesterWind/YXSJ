@@ -59,6 +59,7 @@ public class LingZhangTaiPop : BaseView
         playerData = PlayerDataModule.Instance.data;
         contentRect.DOAnchorPos(new Vector2(0, 0), 0.3f);
         cashierData = playerData.cashierData;
+        EnsureCashierDataValid();
         workspeedtxt.text = cashierData.currentWorkingSpeed.ToString();
         peopletxt.text = cashierData.totalNum.ToString();
         workspeedLeveltxt.text = cashierData.workspeedLevel + "级";
@@ -81,6 +82,7 @@ public class LingZhangTaiPop : BaseView
         if (cashierData.peopleLevel < cashierData.maxpeopleLevel)
         {
             nextpeopletxt.text = (cashierData.totalNum + 1).ToString();
+            btnMask_2.SetActive(false);
         }
         else
         {
@@ -88,30 +90,29 @@ public class LingZhangTaiPop : BaseView
             btnMask_2.SetActive(true);
             btnMaskTxt_2.text = "等级已满";
         }
-
+        var cardLevelData = DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeLingZhangTai);
+        if (cardLevelData.unlockLevel <= playerData.accountLevel)
+        {
+            cardMask.SetActive(false);
+        }
+        else
+        {
+            cardMask.SetActive(true);
+            cardmasktxt.text = cardLevelData.unlockLevel.ToString();
+        }
 
         var cardprogress = playerData.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLingZhangTai);
         if (cardprogress == null)
         {
             fillContent.SetActive(false);
             lockObj.SetActive(true);
-            var cardLevelData = DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeLingZhangTai);
-            if (cardLevelData.unlockLevel <= playerData.accountLevel)
-            {
-                cardMask.SetActive(false);
-            }
-            else
-            {
-                cardMask.SetActive(true);
-                cardmasktxt.text = cardLevelData.unlockLevel.ToString();
-            }
+
             btnMask_2.SetActive(true);
-            btnMaskTxt_2.text = "需要2级";
+            btnMaskTxt_2.text = "2级解锁";
             donatetxt.text = "x" + "0%";
         }
         else
         {
-            cardMask.SetActive(false);
             cardLeveltxt.text = cardprogress.level.ToString();
             fillContent.SetActive(true);
             lockObj.SetActive(false);
@@ -130,7 +131,7 @@ public class LingZhangTaiPop : BaseView
             if (cardprogress.level < 2)
             {
                 btnMask_2.SetActive(true);
-                btnMaskTxt_2.text = "需要2级";
+                btnMaskTxt_2.text = "2级解锁";
             }
             else
             {
@@ -138,6 +139,26 @@ public class LingZhangTaiPop : BaseView
             }
         }
 
+    }
+
+    private void EnsureCashierDataValid()
+    {
+        if (playerData.cashierData == null)
+        {
+            playerData.cashierData = new CashierData();
+        }
+
+        cashierData = playerData.cashierData;
+        cashierData.maxpeopleLevel = Mathf.Max(1, cashierData.maxpeopleLevel);
+        cashierData.maxworkspeedLevel = Mathf.Max(1, cashierData.maxworkspeedLevel);
+        cashierData.peopleLevel = Mathf.Clamp(Mathf.Max(1, cashierData.peopleLevel), 1, cashierData.maxpeopleLevel);
+        cashierData.workspeedLevel = Mathf.Clamp(Mathf.Max(1, cashierData.workspeedLevel), 1, cashierData.maxworkspeedLevel);
+        cashierData.totalNum = Mathf.Clamp(Mathf.Max(1, cashierData.totalNum, cashierData.peopleLevel), 1, cashierData.maxpeopleLevel);
+        cashierData.workingNum = Mathf.Clamp(cashierData.workingNum, 0, cashierData.totalNum);
+        if (cashierData.currentWorkingSpeed <= 0f)
+        {
+            cashierData.currentWorkingSpeed = 5f;
+        }
     }
 
 
@@ -169,6 +190,7 @@ public class LingZhangTaiPop : BaseView
         if (cashierData.workspeedLevel == cashierData.maxworkspeedLevel)
         {
             UIController.Instance.Show<TipView>("等级已满。");
+            return;
         }
         if (PlayerDataModule.Instance.data.tongbi < cashierData.workspeedLevel * 1000)
         {
@@ -205,7 +227,7 @@ public class LingZhangTaiPop : BaseView
         var cardProgress = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLingZhangTai);
         if (cardProgress == null || cardProgress.level < 2)
         {
-            UIController.Instance.Show<TipView>("需要达到2级。");
+            UIController.Instance.Show<TipView>("卡牌等级达到2级解锁。");
             return;
         }
         if (cashierData.peopleLevel == cashierData.maxpeopleLevel)

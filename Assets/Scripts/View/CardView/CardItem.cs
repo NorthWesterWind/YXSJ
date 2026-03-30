@@ -23,95 +23,46 @@ namespace View.CardView
         public Image MaskImg;
         public TextMeshProUGUI masktxt;
 
-        void Start()
+        private void Start()
         {
             btn.onClick.RemoveAllListeners();
-            btn.onClick.AddListener((() =>
+            btn.onClick.AddListener(() =>
             {
                 UIController.Instance.Show<CardDetailPop>(data);
-            }));
+            });
         }
 
-        void OnEnable()
+        private void OnEnable()
         {
             EventCenter.Instance.AddListener(EventMessages.UpdateCardInfo, HandleUpdateCardInfo);
         }
-        void OnDisable()
+
+        private void OnDisable()
         {
             EventCenter.Instance.RemoveListener(EventMessages.UpdateCardInfo, HandleUpdateCardInfo);
-        }
-        void Update()
-        {
-
         }
 
         public void HandleUpdateCardInfo(params object[] args)
         {
-            PlayerData playerData = PlayerDataModule.Instance.data;
-
-            bool own = false;
-            CardUpProgress cardUpProgress = null;
-            foreach (var value in playerData.cardUpProgressesList)
+            if (data == null)
             {
-                if (value.id == data.id)
-                {
-                    own = true;
-                    cardUpProgress = value;
-                    break;
-                }
+                return;
             }
 
-            nametxt.text = data.name;
-            if (own)
+            if (args.Length > 0 && args[0] is CardDevelopType changedType && changedType != data.developType)
             {
-                leveltxt.text = cardUpProgress.level.ToString();
-                leveltxt.gameObject.SetActive(true);
-                MaskImg.gameObject.SetActive(false);
-                topLeftLockImage.gameObject.SetActive(false);
-                if (cardUpProgress.level == 10)
-                {
-                    fillContent.SetActive(true);
-                    progresstxt.text = "已满级";
-                    fillImg.fillAmount = 1f;
-                }
-                else
-                {
-                    fillContent.SetActive(true);
-                    fillImg.fillAmount = cardUpProgress.currentNum * 1f / WorldData.cardUpLevelArr[cardUpProgress.level - 1];
-                    progresstxt.text = cardUpProgress.currentNum + "/" + WorldData.cardUpLevelArr[cardUpProgress.level - 1];
-                }
-
+                return;
             }
-            else
-            {
-                topLeftLockImage.gameObject.SetActive(true);
-                leveltxt.gameObject.SetActive(false);
-                if (data.unlockLevel > playerData.accountLevel)
-                {
-                    //未到达等级解锁条件
-                    fillContent.SetActive(false);
-                    progresstxt.gameObject.SetActive(false);
-                    MaskImg.gameObject.SetActive(true);
-                    masktxt.text = data.unlockLevel.ToString();
-                }
-                else
-                {
-                    //到达等级解锁条件，未拥有
-                    fillContent.SetActive(false);
-                    progresstxt.gameObject.SetActive(false);
-                    MaskImg.gameObject.SetActive(false);
-                }
 
-            }
+            RefreshView();
         }
 
-        public void Init(CardLevelData _data)
+        public void Init(CardLevelData cardData)
         {
-
-            switch (_data.levelType)
+            data = cardData;
+            switch (data.levelType)
             {
                 case CardLevelType.FanPing:
-
                     iconBg.sprite = _assetHandle.Get<Sprite>("白卡");
                     break;
                 case CardLevelType.XianYun:
@@ -121,122 +72,115 @@ namespace View.CardView
                     iconBg.sprite = _assetHandle.Get<Sprite>("紫卡");
                     break;
             }
-            data = _data;
-            icon.sprite = _assetHandle.Get<Sprite>(data.name);
-            PlayerData playerData = PlayerDataModule.Instance.data;
 
-            bool own = false;
-            CardUpProgress cardUpProgress = null;
+            icon.sprite = _assetHandle.Get<Sprite>(data.name);
+            RefreshView();
+        }
+
+        private void RefreshView()
+        {
+            if (data == null)
+            {
+                return;
+            }
+
+            var playerData = PlayerDataModule.Instance.data;
+            var cardUpProgress = GetCardProgress(playerData);
+
+            nametxt.text = data.name;
+
+            if (cardUpProgress == null)
+            {
+                RenderLockedOrUnowned(playerData);
+                return;
+            }
+
+            RenderOwned(cardUpProgress);
+        }
+
+        private CardUpProgress GetCardProgress(PlayerData playerData)
+        {
             foreach (var value in playerData.cardUpProgressesList)
             {
                 if (value.id == data.id)
                 {
-                    own = true;
-                    cardUpProgress = value;
-                    break;
+                    return value;
                 }
             }
 
-            nametxt.text = data.name;
-            if (own)
+            return null;
+        }
+
+        private void RenderOwned(CardUpProgress cardUpProgress)
+        {
+            leveltxt.text = cardUpProgress.level.ToString();
+            leveltxt.gameObject.SetActive(true);
+            MaskImg.gameObject.SetActive(false);
+            topLeftLockImage.gameObject.SetActive(false);
+            progresstxt.gameObject.SetActive(true);
+
+            switch (data.developType)
             {
-                leveltxt.text = cardUpProgress.level.ToString();
-                leveltxt.gameObject.SetActive(true);
-                MaskImg.gameObject.SetActive(false);
-                topLeftLockImage.gameObject.SetActive(false);
+                case CardDevelopType.UpgradeYuShaHu_1:
+                case CardDevelopType.UpgradeYuShaHu_2:
+                case CardDevelopType.UpgradeYuShaHu_3:
+                case CardDevelopType.UpgradeYuShaHu_4:
+                case CardDevelopType.UpgradeLianQiLu_1:
+                case CardDevelopType.UpgradeLianQiLu_2:
+                case CardDevelopType.UpgradeLianQiLu_3:
+                    RenderProgress(cardUpProgress, WorldData.cardUpLevelArr, hideFillOnMax: false);
+                    break;
+                case CardDevelopType.UpgradeLingZhangTai:
+                    RenderProgress(cardUpProgress, WorldData.cardUpLevelArr_LingChouLing, hideFillOnMax: true);
+                    break;
+                case CardDevelopType.UpgradeLingChuGe_1:
+                case CardDevelopType.UpgradeLingChuGe_2:
+                case CardDevelopType.UpgradeYunDiGe:
+                    RenderProgress(cardUpProgress, WorldData.cardUpLevelArr_LingChuGe_YunDiGe, hideFillOnMax: true);
+                    break;
+                case CardDevelopType.UpgradeCharacterWithXuanCaiTuAtk:
+                case CardDevelopType.UpgradeCharacterWithXuanCaiTuHp:
+                case CardDevelopType.UpgradeGetYuanBaoLing:
+                    RenderProgress(cardUpProgress, WorldData.cardUpLevelArr_WuQiLing_LingLiLingr_YuanBaoLing, hideFillOnMax: true);
+                    break;
+            }
+        }
 
-                switch (cardUpProgress.developType)
-                {
-                    case CardDevelopType.UpgradeYuShaHu_1:
-                    case CardDevelopType.UpgradeYuShaHu_2:
-                    case CardDevelopType.UpgradeYuShaHu_3:
-                    case CardDevelopType.UpgradeYuShaHu_4:
-                    case CardDevelopType.UpgradeLianQiLu_1:
-                    case CardDevelopType.UpgradeLianQiLu_2:
-                    case CardDevelopType.UpgradeLianQiLu_3:
-                        if (cardUpProgress.level == WorldData.cardUpLevelArr.Length + 1)
-                        {
-                            fillContent.SetActive(true);
-                            progresstxt.text = "已满级";
-                            fillImg.fillAmount = 1f;
-                        }
-                        else
-                        {
-                            fillContent.SetActive(true);
-                            fillImg.fillAmount = cardUpProgress.currentNum * 1f / WorldData.cardUpLevelArr[cardUpProgress.level - 1];
-                            progresstxt.text = cardUpProgress.currentNum + "/" + WorldData.cardUpLevelArr[cardUpProgress.level - 1];
-                        }
-                        break;
-                    case CardDevelopType.UpgradeLingZhangTai:
-                        if (cardUpProgress.level - 1 < WorldData.cardUpLevelArr_LingChouLing.Length)
-                        {
-                            fillContent.SetActive(true);
-                            fillImg.fillAmount = cardUpProgress.currentNum * 1f / WorldData.cardUpLevelArr_LingChouLing[cardUpProgress.level - 1];
-                            progresstxt.text = $"{cardUpProgress.currentNum}/{WorldData.cardUpLevelArr_LingChouLing[cardUpProgress.level - 1]}";
-                        }
-                        else
-                        {
-                            fillContent.SetActive(false);
-                            progresstxt.text = "已满级";
-                            fillImg.fillAmount = 1f;
-                        }
-                        break;
-                    case CardDevelopType.UpgradeLingChuGe_1:
-                    case CardDevelopType.UpgradeLingChuGe_2:
-                    case CardDevelopType.UpgradeYunDiGe:
-                        if (cardUpProgress.level - 1 < WorldData.cardUpLevelArr_LingChuGe_YunDiGe.Length)
-                        {
-                            fillContent.SetActive(true);
-                            fillImg.fillAmount = cardUpProgress.currentNum * 1f / WorldData.cardUpLevelArr_LingChuGe_YunDiGe[cardUpProgress.level - 1];
-                            progresstxt.text = $"{cardUpProgress.currentNum}/{WorldData.cardUpLevelArr_LingChuGe_YunDiGe[cardUpProgress.level - 1]}";
-                        }
-                        else
-                        {
-                            fillContent.SetActive(false);
-                            progresstxt.text = "已满级";
-                            fillImg.fillAmount = 1f;
-                        }
-                        break;
-                    case CardDevelopType.UpgradeCharacterWithXuanCaiTuAtk:
-                    case CardDevelopType.UpgradeCharacterWithXuanCaiTuHp:
-                    case CardDevelopType.UpgradeGetYuanBaoLing:
-                        if (cardUpProgress.level - 1 < WorldData.cardUpLevelArr_WuQiLing_LingLiLingr_YuanBaoLing.Length)
-                        {
-                            fillContent.SetActive(true);
-                            fillImg.fillAmount = cardUpProgress.currentNum * 1f / WorldData.cardUpLevelArr_WuQiLing_LingLiLingr_YuanBaoLing[cardUpProgress.level - 1];
-                            progresstxt.text = $"{cardUpProgress.currentNum}/{WorldData.cardUpLevelArr_WuQiLing_LingLiLingr_YuanBaoLing[cardUpProgress.level - 1]}";
-                        }
-                        else
-                        {
-                            fillContent.SetActive(false);
-                            progresstxt.text = "已满级";
-                            fillImg.fillAmount = 1f;
-                        }
-                        break;
-                }
+        private void RenderProgress(CardUpProgress cardUpProgress, int[] progressArr, bool hideFillOnMax)
+        {
+            int progressIndex = cardUpProgress.level - 1;
+            bool isMaxLevel = progressIndex >= progressArr.Length;
 
+            if (isMaxLevel)
+            {
+                fillContent.SetActive(!hideFillOnMax);
+                progresstxt.text = "已满级";
+                fillImg.fillAmount = 1f;
+                return;
+            }
 
+            fillContent.SetActive(true);
+            fillImg.fillAmount = cardUpProgress.currentNum * 1f / progressArr[progressIndex];
+            progresstxt.text = $"{cardUpProgress.currentNum}/{progressArr[progressIndex]}";
+        }
+
+        private void RenderLockedOrUnowned(PlayerData playerData)
+        {
+            topLeftLockImage.gameObject.SetActive(true);
+            leveltxt.gameObject.SetActive(false);
+
+            if (data.unlockLevel > playerData.accountLevel)
+            {
+                fillContent.SetActive(false);
+                progresstxt.gameObject.SetActive(false);
+                MaskImg.gameObject.SetActive(true);
+                masktxt.text = data.unlockLevel.ToString();
             }
             else
             {
-                topLeftLockImage.gameObject.SetActive(true);
-                leveltxt.gameObject.SetActive(false);
-                if (data.unlockLevel > playerData.accountLevel)
-                {
-                    //未到达等级解锁条件
-                    fillContent.SetActive(false);
-                    progresstxt.gameObject.SetActive(false);
-                    MaskImg.gameObject.SetActive(true);
-                    masktxt.text = data.unlockLevel.ToString();
-                }
-                else
-                {
-                    //到达等级解锁条件，未拥有
-                    fillContent.SetActive(false);
-                    progresstxt.gameObject.SetActive(false);
-                    MaskImg.gameObject.SetActive(false);
-                }
-
+                fillContent.SetActive(false);
+                progresstxt.gameObject.SetActive(false);
+                MaskImg.gameObject.SetActive(false);
             }
         }
     }

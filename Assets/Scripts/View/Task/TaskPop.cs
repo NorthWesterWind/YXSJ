@@ -9,7 +9,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using Utils;
 
-
 namespace View.Task
 {
     public class TaskPop : BaseView
@@ -27,8 +26,6 @@ namespace View.Task
         public GameObject redPoint;
         public AssetHandle assetHandle;
 
-
-
         private void OnEnable()
         {
             content.anchoredPosition = new Vector2(0, -910);
@@ -38,58 +35,8 @@ namespace View.Task
         {
             base.UpdateViewWithArgs(args);
             StopAllCoroutines();
-            PlayerData tempdata = PlayerDataModule.Instance.data;
-            _mapData = DataController.Instance.mapDataDic[tempdata.currentMapID];
-            // if (PlayerDataModule.Instance.data.mapCompletedTaskRecordDic == null)
-            // {
-            //     PlayerDataModule.Instance.data.mapCompletedTaskRecordDic = new() { { 1, new List<int>() }, { 2, new List<int>() }, { 3, new List<int>() }, { 4, new List<int>() }, { 5, new List<int>() } };
-            // }
-            var list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_1;
-            if (PlayerDataModule.Instance.data.currentMapID == 2)
-            {
-                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_2;
-            }
-            else if (PlayerDataModule.Instance.data.currentMapID == 3)
-            {
-                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_3;
-            }
-            else if (PlayerDataModule.Instance.data.currentMapID == 4)
-            {
-                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_4;
-            }
-            else if (PlayerDataModule.Instance.data.currentMapID == 5)
-            {
-                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_5;
-            }
-            int count = list.Count;
-            mapNameTxt.text = _mapData.name;
-            if (_mapData.id == 1 || _mapData.id == 2)
-            {
-                rewardBtnImg.sprite = assetHandle.Get<Sprite>("玄银宝箱");
-            }
-            else if (_mapData.id == 3 || _mapData.id == 4)
-            {
-                rewardBtnImg.sprite = assetHandle.Get<Sprite>("天灵宝箱");
-            }
-            else
-            {
-                rewardBtnImg.sprite = assetHandle.Get<Sprite>("紫金宝箱");
-            }
-            int tempvalue1 = count / _mapData.taskGroupSize;
-            mapprogressTxt.text = tempvalue1 + "/" + _mapData.taskGroupNum;
-            sliderText.text = tempdata.taskPopCompleted + "/" + WorldData.taskboxNeedDic[tempdata.currentMapID];
-            float value = tempdata.taskPopCompleted * 1f / WorldData.taskboxNeedDic[tempdata.currentMapID];
-            sliderFill.fillAmount = value;
-            if (value >= 1f)
-            {
-                redPoint.SetActive(true);
-            }
-            else
-            {
-                redPoint.SetActive(false);
-            }
+            RefreshTaskPanel();
             content.DOAnchorPos(new Vector2(0, 0), 0.5f).SetEase(Ease.InBack);
-            UpdateTaskContent();
         }
 
         protected override void AddEventListener()
@@ -98,14 +45,19 @@ namespace View.Task
             closeBtn.onClick.AddListener(OnClickClose);
 
             EventCenter.Instance.AddListener(EventMessages.HasTaskComplete, HandleHasTaskComplete);
+            EventCenter.Instance.AddListener(EventMessages.UpdateTaskMainView, HandleUpdateTaskMainView);
+            EventCenter.Instance.AddListener(EventMessages.MapTaskDataPrepared, HandleUpdateTaskMainView);
 
             rewardBtn.onClick.RemoveAllListeners();
             rewardBtn.onClick.AddListener(OnClickRewardBtn);
         }
+
         public override void RemoveEventListener()
         {
             base.RemoveEventListener();
             EventCenter.Instance.RemoveListener(EventMessages.HasTaskComplete, HandleHasTaskComplete);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateTaskMainView, HandleUpdateTaskMainView);
+            EventCenter.Instance.RemoveListener(EventMessages.MapTaskDataPrepared, HandleUpdateTaskMainView);
         }
 
         void OnClickRewardBtn()
@@ -133,70 +85,30 @@ namespace View.Task
                     UIController.Instance.Show<RewardConfirmView>(dic, new Dictionary<CurrencyType, int> { { CurrencyType.JingYuanBao, DataController.Instance.giftpackDataDic[2].JinYuanBao } });
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                 }
-                PlayerDataModule.Instance.data.taskPopCompleted -= WorldData.taskboxNeedDic[PlayerDataModule.Instance.data.currentMapID];
 
-                sliderText.text = PlayerDataModule.Instance.data.taskPopCompleted + "/" + WorldData.taskboxNeedDic[PlayerDataModule.Instance.data.currentMapID];
-                float value = PlayerDataModule.Instance.data.taskPopCompleted * 1f / WorldData.taskboxNeedDic[PlayerDataModule.Instance.data.currentMapID];
-                sliderFill.fillAmount = value;
-                if (value >= 1f)
-                {
-                    redPoint.SetActive(true);
-                }
-                else
-                {
-                    redPoint.SetActive(false);
-                }
+                PlayerDataModule.Instance.data.taskPopCompleted -= WorldData.taskboxNeedDic[PlayerDataModule.Instance.data.currentMapID];
+                RefreshTaskPanel();
             }
         }
 
         public void HandleHasTaskComplete(params object[] args)
         {
-            _mapData = DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID];
-            var list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_1;
-            if (PlayerDataModule.Instance.data.currentMapID == 2)
-            {
-                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_2;
-            }
-            else if (PlayerDataModule.Instance.data.currentMapID == 3)
-            {
-                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_3;
-            }
-            else if (PlayerDataModule.Instance.data.currentMapID == 4)
-            {
-                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_4;
-            }
-            else if (PlayerDataModule.Instance.data.currentMapID == 5)
-            {
-                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_5;
-            }
-            int count = list.Count;
-            int tempvalue1 = count / _mapData.taskGroupSize;
-            mapprogressTxt.text = tempvalue1 + "/" + _mapData.taskGroupNum;
-            sliderText.text = PlayerDataModule.Instance.data.taskPopCompleted + "/" + WorldData.taskboxNeedDic[PlayerDataModule.Instance.data.currentMapID];
-            float value = PlayerDataModule.Instance.data.taskPopCompleted * 1f / WorldData.taskboxNeedDic[PlayerDataModule.Instance.data.currentMapID];
-            sliderFill.fillAmount = value;
-            if (value >= 1f)
-            {
-                redPoint.SetActive(true);
-            }
-            else
-            {
-                redPoint.SetActive(false);
-            }
+            var list = GetCurrentCompletedTaskList();
             int tempvalue = 0;
             bool isSet = false;
-            foreach (var _data in PlayerDataModule.Instance.data.listenInTaskList)
+            foreach (var taskData in PlayerDataModule.Instance.data.listenInTaskList)
             {
-                if (!list.Contains(_data.taskId))
+                if (!list.Contains(taskData.taskId))
                 {
                     tempvalue += 1;
-                    if(!isSet)
+                    if (!isSet)
                     {
-                        PlayerDataModule.Instance.data.nowTaskId = _data.taskId;
+                        PlayerDataModule.Instance.data.nowTaskId = taskData.taskId;
                         isSet = true;
                     }
                 }
             }
+
             if (tempvalue == 0)
             {
                 int id = 0;
@@ -204,6 +116,7 @@ namespace View.Task
                 {
                     id = Mathf.Max(id, PlayerDataModule.Instance.data.listenInTaskList[i].taskId);
                 }
+
                 if (PlayerDataModule.Instance.data.currentMapID == 1)
                 {
                     if (id < 30)
@@ -211,47 +124,54 @@ namespace View.Task
                         PlayerDataModule.Instance.data.nowTaskId = id + 1;
                         PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
                         PlayerDataModule.Instance.FillStructureLockProgressData();
-                        UpdateTaskContent();
                     }
-                }else if(PlayerDataModule.Instance.data.currentMapID == 2)
+                }
+                else if (PlayerDataModule.Instance.data.currentMapID == 2)
                 {
-                     if (id < 60)
+                    if (id < 60)
                     {
                         PlayerDataModule.Instance.data.nowTaskId = id + 1;
                         PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
                         PlayerDataModule.Instance.FillStructureLockProgressData();
-                        UpdateTaskContent();
                     }
-                }else if(PlayerDataModule.Instance.data.currentMapID == 3)
+                }
+                else if (PlayerDataModule.Instance.data.currentMapID == 3)
                 {
-                     if (id < 90)
+                    if (id < 90)
                     {
                         PlayerDataModule.Instance.data.nowTaskId = id + 1;
                         PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
                         PlayerDataModule.Instance.FillStructureLockProgressData();
-                        UpdateTaskContent();
                     }
-                }else if(PlayerDataModule.Instance.data.currentMapID == 4)
-                {
-                        if (id < 100)
-                        {
-                            PlayerDataModule.Instance.data.nowTaskId = id + 1;
-                            PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
-                            PlayerDataModule.Instance.FillStructureLockProgressData();
-                            UpdateTaskContent();
-                        }
                 }
-                else if(PlayerDataModule.Instance.data.currentMapID == 5)
+                else if (PlayerDataModule.Instance.data.currentMapID == 4)
                 {
-                        if (id < 110)
-                        {
-                            PlayerDataModule.Instance.data.nowTaskId = id + 1;
-                            PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
-                            PlayerDataModule.Instance.FillStructureLockProgressData();
-                            UpdateTaskContent();
-                        }
+                    if (id < 100)
+                    {
+                        PlayerDataModule.Instance.data.nowTaskId = id + 1;
+                        PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
+                        PlayerDataModule.Instance.FillStructureLockProgressData();
+                    }
                 }
+                else if (PlayerDataModule.Instance.data.currentMapID == 5)
+                {
+                    if (id < 110)
+                    {
+                        PlayerDataModule.Instance.data.nowTaskId = id + 1;
+                        PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
+                        PlayerDataModule.Instance.FillStructureLockProgressData();
+                    }
+                }
+
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
             }
+
+            RefreshTaskPanel();
+        }
+
+        public void HandleUpdateTaskMainView(params object[] args)
+        {
+            RefreshTaskPanel();
         }
 
         public void UpdateTaskContent()
@@ -261,23 +181,8 @@ namespace View.Task
             List<TaskData> dataList = tempdata.listenInTaskList;
             List<TaskData> list1 = new List<TaskData>();
             List<TaskData> list2 = new List<TaskData>();
-            var list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_1;
-            if (PlayerDataModule.Instance.data.currentMapID == 2)
-            {
-                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_2;
-            }
-            else if (PlayerDataModule.Instance.data.currentMapID == 3)
-            {
-                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_3;
-            }
-            else if (PlayerDataModule.Instance.data.currentMapID == 4)
-            {
-                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_4;
-            }
-            else if (PlayerDataModule.Instance.data.currentMapID == 5)
-            {
-                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_5;
-            }
+            var list = GetCurrentCompletedTaskList();
+
             foreach (TaskData data in dataList)
             {
                 if (list.Contains(data.taskId))
@@ -301,6 +206,7 @@ namespace View.Task
                 obj.GetComponent<TaskViewItem>().Init(list2[i]);
             }
         }
+
         void Update()
         {
         }
@@ -318,11 +224,69 @@ namespace View.Task
             yield return new WaitForSeconds(0.4f);
             Hide();
         }
+
         protected override void OnHideComplete()
         {
             base.OnHideComplete();
 
             EventCenter.Instance.TriggerEvent(EventMessages.ShowPlayerInfoViewCartoon);
+        }
+
+        private void RefreshTaskPanel()
+        {
+            PlayerData tempdata = PlayerDataModule.Instance.data;
+            if (tempdata == null)
+            {
+                return;
+            }
+
+            _mapData = DataController.Instance.mapDataDic[tempdata.currentMapID];
+            var list = GetCurrentCompletedTaskList();
+            int count = list.Count;
+            mapNameTxt.text = _mapData.name;
+            if (_mapData.id == 1 || _mapData.id == 2)
+            {
+                rewardBtnImg.sprite = assetHandle.Get<Sprite>("玄银宝箱");
+            }
+            else if (_mapData.id == 3 || _mapData.id == 4)
+            {
+                rewardBtnImg.sprite = assetHandle.Get<Sprite>("天灵宝箱");
+            }
+            else
+            {
+                rewardBtnImg.sprite = assetHandle.Get<Sprite>("紫金宝箱");
+            }
+
+            int tempvalue1 = count / _mapData.taskGroupSize;
+            mapprogressTxt.text = tempvalue1 + "/" + _mapData.taskGroupNum;
+            sliderText.text = tempdata.taskPopCompleted + "/" + WorldData.taskboxNeedDic[tempdata.currentMapID];
+            float value = tempdata.taskPopCompleted * 1f / WorldData.taskboxNeedDic[tempdata.currentMapID];
+            sliderFill.fillAmount = value;
+            redPoint.SetActive(value >= 1f);
+            UpdateTaskContent();
+        }
+
+        private List<int> GetCurrentCompletedTaskList()
+        {
+            var list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_1;
+            if (PlayerDataModule.Instance.data.currentMapID == 2)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_2;
+            }
+            else if (PlayerDataModule.Instance.data.currentMapID == 3)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_3;
+            }
+            else if (PlayerDataModule.Instance.data.currentMapID == 4)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_4;
+            }
+            else if (PlayerDataModule.Instance.data.currentMapID == 5)
+            {
+                list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_5;
+            }
+
+            return list;
         }
     }
 }

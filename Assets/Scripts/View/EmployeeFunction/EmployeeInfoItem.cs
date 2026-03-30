@@ -196,7 +196,7 @@ namespace View.EmployeeFunction
 
             if (!IsMonsterAreaUnlocked(monstertype))
             {
-                UIController.Instance.Show<global::View.TipView>("该区域未解锁，无法派遣");
+                UIController.Instance.Show<global::View.TipView>("该区域未解锁，无法派遣！");
                 return false;
             }
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using Module;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -148,12 +149,14 @@ namespace Utils
         private string realnameurl = "http://game.zikunhh.com/php/shiming.php?app_name=Yjsj";
         private string saveurl = "http://game.zikunhh.com/php/cunchu.php?app_name=Yjsj";
         private string blockedwordsurl = "http://game.zikunhh.com/php/blocked.php?action=check";
+        private bool _isUploadingPlayerData;
+        private bool _pendingPlayerDataUpload;
 
         public void RegisterCheck(string user, string password, Action<ResponseRegister> callback)
         {
             if (string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))
             {
-                UIController.Instance.Show<TipView>("账号或密码不能为空");
+                UIController.Instance.Show<TipView>("账号或密码不能为空！");
                 return;
             }
 
@@ -189,6 +192,7 @@ namespace Utils
                     Debug.LogError("注册请求失败：" + webRequest.error);
                 }
             }
+
         }
 
         public void LoginCheck(string user, string password, Action<ResponseLogin> callback)
@@ -242,18 +246,42 @@ namespace Utils
 
         public void SaveToServer()
         {
+            if (_isUploadingPlayerData)
+            {
+                _pendingPlayerDataUpload = true;
+                return;
+            }
+
             StartCoroutine(UploadPlayerDataCoroutine());
         }
 
         private IEnumerator UploadPlayerDataCoroutine()
         {
+            _isUploadingPlayerData = true;
             WWWForm form = new WWWForm();
             form.AddField("user", PlayerDataModule.Instance.data.userAccount);
             form.AddField("password", PlayerDataModule.Instance.data.userPassword);
-            form.AddField("user_more", JsonConvert.SerializeObject(PlayerDataModule.Instance.data));
+            var serializeTask = Task.Run(() => JsonConvert.SerializeObject(PlayerDataModule.Instance.data, Formatting.None));
+            while (!serializeTask.IsCompleted)
+            {
+                yield return null;
+            }
+
+            if (serializeTask.IsFaulted)
+            {
+                Debug.LogError("涓婁紶鏁版嵁搴忓垪鍖栧け璐?");
+                _isUploadingPlayerData = false;
+                if (_pendingPlayerDataUpload)
+                {
+                    _pendingPlayerDataUpload = false;
+                    SaveToServer();
+                }
+                yield break;
+            }
+
+            string playerDataJson = serializeTask.Result;
+            form.AddField("user_more", playerDataJson);
             form.AddField("user_rolename", PlayerDataModule.Instance.data.userName);
-            Debug.Log(
-                $"JsonConvert.SerializeObject( PlayerData) = {JsonConvert.SerializeObject(PlayerDataModule.Instance.data)}");
             using (UnityWebRequest webRequest = UnityWebRequest.Post(saveurl, form))
             {
                 webRequest.timeout = 30;
@@ -281,6 +309,13 @@ namespace Utils
                     Debug.LogError("上传数据失败：" + webRequest.error);
                 }
 
+            }
+
+            _isUploadingPlayerData = false;
+            if (_pendingPlayerDataUpload)
+            {
+                _pendingPlayerDataUpload = false;
+                SaveToServer();
             }
         }
 

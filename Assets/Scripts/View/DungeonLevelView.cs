@@ -71,7 +71,7 @@ public class DungeonLevelView : BaseView
     }
     void UpdateTimeInfo()
     {
-        infotxt_1.text = "今日剩余挑战次数:" + PlayerDataModule.Instance.data.playLingBaoCount + "。";
+        infotxt_1.text = "今日剩余挑战次数：" + PlayerDataModule.Instance.data.playLingBaoCount + "。";
 
         if (PlayerDataModule.Instance.data.canPlayXuanJing)
         {

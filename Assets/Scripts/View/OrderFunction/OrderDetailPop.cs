@@ -22,17 +22,15 @@ public class OrderDetailPop : MonoBehaviour
     public TextMeshProUGUI jingyuanbaoTxt;
     public Transform content;
     public OrderDataProgress _data;
-    AssetHandle assetHandle;
 
-    PlayerController playerController;
+    private AssetHandle assetHandle;
+    private PlayerController playerController;
 
     void Start()
     {
         closeBtn.onClick.RemoveAllListeners();
-        closeBtn.onClick.AddListener(() =>
-        {
-            gameObject.SetActive(false);
-        });
+        closeBtn.onClick.AddListener(() => { gameObject.SetActive(false); });
+
         refuseBtn.onClick.RemoveAllListeners();
         refuseBtn.onClick.AddListener(() =>
         {
@@ -40,97 +38,156 @@ public class OrderDetailPop : MonoBehaviour
             EventCenter.Instance.TriggerEvent(EventMessages.UpdateOrderItem);
             gameObject.SetActive(false);
         });
+
         acceptBtn.onClick.RemoveAllListeners();
-        acceptBtn.onClick.AddListener(() =>
+        acceptBtn.onClick.AddListener(HandleAcceptClicked);
+    }
+
+    private void HandleAcceptClicked()
+    {
+        bool submittedAnyItem = false;
+
+        submittedAnyItem |= SubmitGoodsRequirements();
+        submittedAnyItem |= SubmitDropRequirements();
+        RemoveCompletedRequirements();
+
+        if (submittedAnyItem)
         {
-            var list = _data.goodDic.Keys.ToList();
-            foreach (var item in list)
-            {
-                var progress = _data.goodDic[item];
-                if (playerController.goodsDic.ContainsKey(item) &&
-                 progress.target - progress.current > 0)
-                {
-                    if (playerController.goodsDic[item] < progress.target - progress.current)
-                    {
-                        progress.current += playerController.goodsDic[item];
-                        playerController.goodsDic[item] = 0;
-                    }
-                    else
-                    {
-                        int value = progress.target - progress.current;
-                        progress.current = progress.target;
-                        playerController.goodsDic[item] -= value;
-                    }
-                }
-            }
-            var list_1 = _data.dropDic.Keys.ToList();
-            foreach (var item1 in list_1)
-            {
-                var progress = _data.dropDic[item1];
-                if (playerController.dropDic.ContainsKey(item1) &&
-                 progress.target - progress.current > 0)
-                {
-                    if (playerController.dropDic[item1] < progress.target - progress.current)
-                    {
-                        progress.current += playerController.dropDic[item1];
-                        playerController.dropDic[item1] = 0;
-                    }
-                    else
-                    {
-                        int value = progress.target - progress.current;
-                        progress.current = progress.target;
-                        playerController.dropDic[item1] -= value;
-                    }
-                }
-            }
-            foreach (var item in _data.goodDic.Keys.ToList())
-            {
-                if (_data.goodDic[item].current == _data.goodDic[item].target)
-                {
-                    _data.goodDic.Remove(item);
-                }
-            }
-            foreach (var item in _data.dropDic.Keys.ToList())
-            {
-                if (_data.dropDic[item].current == _data.dropDic[item].target)
-                {
-                    _data.dropDic.Remove(item);
-                }
-            }
-            if (_data.goodDic.Count == 0 && _data.dropDic.Count == 0)
-            {
-                int id = _data.orderId;
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerInfo);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateOrderItem);
+        }
 
-                OrderData orderData = DataController.Instance.orderDataDic[id];
-                Dictionary<CurrencyType, int> dic = new Dictionary<CurrencyType, int>();
-                if (orderData.rewardCoin > 0)
-                {
-                    dic.Add(CurrencyType.TongBi, orderData.rewardCoin);
-                    PlayerDataModule.Instance.data.tongbi += orderData.rewardCoin;
-                    EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask, orderData.rewardCoin);
-                }
-                if (orderData.rewardGold > 0)
-                {
-                    dic.Add(CurrencyType.JingYuanBao, orderData.rewardGold);
-                    PlayerDataModule.Instance.data.goldIngot += orderData.rewardGold;
+        if (_data.goodDic.Count == 0 && _data.dropDic.Count == 0)
+        {
+            CompleteOrder();
+            return;
+        }
 
-                }
-                UIController.Instance.Show<RewardConfirmView>(dic);
+        if (submittedAnyItem)
+        {
+            Init(_data);
+            UIController.Instance.Show<TipView>("“—Ã·Ωª≤ø∑÷ŒÔ∆∑");
+            return;
+        }
 
-                PlayerDataModule.Instance.data.orderDataprogressList.Remove(_data);
-                EventCenter.Instance.TriggerEvent(EventMessages.UpdateOrderItem);
-                UIController.Instance.Show<TipView>("ËÆ¢ÂçïÂÆåÊàê");
-                gameObject.SetActive(false);
+        UIController.Instance.Show<TipView>("ªıŒÔ≤ª◊„°£");
+    }
 
-
-            }
-            else
+    private bool SubmitGoodsRequirements()
+    {
+        bool submitted = false;
+        var goodsTypes = _data.goodDic.Keys.ToList();
+        for (int i = 0; i < goodsTypes.Count; i++)
+        {
+            var goodsType = goodsTypes[i];
+            var progress = _data.goodDic[goodsType];
+            int needNum = progress.target - progress.current;
+            if (needNum <= 0)
             {
-                UIController.Instance.Show<TipView>("Ë¥ßÁâ©‰∏çË∂≥„ÄÇ");
+                continue;
             }
 
+            if (playerController.goodsDic == null ||
+                !playerController.goodsDic.TryGetValue(goodsType, out int ownNum) ||
+                ownNum <= 0)
+            {
+                continue;
+            }
 
-        });
+            int submitNum = Mathf.Min(ownNum, needNum);
+            if (submitNum <= 0)
+            {
+                continue;
+            }
+
+            progress.current += submitNum;
+            playerController.goodsDic[goodsType] = ownNum - submitNum;
+            submitted = true;
+        }
+
+        return submitted;
+    }
+
+    private bool SubmitDropRequirements()
+    {
+        bool submitted = false;
+        var dropTypes = _data.dropDic.Keys.ToList();
+        for (int i = 0; i < dropTypes.Count; i++)
+        {
+            var dropType = dropTypes[i];
+            var progress = _data.dropDic[dropType];
+            int needNum = progress.target - progress.current;
+            if (needNum <= 0)
+            {
+                continue;
+            }
+
+            if (playerController.dropDic == null ||
+                !playerController.dropDic.TryGetValue(dropType, out int ownNum) ||
+                ownNum <= 0)
+            {
+                continue;
+            }
+
+            int submitNum = Mathf.Min(ownNum, needNum);
+            if (submitNum <= 0)
+            {
+                continue;
+            }
+
+            progress.current += submitNum;
+            playerController.dropDic[dropType] = ownNum - submitNum;
+            submitted = true;
+        }
+
+        return submitted;
+    }
+
+    private void RemoveCompletedRequirements()
+    {
+        foreach (var item in _data.goodDic.Keys.ToList())
+        {
+            if (_data.goodDic[item].current >= _data.goodDic[item].target)
+            {
+                _data.goodDic.Remove(item);
+            }
+        }
+
+        foreach (var item in _data.dropDic.Keys.ToList())
+        {
+            if (_data.dropDic[item].current >= _data.dropDic[item].target)
+            {
+                _data.dropDic.Remove(item);
+            }
+        }
+    }
+
+    private void CompleteOrder()
+    {
+        int id = _data.orderId;
+        OrderData orderData = DataController.Instance.orderDataDic[id];
+        Dictionary<CurrencyType, int> rewards = new Dictionary<CurrencyType, int>();
+
+        if (orderData.rewardCoin > 0)
+        {
+            rewards.Add(CurrencyType.TongBi, orderData.rewardCoin);
+            PlayerDataModule.Instance.data.tongbi += orderData.rewardCoin;
+            EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask, orderData.rewardCoin);
+        }
+
+        if (orderData.rewardGold > 0)
+        {
+            rewards.Add(CurrencyType.JingYuanBao, orderData.rewardGold);
+            PlayerDataModule.Instance.data.goldIngot += orderData.rewardGold;
+        }
+
+        EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
+        UIController.Instance.Show<RewardConfirmView>(rewards);
+
+        PlayerDataModule.Instance.data.orderDataprogressList.Remove(_data);
+        EventCenter.Instance.TriggerEvent(EventMessages.UpdateOrderItem);
+        UIController.Instance.Show<TipView>("∂©µ•ÕÍ≥…£°");
+        gameObject.SetActive(false);
     }
 
     public void Init(OrderDataProgress data)
@@ -139,12 +196,14 @@ public class OrderDetailPop : MonoBehaviour
         {
             playerController = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
         }
+
         var orderData = DataController.Instance.orderDataDic[data.orderId];
         _data = data;
         if (assetHandle == null)
         {
             assetHandle = GetComponent<AssetHandle>();
         }
+
         tongbiTxt.text = orderData.rewardCoin.ToString();
         jingyuanbaoTxt.text = orderData.rewardGold.ToString();
         Extensions.ClearChildren(content);
@@ -153,19 +212,29 @@ public class OrderDetailPop : MonoBehaviour
         {
             GameObject obj = Instantiate(assetHandle.Get<GameObject>("OrderNeedItem"), content, false);
             var item = obj.GetComponent<OrderNeedItem>();
-            item.Init(goods.Key, goods.Value.current
-            + "/" + goods.Value.target);
+            int needNum = Mathf.Max(0, goods.Value.target - goods.Value.current);
+            int ownNum = 0;
+            if (playerController != null && playerController.goodsDic != null)
+            {
+                playerController.goodsDic.TryGetValue(goods.Key, out ownNum);
+            }
+            item.Init(goods.Key, ownNum, needNum);
         }
+
         foreach (var goods in data.dropDic)
         {
             GameObject obj = Instantiate(assetHandle.Get<GameObject>("OrderNeedItem"), content, false);
             var item = obj.GetComponent<OrderNeedItem>();
-            item.Init(goods.Key, goods.Value.current
-            + "/" + goods.Value.target);
+            int needNum = Mathf.Max(0, goods.Value.target - goods.Value.current);
+            int ownNum = 0;
+            if (playerController != null && playerController.dropDic != null)
+            {
+                playerController.dropDic.TryGetValue(goods.Key, out ownNum);
+            }
+            item.Init(goods.Key, ownNum, needNum);
         }
-        OrderData data_ = DataController.Instance.orderDataDic[data.orderId];   
-        peopleIcon.sprite = assetHandle.Get<Sprite>(data_.elderType.ToString());
 
+        OrderData displayData = DataController.Instance.orderDataDic[data.orderId];
+        peopleIcon.sprite = assetHandle.Get<Sprite>(displayData.elderType.ToString());
     }
-
 }

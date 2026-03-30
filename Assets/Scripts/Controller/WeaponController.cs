@@ -4,12 +4,14 @@ using Module;
 using Module.Data;
 using UnityEngine;
 using Utils;
+using World.Controller;
 
 namespace Controller
 {
     public class WeaponController : MonoBehaviour
     {
         public bool isPlayer;
+        public bool playMonsterHitSfx = true;
         public float hitInterval = 0.25f;
         private readonly Dictionary<int, float> nextHitTime = new();
         public WarehouseCategoryType warehouseCategoryType;
@@ -127,13 +129,25 @@ namespace Controller
             var monsterCtrl = monster.GetComponent<MonsterController>();
             if (monsterCtrl != null && monsterCtrl.currentHp > 0)
             {
-                monsterCtrl.TakeDamage(atkValue, transform, slowDownValue, isPlayer);
+                if (monsterCtrl.TakeDamage(atkValue, transform, slowDownValue, isPlayer))
+                {
+                    if (playMonsterHitSfx)
+                    {
+                        AudioSourceController.Instance?.PlayMonsterHitSfx(monsterCtrl.monsterType);
+                    }
+                }
             }
             var monsterCtr2 = monster.GetComponent<MonsterController2D>();
             if (monsterCtr2 != null && !monsterCtr2.isDead)
             {
                 Debug.Log($"[Weapon] 攻击命中怪物2D: atkvalue: {atkValue}");
-                monsterCtr2.TakeDamage(atkValue);
+                if (monsterCtr2.TakeDamage(atkValue))
+                {
+                    if (playMonsterHitSfx)
+                    {
+                        AudioSourceController.Instance?.PlayMonsterHitSfx(monsterCtr2.monsterType);
+                    }
+                }
             }
 
         }

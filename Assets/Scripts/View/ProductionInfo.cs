@@ -66,25 +66,34 @@ namespace View
 
         private IEnumerator PlayProgressBar(BuildingType type)
         {
-            float t = 0f;
-            float productionTime;
-
-            int timelevel = PlayerDataModule.Instance.data.ProductStationDataList.Find(x => x.buildingType == type).timelevel;
-            productionTime = WorldData.productStationWorkingTimeDic[timelevel];
-            if (PlayerDataModule.Instance.data.speedTime > 0)
-            {
-                productionTime = 0.2f;
-            }
+            float progress = 0f;
             fillImage.fillAmount = 0;
-            while (t < productionTime)
+            while (progress < 1f)
             {
-                t += Time.deltaTime;
-                float value = t / productionTime;
-                fillImage.fillAmount = 1f * value;
+                float currentProductionTime = GetCurrentProductionTime(type);
+                progress += Time.deltaTime / currentProductionTime;
+                fillImage.fillAmount = Mathf.Clamp01(progress);
                 yield return null;
             }
             fillImage.fillAmount = 1f;
             EventCenter.Instance.TriggerEvent(EventMessages.ProductionComplete, type);
+        }
+
+        private float GetCurrentProductionTime(BuildingType type)
+        {
+            var stationData = PlayerDataModule.Instance.GetProductStationData(type);
+            int timelevel = stationData != null ? stationData.timelevel : 1;
+            if (!WorldData.productStationWorkingTimeDic.TryGetValue(timelevel, out float productionTime))
+            {
+                productionTime = WorldData.productStationWorkingTimeDic[1];
+            }
+
+            if (PlayerDataModule.Instance.data.speedTime > 0f)
+            {
+                productionTime = 0.2f;
+            }
+
+            return Mathf.Max(0.01f, productionTime);
         }
     }
 }

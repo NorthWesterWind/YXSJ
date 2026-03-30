@@ -114,7 +114,7 @@ public class LingChuGePop : BaseView
             fillContent.SetActive(false);
 
             numgradeMask.SetActive(true);
-            numgradeMaskTxt.text = "需要5级";
+            numgradeMaskTxt.text = "5级解锁";
         }
         else
         {
@@ -135,7 +135,7 @@ public class LingChuGePop : BaseView
             if (cardProgress.level < 5)
             {
                 numgradeMask.SetActive(true);
-                numgradeMaskTxt.text = "需要5级";
+                numgradeMaskTxt.text = "5级解锁";
             }
             else
             {
@@ -249,7 +249,7 @@ public class LingChuGePop : BaseView
         var cardProgress = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == cardType);
         if (cardProgress == null || cardProgress.level < 5)
         {
-            UIController.Instance.Show<TipView>("需要5级。");
+            UIController.Instance.Show<TipView>("卡牌等级达到5级解锁。");
             return;
         }
         if (warehouse.peopleNum == 3)

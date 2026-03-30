@@ -23,10 +23,16 @@ namespace Controller.Structure
         public SpriteRenderer productIconbg;
 
         public List<CustomerController> customerList = new();
+        private bool productLayoutDirty;
 
         public override void Start()
         {
             base.Start();
+        }
+
+        private void LateUpdate()
+        {
+            ApplyProductLayoutIfDirty();
         }
         void OnEnable()
         {
@@ -151,6 +157,7 @@ namespace Controller.Structure
             p.canPickup = true;
             productList.Add(p);
             currentGoodsCount++;
+            MarkProductLayoutDirty();
             TryServeNextCustomer();
             if (PlayerDataModule.Instance.data.guideStep == GuideStep.SellTea)
             {
@@ -161,19 +168,21 @@ namespace Controller.Structure
 
         private void TryServeNextCustomer()
         {
-            // 没顾客
+            // û�˿�
             customerList.RemoveAll(c => c == null ||
             (c.state != NpcState.WaitGouMaiWanCheng && !c.severing));
             if (customerList.Count == 0)
                 return;
 
-            // 没商品
+            // û��Ʒ
             if (productList.Count == 0)
                 return;
 
+            EnsureProductLayoutUpToDate();
+
             CustomerController customer = customerList[0];
 
-            // 跳过正在服务中的顾客，避免重复调用TryPurchase导致purchaseList被清空
+            // �������ڷ����еĹ˿ͣ������ظ�����TryPurchase����purchaseList�����
             if (customer.severing)
                 return;
 
@@ -184,14 +193,14 @@ namespace Controller.Structure
             {
 
                 customerList.RemoveAt(0);
-                // 继续服务下一个
+                // ����������һ��
                 TryServeNextCustomer();
             }
         }
 
 
         /// <summary>
-        /// 尝试购买指定数量商品，成功返回实际商品列表，失败返回空列表
+        /// ���Թ���ָ��������Ʒ���ɹ�����ʵ����Ʒ�б���ʧ�ܷ��ؿ��б�
         /// </summary>
         public bool TryPurchase(CustomerController customer, int count, List<Production> outList)
         {
@@ -201,6 +210,7 @@ namespace Controller.Structure
             {
                 return false;
             }
+            EnsureProductLayoutUpToDate();
             customer.severing = true;
             outList.Clear();
             int resolvedCount = 0;
@@ -211,7 +221,7 @@ namespace Controller.Structure
                 productList.RemoveAt(lastIndex);
                 p.canPickup = false;
                 p.isTaken = true;
-                p.FlyTo_1(customer.receiveTransform.position, 0.05f, () =>
+                p.FlyTo_1(customer.receiveTransform.position, 0.15f, customer.transform, () =>
                 {
                     if (p == null)
                     {
@@ -244,6 +254,7 @@ namespace Controller.Structure
                 grid.ReleaseOne();
                 currentGoodsCount--;
             }
+            MarkProductLayoutDirty();
             return true;
         }
         public void PlaceProduct(Production p)
@@ -273,6 +284,78 @@ namespace Controller.Structure
                 PlaceProduct(list[i]);
             }
             controller.productList.Clear();
+        }
+
+        public void RefreshProductLayout()
+        {
+            productLayoutDirty = true;
+            ApplyProductLayout();
+        }
+
+        private void MarkProductLayoutDirty()
+        {
+            productLayoutDirty = true;
+        }
+
+        private void EnsureProductLayoutUpToDate()
+        {
+            ApplyProductLayoutIfDirty();
+        }
+
+        private void ApplyProductLayoutIfDirty()
+        {
+            if (!productLayoutDirty)
+            {
+                return;
+            }
+
+            ApplyProductLayout();
+        }
+
+        private void ApplyProductLayout()
+        {
+            productLayoutDirty = false;
+            if (baseTransform != null)
+            {
+                grid.basePosition = baseTransform.position;
+            }
+            else
+            {
+                grid.basePosition = transform.position;
+            }
+
+            productList.RemoveAll(p => p == null);
+            productList.Sort((a, b) =>
+            {
+                if (a == null && b == null) return 0;
+                if (a == null) return -1;
+                if (b == null) return 1;
+                int yCompare = a.transform.position.y.CompareTo(b.transform.position.y);
+                if (yCompare != 0) return yCompare;
+                return a.transform.position.x.CompareTo(b.transform.position.x);
+            });
+
+            int baseOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
+            if (sprite != null && sprite.sortingOrder > 0)
+            {
+                baseOrder = sprite.sortingOrder;
+            }
+
+            for (int i = 0; i < productList.Count; i++)
+            {
+                var product = productList[i];
+                if (product == null) continue;
+
+                Vector2 pos = grid.GetPositionByIndex(i);
+                product.transform.position = new Vector3(pos.x, pos.y, product.transform.position.z);
+                if (product.spriteRenderer != null)
+                {
+                    product.spriteRenderer.sortingOrder = grid.GetSortingOrderByIndex(baseOrder, 2, i);
+                }
+            }
+
+            currentGoodsCount = productList.Count;
+            grid.currentIndex = productList.Count;
         }
     }
 }

@@ -766,7 +766,10 @@ MonoBehaviour:
     - Name: lingJing
       Entry: 3
       Data: 500000
-    - Name: jingMangZhu
+    - Name: star
+      Entry: 3
+      Data: 0
+    - Name: talentPoint
       Entry: 3
       Data: 0
     - Name: currentMapID
@@ -1408,6 +1411,15 @@ MonoBehaviour:
     - Name: runtimeProductionDataList
       Entry: 6
       Data: 
+    - Name: runtimeProductionStationDataList
+      Entry: 6
+      Data: 
+    - Name: runtimePlayerDropList
+      Entry: 6
+      Data: 
+    - Name: runtimePlayerGoodsList
+      Entry: 6
+      Data: 
     - Name: orderDataprogressList
       Entry: 7
       Data: 31|System.Collections.Generic.List`1[[Module.Data.OrderDataProgress,
@@ -1486,6 +1498,54 @@ MonoBehaviour:
   buttonSource: {fileID: 0}
   inGameAudioClip: {fileID: 8300000, guid: 635dcde6260fd6940a65f45d7d1be0c4, type: 3}
   buttonClip: {fileID: 0}
+  monsterHitClips:
+  - {fileID: 8300000, guid: d922853f1e507e1438e8d8253a86d102, type: 3}
+  monsterHitSfxConfigs:
+  - monsterType: 31
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 32
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 33
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 34
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 35
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 36
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 37
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 38
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 39
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 40
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 41
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 42
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 45
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 43
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
+  - monsterType: 44
+    clips:
+    - {fileID: 8300000, guid: b0154f2c5e90e804fa9e40fd5f4b1c85, type: 3}
   soundVolume: 1
   musicVolume: 1
   sfxSourcePrefab: {fileID: 0}

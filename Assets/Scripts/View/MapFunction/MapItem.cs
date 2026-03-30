@@ -11,6 +11,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Utils;
+using World.Controller;
 
 namespace View.MapFunction
 {
@@ -45,6 +46,8 @@ namespace View.MapFunction
 
                     if (PlayerDataModule.Instance.data.tongbi >= mapData.unlockCost)
                     {
+                        PlayerDataModule.Instance.CaptureCurrentRuntimeState();
+                        PlayerDataModule.Instance.ClearRuntimeStateForMapSwitch();
                         PlayerDataModule.Instance.data.tongbi -= mapData.unlockCost;
                         PlayerDataModule.Instance.data.realUnlockMapList.Add(mapData.id);
                         PlayerDataModule.Instance.data.currentMapID = mapData.id;
@@ -177,26 +180,34 @@ namespace View.MapFunction
             if (scene.name == $"Game_{PlayerDataModule.Instance.data.currentMapID}")
             {
                 PlayerData playerData = PlayerDataModule.Instance.data;
-                playerData.taskProgressDic = new Dictionary<int, int>() { { 10000, 10000 } };
+                playerData.taskProgressDic = new Dictionary<int, int>() { { 1000000, 1000000 } };
                 playerData.listenInTaskList.Clear();
-                playerData.cashierData = null;
-                playerData.deliverData = null;
-                playerData.warehouselist.Clear();
-                playerData.ProductStationDataList.Clear();
                 playerData.orderDataprogressList.Clear();
-                playerData.mapLockDataProgressList.Clear();
-                playerData.structureLockProgressDataList.Clear();
-
-
-                playerData.remainCount = 30;
-                playerData.lastRefrashTime = "";
                 playerData.nowTaskId = 0;
-                PlayerDataModule.Instance.data.taskPopCompleted = 0;
-                playerData.listenInTaskList = DataController.Instance.GetTaskGroupIds();
+                playerData.taskPopCompleted = 0;
                 PlayerDataModule.Instance.FiilOrderData();
-                PlayerDataModule.Instance.FillStructureLockProgressData();
+
+                if (GameController.Instance != null)
+                {
+                    GameController.Instance.currentMapID = playerData.currentMapID;
+                }
+
+                if (playerData.currentMapID == 1 && playerData.guideStep != GuideStep.Over)
+                {
+                    UIController.Instance.Show<PlayerGuide>();
+                }
+
+                EventCenter.Instance.TriggerEvent(EventMessages.DataPrepared);
+                EventCenter.Instance.TriggerEvent(EventMessages.MapDataPrepared);
+                EventCenter.Instance.TriggerEvent(EventMessages.MapTaskDataPrepared);
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
+                EventCenter.Instance.TriggerEvent(EventMessages.CustomerBeginCreate);
+                EventCenter.Instance.TriggerEvent(EventMessages.MonsterBeginCreate);
+                DataController.Instance.InitMapLock();
                 DataController.Instance.UpdateStructureLockInfo();
                 EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
+                AudioSourceController.Instance.PlaySound();
             }
 
             SceneManager.sceneLoaded -= OnSceneLoaded;

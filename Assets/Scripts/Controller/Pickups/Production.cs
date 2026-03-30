@@ -18,44 +18,48 @@ namespace Controller.Pickups
         HeldByAssistant,
         HeldByCustomer
     }
-    public class Production : BasePickup,IPickable
+
+    public class Production : BasePickup, IPickable
     {
-       public SpriteRenderer spriteRenderer;
-       public float duration = 0.6f; // 飞行时间
-       public float arcHeight = 1f;  // 抛物高度
-       public float tiltAngle = 25f; // 飞行倾斜角
+        public SpriteRenderer spriteRenderer;
+        public float duration = 0.6f; // Fly duration
+        public float arcHeight = 1f;  // Arc height
+        public float tiltAngle = 25f; // Tilt while flying
 
-       private Vector3 startPos;
-       private Vector3 endPos;
-       private Coroutine activeFlyCoroutine;
-        
-       public bool CanPlayerPick => state == ItemState.OnWorkbench;
-       public bool CanAssistantPick => state == ItemState.OnWorkbench;
-       public bool CanCustomerPick => state == ItemState.OnShelf;
-       
-       public ItemState state;
-       public GoodsType  goodsType;
-       public StructureBase station;
-       public AssetHandle assetHandle;
-       public int value ;
-       public void SetState(ItemState newState)
-       {
-           state = newState;
-       }
+        private Vector3 startPos;
+        private Vector3 endPos;
+        private Coroutine activeFlyCoroutine;
 
-       public void SetStation(StructureBase _station)
-       {
-           station = _station;
-       }
-       public void Init(GoodsType type , int _value = 0)
-       {
-           goodsType = type;
-           value = _value;
-           canPickup = false;
-           ScenePickupController.Instance.products.Add(this);
-           itemName = "Production";
-           spriteRenderer.sprite = assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(type));
-       }
+        public bool CanPlayerPick => state == ItemState.OnWorkbench;
+        public bool CanAssistantPick => state == ItemState.OnWorkbench;
+        public bool CanCustomerPick => state == ItemState.OnShelf;
+
+        public ItemState state;
+        public GoodsType goodsType;
+        public StructureBase station;
+        public AssetHandle assetHandle;
+        public int value;
+
+        public void SetState(ItemState newState)
+        {
+            state = newState;
+        }
+
+        public void SetStation(StructureBase _station)
+        {
+            station = _station;
+        }
+
+        public void Init(GoodsType type, int _value = 0)
+        {
+            goodsType = type;
+            value = _value;
+            canPickup = false;
+            ScenePickupController.Instance.products.Add(this);
+            itemName = "Production";
+            spriteRenderer.sprite = assetHandle.Get<Sprite>(Extensions.GetGoodsResNameByType(type));
+        }
+
         void OnDestroy()
         {
             Controller.FreightClerkController.UnmarkProductReservedByFreight(this);
@@ -63,103 +67,131 @@ namespace Controller.Pickups
             {
                 productionStation.UnregisterProduct(this);
             }
+
             if (station is CashierCounter cashierCounter)
             {
                 cashierCounter.UnregisterCoin(this);
             }
+
             if (ScenePickupController.Instance.products.Contains(this))
             {
                 ScenePickupController.Instance.products.Remove(this);
             }
         }
-        public void FlyTo(Vector3 target , Action callback = null)
-       {
-           StartFly(FlyRoutine(target , callback));
-       }
 
-       IEnumerator FlyRoutine(Vector3 target , Action callback = null)
-       {
-           SetState(ItemState.Flying);
+        public void FlyTo(Vector3 target, Action callback = null)
+        {
+            StartFly(FlyRoutine(target, null, callback));
+        }
 
-           Vector3 start = transform.position;
-           float t = 0;
-           float duration = 0.5f;
+        public void FlyTo(Vector3 target, Transform sortingTarget, Action callback = null)
+        {
+            StartFly(FlyRoutine(target, sortingTarget, callback));
+        }
 
-           while (t < 1f)
-           {
-               t += Time.deltaTime / duration;
-               Vector3 pos = Vector3.Lerp(start, target, t);
+        IEnumerator FlyRoutine(Vector3 target, Transform sortingTarget, Action callback = null)
+        {
+            SetState(ItemState.Flying);
 
-               // 抛物线高度
-               float h = Mathf.Sin(t * Mathf.PI) * 0.5f;
-               pos.y += h;
+            Vector3 start = transform.position;
+            float t = 0f;
+            float flyTime = 0.5f;
+            int originalSortingOrder = spriteRenderer != null ? spriteRenderer.sortingOrder : 0;
 
-               // 倾斜（飞行中）
-               transform.rotation = Quaternion.Euler(0, 0, Mathf.Lerp(0, 25, t));
+            while (t < 1f)
+            {
+                t += Time.deltaTime / flyTime;
+                Vector3 pos = Vector3.Lerp(start, target, t);
 
-               transform.position = pos;
-               yield return null;
-           }
+                // Arc height
+                float h = Mathf.Sin(t * Mathf.PI) * 0.5f;
+                pos.y += h;
 
-           // 落地直立
-           transform.rotation = Quaternion.identity;
-           callback?.Invoke();
-       }
+                // Tilt while flying
+                transform.rotation = Quaternion.Euler(0, 0, Mathf.Lerp(0, 25, t));
 
-         public void FlyTo_1(Vector3 target ,float time, Action callback = null)
-       {
-           StartFly(FlyRoutine_1(target , time, callback));
-       }
+                if (sortingTarget != null)
+                {
+                    ApplyFlyingSortingOrder(spriteRenderer, sortingTarget, target.y, originalSortingOrder);
+                }
+                transform.position = pos;
+                yield return null;
+            }
 
-       private void StartFly(IEnumerator routine)
-       {
-           if (activeFlyCoroutine != null)
-           {
-               StopCoroutine(activeFlyCoroutine);
-           }
+            if (sortingTarget != null)
+            {
+                RestoreSortingOrder(spriteRenderer, originalSortingOrder);
+            }
+            transform.rotation = Quaternion.identity;
+            callback?.Invoke();
+        }
 
-           activeFlyCoroutine = StartCoroutine(RunFlyRoutine(routine));
-       }
+        public void FlyTo_1(Vector3 target, float time, Action callback = null)
+        {
+            StartFly(FlyRoutine_1(target, time, null, callback));
+        }
 
-       private IEnumerator RunFlyRoutine(IEnumerator routine)
-       {
-           yield return StartCoroutine(routine);
-           activeFlyCoroutine = null;
-       }
+        public void FlyTo_1(Vector3 target, float time, Transform sortingTarget, Action callback = null)
+        {
+            StartFly(FlyRoutine_1(target, time, sortingTarget, callback));
+        }
 
-       IEnumerator FlyRoutine_1(Vector3 target,float time = 0.1f , Action callback = null)
-       {
-           SetState(ItemState.Flying);
+        private void StartFly(IEnumerator routine)
+        {
+            if (activeFlyCoroutine != null)
+            {
+                StopCoroutine(activeFlyCoroutine);
+            }
 
-           Vector3 start = transform.position;
-           float t = 0;
-           float duration = time;
+            activeFlyCoroutine = StartCoroutine(RunFlyRoutine(routine));
+        }
 
-           while (t < 1f)
-           {
-               t += Time.deltaTime / duration;
-               Vector3 pos = Vector3.Lerp(start, target, t);
+        private IEnumerator RunFlyRoutine(IEnumerator routine)
+        {
+            yield return StartCoroutine(routine);
+            activeFlyCoroutine = null;
+        }
 
-               // 抛物线高度
-               float h = Mathf.Sin(t * Mathf.PI) * 0.5f;
-               pos.y += h;
+        IEnumerator FlyRoutine_1(Vector3 target, float time = 0.1f, Transform sortingTarget = null, Action callback = null)
+        {
+            SetState(ItemState.Flying);
 
-               // 倾斜（飞行中）
-               transform.rotation = Quaternion.Euler(0, 0, Mathf.Lerp(0, 25, t));
+            Vector3 start = transform.position;
+            float t = 0f;
+            float flyTime = time;
+            int originalSortingOrder = spriteRenderer != null ? spriteRenderer.sortingOrder : 0;
 
-               transform.position = pos;
-               yield return null;
-           }
+            while (t < 1f)
+            {
+                t += Time.deltaTime / flyTime;
+                Vector3 pos = Vector3.Lerp(start, target, t);
 
-           // 落地直立
-           transform.rotation = Quaternion.identity;
-           callback?.Invoke();
-       }
+                // Arc height
+                float h = Mathf.Sin(t * Mathf.PI) * 0.5f;
+                pos.y += h;
 
-       public void OnPicked(GameObject picker)
-       {
-           
-           picker.GetComponent<PlayerController>().AddGoods(goodsType , value);
-       }
+                // Tilt while flying
+                transform.rotation = Quaternion.Euler(0, 0, Mathf.Lerp(0, 25, t));
+
+                if (sortingTarget != null)
+                {
+                    ApplyFlyingSortingOrder(spriteRenderer, sortingTarget, target.y, originalSortingOrder);
+                }
+                transform.position = pos;
+                yield return null;
+            }
+
+            if (sortingTarget != null)
+            {
+                RestoreSortingOrder(spriteRenderer, originalSortingOrder);
+            }
+            transform.rotation = Quaternion.identity;
+            callback?.Invoke();
+        }
+
+        public void OnPicked(GameObject picker)
+        {
+            picker.GetComponent<PlayerController>().AddGoods(goodsType, value);
+        }
     }
 }

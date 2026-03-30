@@ -1,4 +1,4 @@
-ï»¿using System.Collections.Generic;
+using System.Collections.Generic;
 using Controller.Pickups;
 using Module;
 using Module.Data;
@@ -11,18 +11,18 @@ namespace Controller.Structure
 {
     public class ProductionStation : StructureBase
     {
-        // [Header("è¿›åº¦æ¡ä½ç½®")]
+        // [Header("½ø¶ÈÌõÎ»ÖÃ")]
         // public Transform infoPosition;
-        [Header("å•†å“æ‘†æ”¾ä½ç½®")]
+        [Header("ÉÌÆ·°Ú·ÅÎ»ÖÃ")]
         public Transform productPosition;
 
         public Transform recivePosition;
         public Transform transferPoint;
 
 
-        public int currentMaterialCount;  //å½“å‰ææ–™æ•°é‡
-        public float baseProductionTime; // åŸºç¡€ç”Ÿäº§æ—¶é—´
-        [Header("è¿›åº¦æ¡ä¿¡æ¯ç±»")]
+        public int currentMaterialCount;  //µ±Ç°²ÄÁÏÊıÁ¿
+        public float baseProductionTime; // »ù´¡Éú²úÊ±¼ä
+        [Header("½ø¶ÈÌõĞÅÏ¢Àà")]
         public ProductionInfo productionInfo;
         public DropItemType dropItemType;
         public GoodsType goodsType;
@@ -37,6 +37,7 @@ namespace Controller.Structure
         public SpriteRenderer turnIcon;
         public Transform infoTransform;
         public SkeletonAnimation icon;
+        private bool productLayoutDirty;
 
 
 
@@ -54,6 +55,11 @@ namespace Controller.Structure
         public override void Start()
         {
             base.Start();
+        }
+
+        private void LateUpdate()
+        {
+            ApplyProductLayoutIfDirty();
         }
 
         public StructureLockData lockData;
@@ -121,13 +127,7 @@ namespace Controller.Structure
             structureLock.gameObject.SetActive(false);
             if (_assetHandle == null)
                 _assetHandle = GetComponent<AssetHandle>();
-            var stationData = PlayerDataModule.Instance.data.ProductStationDataList
-                .Find(x => x.buildingType == buildingType);
-            if (stationData == null)
-            {
-                stationData = new ProductStationData(buildingType, goodsType);
-                PlayerDataModule.Instance.data.ProductStationDataList.Add(stationData);
-            }
+            var stationData = PlayerDataModule.Instance.GetOrCreateProductStationData(buildingType, goodsType);
             if (!WorldData.productStationWorkingTimeDic.TryGetValue(stationData.timelevel, out baseProductionTime))
             {
                 baseProductionTime = WorldData.productStationWorkingTimeDic[1];
@@ -142,7 +142,7 @@ namespace Controller.Structure
                     productionInfo.StartProductionLoop(this, structureType);
                     if (icon != null && icon.AnimationState != null)
                     {
-                        // ç»“æ„åˆ·æ–°åä¹Ÿè¦æŠŠæ¢å¤å‡ºæ¥çš„ç”Ÿäº§æµç¨‹é‡æ–°æ‹‰èµ·ã€‚
+                        // ½á¹¹Ë¢ĞÂºóÒ²Òª°Ñ»Ö¸´³öÀ´µÄÉú²úÁ÷³ÌÖØĞÂÀ­Æğ¡£
                         icon.AnimationState.SetAnimation(0, "animation", true);
                     }
                 }
@@ -181,6 +181,8 @@ namespace Controller.Structure
             {
                 unlocked.Add(buildingType);
             }
+
+            MarkProductLayoutDirty();
         }
 
 
@@ -211,7 +213,7 @@ namespace Controller.Structure
         {
             currentMaterialCount += count;
             productionInfo.UpdateText();
-            // å¼ºåˆ¶æ¿€æ´»UI
+            // Ç¿ÖÆ¼¤»îUI
             if (!productionInfo.gameObject.activeSelf)
                 productionInfo.gameObject.SetActive(true);
             productionInfo.StartProductionLoop(this, structureType);
@@ -226,7 +228,7 @@ namespace Controller.Structure
         public void OnProductionFinished()
         {
             currentMaterialCount = 0;
-            productionInfo.gameObject.SetActive(false); // åœ¨è¿™é‡Œå…³é—­UI
+            productionInfo.gameObject.SetActive(false); // ÔÚÕâÀï¹Ø±ÕUI
             icon.AnimationState.ClearTracks();
         }
         private void HandleProductionComplete(params object[] args)
@@ -247,12 +249,11 @@ namespace Controller.Structure
             {
                 product.spriteRenderer.sortingOrder = grid.GetLastSortingOrder(sprite.sortingOrder, 3);
             }
-            RegisterProduct(product);
             product.FlyTo(targetPos, (() =>
             {
                 product.canPickup = true;
                 product.SetState(ItemState.OnWorkbench);
-                SortProductsByHeight();
+                RegisterProduct(product);
             }));
 
             if (currentMaterialCount == 0)
@@ -275,10 +276,10 @@ namespace Controller.Structure
         {
             List<Production> list = new List<Production>();
 
-            // é˜²æ­¢ç©å®¶å·²ç»æ‹¿èµ°æ‰€æœ‰äº§å“å¯¼è‡´çš„ç©ºåˆ—è¡¨
+            // ·ÀÖ¹Íæ¼ÒÒÑ¾­ÄÃ×ßËùÓĞ²úÆ·µ¼ÖÂµÄ¿ÕÁĞ±í
             if (productionList.Count == 0)
             {
-                return list; // è¿”å›ç©ºåˆ—è¡¨
+                return list; // ·µ»Ø¿ÕÁĞ±í
             }
 
             int num = Mathf.Min(freightClerk.currentCapacity, freightClerk.points.Count);
@@ -289,7 +290,7 @@ namespace Controller.Structure
 
             SortProductsByHeight();
 
-            // åªæŒ‘é€‰â€œæœªè¢«å ç”¨â€ä¸”â€œå¯è¢«æ¬è¿â€çš„å•†å“ï¼Œé¿å…ä¸ç©å®¶åŒå¸§æŠ¢å¤º
+            // Ö»ÌôÑ¡¡°Î´±»Õ¼ÓÃ¡±ÇÒ¡°¿É±»°áÔË¡±µÄÉÌÆ·£¬±ÜÃâÓëÍæ¼ÒÍ¬Ö¡ÇÀ¶á
             for (int i = productionList.Count - 1; i >= 0 && list.Count < num; i--)
             {
                 var production = productionList[i];
@@ -298,7 +299,7 @@ namespace Controller.Structure
                 if (!production.canPickup) continue;
                 if (production.state != ItemState.OnWorkbench) continue;
 
-                // é¢„å ï¼šä¸€æ—¦ç”Ÿæ•ˆï¼Œç©å®¶æ— æ³•å†æŠ¢åˆ°è¯¥å•†å“
+                // Ô¤Õ¼£ºÒ»µ©ÉúĞ§£¬Íæ¼ÒÎŞ·¨ÔÙÇÀµ½¸ÃÉÌÆ·
                 production.isTaken = true;
                 production.canPickup = false;
                 production.SetState(ItemState.HeldByAssistant);
@@ -307,18 +308,19 @@ namespace Controller.Structure
                 productionList.RemoveAt(i);
             }
 
-            // ä»ç”Ÿäº§å°åˆ—è¡¨ç§»é™¤å·²é¢„å çš„å•†å“
+            MarkProductLayoutDirty();
+
+            // ´ÓÉú²úÌ¨ÁĞ±íÒÆ³ıÒÑÔ¤Õ¼µÄÉÌÆ·
             for (int i = 0; i < list.Count; i++)
             {
                 var production = list[i];
-                grid.ReleaseOne();
                 var carryPoint = freightClerk.points[i];
                 var carryTarget = carryPoint != null ? carryPoint.position : freightClerk.transform.position;
-                production.FlyTo(carryTarget, () =>
+                production.FlyTo(carryTarget, freightClerk.transform, () =>
                 {
                     if (production != null)
                     {
-                        // åˆ°è¾¾æ¬è¿å·¥æŒ‚ç‚¹åé‡Šæ”¾å ç”¨æ ‡è®°ï¼Œä½†ä¿æŒä¸å¯è¢«ç©å®¶æ‹¾å–
+                        // µ½´ï°áÔË¹¤¹ÒµãºóÊÍ·ÅÕ¼ÓÃ±ê¼Ç£¬µ«±£³Ö²»¿É±»Íæ¼ÒÊ°È¡
                         if (carryPoint != null)
                         {
                             production.transform.SetParent(carryPoint, true);
@@ -346,29 +348,96 @@ namespace Controller.Structure
             {
                 productionList.Add(product);
             }
+
+            MarkProductLayoutDirty();
         }
 
         public void UnregisterProduct(Production product)
         {
             if (product == null) return;
             productionList.Remove(product);
+            MarkProductLayoutDirty();
         }
 
         public void SortProductsByHeight()
         {
+            EnsureProductLayoutUpToDate();
+        }
+
+        public void RefreshProductLayout()
+        {
+            productLayoutDirty = true;
+            ApplyProductLayout();
+        }
+
+        private void MarkProductLayoutDirty()
+        {
+            productLayoutDirty = true;
+        }
+
+        private void EnsureProductLayoutUpToDate()
+        {
+            ApplyProductLayoutIfDirty();
+        }
+
+        private void ApplyProductLayoutIfDirty()
+        {
+            if (!productLayoutDirty)
+            {
+                return;
+            }
+
+            ApplyProductLayout();
+        }
+
+        private void ApplyProductLayout()
+        {
+            productLayoutDirty = false;
+            if (productPosition != null)
+            {
+                grid.basePosition = productPosition.position;
+            }
+            else
+            {
+                grid.basePosition = transform.position;
+            }
+
             productionList.RemoveAll(p => p == null);
             productionList.Sort((a, b) =>
             {
                 if (a == null && b == null) return 0;
                 if (a == null) return -1;
                 if (b == null) return 1;
-                return a.transform.position.y.CompareTo(b.transform.position.y);
+                int yCompare = a.transform.position.y.CompareTo(b.transform.position.y);
+                if (yCompare != 0) return yCompare;
+                return a.transform.position.x.CompareTo(b.transform.position.x);
             });
+
+            int baseOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
+            if (sprite != null && sprite.sortingOrder > 0)
+            {
+                baseOrder = sprite.sortingOrder;
+            }
+
+            for (int i = 0; i < productionList.Count; i++)
+            {
+                var product = productionList[i];
+                if (product == null) continue;
+
+                Vector2 pos = grid.GetPositionByIndex(i);
+                product.transform.position = new Vector3(pos.x, pos.y, product.transform.position.z);
+                if (product.spriteRenderer != null)
+                {
+                    product.spriteRenderer.sortingOrder = grid.GetSortingOrderByIndex(baseOrder, 3, i);
+                }
+            }
+
+            grid.currentIndex = productionList.Count;
         }
 
         private Production GetTopPickableProduct()
         {
-            SortProductsByHeight();
+            EnsureProductLayoutUpToDate();
             for (int i = productionList.Count - 1; i >= 0; i--)
             {
                 var production = productionList[i];
@@ -394,8 +463,8 @@ namespace Controller.Structure
             production.StartAttract(picker, receivePoint, onCancel);
             if (!wasTaken && production.isTaken)
             {
-                grid.ReleaseOne();
                 productionList.Remove(production);
+                MarkProductLayoutDirty();
                 return true;
             }
 
@@ -409,30 +478,30 @@ namespace Controller.Structure
     [System.Serializable]
     public class PlacementGrid
     {
-        [Header("ç½‘æ ¼é…ç½®")]
-        [Tooltip("æ¯è¡Œçš„åˆ—æ•°")]
+        [Header("Íø¸ñÅäÖÃ")]
+        [Tooltip("Ã¿ĞĞµÄÁĞÊı")]
         public int columns = 3;
 
-        [Tooltip("æ¯å±‚çš„è¡Œæ•°")]
+        [Tooltip("Ã¿²ãµÄĞĞÊı")]
         public int rows = 3;
 
-        [Header("é—´è·é…ç½®")]
-        [Tooltip("åˆ—ä¹‹é—´çš„æ°´å¹³é—´è·")]
+        [Header("¼ä¾àÅäÖÃ")]
+        [Tooltip("ÁĞÖ®¼äµÄË®Æ½¼ä¾à")]
         public float xSpacing = 0.3f;
 
-        [Tooltip("è¡Œä¹‹é—´çš„å‚ç›´é—´è·ï¼ˆç”¨äºæ¨¡æ‹Ÿæ·±åº¦ï¼‰")]
+        [Tooltip("ĞĞÖ®¼äµÄ´¹Ö±¼ä¾à£¨ÓÃÓÚÄ£ÄâÉî¶È£©")]
         public float rowSpacing = 0.15f;
 
-        [Tooltip("å±‚ä¹‹é—´çš„å‚ç›´é—´è·ï¼ˆå †å é«˜åº¦ï¼‰")]
+        [Tooltip("²ãÖ®¼äµÄ´¹Ö±¼ä¾à£¨¶Ñµş¸ß¶È£©")]
         public float layerSpacing = 0.4f;
 
-        [Header("è¿è¡Œæ—¶æ•°æ®")]
+        [Header("ÔËĞĞÊ±Êı¾İ")]
         public Vector2 basePosition;
         public int currentIndex = 0;
 
         /// <summary>
-        /// è·å–ä¸‹ä¸€ä¸ªæ‘†æ”¾ä½ç½®
-        /// é€»è¾‘ï¼šå…ˆå¡«æ»¡ç¬¬ä¸€è¡Œï¼Œå¡«æ»¡æ‰€æœ‰è¡Œåå¼€å§‹æ–°çš„ä¸€å±‚å‘ä¸Šå †å 
+        /// »ñÈ¡ÏÂÒ»¸ö°Ú·ÅÎ»ÖÃ
+        /// Âß¼­£ºÏÈÌîÂúµÚÒ»ĞĞ£¬ÌîÂúËùÓĞĞĞºó¿ªÊ¼ĞÂµÄÒ»²ãÏòÉÏ¶Ñµş
         /// </summary>
         public Vector2 GetNextPosition()
         {
@@ -446,24 +515,24 @@ namespace Controller.Structure
             columns = Mathf.Max(1, columns);
             rows = Mathf.Max(1, rows);
 
-            int layerSize = columns * rows; // æ¯å±‚å¯æ”¾çš„ç‰©å“æ•°
+            int layerSize = columns * rows; // Ã¿²ã¿É·ÅµÄÎïÆ·Êı
 
-            // è®¡ç®—å½“å‰æ˜¯ç¬¬å‡ å±‚ï¼ˆä»0å¼€å§‹ï¼‰
+            // ¼ÆËãµ±Ç°ÊÇµÚ¼¸²ã£¨´Ó0¿ªÊ¼£©
             int layer = index / layerSize;
 
-            // è®¡ç®—åœ¨å½“å‰å±‚ä¸­çš„ç´¢å¼•: 0 ~ layerSize-1
+            // ¼ÆËãÔÚµ±Ç°²ãÖĞµÄË÷Òı: 0 ~ layerSize-1
             int indexInLayer = index % layerSize;
 
-            // è®¡ç®—åœ¨å½“å‰å±‚ä¸­æ˜¯ç¬¬å‡ è¡Œã€ç¬¬å‡ åˆ—
+            // ¼ÆËãÔÚµ±Ç°²ãÖĞÊÇµÚ¼¸ĞĞ¡¢µÚ¼¸ÁĞ
             int row = indexInLayer / columns;
             int col = indexInLayer % columns;
 
-            // è®¡ç®—å®é™…ä½ç½®
+            // ¼ÆËãÊµ¼ÊÎ»ÖÃ
             float x = basePosition.x + col * xSpacing;
 
-            // yåæ ‡ = åŸºç¡€ä½ç½® + å±‚é«˜ + è¡Œæ·±
-            // å±‚é«˜åº¦ï¼šæ¯å±‚ä½¿ç”¨å›ºå®šé«˜åº¦ï¼ˆä¸è·¨è¶Šæ•´è¡Œï¼‰ï¼Œé¿å…å½¢æˆå¢™é¢æ„Ÿ
-            // è¡Œæ·±åº¦ï¼šåŒä¸€å±‚å†…çš„è¡Œé—´è·
+            // y×ø±ê = »ù´¡Î»ÖÃ + ²ã¸ß + ĞĞÉî
+            // ²ã¸ß¶È£ºÃ¿²ãÊ¹ÓÃ¹Ì¶¨¸ß¶È£¨²»¿çÔ½ÕûĞĞ£©£¬±ÜÃâĞÎ³ÉÇ½Ãæ¸Ğ
+            // ĞĞÉî¶È£ºÍ¬Ò»²ãÄÚµÄĞĞ¼ä¾à
             float layerHeight = layerSpacing;
             float y = basePosition.y + (layer * layerHeight) + (row * rowSpacing);
 
@@ -506,7 +575,7 @@ namespace Controller.Structure
         }
 
         /// <summary>
-        /// é‡Šæ”¾ä¸€ä¸ªä½ç½®ï¼ˆå•†å“è¢«æ‹¿èµ°æ—¶è°ƒç”¨ï¼‰
+        /// ÊÍ·ÅÒ»¸öÎ»ÖÃ£¨ÉÌÆ·±»ÄÃ×ßÊ±µ÷ÓÃ£©
         /// </summary>
         public void ReleaseOne()
         {
@@ -515,7 +584,7 @@ namespace Controller.Structure
         }
 
         /// <summary>
-        /// é‡ç½®ç½‘æ ¼ï¼ˆæ¸…ç©ºæ‰€æœ‰ç‰©å“æ—¶è°ƒç”¨ï¼‰
+        /// ÖØÖÃÍø¸ñ£¨Çå¿ÕËùÓĞÎïÆ·Ê±µ÷ÓÃ£©
         /// </summary>
         public void Reset()
         {

@@ -13,7 +13,7 @@ public class OrderNeedItem : MonoBehaviour
     public TextMeshProUGUI num;
 
     public AssetHandle assetHandle;
-    public void Init(object type , string info)
+    public void Init(object type, int ownNum, int needNum)
     {
         if(type is GoodsType)
         {
@@ -23,6 +23,8 @@ public class OrderNeedItem : MonoBehaviour
         {
             icon.sprite = assetHandle.Get<Sprite>(Extensions.GetDropItemResNameByType((DropItemType)type));
         }
-        num.text = info;
+
+        int displayOwn = Mathf.Min(Mathf.Max(0, ownNum), Mathf.Max(0, needNum));
+        num.text = displayOwn + "/" + Mathf.Max(0, needNum);
     }
 }

@@ -60,10 +60,10 @@ public class YunDiGePop : BaseView
         speedtxt.text = WorldData.speedLevelDic[deliverData.speedLevel].ToString();
         peopletxt.text = deliverData.totalNum.ToString();
         speedLeveltxt.text = deliverData.speedLevel + "级";
-        currentspeedtxt.text =  WorldData.speedLevelDic[deliverData.speedLevel].ToString();
+        currentspeedtxt.text = WorldData.speedLevelDic[deliverData.speedLevel].ToString();
         if (deliverData.speedLevel < deliverData.maxSpeedLevel)
         {
-            nextspeedtxt.text =  WorldData.speedLevelDic[deliverData.speedLevel+1].ToString();
+            nextspeedtxt.text = WorldData.speedLevelDic[deliverData.speedLevel + 1].ToString();
             btnMask_1.SetActive(false);
         }
         else
@@ -86,26 +86,15 @@ public class YunDiGePop : BaseView
             btnMask_2.SetActive(true);
             btnMaskTxt_2.text = "等级已满";
         }
-
+       
 
         var cardprogress = playerData.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYunDiGe);
         if (cardprogress == null)
         {
             fillContent.SetActive(false);
             lockObj.SetActive(true);
-            var cardLevelData = DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeYunDiGe);
-            if (cardLevelData.unlockLevel <= playerData.accountLevel)
-            {
-                cardMask.SetActive(false);
-
-            }
-            else
-            {
-                cardMask.SetActive(true);
-                cardmasktxt.text = cardLevelData.unlockLevel.ToString();
-            }
             btnMask_2.SetActive(true);
-            btnMaskTxt_2.text = "需要5级";
+            btnMaskTxt_2.text = "5级解锁";
         }
         else
         {
@@ -125,12 +114,23 @@ public class YunDiGePop : BaseView
             if (cardprogress.level < 5)
             {
                 btnMask_2.SetActive(true);
-                btnMaskTxt_2.text = "需要5级";
+                btnMaskTxt_2.text = "5级解锁";
             }
             else
             {
                 btnMask_2.SetActive(false);
             }
+        }
+         var cardLevelData = DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeYunDiGe);
+        if (cardLevelData.unlockLevel <= playerData.accountLevel)
+        {
+            cardMask.SetActive(false);
+
+        }
+        else
+        {
+            cardMask.SetActive(true);
+            cardmasktxt.text = cardLevelData.unlockLevel.ToString();
         }
 
     }
@@ -173,7 +173,7 @@ public class YunDiGePop : BaseView
             PlayerDataModule.Instance.data.tongbi -= deliverData.speedLevel * 5000;
             deliverData.speedLevel += 1;
             speedLeveltxt.text = deliverData.speedLevel + "级";
-            speedtxt.text =  WorldData.speedLevelDic[deliverData.speedLevel].ToString();
+            speedtxt.text = WorldData.speedLevelDic[deliverData.speedLevel].ToString();
             currentspeedtxt.text = deliverData.speedLevel.ToString();
             if (deliverData.speedLevel == deliverData.maxSpeedLevel)
             {
@@ -183,7 +183,7 @@ public class YunDiGePop : BaseView
             }
             else
             {
-                nextspeedtxt.text =  WorldData.speedLevelDic[deliverData.speedLevel+1].ToString();
+                nextspeedtxt.text = WorldData.speedLevelDic[deliverData.speedLevel + 1].ToString();
             }
             EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask, BuildingType.YunDiGe);
             UIController.Instance.Show<TipView>("升级成功。");
@@ -196,7 +196,7 @@ public class YunDiGePop : BaseView
         var cardProgress = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYunDiGe);
         if (cardProgress == null || cardProgress.level < 5)
         {
-            UIController.Instance.Show<TipView>("需要5级。");
+            UIController.Instance.Show<TipView>("卡牌等级达到5级解锁。");
             return;
         }
         if (deliverData.peopleLevel == deliverData.maxpeopleLevel)

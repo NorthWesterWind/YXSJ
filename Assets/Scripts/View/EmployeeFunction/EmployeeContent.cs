@@ -188,7 +188,7 @@ public class EmployeeContent : MonoBehaviour
     {
         if (employeeType == EmployeeType.YunDiZhe)
         {
-            peopleCountTxt.text = "空闲人数: " + (PlayerDataModule.Instance.data.deliverData.totalNum - PlayerDataModule.Instance.data.deliverData.workingNum);
+            peopleCountTxt.text = "空闲人数: " + (PlayerDataModule.Instance.data.deliverData.totalNum - PlayerDataModule.Instance.data.deliverData.workingNum)+"。";
         }
         else
         {
@@ -198,11 +198,11 @@ public class EmployeeContent : MonoBehaviour
                     WarehouseCategory data1 = PlayerDataModule.Instance.data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1);
                     if (data1 != null)
                     {
-                          peopleCountTxt.text = "空闲人数: " + data1.unworkingCollectorList.Count ;
+                          peopleCountTxt.text = "空闲人数: " + data1.unworkingCollectorList.Count+"。" ;
                     }
                     else
                     {
-                          peopleCountTxt.text = "空闲人数: 0" ;
+                          peopleCountTxt.text = "空闲人数: 0。" ;
                     }
                   
                     break;
@@ -210,11 +210,11 @@ public class EmployeeContent : MonoBehaviour
                     WarehouseCategory data2 = PlayerDataModule.Instance.data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2);
                     if (data2 != null)
                     {
-                          peopleCountTxt.text = "空闲人数: " + data2.unworkingCollectorList.Count ;
+                          peopleCountTxt.text = "空闲人数: " + data2.unworkingCollectorList.Count +"。" ;
                     }
                     else
                     {
-                          peopleCountTxt.text = "空闲人数: 0" ;
+                          peopleCountTxt.text = "空闲人数: 0。" ;
                     }
                     break;
             }

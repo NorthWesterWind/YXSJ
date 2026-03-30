@@ -24149,7 +24149,7 @@ PrefabInstance:
     - target: {fileID: 5684804839702769719, guid: 33eee2a6b83ff494f885293813e5c72e, type: 3}
       propertyPath: routes.Array.data[0].waypoints.Array.data[0]
       value: 
-      objectReference: {fileID: 3195499129916415521}
+      objectReference: {fileID: 2140832913}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -41833,6 +41833,37 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 6.033946, y: 0.69}
   m_EdgeRadius: 0
+--- !u!1 &2140832912
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2140832913}
+  m_Layer: 0
+  m_Name: point (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2140832913
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2140832912}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 5.67, y: -13.78, z: -1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1388842123358064667
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -42229,9 +42260,21 @@ PrefabInstance:
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 872061624020370327, guid: 81ecb74c4d5f64c46a86f7c7112bb131, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 1265540070873859420, guid: 81ecb74c4d5f64c46a86f7c7112bb131, type: 3}
       propertyPath: m_Name
       value: LingZhangTai
+      objectReference: {fileID: 0}
+    - target: {fileID: 2498956142473178116, guid: 81ecb74c4d5f64c46a86f7c7112bb131, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 3383631973883967603, guid: 81ecb74c4d5f64c46a86f7c7112bb131, type: 3}
+      propertyPath: m_Mesh
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 3409525400062010552, guid: 81ecb74c4d5f64c46a86f7c7112bb131, type: 3}
       propertyPath: m_Mesh
@@ -42242,6 +42285,10 @@ PrefabInstance:
       value: "\u5F85\u673A"
       objectReference: {fileID: 0}
     - target: {fileID: 5370611910508002781, guid: 81ecb74c4d5f64c46a86f7c7112bb131, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5490745472935858163, guid: 81ecb74c4d5f64c46a86f7c7112bb131, type: 3}
       propertyPath: m_Mesh
       value: 
       objectReference: {fileID: 0}
@@ -42297,13 +42344,14 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7970076429103239927, guid: 81ecb74c4d5f64c46a86f7c7112bb131, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5992178422750155173, guid: 81ecb74c4d5f64c46a86f7c7112bb131, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 0}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 81ecb74c4d5f64c46a86f7c7112bb131, type: 3}
 --- !u!1001 &5683654041280340507
 PrefabInstance:
@@ -42505,4 +42553,5 @@ SceneRoots:
   - {fileID: 1848830941}
   - {fileID: 1388842123358064667}
   - {fileID: 1224023809}
+  - {fileID: 2140832913}
   - {fileID: 1302529527}

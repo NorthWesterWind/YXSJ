@@ -89,7 +89,7 @@ namespace Module.Data
 
         public float speedTime = 0; //生产台加速时长
 
-        public int accountLevel = 1;
+        public int accountLevel = 0;
         public int characterFunction = 0;
         public int cardFunction = 0;
         public int mapFunction = 0;
@@ -148,9 +148,9 @@ namespace Module.Data
         {
             {1, new List<BuildingType>(){}},
             {2,new List<BuildingType>(){BuildingType.LingZhangTai , BuildingType.LingChaJia_1 , BuildingType.YuShaHu_1 }},
-            {3,new List<BuildingType>(){BuildingType.LianQiLu_1 , BuildingType.LingQiJia_1 , BuildingType.LingZhangTai ,BuildingType.YunDiGe , BuildingType.LingChuGe_1}},
-            {4,new List<BuildingType>(){BuildingType.LianQiLu_1 , BuildingType.LingQiJia_1 , BuildingType.LingZhangTai ,BuildingType.YunDiGe , BuildingType.LingChuGe_1 , BuildingType.LingChuGe_2 }},
-            {5,new List<BuildingType>(){BuildingType.LianQiLu_1 , BuildingType.LingQiJia_1 , BuildingType.LingZhangTai ,BuildingType.YunDiGe, BuildingType.LingChuGe_1 , BuildingType.LingChuGe_2 }}
+            {3,new List<BuildingType>(){BuildingType.LingZhangTai ,BuildingType.YunDiGe , BuildingType.LingChuGe_1}},
+            {4,new List<BuildingType>(){BuildingType.LingZhangTai ,BuildingType.YunDiGe , BuildingType.LingChuGe_1 , BuildingType.LingChuGe_2 }},
+            {5,new List<BuildingType>(){BuildingType.LingZhangTai ,BuildingType.YunDiGe, BuildingType.LingChuGe_1 , BuildingType.LingChuGe_2 }}
         };
         /// <summary>
         /// 每个地图中处于可解锁状态的建筑
@@ -654,16 +654,34 @@ namespace Module.Data
     /// <summary>
     /// 生产台数据类
     /// </summary>
+    [Serializable]
     public class ProductStationData
     {
+        public int mapId;
         public BuildingType buildingType;
         public int priceLevel;
         public int maxPriceLevel = 100;
         public int timelevel;
         public int maxTimeLevel = 40;
         public GoodsType goodsType = GoodsType.None;
-        public ProductStationData(BuildingType buildingType , GoodsType goodsType)
+        [JsonConstructor]
+        public ProductStationData()
         {
+            mapId = 0;
+            buildingType = BuildingType.None;
+            priceLevel = 1;
+            timelevel = 1;
+            goodsType = GoodsType.None;
+        }
+
+        public ProductStationData(BuildingType buildingType , GoodsType goodsType)
+            : this(0, buildingType, goodsType)
+        {
+        }
+
+        public ProductStationData(int mapId, BuildingType buildingType , GoodsType goodsType)
+        {
+            this.mapId = mapId;
             this.buildingType = buildingType;
             priceLevel = 1;
             timelevel = 1;

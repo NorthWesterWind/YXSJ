@@ -371,10 +371,10 @@ namespace Controller
 
         private bool isDead = false;
 
-        public void TakeDamage(float damage, Transform attacker, float slowDownValue = 0f, bool isPlayer = false)
+        public bool TakeDamage(float damage, Transform attacker, float slowDownValue = 0f, bool isPlayer = false)
         {
-            if (isDead) return;
-            if (Time.time - _lastHitTime < _damageInterval) return;
+            if (isDead) return false;
+            if (Time.time - _lastHitTime < _damageInterval) return false;
             if (slowDownValue > 0 && behaviorType != MonsterBehavior.Giant)
             {
                 currentSpeed = Mathf.Max(1, data.movespeed - Convert.ToInt32(slowDownValue));
@@ -415,6 +415,8 @@ namespace Controller
                 }
                 StartCoroutine(DoDie(isPlayer));
             }
+
+            return true;
         }
 
         // ---------------- 巨型怪物逻辑 ----------------

@@ -514,7 +514,7 @@ public class LoginView : BaseView
                switch (response.state)
                {
                    case 1:
-                       UIController.Instance.Show<TipView>(response.msg);
+                       UIController.Instance.Show<TipView>(response.msg + "!");
                        int age = response.age;
                        PlayerDataModule.Instance.data.age = age;
                        PlayerDataModule.Instance.SavePlayerDataAsync();

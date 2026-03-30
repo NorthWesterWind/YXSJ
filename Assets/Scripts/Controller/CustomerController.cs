@@ -54,8 +54,6 @@ namespace Controller
         public int SavedRouteWaypointIndex => routeWaypointIndex;
 
         private Vector2 spawnOrigin;
-        private float spawnRadiusX = 3f;
-        private float spawnRadiusY = 1.5f;
         private float travelRepathTimer = 0f;
         private const float TravelRepathInterval = 0.5f;
         private bool mapWarningShown;
@@ -65,7 +63,6 @@ namespace Controller
         private float purchaseIdleTimer = 0f;
         private int spawnRelocateAttempts = 0;
         private const float PurchaseIdleRelocateDelay = 0.6f;
-        private const int MaxSpawnRelocateAttempts = 3;
         private NpcState lastState;
         private CustomerFactory customerFactory;
         private int routeIndex = -1;
@@ -73,6 +70,16 @@ namespace Controller
         private RouteMovePhase routeMovePhase = RouteMovePhase.None;
         private int routeWaypointIndex = -1;
         private Vector2 stateTargetPosition;
+        private int lastSortingOrder = int.MinValue;
+        private int lastPurchaseCount = -1;
+        private PolyNavMap cachedMap;
+        private float nextEnsureMapRetryTime;
+        private const float EnsureMapRetryInterval = 1f;
+        private const float StateArrivalTolerance = 0.75f;
+        private const float MovementCheckInterval = 0.1f;
+        private float movementCheckTimer;
+        private string currentLoopAnimation;
+        private int currentFacingSign = 1;
 
         void Start()
         {
@@ -85,32 +92,23 @@ namespace Controller
                 lastState = state;
                 purchaseIdleTimer = 0f;
                 spawnRelocateAttempts = 0;
+                currentLoopAnimation = null;
             }
 
             SetLayer();
-            var currentAnimation = skeletonAnimation.AnimationState.GetCurrent(0);
-            if (agent != null && (agent.hasPath || agent.remainingDistance > 1))
+            UpdateMovementAnimation();
+
+            movementCheckTimer -= Time.deltaTime;
+            if (movementCheckTimer > 0f)
             {
-                if (currentAnimation == null || currentAnimation.Animation.Name != "walk")
-                {
-                    skeletonAnimation.AnimationState.SetAnimation(0, "walk", true);
-                }
-            }
-            else
-            {
-                if (currentAnimation == null || currentAnimation.Animation.Name != "idle")
-                {
-                    skeletonAnimation.AnimationState.SetAnimation(0, "idle", true);
-                }
+                return;
             }
 
-            Vector2 dir = agent != null ? agent.movingDirection : Vector2.zero;
-            if (dir != Vector2.zero && Mathf.Abs(dir.x) > 0.01f)
+            movementCheckTimer = MovementCheckInterval;
+            if (agent == null || agent.map == null)
             {
-                skeletonAnimation.skeleton.ScaleX = dir.x < 0 ? -1 : 1;
+                EnsureMap();
             }
-
-            EnsureMap();
             EnsureTravelMovement();
             EnsurePurchaseMovement();
         }
@@ -123,12 +121,20 @@ namespace Controller
             }
 
             int order = 30000 - Mathf.RoundToInt(transform.position.y * 100);
+            if (order == lastSortingOrder && purchaseList.Count == lastPurchaseCount)
+            {
+                return;
+            }
+
+            lastSortingOrder = order;
+            lastPurchaseCount = purchaseList.Count;
+
             _meshRenderer.sortingOrder = order;
             shadow.sortingOrder = order - 5;
             for (int i = 0; i < purchaseList.Count; i++)
             {
                 var obj = purchaseList[i];
-                var mesh = obj.GetComponent<Production>().spriteRenderer;
+                var mesh = obj != null ? obj.spriteRenderer : null;
                 if (mesh != null)
                 {
                     mesh.sortingOrder = order + i + 1;
@@ -152,6 +158,9 @@ namespace Controller
             lastState = state;
             purchaseIdleTimer = 0f;
             spawnRelocateAttempts = 0;
+            movementCheckTimer = 0f;
+            currentLoopAnimation = null;
+            currentFacingSign = 1;
             customerFactory = factory;
             routeIndex = selectedRouteIndex;
             bornPosition = routeStartPosition;
@@ -162,13 +171,7 @@ namespace Controller
             agent = GetComponent<PolyNavAgent>();
             EnsureMap();
             ConfigureRoute();
-            SnapToValidPosition();
-
-            if (Vector2.Distance((Vector2)transform.position, bornPosition) < 0.5f)
-            {
-                bornPosition = (Vector2)transform.position;
-                spawnOrigin = bornPosition;
-            }
+            transform.position = new Vector3(bornPosition.x, bornPosition.y, transform.position.z);
 
             fillBg.gameObject.SetActive(false);
             fill.gameObject.transform.localScale = new Vector3(0, 1, 1);
@@ -185,6 +188,8 @@ namespace Controller
             lastState = state;
             purchaseIdleTimer = 0f;
             spawnRelocateAttempts = 0;
+            movementCheckTimer = 0f;
+            currentLoopAnimation = null;
             SetNextPosition();
 
             routeMovePhase = ParseRouteMovePhase(savedRoutePhase);
@@ -300,6 +305,8 @@ namespace Controller
                 agent.OnDestinationReached += OnReachDestination;
                 agent.OnDestinationInvalid += OnDestinationInvalid;
             }
+
+            movementCheckTimer = 0f;
         }
 
         void OnDisable()
@@ -327,6 +334,13 @@ namespace Controller
 
             if (state == NpcState.QianWangGouMai)
             {
+                if (!HasReachedStateTarget())
+                {
+                    TrySetDestination(stateTargetPosition);
+                    RestartEnsureMoveStarted();
+                    return;
+                }
+
                 WaitPurchase();
                 EventCenter.Instance.TriggerEvent(EventMessages.CustomerArrivedSell, this, salesStall);
                 return;
@@ -334,8 +348,20 @@ namespace Controller
 
             if (state == NpcState.QianWangShouYinTai)
             {
+                if (!HasReachedStateTarget())
+                {
+                    TrySetDestination(stateTargetPosition);
+                    RestartEnsureMoveStarted();
+                    return;
+                }
+
                 EventCenter.Instance.TriggerEvent(EventMessages.CustomerArrived, this, salesStall);
             }
+        }
+
+        private bool HasReachedStateTarget()
+        {
+            return Vector2.Distance((Vector2)transform.position, stateTargetPosition) <= StateArrivalTolerance;
         }
 
         private void ConfigureRoute()
@@ -351,12 +377,12 @@ namespace Controller
                 return;
             }
 
-            bornPosition = GetValidMapPoint(routeStart);
+            bornPosition = routeStart;
             spawnOrigin = bornPosition;
 
             for (int i = 0; i < waypoints.Count; i++)
             {
-                routeWaypoints.Add(GetValidMapPoint(waypoints[i]));
+                routeWaypoints.Add(waypoints[i]);
             }
         }
 
@@ -518,22 +544,11 @@ namespace Controller
             }
             purchaseIdleTimer = 0f;
 
-            if (spawnRelocateAttempts >= MaxSpawnRelocateAttempts)
-            {
-                return;
-            }
-            spawnRelocateAttempts++;
-
             if (routeIndex >= 0)
             {
                 TrySetDestination(nextPosition);
                 RestartEnsureMoveStarted();
                 return;
-            }
-
-            if (TryRelocateSpawn())
-            {
-                RefreshMovementByState();
             }
         }
 
@@ -559,8 +574,8 @@ namespace Controller
                 }
             }
 
-            float dist = Vector2.Distance((Vector2)transform.position, nextPosition);
-            if (dist <= 0.5f)
+            float distSqr = (nextPosition - (Vector2)transform.position).sqrMagnitude;
+            if (distSqr <= 0.25f)
             {
                 travelRepathTimer = 0f;
                 return;
@@ -596,8 +611,22 @@ namespace Controller
 
             if (agent.map != null)
             {
+                cachedMap = agent.map;
                 return true;
             }
+
+            if (cachedMap != null)
+            {
+                agent.map = cachedMap;
+                return agent.map.nodesCount > 0;
+            }
+
+            if (Time.time < nextEnsureMapRetryTime)
+            {
+                return false;
+            }
+
+            nextEnsureMapRetryTime = Time.time + EnsureMapRetryInterval;
 
             PolyNavMap map = null;
             var mapObj = GameObject.FindWithTag("Map");
@@ -624,6 +653,11 @@ namespace Controller
                 agent.map.GenerateMap();
             }
 
+            if (agent.map != null && agent.map.nodesCount > 0)
+            {
+                cachedMap = agent.map;
+            }
+
             if ((agent.map == null || agent.map.nodesCount == 0) && !mapWarningShown)
             {
                 mapWarningShown = true;
@@ -645,21 +679,6 @@ namespace Controller
             }
 
             return point;
-        }
-
-        private void SnapToValidPosition()
-        {
-            if (agent == null || agent.map == null)
-            {
-                return;
-            }
-
-            Vector2 pos = (Vector2)transform.position;
-            if (!agent.map.PointIsValid(pos))
-            {
-                Vector2 fixedPos = agent.map.GetCloserEdgePoint(pos);
-                transform.position = new Vector3(fixedPos.x, fixedPos.y, transform.position.z);
-            }
         }
 
         private IEnumerator PurchaseRoutine()
@@ -725,6 +744,7 @@ namespace Controller
 
             if (purchaseList.Count < data.carryNum)
             {
+                currentLoopAnimation = null;
                 skeletonAnimation.AnimationState.SetAnimation(0, "angry", false);
                 yield return new WaitForSeconds(1f);
 
@@ -866,6 +886,43 @@ namespace Controller
             return agent.SetDestination(target);
         }
 
+        private void UpdateMovementAnimation()
+        {
+            if (skeletonAnimation == null || skeletonAnimation.AnimationState == null)
+            {
+                return;
+            }
+
+            bool isWalking = agent != null && (agent.hasPath || agent.remainingDistance > 1f);
+            SetLoopAnimation(isWalking ? "walk" : "idle");
+
+            Vector2 dir = agent != null ? agent.movingDirection : Vector2.zero;
+            if (dir == Vector2.zero || Mathf.Abs(dir.x) <= 0.01f || skeletonAnimation.skeleton == null)
+            {
+                return;
+            }
+
+            int facingSign = dir.x < 0 ? -1 : 1;
+            if (facingSign == currentFacingSign)
+            {
+                return;
+            }
+
+            currentFacingSign = facingSign;
+            skeletonAnimation.skeleton.ScaleX = currentFacingSign;
+        }
+
+        private void SetLoopAnimation(string animationName)
+        {
+            if (currentLoopAnimation == animationName)
+            {
+                return;
+            }
+
+            skeletonAnimation.AnimationState.SetAnimation(0, animationName, true);
+            currentLoopAnimation = animationName;
+        }
+
         private IEnumerator EnsureMoveStarted()
         {
             const int maxAttempts = 3;
@@ -891,19 +948,12 @@ namespace Controller
                 attempts++;
                 if (EnsureMap())
                 {
-                    SnapToValidPosition();
                     TrySetDestination(nextPosition);
                 }
             }
 
             if (EnsureMap())
             {
-                if (!TryRelocateSpawn())
-                {
-                    Vector2 rescue = agent.map.GetCloserEdgePoint((Vector2)transform.position);
-                    transform.position = new Vector3(rescue.x, rescue.y, transform.position.z);
-                }
-
                 TrySetDestination(nextPosition);
             }
         }
@@ -932,7 +982,6 @@ namespace Controller
                     continue;
                 }
 
-                SnapToValidPosition();
                 TrySetDestination(nextPosition);
 
                 float wait = 0f;
@@ -953,60 +1002,10 @@ namespace Controller
 
             if (EnsureMap())
             {
-                if (!TryRelocateSpawn())
-                {
-                    Vector2 rescue = agent.map.GetCloserEdgePoint((Vector2)transform.position);
-                    transform.position = new Vector3(rescue.x, rescue.y, transform.position.z);
-                }
-
                 TrySetDestination(nextPosition);
             }
 
             invalidRecoverCoroutine = null;
-        }
-
-        private bool TryRelocateSpawn()
-        {
-            if (!EnsureMap())
-            {
-                return false;
-            }
-
-            if (state != NpcState.QianWangGouMai || routeIndex >= 0)
-            {
-                return false;
-            }
-
-            if (Vector2.Distance((Vector2)transform.position, bornPosition) > 0.5f)
-            {
-                return false;
-            }
-
-            Vector2 origin = spawnOrigin != Vector2.zero ? spawnOrigin : bornPosition;
-            var map = agent.map;
-
-            for (int i = 0; i < 6; i++)
-            {
-                Vector2 pos = origin;
-                pos.x += Random.Range(-spawnRadiusX, spawnRadiusX);
-                pos.y += Random.Range(-spawnRadiusY, spawnRadiusY);
-                if (map.PointIsValid(pos))
-                {
-                    bornPosition = pos;
-                    transform.position = new Vector3(pos.x, pos.y, transform.position.z);
-                    return true;
-                }
-            }
-
-            Vector2 fallback = map.GetCloserEdgePoint(origin);
-            if (map.PointIsValid(fallback))
-            {
-                bornPosition = fallback;
-                transform.position = new Vector3(fallback.x, fallback.y, transform.position.z);
-                return true;
-            }
-
-            return false;
         }
 
         private RouteMovePhase ParseRouteMovePhase(int savedValue)

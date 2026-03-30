@@ -38,6 +38,8 @@ public class TrialView : BaseView
     public GameObject img_2;
     private bool isShowUI = false;
 
+    public UIButton settingBtn;
+
     void OnEnable()
     {
         EventCenter.Instance.AddListener(EventMessages.StopCreat2DMonster, StopSpawn);
@@ -53,9 +55,17 @@ public class TrialView : BaseView
         EventCenter.Instance.RemoveListener(EventMessages.MonsterDead2D, HandleMonsterDead2D);
         EventCenter.Instance.RemoveListener(EventMessages.HasMonsterArrive, StopSpawn);
     }
-    void Start()
+    protected override void AddEventListener()
     {
+        base.AddEventListener();
+        settingBtn.onClick.RemoveAllListeners();
+        settingBtn.onClick.AddListener(OnClickSettingBtn);
+    }
 
+    public void OnClickSettingBtn()
+    {
+        Time.timeScale = 0;
+        UIController.Instance.Show<PauseView>();
     }
     public void HandleMonsterDead2D(params object[] args)
     {
@@ -135,7 +145,7 @@ public class TrialView : BaseView
     {
 
         yield return StartCoroutine(SpawnLayer(lowLevelMonsters, lowCount, lowTypes, 100));
-        yield return StartCoroutine(SpawnLayer(midLevelMonsters, midCount, midTypes,120));
+        yield return StartCoroutine(SpawnLayer(midLevelMonsters, midCount, midTypes, 120));
         yield return StartCoroutine(SpawnLayer(highLevelMonsters, highCount, highTypes, 160));
         isCreatOver = true;
     }

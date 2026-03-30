@@ -9,6 +9,7 @@ using Utils;
 
 public class MonsterController2D : MonoBehaviour
 {
+    public MonsterType monsterType = MonsterType.None;
     public float currentHp;
     // public MonsterData data;
     public SkeletonGraphic skeletonGraphic;
@@ -111,9 +112,9 @@ public class MonsterController2D : MonoBehaviour
     }
     public bool isDead = false;
 
-    public void TakeDamage(float damage)
+    public bool TakeDamage(float damage)
     {
-        if (isDead) return;
+        if (isDead) return false;
 
         currentHp -= damage;
         currentHp = Mathf.Max(currentHp, 0);
@@ -138,6 +139,8 @@ public class MonsterController2D : MonoBehaviour
             StartCoroutine(DoDie());
             EventCenter.Instance.TriggerEvent(EventMessages.MonsterDead2D, gameObject);
         }
+
+        return true;
     }
 
     public IEnumerator DoDie()

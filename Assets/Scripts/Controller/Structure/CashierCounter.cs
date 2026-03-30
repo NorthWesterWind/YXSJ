@@ -60,21 +60,45 @@ namespace Controller.Structure
         public MeshRenderer meshRenderer_2;
         public SpriteRenderer uiPoint_2;
         public MeshRenderer meshRenderer_3;
+        private Coroutine initWhenReadyCoroutine;
+        private SkeletonAnimation[] cashierAnimations;
+        private const float VisualSyncInterval = 0.2f;
+        private float visualSyncTimer;
+        private string currentCashierLoopAnimation;
 
-        [SerializeField] private int maxWaiters; // ÊúÄÂ§öÊúçÂä°Âëò
-        public int workingWaiters = 0;              // ÂΩìÂâçÂøôÁöÑÊúçÂä°ÂëòÊï∞
+        [SerializeField] private int maxWaiters; // ◊Ó∂‡∑˛ŒÒ‘±
+        public int workingWaiters = 0;              // µ±«∞√¶µƒ∑˛ŒÒ‘± ˝
         public override void Start()
         {
             base.Start();
+            CacheCashierAnimations();
+            HideAllCashierNpcs();
         }
 
         private void OnEnable()
         {
+            CacheCashierAnimations();
+            HideAllCashierNpcs();
             EventCenter.Instance.AddListener(EventMessages.CustomerArrived, HandleCustomerArrived);
             EventCenter.Instance.AddListener(EventMessages.StructureSpeedUp, HandleStructureSpeedUp);
             EventCenter.Instance.AddListener(EventMessages.StructureSpeedDown, HandleStructureSpeedDown);
             EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo, Init);
             EventCenter.Instance.AddListener(EventMessages.UpdateLingZhangTai, Init);
+            EventCenter.Instance.AddListener(EventMessages.UpdateFunctionState, Init);
+            EventCenter.Instance.AddListener(EventMessages.DataPrepared, Init);
+            EventCenter.Instance.AddListener(EventMessages.MapDataPrepared, Init);
+            if (PlayerDataModule.Instance?.data != null && DataController.Instance != null)
+            {
+                Init();
+            }
+            if (initWhenReadyCoroutine != null)
+            {
+                StopCoroutine(initWhenReadyCoroutine);
+            }
+            initWhenReadyCoroutine = StartCoroutine(InitWhenReady());
+            visualSyncTimer = 0f;
+            currentCashierLoopAnimation = null;
+            SyncCashierAnimations(true);
 
         }
 
@@ -85,82 +109,101 @@ namespace Controller.Structure
             EventCenter.Instance.RemoveListener(EventMessages.StructureSpeedDown, HandleStructureSpeedDown);
             EventCenter.Instance.RemoveListener(EventMessages.UpdateSturctureLockInfo, Init);
             EventCenter.Instance.RemoveListener(EventMessages.UpdateLingZhangTai, Init);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateFunctionState, Init);
+            EventCenter.Instance.RemoveListener(EventMessages.DataPrepared, Init);
+            EventCenter.Instance.RemoveListener(EventMessages.MapDataPrepared, Init);
+            if (initWhenReadyCoroutine != null)
+            {
+                StopCoroutine(initWhenReadyCoroutine);
+                initWhenReadyCoroutine = null;
+            }
         }
         void Update()
         {
+            visualSyncTimer -= Time.deltaTime;
+            if (visualSyncTimer <= 0f)
+            {
+                visualSyncTimer = VisualSyncInterval;
+                TrySyncCashierVisualState();
+            }
+
+            SyncCashierAnimations();
+            return;
+
+            TrySyncCashierVisualState();
 
             if (customerList.Count > 0)
             {
                 var currentAnimation1 = skeletonAnimation1.AnimationState.GetCurrent(0);
 
-                if (currentAnimation1 == null || currentAnimation1.Animation.Name != "idleÁ©øÊê≠")
+                if (currentAnimation1 == null || currentAnimation1.Animation.Name != "idle¥©¥Ó")
                 {
-                    skeletonAnimation1.AnimationState.SetAnimation(0, "idleÁ©øÊê≠", true);
+                    skeletonAnimation1.AnimationState.SetAnimation(0, "idle¥©¥Ó", true);
                 }
 
                 var currentAnimation2 = skeletonAnimation2.AnimationState.GetCurrent(0);
 
-                if (currentAnimation2 == null || currentAnimation2.Animation.Name != "idleÁ©øÊê≠")
+                if (currentAnimation2 == null || currentAnimation2.Animation.Name != "idle¥©¥Ó")
                 {
-                    skeletonAnimation2.AnimationState.SetAnimation(0, "idleÁ©øÊê≠", true);
+                    skeletonAnimation2.AnimationState.SetAnimation(0, "idle¥©¥Ó", true);
                 }
                 var currentAnimation3 = skeletonAnimation3.AnimationState.GetCurrent(0);
 
-                if (currentAnimation3 == null || currentAnimation3.Animation.Name != "idleÁ©øÊê≠")
+                if (currentAnimation3 == null || currentAnimation3.Animation.Name != "idle¥©¥Ó")
                 {
-                    skeletonAnimation3.AnimationState.SetAnimation(0, "idleÁ©øÊê≠", true);
+                    skeletonAnimation3.AnimationState.SetAnimation(0, "idle¥©¥Ó", true);
                 }
 
                 var currentAnimation4 = skeletonAnimation4.AnimationState.GetCurrent(0);
 
-                if (currentAnimation4 == null || currentAnimation4.Animation.Name != "idleÁ©øÊê≠")
+                if (currentAnimation4 == null || currentAnimation4.Animation.Name != "idle¥©¥Ó")
                 {
-                    skeletonAnimation4.AnimationState.SetAnimation(0, "idleÁ©øÊê≠", true);
+                    skeletonAnimation4.AnimationState.SetAnimation(0, "idle¥©¥Ó", true);
                 }
                 var currentAnimation5 = skeletonAnimation5.AnimationState.GetCurrent(0);
 
-                if (currentAnimation5 == null || currentAnimation5.Animation.Name != "idleÁ©øÊê≠")
+                if (currentAnimation5 == null || currentAnimation5.Animation.Name != "idle¥©¥Ó")
                 {
-                    skeletonAnimation5.AnimationState.SetAnimation(0, "idleÁ©øÊê≠", true);
+                    skeletonAnimation5.AnimationState.SetAnimation(0, "idle¥©¥Ó", true);
                 }
                 var currentAnimation6 = skeletonAnimation6.AnimationState.GetCurrent(0);
 
-                if (currentAnimation6 == null || currentAnimation6.Animation.Name != "idleÁ©øÊê≠")
+                if (currentAnimation6 == null || currentAnimation6.Animation.Name != "idle¥©¥Ó")
                 {
-                    skeletonAnimation6.AnimationState.SetAnimation(0, "idleÁ©øÊê≠", true);
+                    skeletonAnimation6.AnimationState.SetAnimation(0, "idle¥©¥Ó", true);
                 }
             }
             else
             {
                 var currentAnimation1 = skeletonAnimation1.AnimationState.GetCurrent(0);
-                if (currentAnimation1 == null || currentAnimation1.Animation.Name != "ÂæÖÊú∫")
+                if (currentAnimation1 == null || currentAnimation1.Animation.Name != "¥˝ª˙")
                 {
-                    skeletonAnimation1.AnimationState.SetAnimation(0, "ÂæÖÊú∫", true);
+                    skeletonAnimation1.AnimationState.SetAnimation(0, "¥˝ª˙", true);
                 }
                 var currentAnimation2 = skeletonAnimation2.AnimationState.GetCurrent(0);
-                if (currentAnimation2 == null || currentAnimation2.Animation.Name != "ÂæÖÊú∫")
+                if (currentAnimation2 == null || currentAnimation2.Animation.Name != "¥˝ª˙")
                 {
-                    skeletonAnimation2.AnimationState.SetAnimation(0, "ÂæÖÊú∫", true);
+                    skeletonAnimation2.AnimationState.SetAnimation(0, "¥˝ª˙", true);
                 }
                 var currentAnimation3 = skeletonAnimation3.AnimationState.GetCurrent(0);
-                if (currentAnimation3 == null || currentAnimation3.Animation.Name != "ÂæÖÊú∫")
+                if (currentAnimation3 == null || currentAnimation3.Animation.Name != "¥˝ª˙")
                 {
-                    skeletonAnimation3.AnimationState.SetAnimation(0, "ÂæÖÊú∫", true);
+                    skeletonAnimation3.AnimationState.SetAnimation(0, "¥˝ª˙", true);
                 }
                 var currentAnimation4 = skeletonAnimation4.AnimationState.GetCurrent(0);
-                if (currentAnimation4 == null || currentAnimation4.Animation.Name != "ÂæÖÊú∫")
+                if (currentAnimation4 == null || currentAnimation4.Animation.Name != "¥˝ª˙")
                 {
-                    skeletonAnimation4.AnimationState.SetAnimation(0, "ÂæÖÊú∫", true);
+                    skeletonAnimation4.AnimationState.SetAnimation(0, "¥˝ª˙", true);
                 }
                 var currentAnimation5 = skeletonAnimation5.AnimationState.GetCurrent(0);
-                if (currentAnimation5 == null || currentAnimation5.Animation.Name != "ÂæÖÊú∫")
+                if (currentAnimation5 == null || currentAnimation5.Animation.Name != "¥˝ª˙")
                 {
-                    skeletonAnimation5.AnimationState.SetAnimation(0, "ÂæÖÊú∫", true);
+                    skeletonAnimation5.AnimationState.SetAnimation(0, "¥˝ª˙", true);
                 }
                 var currentAnimation6 = skeletonAnimation6.AnimationState.GetCurrent(0);
-                if (currentAnimation6 == null || currentAnimation6.Animation.Name != "ÂæÖÊú∫")
+                if (currentAnimation6 == null || currentAnimation6.Animation.Name != "¥˝ª˙")
                 {
-                    skeletonAnimation6.AnimationState.SetAnimation(0, "ÂæÖÊú∫", true);
+                    skeletonAnimation6.AnimationState.SetAnimation(0, "¥˝ª˙", true);
                 }
             }
         }
@@ -175,9 +218,32 @@ namespace Controller.Structure
                 //   Debug.LogError("Init begin");
 
                 var playerData = PlayerDataModule.Instance?.data;
+                if (playerData == null || DataController.Instance == null)
+                {
+                    return;
+                }
+
+                if (GameController.Instance != null &&
+                    GameController.Instance.unlockedBuildingTypes.Contains(structureType))
+                {
+                    var unlocked = playerData.structUnLockDataDic[playerData.currentMapID];
+                    if (!unlocked.Contains(structureType))
+                    {
+                        unlocked.Add(structureType);
+                    }
+
+                    playerData.structLockDataDic[playerData.currentMapID].Remove(structureType);
+                    playerData.structCanUnLockDataDic[playerData.currentMapID].Remove(structureType);
+                }
+
                 lockData = GetLockData(playerData.currentMapID);
                 lockstate = GetStructureState(playerData, lockData);
                 RefreshView(lockstate, lockData);
+                if (initWhenReadyCoroutine != null && lockstate == StructureState.Unlocked)
+                {
+                    StopCoroutine(initWhenReadyCoroutine);
+                    initWhenReadyCoroutine = null;
+                }
 
                 // Debug.LogError("Init end");
             }
@@ -218,11 +284,16 @@ namespace Controller.Structure
             {
                 case StructureState.Locked:
                 case StructureState.CanUnlock:
+                    HideAllCashierNpcs();
                     ShowLock(lockData);
                     break;
 
                 case StructureState.Unlocked:
                     content.SetActive(true);
+                    if (PlayerDataModule.Instance.data.cashierData == null)
+                    {
+                        PlayerDataModule.Instance.data.cashierData = new CashierData();
+                    }
                     if (PlayerDataModule.Instance.data.ordenFunction == 1)
                     {
                         ShowContent_2();
@@ -232,7 +303,7 @@ namespace Controller.Structure
                         ShowContent_1();
                     }
                     PlayerData playerData = PlayerDataModule.Instance.data;
-                    maxWaiters = playerData.cashierData.totalNum;
+                    maxWaiters = GetActiveCashierCount();
                     if (!GameController.Instance.unlockedBuildingTypes.Contains(structureType))
                     {
                         GameController.Instance.unlockedBuildingTypes.Add(structureType);
@@ -260,31 +331,16 @@ namespace Controller.Structure
                 var data = PlayerDataModule.Instance.data.cardUpProgressesList.Find(s => s.developType == CardDevelopType.UpgradeLingZhangTai);
                 if (data.level == 1)
                 {
-                    sprite.sprite = _assetHandle.Get<Sprite>("‰∏ÄÁ∫ßÁÅµË¥¶Âè∞");
+                    sprite.sprite = _assetHandle.Get<Sprite>("“ªº∂¡È’ÀÃ®");
                 }
                 else
                 {
-                    sprite.sprite = _assetHandle.Get<Sprite>("‰∫åÁ∫ßÁÅµË¥¶Âè∞");
+                    sprite.sprite = _assetHandle.Get<Sprite>("∂˛º∂¡È’ÀÃ®");
                 }
             }
-            switch (PlayerDataModule.Instance.data.cashierData.totalNum)
-            {
-                case 1:
-                    LingZhangShi1.SetActive(true);
-                    LingZhangShi2.SetActive(false);
-                    LingZhangShi3.SetActive(false);
-                    break;
-                case 2:
-                    LingZhangShi1.SetActive(true);
-                    LingZhangShi2.SetActive(true);
-                    LingZhangShi3.SetActive(false);
-                    break;
-                case 3:
-                    LingZhangShi1.SetActive(true);
-                    LingZhangShi2.SetActive(true);
-                    LingZhangShi3.SetActive(true);
-                    break;
-            }
+            SetCashierNpcActiveState(LingZhangShi1, LingZhangShi2, LingZhangShi3, GetActiveCashierCount());
+            SyncCashierAnimations(true);
+
             int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
             rend1.sortingOrder = 30000 - Mathf.RoundToInt((transform.position.y + LingZhangShi1.transform.localPosition.y) * 100) + 4;
             rend2.sortingOrder = 30000 - Mathf.RoundToInt((transform.position.y + LingZhangShi2.transform.localPosition.y) * 100) + 3;
@@ -306,24 +362,8 @@ namespace Controller.Structure
             content_2.SetActive(true);
             structureLock.gameObject.SetActive(false);
             grid.basePosition = exportTransform2.position;
-            switch (PlayerDataModule.Instance.data.cashierData.totalNum)
-            {
-                case 1:
-                    LingZhangShi1_1.SetActive(true);
-                    LingZhangShi2_2.SetActive(false);
-                    LingZhangShi3_3.SetActive(false);
-                    break;
-                case 2:
-                    LingZhangShi1_1.SetActive(true);
-                    LingZhangShi2_2.SetActive(true);
-                    LingZhangShi3_3.SetActive(false);
-                    break;
-                case 3:
-                    LingZhangShi1_1.SetActive(true);
-                    LingZhangShi2_2.SetActive(true);
-                    LingZhangShi3_3.SetActive(true);
-                    break;
-            }
+            SetCashierNpcActiveState(LingZhangShi1_1, LingZhangShi2_2, LingZhangShi3_3, GetActiveCashierCount());
+            SyncCashierAnimations(true);
             int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
             rend4.sortingOrder = 30000 - Mathf.RoundToInt((transform.position.y + LingZhangShi1_1.transform.localPosition.y) * 100) + 4;
             rend5.sortingOrder = 30000 - Mathf.RoundToInt((transform.position.y + LingZhangShi2_2.transform.localPosition.y) * 100) + +3;
@@ -336,6 +376,177 @@ namespace Controller.Structure
             orderPoint.sortingOrder = newOrder + 2;
             meshRenderer_2.sortingOrder = newOrder + 2;
             meshRenderer_3.sortingOrder = newOrder + 2;
+        }
+
+        private void HideAllCashierNpcs()
+        {
+            SetCashierNpcActiveState(LingZhangShi1, LingZhangShi2, LingZhangShi3, 0);
+            SetCashierNpcActiveState(LingZhangShi1_1, LingZhangShi2_2, LingZhangShi3_3, 0);
+        }
+
+        private void CacheCashierAnimations()
+        {
+            if (cashierAnimations != null)
+            {
+                return;
+            }
+
+            cashierAnimations = new[]
+            {
+                skeletonAnimation1,
+                skeletonAnimation2,
+                skeletonAnimation3,
+                skeletonAnimation4,
+                skeletonAnimation5,
+                skeletonAnimation6
+            };
+        }
+
+        private void SetCashierNpcActiveState(GameObject npc1, GameObject npc2, GameObject npc3, int activeCount)
+        {
+            if (npc1 != null) npc1.SetActive(false);
+            if (npc2 != null) npc2.SetActive(false);
+            if (npc3 != null) npc3.SetActive(false);
+
+            if (activeCount >= 1 && npc1 != null) npc1.SetActive(true);
+            if (activeCount >= 2 && npc2 != null) npc2.SetActive(true);
+            if (activeCount >= 3 && npc3 != null) npc3.SetActive(true);
+        }
+
+        private void SyncCashierAnimations(bool force = false)
+        {
+            CacheCashierAnimations();
+
+            string targetAnimation = customerList.Count > 0 ? "idle¥©¥Ó" : "¥˝ª˙";
+            if (!force && currentCashierLoopAnimation == targetAnimation)
+            {
+                return;
+            }
+
+            currentCashierLoopAnimation = targetAnimation;
+            for (int i = 0; i < cashierAnimations.Length; i++)
+            {
+                var animation = cashierAnimations[i];
+                if (animation == null || animation.AnimationState == null)
+                {
+                    continue;
+                }
+
+                animation.AnimationState.SetAnimation(0, targetAnimation, true);
+            }
+        }
+
+        private void TrySyncCashierVisualState()
+        {
+            var playerData = PlayerDataModule.Instance?.data;
+            if (playerData == null || GameController.Instance == null)
+            {
+                return;
+            }
+
+            bool isUnlocked = GameController.Instance.unlockedBuildingTypes.Contains(structureType);
+            if (!isUnlocked &&
+                playerData.structUnLockDataDic.TryGetValue(playerData.currentMapID, out var unlockedBuildings))
+            {
+                isUnlocked = unlockedBuildings.Contains(structureType);
+            }
+
+            if (!isUnlocked)
+            {
+                return;
+            }
+
+            if (content != null && !content.activeSelf)
+            {
+                content.SetActive(true);
+            }
+
+            if (structureLock != null && structureLock.gameObject.activeSelf)
+            {
+                structureLock.gameObject.SetActive(false);
+            }
+
+            int activeCount = GetActiveCashierCount();
+            bool useSecondContent = playerData.ordenFunction == 1;
+
+            if (useSecondContent)
+            {
+                bool shouldRefresh = !content_2.activeSelf ||
+                                     content_1.activeSelf ||
+                                     HasActiveCashier(LingZhangShi1, LingZhangShi2, LingZhangShi3) ||
+                                     CountActiveCashiers(LingZhangShi1_1, LingZhangShi2_2, LingZhangShi3_3) != activeCount;
+                if (shouldRefresh)
+                {
+                    ShowContent_2();
+                }
+            }
+            else
+            {
+                bool shouldRefresh = !content_1.activeSelf ||
+                                     content_2.activeSelf ||
+                                     HasActiveCashier(LingZhangShi1_1, LingZhangShi2_2, LingZhangShi3_3) ||
+                                     CountActiveCashiers(LingZhangShi1, LingZhangShi2, LingZhangShi3) != activeCount;
+                if (shouldRefresh)
+                {
+                    ShowContent_1();
+                }
+            }
+        }
+
+        private bool HasActiveCashier(GameObject npc1, GameObject npc2, GameObject npc3)
+        {
+            return (npc1 != null && npc1.activeSelf) ||
+                   (npc2 != null && npc2.activeSelf) ||
+                   (npc3 != null && npc3.activeSelf);
+        }
+
+        private int CountActiveCashiers(GameObject npc1, GameObject npc2, GameObject npc3)
+        {
+            int count = 0;
+            if (npc1 != null && npc1.activeSelf) count++;
+            if (npc2 != null && npc2.activeSelf) count++;
+            if (npc3 != null && npc3.activeSelf) count++;
+            return count;
+        }
+
+        private IEnumerator InitWhenReady()
+        {
+            const float maxWaitTime = 5f;
+            float waitTime = 0f;
+            while (waitTime < maxWaitTime)
+            {
+                if (PlayerDataModule.Instance?.data != null &&
+                    DataController.Instance != null &&
+                    GameController.Instance != null)
+                {
+                    Init();
+                    if (lockstate == StructureState.Unlocked)
+                    {
+                        initWhenReadyCoroutine = null;
+                        yield break;
+                    }
+                }
+
+                waitTime += Time.unscaledDeltaTime;
+                yield return null;
+            }
+
+            initWhenReadyCoroutine = null;
+        }
+
+        private int GetActiveCashierCount()
+        {
+            var cashierData = PlayerDataModule.Instance?.data?.cashierData;
+            if (cashierData == null)
+            {
+                return 1;
+            }
+
+            cashierData.maxpeopleLevel = Mathf.Max(1, cashierData.maxpeopleLevel);
+            cashierData.peopleLevel = Mathf.Clamp(Mathf.Max(1, cashierData.peopleLevel), 1, cashierData.maxpeopleLevel);
+            cashierData.totalNum = Mathf.Clamp(Mathf.Max(1, cashierData.totalNum, cashierData.peopleLevel), 1, cashierData.maxpeopleLevel);
+            cashierData.workingNum = Mathf.Clamp(cashierData.workingNum, 0, cashierData.totalNum);
+            return Mathf.Clamp(cashierData.totalNum, 1, 3);
         }
 
         private void HandleCustomerArrived(params object[] args)
@@ -361,8 +572,28 @@ namespace Controller.Structure
 
         private IEnumerator HandleSingleCustomer(CustomerController customer)
         {
+            if (customer == null || customer.salesStall == null)
+            {
+                workingWaiters = Mathf.Max(0, workingWaiters - 1);
+                TryProcessNextCustomer();
+                yield break;
+            }
+
+            var playerData = PlayerDataModule.Instance?.data;
+            if (playerData == null)
+            {
+                workingWaiters = Mathf.Max(0, workingWaiters - 1);
+                TryProcessNextCustomer();
+                yield break;
+            }
+
+            if (playerData.cashierData == null)
+            {
+                playerData.cashierData = new CashierData();
+            }
+
             float t = 0f;
-            float productionTime = PlayerDataModule.Instance.data.cashierData.currentWorkingSpeed / speed;
+            float productionTime = Mathf.Max(0.01f, playerData.cashierData.currentWorkingSpeed / Mathf.Max(0.01f, speed));
 
             customer.fillBg.gameObject.SetActive(true);
             customer.fill.transform.localScale = new Vector3(0, 1, 1);
@@ -386,46 +617,66 @@ namespace Controller.Structure
                 customer.data.carryNum
             );
 
-            ProductStationData productStationdata = PlayerDataModule.Instance.data.ProductStationDataList.Find(x => x.goodsType == goodsType);
-            ProductionStation productionStation = GameController.Instance.productionStationList.Find(x => x.goodsType == goodsType);
-            CardUpProgress cardData = null;
-            switch (productionStation.buildingType)
+            ProductStationData productStationdata = PlayerDataModule.Instance.GetProductStationDataByGoods(goodsType);
+            if (productStationdata == null)
             {
-                case BuildingType.YuShaHu_1:
-                    cardData = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_1);
-                    break;
-                case BuildingType.YuShaHu_2:
-                    cardData = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_2);
-                    break;
-                case BuildingType.YuShaHu_3:
-                    cardData = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_3);
-                    break;
-                case BuildingType.YuShaHu_4:
-                    cardData = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_4);
-                    break;
-                case BuildingType.LianQiLu_1:
-                    cardData = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_1);
-                    break;
-                case BuildingType.LianQiLu_2:
-                    cardData = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_2);
-                    break;
-                case BuildingType.LianQiLu_3:
-                    cardData = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_3);
-                    break;
+                productStationdata = new ProductStationData(playerData.currentMapID, BuildingType.None, goodsType);
             }
+
+            ProductionStation productionStation = GameController.Instance != null && GameController.Instance.productionStationList != null
+                ? GameController.Instance.productionStationList.Find(x => x != null && x.goodsType == goodsType)
+                : null;
+            CardUpProgress cardData = null;
+            if (productionStation != null)
+            {
+                switch (productionStation.buildingType)
+                {
+                    case BuildingType.YuShaHu_1:
+                        cardData = playerData.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_1);
+                        break;
+                    case BuildingType.YuShaHu_2:
+                        cardData = playerData.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_2);
+                        break;
+                    case BuildingType.YuShaHu_3:
+                        cardData = playerData.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_3);
+                        break;
+                    case BuildingType.YuShaHu_4:
+                        cardData = playerData.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYuShaHu_4);
+                        break;
+                    case BuildingType.LianQiLu_1:
+                        cardData = playerData.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_1);
+                        break;
+                    case BuildingType.LianQiLu_2:
+                        cardData = playerData.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_2);
+                        break;
+                    case BuildingType.LianQiLu_3:
+                        cardData = playerData.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLianQiLu_3);
+                        break;
+                }
+            }
+
+            float mapPrice = 1f;
+            if (DataController.Instance != null &&
+                DataController.Instance.mapDataDic != null &&
+                DataController.Instance.mapDataDic.TryGetValue(playerData.currentMapID, out var mapData))
+            {
+                mapPrice = mapData.price;
+            }
+
+            float basePrice = WorldData.goodsPriceDic.TryGetValue(goodsType, out var priceValue) ? priceValue : 0f;
             float totalNum;
 
             if (cardData != null)
             {
                 totalNum =
-                              WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price * customer.data.carryNum
-                              * PlayerDataModule.Instance.data.cashierData.earning * (cardData.level * 0.2f + 1) + (productStationdata.priceLevel - 1) * 25;
+                              basePrice * mapPrice * customer.data.carryNum
+                              * playerData.cashierData.earning * (cardData.level * 0.2f + 1) + (productStationdata.priceLevel - 1) * 25;
             }
             else
             {
                 totalNum =
-                     WorldData.goodsPriceDic[goodsType] * DataController.Instance.mapDataDic[PlayerDataModule.Instance.data.currentMapID].price * customer.data.carryNum
-                        * PlayerDataModule.Instance.data.cashierData.earning + (productStationdata.priceLevel - 1) * 25;
+                     basePrice * mapPrice * customer.data.carryNum
+                        * playerData.cashierData.earning + (productStationdata.priceLevel - 1) * 25;
             }
 
             PrintingMoney(totalNum);

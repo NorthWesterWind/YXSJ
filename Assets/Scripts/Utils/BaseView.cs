@@ -250,9 +250,23 @@ namespace Utils
         private void Update()
         {
             if (!IsVisible) return;
+            if (!IsBackgroundCloseTriggered()) return;
 
             if (_closeBackground != null && IsPointerOverGraphic(_closeBackground))
                 Hide();
+        }
+
+        private bool IsBackgroundCloseTriggered()
+        {
+            if (_closeBackground == null) return false;
+
+            if (Input.GetMouseButtonDown(0))
+                return true;
+
+            if (Input.touchCount > 0)
+                return Input.GetTouch(0).phase == TouchPhase.Began;
+
+            return false;
         }
 
         private bool IsPointerOverGraphic(Graphic graphic)

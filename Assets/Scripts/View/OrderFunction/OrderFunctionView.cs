@@ -1,5 +1,6 @@
 using Module;
 using Module.Data;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
@@ -20,6 +21,7 @@ namespace View.OrderFunction
 
         public GameObject fillContent;
         public Image fill;
+        public TextMeshProUGUI numtxt;
 
 
         protected override void AddEventListener()
@@ -76,6 +78,7 @@ namespace View.OrderFunction
             if (orderDataprogressList.Count < 1)
             {
                 //没有订单
+                numtxt.text = "顾客人数：0。";
             }
             else
             {
@@ -85,6 +88,7 @@ namespace View.OrderFunction
 
                     obj.GetComponent<OrderItem>().Init(orderDataprogressList[i]);
                 }
+                 numtxt.text = "顾客人数：" + orderDataprogressList.Count + "。";
             }
         }
         public void HandleUpdateOrderItem(params object[] args)
@@ -92,6 +96,7 @@ namespace View.OrderFunction
             playerData = PlayerDataModule.Instance.data;
             var orderDataprogressList = playerData.orderDataprogressList;
             Extensions.ClearChildren(content);
+             numtxt.text = "顾客人数：" + orderDataprogressList.Count + "。";
             if (orderDataprogressList.Count < 1)
             {
                 //没有订单

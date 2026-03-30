@@ -78,7 +78,7 @@ public class ZhuanPanView : BaseView
         {
             redPoint.gameObject.SetActive(false);
         }
-        remaintxt.text = "今日剩余转动次数：" + (10 - PlayerDataModule.Instance.data.todayUseZhuanPanNum);
+        remaintxt.text = "今日剩余转动次数：" + (10 - PlayerDataModule.Instance.data.todayUseZhuanPanNum) + "。";
     }
 
     public void BeginZhuanPan()
@@ -93,6 +93,7 @@ public class ZhuanPanView : BaseView
             UIController.Instance.Show<TipView>("今日转盘次数已用完!");
             return;
         }
+         PlayerDataModule.Instance.data.useZhuanPanTotalValue += 1;
         PlayerDataModule.Instance.data.todayUseZhuanPanNum += 1;
         PlayerDataModule.Instance.data.currentUseNum += 1;
         PlayerDataModule.Instance.data.lingJing -= 50;
@@ -108,7 +109,7 @@ public class ZhuanPanView : BaseView
             redPoint.gameObject.SetActive(false);
         }
         Spin();
-        remaintxt.text = "今日剩余转动次数：" + (10 - PlayerDataModule.Instance.data.todayUseZhuanPanNum);
+        remaintxt.text = "今日剩余转动次数：" + (10 - PlayerDataModule.Instance.data.todayUseZhuanPanNum)+"。";
     }
 
     public int sectorCount = 8;          // 奖区数量

@@ -1,6 +1,7 @@
 using System;
 using Module;
 using UnityEngine;
+using World.Controller;
 
 public class WeaponController2D : MonoBehaviour
 {
@@ -24,7 +25,10 @@ public class WeaponController2D : MonoBehaviour
         if (monsterCtr2 != null && !monsterCtr2.isDead)
         {
             Debug.Log($"[Weapon] 攻击命中怪物2D: atkvalue: {atkValue}");
-            monsterCtr2.TakeDamage(atkValue);
+            if (monsterCtr2.TakeDamage(atkValue))
+            {
+                AudioSourceController.Instance?.PlayMonsterHitSfx(monsterCtr2.monsterType);
+            }
         }
 
     }

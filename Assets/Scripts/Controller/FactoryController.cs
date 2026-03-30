@@ -203,10 +203,6 @@ namespace Controller
             EventCenter.Instance.RemoveListener(EventMessages.MonsterBeginCreate, HandleMonsterCreate);
         }
 
-        void Update()
-        {
-        }
-
         private void AddEvent()
         {
             EventCenter.Instance.AddListener(EventMessages.MonsterDead, HandleMonsterDead);

@@ -102,6 +102,11 @@ namespace Controller
         private Vector3 lastWorldPos;
         private Vector3 baseSkeletonScale = Vector3.one;
         private bool hasBaseSkeletonScale;
+        private float nextMonsterCheckTime;
+        private const float MonsterCheckInterval = 0.2f;
+        private readonly Collider2D[] monsterDetectResults = new Collider2D[32];
+        private int lastLayerBaseOrder = int.MinValue;
+        private int lastWeaponOrderOffset = int.MinValue;
 
         public Canvas canvas;
 
@@ -320,7 +325,11 @@ namespace Controller
                 collectorInfo.UpdateFill(1f);
             }
             RefreshCarryInfo();
-            weaponController.warehouseCategoryType = structure.warehouseCategory.warehouseCategoryType;
+            if (weaponController != null)
+            {
+                weaponController.warehouseCategoryType = structure.warehouseCategory.warehouseCategoryType;
+                weaponController.playMonsterHitSfx = false;
+            }
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
         }
 
@@ -694,13 +703,21 @@ namespace Controller
                         break;
                     }
 
+                    if (!HasAliveMonsters(currentTarget))
+                    {
+                        ChangeState(CollectorState.Wait);
+                        break;
+                    }
+
                     if (UpdateGoToResourceRoute())
                     {
                         break;
                     }
 
-                    float targetDist = Vector2.Distance(transform.position, currentTarget.transform.position);
-                    if (targetDist <= detectRadius * 0.8f || (agent != null && agent.hasPath && agent.remainingDistance < 0.1f))
+                    float targetDistSqr = ((Vector2)(currentTarget.transform.position - transform.position)).sqrMagnitude;
+                    float targetEnterFightDistance = detectRadius * 0.8f;
+                    if (targetDistSqr <= targetEnterFightDistance * targetEnterFightDistance ||
+                        (agent != null && agent.hasPath && agent.remainingDistance < 0.1f))
                     {
                         ChangeState(CollectorState.Fight);
                     }
@@ -728,10 +745,11 @@ namespace Controller
                     }
 
                     Transform depotTarget = GetDepotTargetTransform();
-                    float depotDist = depotTarget == null
+                    float depotDistSqr = depotTarget == null
                         ? float.MaxValue
-                        : Vector2.Distance(transform.position, depotTarget.position);
-                    if (depotDist <= Mathf.Max(0.2f, depotArriveDistance))
+                        : ((Vector2)(depotTarget.position - transform.position)).sqrMagnitude;
+                    float depotArriveThreshold = Mathf.Max(0.2f, depotArriveDistance);
+                    if (depotDistSqr <= depotArriveThreshold * depotArriveThreshold)
                     {
                         ChangeState(CollectorState.Unloading);
                     }
@@ -792,6 +810,30 @@ namespace Controller
                         ChangeState(CollectorState.Unloading);
                     }
                     break;
+
+                case CollectorState.Wait:
+                    if (ShouldReturnToDepot())
+                    {
+                        ChangeState(CollectorState.ReturnToDepot);
+                        break;
+                    }
+
+                    if (TryGetActiveFactoryController(out var activeFactory))
+                    {
+                        currentTarget = activeFactory;
+                        if (TryGetNearestAliveMonster(activeFactory, out var nearestMonster, out var nearestMonsterDistSqr) &&
+                            nearestMonsterDistSqr <= detectRadius * detectRadius)
+                        {
+                            ChangeState(CollectorState.Fight);
+                        }
+                        else
+                        {
+                            ChangeState(CollectorState.GoToResource);
+                        }
+                        break;
+                    }
+
+                    break;
             }
         }
 
@@ -801,18 +843,31 @@ namespace Controller
 
         public void CheckMonster()
         {
-            Collider2D[] hits = monsterLayer.value != 0
-                ? Physics2D.OverlapCircleAll(transform.position, detectRadius, monsterLayer)
-                : Physics2D.OverlapCircleAll(transform.position, detectRadius);
+            if (Time.time < nextMonsterCheckTime)
+            {
+                return;
+            }
+
+            nextMonsterCheckTime = Time.time + MonsterCheckInterval;
+
+            int hitCount = monsterLayer.value != 0
+                ? Physics2D.OverlapCircleNonAlloc(transform.position, detectRadius, monsterDetectResults, monsterLayer)
+                : Physics2D.OverlapCircleNonAlloc(transform.position, detectRadius, monsterDetectResults);
 
             hasMonsterNearby = false;
-            foreach (var hit in hits)
+            for (int i = 0; i < hitCount; i++)
             {
+                var hit = monsterDetectResults[i];
                 if (hit != null && hit.CompareTag("Monster"))
                 {
                     hasMonsterNearby = true;
                     break;
                 }
+            }
+
+            for (int i = 0; i < hitCount; i++)
+            {
+                monsterDetectResults[i] = null;
             }
 
             if (!hasMonsterNearby)
@@ -830,7 +885,7 @@ namespace Controller
 
         private void DoFight()
         {
-            if (!TryGetFactoryController(out var targetFactory) || targetFactory.monsterList == null)
+            if (!TryGetFactoryController(out var targetFactory))
             {
                 ChangeState(CollectorState.Wait);
                 return;
@@ -852,8 +907,9 @@ namespace Controller
             foreach (var monster in list)
             {
                 if (monster == null) continue;
+                if (!IsAliveFactoryMonster(monster)) continue;
 
-                float dist = Vector2.Distance(transform.position, monster.transform.position);
+                float dist = ((Vector2)(monster.transform.position - transform.position)).sqrMagnitude;
 
                 if (dist < minDist)
                 {
@@ -865,15 +921,16 @@ namespace Controller
             // 涓囦竴鍏ㄩ儴 monster 閮借娓呮帀
             if (nearest == null)
             {
-                ChangeState(CollectorState.FindResource);
+                ChangeState(CollectorState.Wait);
                 return;
             }
             SetFacingByDirection(nearest.position.x - transform.position.x);
 
             // 鏍规嵁涓庢渶杩戞€墿鐨勮窛绂诲喅锟?闈犺繎"杩樻槸"鍘熷湴鎸ユ锟?
             float stopDistance = Mathf.Max(attackStopDistance, 0.8f);
+            float stopDistanceSqr = stopDistance * stopDistance;
 
-            if (minDist > stopDistance)
+            if (minDist > stopDistanceSqr)
             {
                 // 杩樻病鍒版敾鍑昏窛绂伙紝缁х画寰€鎬墿浣嶇疆绉诲姩
                 if (agent != null)
@@ -1120,7 +1177,28 @@ namespace Controller
         public void SetLayer()
         {
             int baseOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100f);
-             canvas.sortingOrder =baseOrder + 1;
+            int weaponOffset = 1;
+
+            if (weaponRoot != null && weapon != null && weapon.activeSelf)
+            {
+                float z = weaponRoot.localEulerAngles.z;
+                if (z > 180f) z -= 360f;
+                weaponOffset = Mathf.Abs(z) <= 90f ? 1 : -1;
+            }
+
+            if (baseOrder == lastLayerBaseOrder && weaponOffset == lastWeaponOrderOffset)
+            {
+                return;
+            }
+
+            lastLayerBaseOrder = baseOrder;
+            lastWeaponOrderOffset = weaponOffset;
+
+            if (canvas != null)
+            {
+                canvas.sortingOrder = baseOrder + 1;
+            }
+
             if (meshRenderer != null)
             {
                 meshRenderer.sortingOrder = baseOrder;
@@ -1133,14 +1211,7 @@ namespace Controller
 
             if (weaponRenderer != null)
             {
-                int offset = 1;
-                if (weaponRoot != null && weapon != null && weapon.activeSelf)
-                {
-                    float z = weaponRoot.localEulerAngles.z;
-                    if (z > 180f) z -= 360f;
-                    offset = Mathf.Abs(z) <= 90f ? 1 : -1;
-                }
-                weaponRenderer.sortingOrder = baseOrder + offset;
+                weaponRenderer.sortingOrder = baseOrder + weaponOffset;
             }
         }
 
@@ -1181,6 +1252,86 @@ namespace Controller
             }
 
             return factory != null;
+        }
+
+        private bool TryGetActiveFactoryController(out FactoryController factory)
+        {
+            factory = null;
+            if (!TryGetFactoryController(out var candidate))
+            {
+                return false;
+            }
+
+            if (!HasAliveMonsters(candidate))
+            {
+                return false;
+            }
+
+            factory = candidate;
+            return true;
+        }
+
+        private bool HasAliveMonsters(FactoryController factory)
+        {
+            if (factory == null || factory.monsterList == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < factory.monsterList.Count; i++)
+            {
+                if (IsAliveFactoryMonster(factory.monsterList[i]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool TryGetNearestAliveMonster(FactoryController factory, out Transform nearest, out float minDist)
+        {
+            nearest = null;
+            minDist = float.MaxValue;
+
+            if (factory == null || factory.monsterList == null)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < factory.monsterList.Count; i++)
+            {
+                var monster = factory.monsterList[i];
+                if (!IsAliveFactoryMonster(monster))
+                {
+                    continue;
+                }
+
+                float dist = ((Vector2)(monster.transform.position - transform.position)).sqrMagnitude;
+                if (dist < minDist)
+                {
+                    minDist = dist;
+                    nearest = monster.transform;
+                }
+            }
+
+            return nearest != null;
+        }
+
+        private bool IsAliveFactoryMonster(GameObject monster)
+        {
+            if (monster == null || !monster.activeInHierarchy)
+            {
+                return false;
+            }
+
+            var monsterController = monster.GetComponent<MonsterController>();
+            if (monsterController == null)
+            {
+                return false;
+            }
+
+            return monsterController.currentHp > 0f;
         }
 
         private bool IsInDepotWorkflow()

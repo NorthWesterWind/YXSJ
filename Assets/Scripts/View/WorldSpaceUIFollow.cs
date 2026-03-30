@@ -1,4 +1,3 @@
-using System.Collections;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,39 +6,57 @@ namespace View
 {
     public class WorldSpaceUIFollow : MonoBehaviour
     {
-        public Transform target; // 角色头顶挂点
-        public Vector3 offset;   // 屏幕偏移（比如往上抬一点）
+        public Transform target;
+        public Vector3 offset;
         public Image fillImage;
-        public Canvas  canvas;
-        private void Start()
+        public Canvas canvas;
+
+        private Camera _cachedCamera;
+
+        private void Awake()
         {
-            
+            _cachedCamera = Camera.main;
         }
-        
-        
+
         private void LateUpdate()
         {
-            StartCoroutine(UpdateUIPosition());
-        }
+            if (target == null)
+            {
+                return;
+            }
 
-        private IEnumerator UpdateUIPosition()
-        {
-            yield return new WaitForEndOfFrame(); // 等摄像机完全更新完
+            if (_cachedCamera == null)
+            {
+                _cachedCamera = Camera.main;
+                if (_cachedCamera == null)
+                {
+                    return;
+                }
+            }
 
-            Vector3 screenPos = Camera.main.WorldToScreenPoint(target.position + offset);
-            transform.position = screenPos;
+            transform.position = _cachedCamera.WorldToScreenPoint(target.position + offset);
             SetLayer();
         }
-        
+
         public void SetLayer()
         {
+            if (canvas == null)
+            {
+                return;
+            }
+
             int newOrder = 3000 - Mathf.FloorToInt(transform.localPosition.y);
             canvas.sortingOrder = newOrder;
         }
 
         public void UpdateFill(float value)
         {
-            fillImage.DOFillAmount(Mathf.Min(value, 1), 0.3f);
+            if (fillImage == null)
+            {
+                return;
+            }
+
+            fillImage.DOFillAmount(Mathf.Min(value, 1f), 0.3f);
         }
     }
 }

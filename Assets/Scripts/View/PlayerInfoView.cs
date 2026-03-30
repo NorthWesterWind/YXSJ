@@ -280,14 +280,14 @@ namespace View
 
             if (seconds <= 0)
             {
-                speedTimeTxt.text = "生产加速时间剩余：\n 00:00:00";
+                speedTimeTxt.text = "00:00:00";
                 return;
             }
 
             int hours = seconds / 3600;
             int minutes = (seconds % 3600) / 60;
             int remain = seconds % 60;
-            speedTimeTxt.text = $"生产加速时间剩余：\n {hours:D2}:{minutes:D2}:{remain:D2}";
+            speedTimeTxt.text = $"{hours:D2}:{minutes:D2}:{remain:D2}";
         }
 
         public void HandleShowPlayerInfoViewCartoon(params object[] args)
