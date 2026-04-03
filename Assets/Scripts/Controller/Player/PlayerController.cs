@@ -20,15 +20,10 @@ namespace Controller.Player
         public float currentHp;
         public float currentMoveSpeed;
         public float currentPinkUpRange;
-        public float currenthpRecover;
-
         public float maxCarryNum;
         public float maxHp;
-
         public int RemainCapacity => (int)maxCarryNum - currentCarryNum;
         public int CurrentSortingOrder => renderer != null ? renderer.sortingOrder : 0;
-
-
         private SkeletonAnimation _skeletonAnimation;
         private Vector2 _dirValue;
         public bool isMoving = false;
@@ -36,26 +31,16 @@ namespace Controller.Player
         public SpriteRenderer shadowRenderer;
         public SpriteRenderer weaponRenderer;
         public CinemachineVirtualCamera camera;
-      //  public CinemachineVirtualCamera focusCamera;
         private Rigidbody2D _rigidbody;
         public GameObject weapon;
         public SkeletonAnimation weaponEffect;
-
-
-        private float detectRadius = 6f; // π÷ŒÔºÏ≤‚∞Îæ∂
-        public LayerMask monsterLayer;   // ÷ªºÏ≤‚π÷ŒÔ
-        public LayerMask productLayer;
-        public LayerMask productStationLayer;
-
-
+        private float detectRadius = 6f; 
+        public LayerMask monsterLayer; 
         public List<InteractionController> overlappingTrigger = new();
         public Transform receiveTransform;
         public PlayerInfo playerInfo;
-
         public Dictionary<GoodsType, int> goodsDic = new();
         public Dictionary<DropItemType, int> dropDic = new();
-
-        // ’˝‘⁄∑…––÷–¥˝ ∞»°µƒŒÔ∆∑ ˝¡ø£®”√”⁄∑¿÷π≥¨≥ˆ»›¡ø…œœﬁ£©
         private int _pendingPickupCount = 0;
         private const float PickupScanInterval = 0.05f;
         private const float ProductScanInterval = 0.05f;
@@ -67,35 +52,16 @@ namespace Controller.Player
         private float monsterScanTimer;
         private readonly HashSet<CashierCounter> handledCashiers = new();
         private readonly HashSet<ProductionStation> handledStations = new();
-
         public bool isDead = false;
-
         private AssetHandle _assetHandle;
         private Canvas canvas;
-
-
-        // /// <summary>
-        // /// Ω«…´ «∑Ò¥¶”⁄Ωªª•∑∂Œßƒ⁄£®Ω‚À¯£©
-        // /// </summary>
-        // public bool InteractionTriggerInRange = false;
-        // public Transform InteractionTriggerTransform;
-
         public Transform weaponRoot;
         public float speed;
-        [SerializeField] private float radiusX = 1.1f;   // ◊Û”“∞⁄∂Øæ‡¿Î
-        [SerializeField] private float radiusZ = 0.55f;  // «∞∫Ûæ∞…Ó£®æˆ∂®’⁄µ≤∏–£©
-        [SerializeField] private float minScale = 0.85f; // ‘⁄…Ì∫Û ±µƒ◊Ó–°Àı∑≈
-        [SerializeField] private float maxScale = 1.15f; // ‘⁄…Ì«∞ ±µƒ◊Ó¥ÛÀı∑≈
-
         public bool InRange;
-        private bool isThrowingCoin = false; // ∑¿÷π÷ÿ∏¥≈◊±“
-
+        private bool isThrowingCoin = false; 
         public GameObject finger;
         public Transform fingerRoot;
-
-
         public Vector2 guidePosition;
-
         private void Awake()
         {
             if (dataModule == null)
@@ -106,32 +72,24 @@ namespace Controller.Player
             camera = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
             camera.LookAt = transform;
             camera.Follow = transform;
-           // focusCamera = GameObject.Find("FocusVirtualCamera").GetComponent<CinemachineVirtualCamera>();
             _rigidbody = GetComponent<Rigidbody2D>();
             _assetHandle = GetComponent<AssetHandle>();
             _skeletonAnimation = transform.Find("Character").GetComponent<SkeletonAnimation>();
             renderer = transform.Find("Character").GetComponent<MeshRenderer>();
             var data = _skeletonAnimation.AnimationState.Data;
-
-            data.SetMix("¥˝ª˙", "◊ﬂ¬∑", 0.2f);
-            data.SetMix("◊ﬂ¬∑", "¥˝ª˙", 0.2f);
-
-            data.SetMix("◊ﬂ¬∑", "π•ª˜", 0.1f);
-            data.SetMix("¥˝ª˙", "π•ª˜", 0.1f);
-
-            data.SetMix("π•ª˜", "¥˝ª˙", 0.15f);
-            data.SetMix("π•ª˜", "◊ﬂ¬∑", 0.15f);
+            data.SetMix("ÂæÖÊú∫", "Ëµ∞Ë∑Ø", 0.2f);
+            data.SetMix("Ëµ∞Ë∑Ø", "ÂæÖÊú∫", 0.2f);
+            data.SetMix("Ëµ∞Ë∑Ø", "ÊîªÂáª", 0.1f);
+            data.SetMix("ÂæÖÊú∫", "ÊîªÂáª", 0.1f);
+            data.SetMix("ÊîªÂáª", "ÂæÖÊú∫", 0.15f);
+            data.SetMix("ÊîªÂáª", "Ëµ∞Ë∑Ø", 0.15f);
         }
-
         private MeshRenderer renderer;
         void Start()
         {
             AddEvent();
             Init();
-
         }
-
-
         private void AddEvent()
         {
             EventCenter.Instance.AddListener(EventMessages.TriggerDetection, HandleTrigger);
@@ -160,12 +118,10 @@ namespace Controller.Player
             EventCenter.Instance.RemoveListener(EventMessages.HideGuideFinger, HandleHideGuideFinger);
             EventCenter.Instance.RemoveListener(EventMessages.CameraBeginShaking, HandleCameraBeginShaking);
         }
-
         public void HandleCameraBeginShaking(params object[] args)
         {
             
         }
-
         public void HandleShowGuideFinger(params object[] args)
         {
             finger.SetActive(true);
@@ -176,14 +132,11 @@ namespace Controller.Player
             finger.SetActive(false);
             guidePosition = Vector2.zero;
         }
-
-
         public void HandleMonsterDead(params object[] args)
         {
             currentHp += PlayerDataModule.Instance.data.addhpRecover;
             currentHp = Mathf.Min(currentHp, maxHp);
         }
-
         public void UpdatePlayerValueInfo(params object[] args)
         {
             currentCarryNum = 0;
@@ -200,8 +153,6 @@ namespace Controller.Player
             currentMoveSpeed = dataModule.data.moveSpeed + dataModule.data.addMoveSpeed;
             playerInfo.UpdateTxt();
         }
-
-
         public void Init()
         {
             if (dataModule == null)
@@ -217,7 +168,6 @@ namespace Controller.Player
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerInfo);
         }
-
         private void TryRestoreInventoryFromData()
         {
             var data = dataModule != null ? dataModule.data : null;
@@ -237,7 +187,6 @@ namespace Controller.Player
             {
                 return;
             }
-
             dropDic.Clear();
             if (data.runtimePlayerDropList != null)
             {
@@ -248,7 +197,6 @@ namespace Controller.Player
                     dropDic[entry.itemType] = entry.count;
                 }
             }
-
             goodsDic.Clear();
             if (data.runtimePlayerGoodsList != null)
             {
@@ -259,7 +207,6 @@ namespace Controller.Player
                     goodsDic[entry.goodsType] = entry.count;
                 }
             }
-
             if (playerInfo != null)
             {
                 playerInfo.UpdateTxt();
@@ -269,21 +216,16 @@ namespace Controller.Player
                 EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerInfo);
             }
         }
-
         public void SetLayer()
         {
             int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
             canvas.sortingOrder = newOrder + 1;
             renderer.sortingOrder = newOrder;
-            //weaponRenderer.sortingOrder = newOrder;
             shadowRenderer.sortingOrder = newOrder;
         }
-
         public bool isShowUI = false;
-
         void Update()
         {
-
             SetLayer();
             if (isShowUI)
             {
@@ -305,17 +247,16 @@ namespace Controller.Player
                 var current = state.GetCurrent(0);
                 if (weapon.gameObject.activeSelf)
                 {
-                    if (current == null || current.Animation.Name != "π•ª˜")
+                    if (current == null || current.Animation.Name != "ÊîªÂáª")
                     {
-                        state.SetAnimation(0, "π•ª˜", true);
+                        state.SetAnimation(0, "ÊîªÂáª", true);
                     }
-
                 }
                 else
                 {
-                    if (current == null || current.Animation.Name != "◊ﬂ¬∑")
+                    if (current == null || current.Animation.Name != "Ëµ∞Ë∑Ø")
                     {
-                        state.SetAnimation(0, "◊ﬂ¬∑", true);
+                        state.SetAnimation(0, "Ëµ∞Ë∑Ø", true);
                     }
                 }
             }
@@ -327,44 +268,39 @@ namespace Controller.Player
 
                 if (weapon.gameObject.activeSelf)
                 {
-                    if (current == null || current.Animation.Name != "π•ª˜Õ»≤ª∂Ø")
+                    if (current == null || current.Animation.Name != "ÊîªÂáªËÖø‰∏çÂä®")
                     {
-                        state.SetAnimation(0, "π•ª˜Õ»≤ª∂Ø", true);
+                        state.SetAnimation(0, "ÊîªÂáªËÖø‰∏çÂä®", true);
                     }
                 }
                 else
                 {
 
-                    if (current == null || current.Animation.Name != "¥˝ª˙")
+                    if (current == null || current.Animation.Name != "ÂæÖÊú∫")
                     {
-                        state.SetAnimation(0, "¥˝ª˙", true);
+                        state.SetAnimation(0, "ÂæÖÊú∫", true);
                     }
                 }
             }
-
             float deltaTime = Time.deltaTime;
-
             monsterScanTimer -= deltaTime;
             if (monsterScanTimer <= 0f)
             {
                 monsterScanTimer = MonsterScanInterval;
                 CheckMonster();
             }
-
             pickupScanTimer -= deltaTime;
             if (pickupScanTimer <= 0f)
             {
                 pickupScanTimer = PickupScanInterval;
                 CheckDrop();
             }
-
             productScanTimer -= deltaTime;
             if (productScanTimer <= 0f)
             {
                 productScanTimer = ProductScanInterval;
                 CheckProduct();
             }
-
             interactionScanTimer -= deltaTime;
             if (interactionScanTimer <= 0f)
             {
@@ -372,7 +308,6 @@ namespace Controller.Player
                 CheckProductStation();
                 CheckSaleStall();
             }
-
             if (weapon.gameObject.activeSelf)
             {
                 weaponRoot.Rotate(0f, 0f, -speed * Time.deltaTime);
@@ -396,7 +331,6 @@ namespace Controller.Player
                 weaponEffect.AnimationState.ClearTrack(0);
                 weaponEffect.gameObject.SetActive(false);
             }
-
             if (finger.activeSelf)
             {
                 Vector2 dir = guidePosition - (Vector2)transform.position;
@@ -408,50 +342,31 @@ namespace Controller.Player
                     guidePosition = Vector2.zero;
                 }
             }
-
         }
-
-
-
-
-
-
         public bool CanThrowTongBi()
         {
             return PlayerDataModule.Instance.data.tongbi >= 100 && InRange && !isThrowingCoin && !isMoving;
         }
-
         public void ThrowOutTongBi(Transform target)
         {
-            Debug.Log(" yj = > ≈–∂œÕ∂÷¿Õ≠±“");
-
             if (CanThrowTongBi())
             {
-                Debug.Log(" yj = > ≈–∂œÕ®π˝");
                 StartCoroutine(ThrowOutTongBiCoroutine(target));
             }
-
         }
-
         private IEnumerator ThrowOutTongBiCoroutine(Transform target)
         {
-            isThrowingCoin = true; // ±Íº«’˝‘⁄≈◊±“
-            Debug.Log("yj = >Õ∂÷¿Õ≠±“");
-
+            isThrowingCoin = true;
             GameObject coinObj = Instantiate(
                 _assetHandle.Get<GameObject>("Production"),
                 receiveTransform.position,
                 Quaternion.identity
             );
-
             var coinCtrl = coinObj.GetComponent<Production>();
             coinCtrl.Init(GoodsType.TongBi, 100);
             coinCtrl.spriteRenderer.sortingOrder = renderer.sortingOrder + 2;
-
-
-
             coinCtrl.FlyTo_1(
-                target.position,0.1f, target,
+                target.position,0.08f, target,
                 () =>
                 {
                     EventCenter.Instance.TriggerEvent(
@@ -463,18 +378,9 @@ namespace Controller.Player
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                 }
             );
-
-            yield return new WaitForSeconds(0.2f);
-            isThrowingCoin = false; // ≈◊±“Ω· ¯
+            yield return new WaitForSeconds(0.1f);
+            isThrowingCoin = false; // ÊäõÂ∏ÅÁªìÊùü
         }
-
-
-        // public void ThrowOutTongBi()
-        // {
-        //     GameObject coinObj = ObjectPoolManager.Instance.GetObject("TongBi");
-        //     var coinCtrl = coinObj.GetComponent<DropController>();
-        // }
-
         private void FixedUpdate()
         {
             if (isMoving)
@@ -502,38 +408,25 @@ namespace Controller.Player
 
             playerInfo.UpdateBagInfo();
         }
-
         private void HandleFocusView(params object[] args)
         {
             isShowUI = true;
-            // if (!Mathf.Approximately(camera.m_Lens.OrthographicSize, 10))
-            // {
-            //     camera.m_Lens.OrthographicSize =
-            //         Mathf.SmoothDamp(camera.m_Lens.OrthographicSize, 10, ref velocity, 0.3f);
-            // }
         }
-
         private void RestoreFocusView(params object[] args)
         {
             isShowUI = false;
         }
-
-
         public void SetDir(Vector2 direction)
         {
             _dirValue = direction;
         }
-
-        // ÕÊº“…˙√¸÷µªÿ—™
-        private float lastDamageTime = -999f; // …œ¥Œ ‹…À ±º‰
+        private float lastDamageTime = -999f; 
         private bool isRegenerating = false;
         private Coroutine regenCoroutine;
         private float regenDelay = 3f;
-
         private IEnumerator RegenerateHealth()
         {
             isRegenerating = true;
-
             while (currentHp < dataModule.data.hp)
             {
                 currentHp += 5 * Time.deltaTime;
@@ -547,12 +440,9 @@ namespace Controller.Player
                     yield break;
                 }
             }
-
             playerInfo.HideHpInfo();
             isRegenerating = false;
         }
-
-
         public void CheckDrop()
         {
             var scenePickup = ScenePickupController.Instance;
@@ -560,32 +450,24 @@ namespace Controller.Player
             {
                 return;
             }
-
             var list = scenePickup.materials;
-
             for (int i = list.Count - 1; i >= 0; i--)
             {
                 var item = list[i];
-                if (item == null) continue;                       // ªÿ ’ ± item ø…ƒ‹±ªœ˙ªŸ
-                if (!item.gameObject.activeInHierarchy) continue; // ±‹√‚ inactive
+                if (item == null) continue;                       
+                if (!item.gameObject.activeInHierarchy) continue; 
                 if (item.isTaken) continue;
-                if (!item.canPickup) continue;                    // ªπ‘⁄µÙ¬‰∂Øª≠÷–£¨≤ªø… ∞»°
-
+                if (!item.canPickup) continue;                  
                 float dist = Vector2.Distance(transform.position, item.transform.position);
                 if (dist > currentPinkUpRange) continue;
-
                 var drop = item as DropController;
                 if (drop == null) continue;
-
-                // Ω‘™±¶∫Õ“¯«Æ≤ª’º±≥∞¸»›¡ø£¨Œﬁ–ËºÏ≤È…œœﬁ
                 if (drop.itemType == DropItemType.JingYuanBao || drop.itemType == DropItemType.YingQian)
                 {
                     item.StartAttract(this.transform, receiveTransform);
                 }
                 else
                 {
-                    // ºÏ≤È £”‡»›¡ø£®øº¬«’˝‘⁄∑…––÷–µƒŒÔ∆∑£©
-                    // ”√ continue ∂¯≤ª « break£¨»∑±£∫Û–¯µƒ“¯«Æ/Ω‘™±¶»‘ƒ‹±ª ∞»°
                     if (currentCarryNum + _pendingPickupCount >= maxCarryNum) continue;
                     item.StartAttract(this.transform, receiveTransform,
                         () => _pendingPickupCount = Mathf.Max(0, _pendingPickupCount - 1));
@@ -593,7 +475,6 @@ namespace Controller.Player
                 }
             }
         }
-
         public void CheckProduct()
         {
             var scenePickup = ScenePickupController.Instance;
@@ -601,11 +482,9 @@ namespace Controller.Player
             {
                 return;
             }
-
             var list = scenePickup.products;
             handledCashiers.Clear();
             handledStations.Clear();
-
             for (int i = list.Count - 1; i >= 0; i--)
             {
                 var item = list[i];
@@ -613,14 +492,11 @@ namespace Controller.Player
                 if (!item.gameObject.activeInHierarchy) continue;
                 if (item.isTaken) continue;
                 if (!item.canPickup) continue;
-
                 var production = item as Production;
                 if (production == null) continue;
-
                 if (production.station is CashierCounter cashierCounter)
                 {
                     if (!handledCashiers.Add(cashierCounter)) continue;
-
                     float rootDist = Vector2.Distance(transform.position, cashierCounter.GetPickupRootPosition());
                     if (rootDist <= currentPinkUpRange)
                     {
@@ -630,7 +506,6 @@ namespace Controller.Player
                 else if (production.station is ProductionStation station)
                 {
                     if (!handledStations.Add(station)) continue;
-
                     float rootDist = Vector2.Distance(transform.position, station.GetPickupRootPosition());
                     if (rootDist > currentPinkUpRange) continue;
                     if (currentCarryNum + _pendingPickupCount >= maxCarryNum) continue;
@@ -644,26 +519,19 @@ namespace Controller.Player
                         _pendingPickupCount++;
                     }
                 }
-
             }
         }
-
-        // π÷ŒÔºÏ≤‚∫Ø ˝
         public void CheckMonster()
         {
             Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectRadius, monsterLayer);
-
             if (hits.Length > 0)
             {
                 weapon.gameObject.SetActive(true);
             }
             else
-
             {
-
                 UpdatePlayerEquimentInfo();
                 weapon.gameObject.SetActive(false);
-                // ◊‘∂Øªÿ—™ºÏ≤‚
                 if (currentHp < maxHp && !isRegenerating)
                 {
                     if (Time.time - lastDamageTime >= regenDelay)
@@ -673,12 +541,9 @@ namespace Controller.Player
                 }
             }
         }
-
-
         public AnimationCurve scatterCurve;
         private float scatterDuration = 0.1f;
         private Dictionary<string, Coroutine> deliverCoroutines = new();
-
         public void CheckProductStation()
         {
             if (isMoving) return;
@@ -705,7 +570,6 @@ namespace Controller.Player
                 }
             }
         }
-
         public void CheckSaleStall()
         {
             if (isMoving) return;
@@ -715,11 +579,8 @@ namespace Controller.Player
                 {
                     var station = data.Value as SalesStall;
                     if (station == null) continue;
-
                     if (!goodsDic.ContainsKey(station.currentGoodsType)) continue;
                     if (goodsDic[station.currentGoodsType] <= 0) continue;
-
-                    // »∑±£–≠≥Ã≤ªª·≤¢∑¢÷ÿ∏¥∆Ù∂Ø
                     if (!deliverCoroutines.ContainsKey("SaleStall"))
                     {
                         deliverCoroutines["SaleStall"] = StartCoroutine(DeliverProduct(station));
@@ -727,7 +588,6 @@ namespace Controller.Player
                 }
             }
         }
-
         private IEnumerator DeliverMaterial(ProductionStation station)
         {
             int count = dropDic[station.dropItemType];
@@ -738,7 +598,6 @@ namespace Controller.Player
                     deliverCoroutines["ProductStation"] = null;
                     break;
                 }
-
                 GameObject drop = Instantiate(_assetHandle.Get<GameObject>("DropObj"));
                 var dropCtrl = drop.GetComponent<DropController>();
                 dropCtrl.canPickup = false;
@@ -747,13 +606,10 @@ namespace Controller.Player
                 Vector2 start = receiveTransform.position;
                 Vector2 target = station.recivePosition.position;
                 Vector2 control = Vector2.Lerp(start, target, 0.1f) + Vector2.up * 1.5f;
-
                 float timer = 0f;
-
                 while (timer < scatterDuration)
                 {
                     if (isMoving) break;
-
                     float t = scatterCurve.Evaluate(timer / scatterDuration);
                     Vector2 pos = (1 - t) * (1 - t) * start +
                                   2 * (1 - t) * t * control +
@@ -763,24 +619,17 @@ namespace Controller.Player
                     timer += Time.deltaTime;
                     yield return null;
                 }
-
                 drop.transform.position = target;
-
                 station.AddMaterial(1);
                 Destroy(drop);
-
-                // µ›ºı≤ƒ¡œº∆ ˝
                 dropDic[station.dropItemType]--;
                 currentCarryNum--;
                 playerInfo.UpdateTxt();
-
-                yield return new WaitForSeconds(0.05f); // ∂‡∏ˆ≤ƒ¡œº‰∏Ù
+                yield return new WaitForSeconds(0.05f); 
             }
-
             deliverCoroutines["ProductStation"] = null;
             deliverCoroutines.Remove("ProductStation");
         }
-
         private IEnumerator DeliverProduct(SalesStall station)
         {
             int count = goodsDic[station.currentGoodsType];
@@ -791,7 +640,6 @@ namespace Controller.Player
                     deliverCoroutines["SaleStall"] = null;
                     break;
                 }
-
                 GameObject drop = GameObject.Instantiate(_assetHandle.Get<GameObject>("Production"));
                 var dropCtrl = drop.GetComponent<Production>();
                 dropCtrl.canPickup = false;
@@ -799,19 +647,14 @@ namespace Controller.Player
                 dropCtrl.SetStation(station);
                 drop.transform.position = receiveTransform.position;
                 station.PlaceProduct(dropCtrl);
-                // µ›ºı≤ƒ¡œº∆ ˝
                 goodsDic[station.currentGoodsType]--;
                 currentCarryNum--;
                 playerInfo.UpdateTxt();
-
                 yield return new WaitForSeconds(0.05f);
             }
-
             deliverCoroutines["SaleStall"] = null;
             deliverCoroutines.Remove("SaleStall");
         }
-
-
         private void HandleTrigger(params object[] args)
         {
             foreach (var trigger in overlappingTrigger)
@@ -822,12 +665,9 @@ namespace Controller.Player
                 }
             }
         }
-
-
         private InteractionController currentInteraction;
         private InteractionTrigger currentInteractionTrigger;
         private Coroutine stayCoroutine;
-
         private void OnTriggerEnter2D(Collider2D other)
         {
             var interaction = other.GetComponent<InteractionController>();
@@ -845,14 +685,13 @@ namespace Controller.Player
         private IEnumerator StayCheck()
         {
             float stayTime = 0f;
-
             while (currentInteraction != null)
             {
-                if (!isMoving)   // ∫À–ƒ≈–∂œ
+                if (!isMoving)   // Ê†∏ÂøÉÂà§Êñ≠
                 {
                     stayTime += Time.deltaTime;
 
-                    if (stayTime >= 0.5f) // 0.5 √Î
+                    if (stayTime >= 0.5f) // 0.5 Áßí
                     {
                         currentInteraction.Interact();
                         yield break;
@@ -860,16 +699,13 @@ namespace Controller.Player
                 }
                 else
                 {
-                    stayTime = 0f; // “ª∂ØæÕ«Â¡„
+                    stayTime = 0f; // ‰∏ÄÂä®Â∞±Ê∏ÖÈõ∂
                 }
 
                 yield return null;
             }
-
             stayCoroutine = null;
         }
-
-
         private void OnTriggerExit2D(Collider2D other)
         {
             var interaction = other.GetComponent<InteractionController>();
@@ -888,53 +724,6 @@ namespace Controller.Player
                 }
             }
         }
-
-
-
-
-        // private void OnTriggerEnter2D(Collider2D other)
-        // {
-        //     var trigger = other.GetComponent<InteractionController>();
-        //     var trigger2 = other.GetComponent<InteractionTrigger>();
-        //     if (trigger != null)
-        //     {
-        //         overlappingTrigger.Add(trigger);
-        //         if (trigger.interactionType == InteractionType.Immediate)
-        //         {
-        //             trigger.Interact();
-        //         }
-        //     }
-
-        //     if (trigger2 != null)
-        //     {
-        //         trigger2.TriggerEnter();
-        //     }
-        // }
-
-        // private void OnTriggerStay2D(Collider2D other)
-        // {
-        //     Debug.Log("≥÷–¯÷ÿµ˛" + other.name);
-        //     if (other.GetComponent<InteractionTrigger>())
-        //     {
-        //     }
-        // }
-
-        // private void OnTriggerExit2D(Collider2D other)
-        // {
-        //     var trigger = other.GetComponent<InteractionController>();
-        //     var trigger2 = other.GetComponent<InteractionTrigger>();
-        //     if (trigger != null)
-        //     {
-        //         trigger.CloseInteract();
-        //         overlappingTrigger.Remove(trigger);
-        //     }
-
-        //     if (trigger2 != null)
-        //     {
-        //         trigger2.TriggerExit();
-        //     }
-        // }
-
         public void AddDropItem(DropItemType itemType)
         {
             EventCenter.Instance.TriggerEvent(EventMessages.HarvestTask, itemType);
@@ -1068,7 +857,6 @@ namespace Controller.Player
                     dataModule.AddYinQian(100);
                     break;
             }
-
             playerInfo.UpdateTxt();
         }
         public void AddGoods(GoodsType goodsType, int value = 0)
@@ -1091,48 +879,35 @@ namespace Controller.Player
                 goodsDic[goodsType]++;
                 playerInfo.UpdateTxt();
             }
-
             if (goodsType == GoodsType.YunZhiCha && PlayerDataModule.Instance.data.guideStep == GuideStep.TakeTea)
             {
                 PlayerDataModule.Instance.data.guideStep = GuideStep.SellTea;
                 UIController.Instance.Show<PlayerGuide>();
             }
         }
-
-
         public void HandleTakeDamage(params object[] args)
         {
             float value = Convert.ToSingle(args[0]);
             TakeDamage(value);
-
         }
-
         public void HandleFocusNew(params object[] args)
         {
             Transform t = (Transform)args[0];
-            EventCenter.Instance.TriggerEvent(EventMessages.FocusView); // Ω˚÷π ‰»Î
-            // focusCamera.LookAt = t;
-            // focusCamera.Priority = 20; // > PlayerCam 10
+            EventCenter.Instance.TriggerEvent(EventMessages.FocusView);
             StartCoroutine(ReturnAfterDelay(3f));
         }
         IEnumerator ReturnAfterDelay(float seconds)
         {
-            yield return new WaitForSeconds(seconds);
-            // focusCamera.LookAt = transform;
-            // focusCamera.Priority = 5;                                             // ª÷∏¥Œ™µÕ
-            EventCenter.Instance.TriggerEvent(EventMessages.RestoreFocusView); // ª÷∏¥ ‰»Î
+            yield return new WaitForSeconds(seconds);                                     
+            EventCenter.Instance.TriggerEvent(EventMessages.RestoreFocusView); 
         }
-
         private bool invincible = false;
         private float invincibleTime = 0.2f;
-
         public void TakeDamage(float damage)
         {
             if (isDead) return;
             if (invincible) return;
-
             StartCoroutine(InvincibleFrame());
-
             currentHp -= damage;
             playerInfo.ShowHpInfo();
             playerInfo.UpdateFill(currentHp / dataModule.data.hp);
@@ -1140,10 +915,7 @@ namespace Controller.Player
             {
                 DoDie();
             }
-
-
         }
-
         public void DoDie()
         {
             transform.position = GameController.Instance.RespawnPoint.transform.position;
@@ -1157,7 +929,6 @@ namespace Controller.Player
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerInfo);
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerCarryInfo);
         }
-
         private IEnumerator InvincibleFrame()
         {
             invincible = true;

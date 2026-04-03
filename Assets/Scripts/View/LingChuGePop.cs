@@ -30,12 +30,14 @@ public class LingChuGePop : BaseView
     public GameObject cardMask;
     public TextMeshProUGUI cardMaskTxt;
     public UIButton cardBtn;
-
     public TextMeshProUGUI atkLevelTxt;
     public TextMeshProUGUI currentAtkTxt;
     public TextMeshProUGUI nextAtkTxt;
     public TextMeshProUGUI gradefreeTxt_1;
     public UIButton upgradeAtkBtn;
+    public GameObject btnMask_1;
+
+
 
     public GameObject numgradeMask;
     public TextMeshProUGUI numgradeMaskTxt;
@@ -43,6 +45,7 @@ public class LingChuGePop : BaseView
     public TextMeshProUGUI currentNumTxt;
     public TextMeshProUGUI nextNumTxt;
     public TextMeshProUGUI gradefreeTxt_2;
+    public GameObject btnMask_2;
     public UIButton upgradeNumBtn;
 
     public WarehouseCategoryType warehouseCategoryType;
@@ -56,6 +59,8 @@ public class LingChuGePop : BaseView
     {
         base.UpdateViewWithArgs(args);
         var type = (BuildingType)args[0];
+        btnMask_1.SetActive(false);
+        btnMask_2.SetActive(false);
         cardType = CardDevelopType.UpgradeLingChuGe_1;
         if (type == BuildingType.LingChuGe_1)
         {
@@ -79,10 +84,15 @@ public class LingChuGePop : BaseView
         }
         else
         {
-            gradefreeTxt_1.text = "等级已满";
+            btnMask_1.SetActive(true);
         }
 
         gradefreeTxt_2.text = Extensions.FormatNumber(warehouse.numLevel * 20000);
+        if (warehouse.numLevel < warehouse.maxNumLevel)
+        {
+           btnMask_2.SetActive(true);
+        }
+       
         atkLevelTxt.text = warehouse.atkLevel + "级";
         numLevelTxt.text = warehouse.numLevel + "级";
         currentAtkTxt.text = warehouse.atk.ToString();
@@ -230,6 +240,14 @@ public class LingChuGePop : BaseView
             {
                 nextAtkTxt.text = "";
             }
+            if (warehouse.atkLevel < warehouse.maxAtkLevel)
+            {
+                gradefreeTxt_1.text = Extensions.FormatNumber(warehouse.atkLevel * 3000);
+            }
+            else
+            {
+                btnMask_1.SetActive(true);
+            }
             if (warehouse.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1)
             {
                 EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask, BuildingType.LingChuGe_1);
@@ -269,6 +287,14 @@ public class LingChuGePop : BaseView
             numLevelTxt.text = warehouse.numLevel + "级";
             numtxt.text = warehouse.peopleNum.ToString();
             currentNumTxt.text = warehouse.peopleNum.ToString();
+            if (warehouse.numLevel < warehouse.maxNumLevel)
+            {
+                gradefreeTxt_2.text = Extensions.FormatNumber(warehouse.numLevel * 20000);
+            }
+            else
+            {
+                btnMask_2.SetActive(true);
+            }
             if (warehouse.peopleNum < 3)
             {
                 nextNumTxt.text = (warehouse.peopleNum + 1).ToString();
@@ -280,6 +306,8 @@ public class LingChuGePop : BaseView
 
             UIController.Instance.Show<TipView>("升级成功。");
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
+
+
         }
     }
 }

@@ -1355,6 +1355,7 @@ namespace Module
                      }
 
                      DateTime now = DateTime.Now;
+                     RefreshYuanBaoKuangDongDailyCountIfNeeded(now);
                      if (now.Year != data.lastTime.Year || now.Month != data.lastTime.Month)
                      {
                          data.monthlyLimitMoney = 0;
@@ -1448,6 +1449,79 @@ namespace Module
             }
 
             return JsonConvert.DeserializeObject<PlayerData>(json, settings);
+        }
+
+        public void RefreshYuanBaoKuangDongDailyCountIfNeeded()
+        {
+            RefreshYuanBaoKuangDongDailyCountIfNeeded(DateTime.Now);
+        }
+
+        public void RefreshYuanBaoKuangDongDailyCountIfNeeded(DateTime now)
+        {
+            if (data == null)
+            {
+                return;
+            }
+
+            if (!ShouldRefreshYuanBaoKuangDong(now))
+            {
+                return;
+            }
+
+            data.lastRefrashTime = now.ToString("yyyy-MM-dd HH:mm:ss");
+            data.remainCount = GetYuanBaoKuangDongDailyCount();
+        }
+
+        public DateTime GetYuanBaoKuangDongNextRefreshTime()
+        {
+            return GetYuanBaoKuangDongNextRefreshTime(DateTime.Now);
+        }
+
+        public DateTime GetYuanBaoKuangDongNextRefreshTime(DateTime now)
+        {
+            return now.Date.AddDays(1);
+        }
+
+        public string GetYuanBaoKuangDongNextRefreshText()
+        {
+            return GetYuanBaoKuangDongNextRefreshText(DateTime.Now);
+        }
+
+        public string GetYuanBaoKuangDongNextRefreshText(DateTime now)
+        {
+            DateTime nextRefreshTime = GetYuanBaoKuangDongNextRefreshTime(now);
+            TimeSpan remainTime = nextRefreshTime - now;
+            int totalMinutes = Mathf.Max(0, Mathf.CeilToInt((float)remainTime.TotalMinutes));
+            int hours = totalMinutes / 60;
+            int minutes = totalMinutes % 60;
+            return $"还有{hours}小时{minutes}分钟刷新。";
+        }
+
+        private bool ShouldRefreshYuanBaoKuangDong(DateTime now)
+        {
+            if (string.IsNullOrEmpty(data.lastRefrashTime))
+            {
+                return true;
+            }
+
+            if (!DateTime.TryParse(data.lastRefrashTime, out DateTime lastRefreshTime))
+            {
+                return true;
+            }
+
+            return lastRefreshTime.Date < now.Date;
+        }
+
+        private int GetYuanBaoKuangDongDailyCount()
+        {
+            int count = 30;
+            var cardProgress = data.cardUpProgressesList?.Find(x => x.developType == CardDevelopType.UpgradeGetYuanBaoLing);
+            if (cardProgress != null)
+            {
+                count += cardProgress.level * 10;
+            }
+
+            return count;
         }
 
         private bool TryNormalizeLegacyOrderProgressJson(string json, out string repairedJson)
@@ -1749,11 +1823,30 @@ namespace Module
                 data.structCanUnLockDataDic[mapId].RemoveAll(x => sanitizedUnlocked.Contains(x));
                 data.structLockDataDic[mapId].RemoveAll(x => sanitizedUnlocked.Contains(x));
             }
+
+            EnsureEmployeeFunctionUnlockedByYunDiGe();
         }
 
         public void RefreshStructureUnlockData()
         {
             NormalizeStructureUnlockData();
+        }
+
+        private void EnsureEmployeeFunctionUnlockedByYunDiGe()
+        {
+            if (data == null || data.employeeFunction == 1 || data.structUnLockDataDic == null)
+            {
+                return;
+            }
+
+            foreach (var unlockedList in data.structUnLockDataDic.Values)
+            {
+                if (unlockedList != null && unlockedList.Contains(BuildingType.YunDiGe))
+                {
+                    UnlockEmployeeFunction();
+                    return;
+                }
+            }
         }
 
         private static IEnumerable<BuildingType> GetDefaultUnlockedBuildingsForMap(int mapId)
@@ -1860,7 +1953,7 @@ namespace Module
         private Coroutine orderAutoCheckCoroutine;
         public int maxOrderCount = 4;
         public float refreshInterval = 180f;
-        public float checkInterval = 5f; // 每 1 秒检测一次
+        public float checkInterval = 5f; 
         public float orderRefreshProgress;
         private float refreshTimer;
         public void StartOrderAutoCheck()
@@ -1901,22 +1994,17 @@ namespace Module
             while (data.orderDataprogressList.Count < maxOrderCount)
             {
                 refreshTimer = 0f;
-
                 while (refreshTimer < refreshInterval)
                 {
                     refreshTimer += Time.deltaTime;
                     orderRefreshProgress = Mathf.Clamp01(refreshTimer / refreshInterval);
 
-                    yield return null; // 每帧更新进度
+                    yield return null; 
                 }
-
-                // 时间到了，生成一个订单
                 if (data.orderDataprogressList.Count < maxOrderCount)
                 {
                     AddOrderData();
                 }
-
-                // 重置进度，准备下一次
                 refreshTimer = 0f;
                 orderRefreshProgress = 0f;
             }
@@ -1930,18 +2018,14 @@ namespace Module
         {
             while (true)
             {
-                // 没满 → 确保刷新协程在跑
                 if (data.orderDataprogressList.Count < maxOrderCount)
                 {
                     TryStartOrderRefresh();
                 }
                 else
                 {
-                    // 满了 → 停止刷新
                     StopOrderRefresh();
                 }
-
-                // 关键！！必须让出时间
                 yield return new WaitForSeconds(checkInterval);
             }
         }
@@ -1993,7 +2077,7 @@ namespace Module
         {
 
             data.accountLevel += 1;
-            UIController.Instance.Show<TipView>($"等级提升至{data.accountLevel}级！");
+            UIController.Instance.Show<TipView>($"等级提升，获得翠芒珠x4！");
             if (data.accountLevel >= 2)
             {
                 if (data.characterFunction == 0)
@@ -2074,7 +2158,7 @@ namespace Module
             data.tongbi += rewardData.Tq;
             data.goldIngot += rewardData.Jyb;
             EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask, rewardData.Tq);
-            UIController.Instance.Show<TipView>("任务奖励领取成功！");
+            UIController.Instance.Show<TipView>("领取成功！");
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
             EventCenter.Instance.TriggerEvent(EventMessages.UpdateLevelProgress);
         }
@@ -2147,23 +2231,23 @@ namespace Module
         }
         private CardLevelType DrawQualityByPackLevel(int level)
         {
-            int roll = UnityEngine.Random.Range(0, 100); // 0..99
+            int roll = UnityEngine.Random.Range(0, 100); 
 
             switch (level)
             {
-                case 1: // 低级
+                case 1:
                     if (roll < 80) return CardLevelType.FanPing;
-                    return CardLevelType.LingYun; // 20%
+                    return CardLevelType.LingYun; 
 
-                case 2:                                          // 中级
-                    if (roll < 80) return CardLevelType.FanPing; // 0-79
-                    if (roll < 95) return CardLevelType.LingYun; // 80-94 => 15%
-                    return CardLevelType.XianYun;                // 95-99 => 5%
+                case 2:                                          
+                    if (roll < 80) return CardLevelType.FanPing; 
+                    if (roll < 95) return CardLevelType.LingYun; 
+                    return CardLevelType.XianYun;                
 
-                case 3:                                          // 高级
-                    if (roll < 75) return CardLevelType.FanPing; // 0-74 => 75%
-                    if (roll < 90) return CardLevelType.LingYun; // 75-89 => 15%
-                    return CardLevelType.XianYun;                // 90-99 => 10%
+                case 3:                                       
+                    if (roll < 75) return CardLevelType.FanPing; 
+                    if (roll < 90) return CardLevelType.LingYun; 
+                    return CardLevelType.XianYun;               
 
                 default:
                     return CardLevelType.FanPing;
@@ -2283,7 +2367,7 @@ namespace Module
                 {
                     if (GetProductStationData(buildingType) != null)
                     {
-                        Debug.LogError(" yj ==>  重复添加生产台数据");
+                     
                     }
 
                     GetOrCreateProductStationData(
@@ -2293,12 +2377,13 @@ namespace Module
 
                 if (buildingType == BuildingType.YunDiGe)
                 {
+                    if (data.employeeFunction == 0)
+                    {
+                        UnlockEmployeeFunction();
+                    }
+
                     if (data.deliverData == null)
                     {
-                        if (data.employeeFunction == 0)
-                        {
-                            UnlockEmployeeFunction();
-                        }
                         data.deliverData = new DeliverData();
                     }
                 }

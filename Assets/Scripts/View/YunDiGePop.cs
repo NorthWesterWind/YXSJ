@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using Controller;
 using DG.Tweening;
 using Module;
@@ -86,8 +85,6 @@ public class YunDiGePop : BaseView
             btnMask_2.SetActive(true);
             btnMaskTxt_2.text = "等级已满";
         }
-       
-
         var cardprogress = playerData.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeYunDiGe);
         if (cardprogress == null)
         {
@@ -121,21 +118,17 @@ public class YunDiGePop : BaseView
                 btnMask_2.SetActive(false);
             }
         }
-         var cardLevelData = DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeYunDiGe);
+        var cardLevelData = DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeYunDiGe);
         if (cardLevelData.unlockLevel <= playerData.accountLevel)
         {
             cardMask.SetActive(false);
-
         }
         else
         {
             cardMask.SetActive(true);
             cardmasktxt.text = cardLevelData.unlockLevel.ToString();
         }
-
     }
-
-
     protected override void AddEventListener()
     {
         base.AddEventListener();
@@ -144,7 +137,6 @@ public class YunDiGePop : BaseView
         {
             StartCoroutine(HideAnimation());
         }));
-
         upgradeSpeedBtn.onClick.RemoveAllListeners();
         upgradeSpeedBtn.onClick.AddListener(OnClickUpgradeSpeedBtn);
         upgradePeopleBtn.onClick.RemoveAllListeners();
@@ -175,6 +167,7 @@ public class YunDiGePop : BaseView
             speedLeveltxt.text = deliverData.speedLevel + "级";
             speedtxt.text = WorldData.speedLevelDic[deliverData.speedLevel].ToString();
             currentspeedtxt.text = deliverData.speedLevel.ToString();
+            freetxt_1.text = Extensions.FormatNumber(deliverData.speedLevel * 5000).ToString();
             if (deliverData.speedLevel == deliverData.maxSpeedLevel)
             {
                 btnMask_1.SetActive(true);
@@ -189,6 +182,7 @@ public class YunDiGePop : BaseView
             UIController.Instance.Show<TipView>("升级成功。");
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
             EventCenter.Instance.TriggerEvent(EventMessages.UpdateYunDiZheSpeed);
+
         }
     }
     private void OnClickUpgradePeopleBtn()
@@ -216,6 +210,7 @@ public class YunDiGePop : BaseView
             peopleLeveltxt.text = deliverData.peopleLevel + "级";
             peopletxt.text = deliverData.totalNum.ToString();
             currentpeopletxt.text = deliverData.totalNum.ToString();
+            freetxt_2.text = Extensions.FormatNumber(deliverData.peopleLevel * 20000).ToString();
             if (deliverData.peopleLevel == deliverData.maxpeopleLevel)
             {
                 btnMask_2.SetActive(true);
@@ -226,7 +221,6 @@ public class YunDiGePop : BaseView
             {
                 nextpeopletxt.text = (deliverData.totalNum + 1).ToString();
             }
-
             UIController.Instance.Show<TipView>("升级成功。");
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
         }

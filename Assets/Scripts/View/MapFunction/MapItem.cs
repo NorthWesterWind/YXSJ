@@ -3,7 +3,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Controller;
-using JetBrains.Annotations;
 using Module;
 using Module.Data;
 using TMPro;
@@ -46,15 +45,21 @@ namespace View.MapFunction
 
                     if (PlayerDataModule.Instance.data.tongbi >= mapData.unlockCost)
                     {
-                        PlayerDataModule.Instance.CaptureCurrentRuntimeState();
-                        PlayerDataModule.Instance.ClearRuntimeStateForMapSwitch();
-                        PlayerDataModule.Instance.data.tongbi -= mapData.unlockCost;
-                        PlayerDataModule.Instance.data.realUnlockMapList.Add(mapData.id);
-                        PlayerDataModule.Instance.data.currentMapID = mapData.id;
-                        maskImg.SetActive(false);
-                        UIController.Instance.Show<TipView>(mapData.name + "解锁成功！");
-                        EventCenter.Instance.TriggerEvent(EventMessages.ShowLoadView);
-                        StartCoroutine(LoadNextSceneCoroutine());
+
+
+                        Action action = () =>
+                        {
+                            PlayerDataModule.Instance.CaptureCurrentRuntimeState();
+                            PlayerDataModule.Instance.ClearRuntimeStateForMapSwitch();
+                            PlayerDataModule.Instance.data.tongbi -= mapData.unlockCost;
+                            PlayerDataModule.Instance.data.realUnlockMapList.Add(mapData.id);
+                            PlayerDataModule.Instance.data.currentMapID = mapData.id;
+                            maskImg.SetActive(false);
+                            UIController.Instance.Show<TipView>(mapData.name + "解锁成功！");
+                            EventCenter.Instance.TriggerEvent(EventMessages.ShowLoadView);
+                            StartCoroutine(LoadNextSceneCoroutine());
+                        };
+                        UIController.Instance.Show<MapSelectConfirmView>($"是否花费{Extensions.FormatNumber(mapData.unlockCost)}铜币解锁并进入{mapData.name}？进入后将无法返回当前灵境！", action);
                     }
                     else
                     {
@@ -152,7 +157,7 @@ namespace View.MapFunction
 
             asyncLoad.allowSceneActivation = false;
             float displayProgress = 0f;
-          
+
             while (!asyncLoad.isDone)
             {
                 float targetProgress = Mathf.Clamp01(asyncLoad.progress / 0.9f);
@@ -161,7 +166,7 @@ namespace View.MapFunction
                 if (asyncLoad.progress >= 0.9f && displayProgress >= 0.99f)
                 {
                     displayProgress = Mathf.MoveTowards(displayProgress, 1f, Time.deltaTime * 0.3f);
-                    EventCenter.Instance.TriggerEvent(EventMessages.UpdateLoadView , displayProgress);
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdateLoadView, displayProgress);
                     if (displayProgress >= 1f)
                     {
                         yield return new WaitForSeconds(0.5f);

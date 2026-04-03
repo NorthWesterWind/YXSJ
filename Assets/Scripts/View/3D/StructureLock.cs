@@ -5,6 +5,7 @@ using Module.Data;
 using TMPro;
 using UnityEngine;
 using Utils;
+using View;
 
 public class StructureLock : MonoBehaviour
 {
@@ -147,7 +148,7 @@ public class StructureLock : MonoBehaviour
             return;
         if (!other.CompareTag("Player")) return;
         Debug.Log("yj = >进入建筑解锁范围");
-        
+
         playerInRange = true;
 
         player = other.GetComponent<PlayerController>();
@@ -251,7 +252,7 @@ public class StructureLock : MonoBehaviour
             .Remove(data.buildType);
         PlayerDataModule.Instance.data.structUnLockDataDic[PlayerDataModule.Instance.data.currentMapID].Add(data.buildType);
         EventCenter.Instance.TriggerEvent(EventMessages.ConstructTask, buildType);
-
+        UIController.Instance.Show<TipView>(Extensions.GetBuilderTypeNameByType(buildType) + "解锁成功！");
 
     }
 

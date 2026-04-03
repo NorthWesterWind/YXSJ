@@ -60,7 +60,7 @@ public class DungeonLevelView : BaseView
     public override void UpdateViewWithArgs(params object[] args)
     {
         base.UpdateViewWithArgs(args);
-      
+
         isFirstSelected = true;
         image_1.SetActive(false);
         image_2.SetActive(false);
@@ -123,7 +123,7 @@ public class DungeonLevelView : BaseView
         }
         PlayerDataModule.Instance.data.playTrialCurrencyType = Module.Data.CurrencyType.JingYuanBao;
         UIController.Instance.Show<TrialView>(true);
-
+        PlayerDataModule.Instance.data.playLingBaoCount -= 1;
     }
     void OnClickGameBtn_2()
     {
@@ -134,6 +134,9 @@ public class DungeonLevelView : BaseView
         }
         PlayerDataModule.Instance.data.playTrialCurrencyType = Module.Data.CurrencyType.LingJing;
         UIController.Instance.Show<TrialView>(false);
+        DateTime time = DateTime.Now;
+        PlayerDataModule.Instance.data.playXuanJingTime = time.ToString("yyyy-MM-dd HH:mm:ss");
+        PlayerDataModule.Instance.data.canPlayXuanJing = false;
     }
     protected override void OnHideComplete()
     {

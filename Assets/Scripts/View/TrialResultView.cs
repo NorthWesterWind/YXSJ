@@ -45,7 +45,6 @@ public class TrialResultView : BaseView
             Jybtxt.text = value.ToString();
             PlayerDataModule.Instance.data.goldIngot += value;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
-            PlayerDataModule.Instance.data.playLingBaoCount -= 1;
         }
         else
         {
@@ -54,9 +53,6 @@ public class TrialResultView : BaseView
             Ljtxt.text = value.ToString();
             PlayerDataModule.Instance.data.lingJing += value;
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
-            DateTime time = DateTime.Now;
-            PlayerDataModule.Instance.data.playXuanJingTime = time.ToString("yyyy-MM-dd HH:mm:ss");
-            PlayerDataModule.Instance.data.canPlayXuanJing = false;
         }
 
     }

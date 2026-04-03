@@ -217,17 +217,21 @@ namespace Utils
 			}
 			return true;
 		}
-		public static string FormatNumber(long num)
+		public static string FormatNumber(long num, int decimalPlaces = 2, bool fixedDecimal = false)
 		{
-			if (num >= 100000000) // 一亿
+			string format = fixedDecimal
+				? "0." + new string('0', decimalPlaces)
+				: "0." + new string('#', decimalPlaces);
+
+			if (num >= 100000000)
 			{
-				float value = num / 100000000f;
-				return value.ToString("0.#") + "亿";
+				decimal value = num / 100000000m;
+				return value.ToString(format) + "亿";
 			}
-			else if (num >= 10000) // 一万
+			else if (num >= 10000)
 			{
-				float value = num / 10000f;
-				return value.ToString("0.#") + "万";
+				decimal value = num / 10000m;
+				return value.ToString(format) + "万";
 			}
 			else
 			{
@@ -819,6 +823,175 @@ namespace Utils
 					break;
 			}
 			return resName;
+		}
+
+		public static string GetSMonsterRegionNameByType(MonsterType type)
+		{
+			string resName = "";
+			switch (type)
+			{
+				case MonsterType.ShuangYunZhi:
+					resName = "霜云芝";
+					break;
+				case MonsterType.ShuangYunZhiBig:
+					resName = "巨型霜云芝";
+					break;
+				case MonsterType.YueLuCao:
+					resName = "月露草";
+					break;
+				case MonsterType.YueLuCaoBig:
+					resName = "巨型月露草";
+					break;
+				case MonsterType.ZiXinHua:
+					resName = "栀心花";
+					break;
+				case MonsterType.ZiXinHuaBig:
+					resName = "巨型栀心花";
+					break;
+				case MonsterType.YuHuiHe:
+					resName = "玉穗禾";
+					break;
+				case MonsterType.YuHuiHeBig:
+					resName = "巨型玉穗禾";
+					break;
+				case MonsterType.XingWenGuo:
+					resName = "星纹果";
+					break;
+				case MonsterType.XingWenGuoBig:
+					resName = "巨型星纹果";
+					break;
+				case MonsterType.WuRongJun:
+					resName = "雾茸菌";
+					break;
+				case MonsterType.WuRongJunBig:
+					resName = "巨型雾茸菌";
+					break;
+				case MonsterType.LingXuSheng:
+					resName = "灵须参";
+					break;
+				case MonsterType.LingXuShengBig:
+					resName = "巨型灵须参";
+					break;
+				case MonsterType.XueBanHua:
+					resName = "雪瓣花";
+					break;
+				case MonsterType.XueBanHuaBig:
+					resName = "巨型雪瓣花";
+					break;
+				case MonsterType.MuLingYa:
+					resName = "木灵芽";
+					break;
+				case MonsterType.MuLingYaBig:
+					resName = "巨型木灵芽";
+					break;
+				case MonsterType.JingRuiCao:
+					resName = "晶蕊草";
+					break;
+				case MonsterType.JingRuiCaoBig:
+					resName = "巨型晶蕊草";
+					break;
+				case MonsterType.TieKuangShi:
+					resName = "铁矿石";
+					break;
+				case MonsterType.TieKuangShiBig:
+					resName = "巨型铁矿石";
+					break;
+				case MonsterType.YinKuangShi:
+					resName = "银矿石";
+					break;
+				case MonsterType.YinKuangShiBig:
+					resName = "巨型银矿石";
+					break;
+				case MonsterType.TongKuangShi:
+					resName = "铜矿石";
+					break;
+				case MonsterType.TongKuangShiBig:
+					resName = "巨型铜矿石";
+					break;
+				case MonsterType.ZiJingShi:
+					resName = "紫金石";
+					break;
+				case MonsterType.ZiJingShiBig:
+					resName = "巨型紫金石";
+					break;
+				case MonsterType.YueJingShi:
+					resName = "月晶石";
+					break;
+				case MonsterType.YueJingShiBig:
+					resName = "巨型月晶石";
+					break;
+				case MonsterType.JingYuanBao:
+					resName = "金元宝";
+					break;
+			}
+			return resName;
+
+		}
+
+
+
+		public static string GetBuilderTypeNameByType(BuildingType type)
+		{
+			string resName = "";
+			switch (type)
+			{
+				case BuildingType.LingZhangTai:
+					resName = "灵账台";
+					break;
+				case BuildingType.LingChuGe_1:
+					resName = "一号灵储阁";
+					break;
+				case BuildingType.LingChuGe_2:
+					resName = "二号灵储阁";
+					break;
+				case BuildingType.YunDiGe:
+					resName = "云递阁";
+					break;
+				case BuildingType.LingChaJia_1:
+					resName = "一号灵茶架";
+					break;
+				case BuildingType.LingChaJia_2:
+					resName = "二号灵茶架";
+					break;
+				case BuildingType.LingChaJia_3:
+					resName = "三号灵茶架";
+					break;
+				case BuildingType.LingChaJia_4:
+					resName = "四号灵茶架";
+					break;
+				case BuildingType.YuShaHu_1:
+					resName = "一号玉砂壶";
+					break;
+				case BuildingType.YuShaHu_2:
+					resName = "二号玉砂壶";
+					break;
+				case BuildingType.YuShaHu_3:
+					resName = "三号玉砂壶";
+					break;
+				case BuildingType.YuShaHu_4:
+					resName = "四号玉砂壶";
+					break;
+				case BuildingType.LianQiLu_1:
+					resName = "一号炼器炉";
+					break;
+				case BuildingType.LianQiLu_2:
+					resName = "二号炼器炉";
+					break;
+				case BuildingType.LianQiLu_3:
+					resName = "三号炼器炉";
+					break;
+				case BuildingType.LingQiJia_1:
+					resName = "一号灵器架";	
+					break;
+				case BuildingType.LingQiJia_2:
+					resName = "二号灵器架";	
+					break;
+				case BuildingType.LingQiJia_3:
+					resName = "三号灵器架";
+					break;
+			}
+			return resName;
+
 		}
 
 		public static string GetCustomerResNameByType(CustomerType type)

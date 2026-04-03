@@ -7,7 +7,6 @@ using PolyNav;
 using Spine.Unity;
 using UnityEngine;
 using Utils;
-
 namespace Controller
 {
     public enum NpcState
@@ -19,7 +18,6 @@ namespace Controller
         JieZhangChengGong,
         Angry,
     }
-
     public class CustomerController : MonoBehaviour
     {
         private enum RouteMovePhase
@@ -30,7 +28,6 @@ namespace Controller
             MoveToRouteTail,
             ReturnAlongRoute,
         }
-
         public PolyNavAgent agent;
         public CustomerData data;
         public NpcState state;
@@ -40,7 +37,6 @@ namespace Controller
         public GoodsType goodsType;
         public SkeletonAnimation skeletonAnimation;
         public SpriteRenderer shadow;
-        public int currentIndex = 0;
         public SalesStall salesStall;
         public Transform receiveTransform;
         public List<Production> purchaseList = new();
@@ -48,11 +44,6 @@ namespace Controller
         public GameObject fillBg;
         public GameObject fill;
         public bool severing = false;
-
-        public int SelectedRouteIndex => routeIndex;
-        public int SavedRouteMovePhase => (int)routeMovePhase;
-        public int SavedRouteWaypointIndex => routeWaypointIndex;
-
         private Vector2 spawnOrigin;
         private float travelRepathTimer = 0f;
         private const float TravelRepathInterval = 0.5f;
@@ -80,11 +71,6 @@ namespace Controller
         private float movementCheckTimer;
         private string currentLoopAnimation;
         private int currentFacingSign = 1;
-
-        void Start()
-        {
-        }
-
         void Update()
         {
             if (state != lastState)
@@ -94,16 +80,13 @@ namespace Controller
                 spawnRelocateAttempts = 0;
                 currentLoopAnimation = null;
             }
-
             SetLayer();
             UpdateMovementAnimation();
-
             movementCheckTimer -= Time.deltaTime;
             if (movementCheckTimer > 0f)
             {
                 return;
             }
-
             movementCheckTimer = MovementCheckInterval;
             if (agent == null || agent.map == null)
             {
@@ -112,23 +95,19 @@ namespace Controller
             EnsureTravelMovement();
             EnsurePurchaseMovement();
         }
-
         public void SetLayer()
         {
             if (_meshRenderer == null)
             {
                 _meshRenderer = skeletonAnimation.GetComponent<MeshRenderer>();
             }
-
             int order = 30000 - Mathf.RoundToInt(transform.position.y * 100);
             if (order == lastSortingOrder && purchaseList.Count == lastPurchaseCount)
             {
                 return;
             }
-
             lastSortingOrder = order;
             lastPurchaseCount = purchaseList.Count;
-
             _meshRenderer.sortingOrder = order;
             shadow.sortingOrder = order - 5;
             for (int i = 0; i < purchaseList.Count; i++)
@@ -141,7 +120,6 @@ namespace Controller
                 }
             }
         }
-
         public void Init(
             CustomerData outdata,
             GoodsType type,
@@ -172,35 +150,13 @@ namespace Controller
             EnsureMap();
             ConfigureRoute();
             transform.position = new Vector3(bornPosition.x, bornPosition.y, transform.position.z);
-
             fillBg.gameObject.SetActive(false);
             fill.gameObject.transform.localScale = new Vector3(0, 1, 1);
-
             if (startMovement)
             {
                 RefreshMovementByState();
             }
         }
-
-        public void RestoreRuntimeState(NpcState savedState, int savedRoutePhase, int savedRouteWaypointIndex)
-        {
-            state = savedState;
-            lastState = state;
-            purchaseIdleTimer = 0f;
-            spawnRelocateAttempts = 0;
-            movementCheckTimer = 0f;
-            currentLoopAnimation = null;
-            SetNextPosition();
-
-            routeMovePhase = ParseRouteMovePhase(savedRoutePhase);
-            routeWaypointIndex = savedRouteWaypointIndex;
-
-            if (!ResumeSavedMovement())
-            {
-                RefreshMovementByState();
-            }
-        }
-
         public void WaitPurchase()
         {
             routeMovePhase = RouteMovePhase.None;
@@ -210,10 +166,8 @@ namespace Controller
             {
                 StopCoroutine(purchaseRoutineCoroutine);
             }
-
             purchaseRoutineCoroutine = StartCoroutine(PurchaseRoutine());
         }
-
         public void SetNextPosition()
         {
             if (state == NpcState.QianWangGouMai)
@@ -249,15 +203,12 @@ namespace Controller
             {
                 stateTargetPosition = (Vector2)transform.position;
             }
-
             stateTargetPosition = GetValidMapPoint(stateTargetPosition);
             nextPosition = stateTargetPosition;
         }
-
         public void RefreshMovementByState()
         {
             SetNextPosition();
-
             switch (state)
             {
                 case NpcState.QianWangGouMai:
@@ -289,10 +240,8 @@ namespace Controller
                     nextPosition = (Vector2)transform.position;
                     break;
             }
-
             RestartEnsureMoveStarted();
         }
-
         void OnEnable()
         {
             if (agent == null)
@@ -305,10 +254,8 @@ namespace Controller
                 agent.OnDestinationReached += OnReachDestination;
                 agent.OnDestinationInvalid += OnDestinationInvalid;
             }
-
             movementCheckTimer = 0f;
         }
-
         void OnDisable()
         {
             if (agent != null)
@@ -317,7 +264,6 @@ namespace Controller
                 agent.OnDestinationInvalid -= OnDestinationInvalid;
             }
         }
-
         void OnReachDestination()
         {
             if (Vector2.Distance((Vector2)transform.position, bornPosition) < 1f &&
@@ -326,12 +272,10 @@ namespace Controller
                 Destroy(gameObject);
                 return;
             }
-
             if (HandleRouteArrival())
             {
                 return;
             }
-
             if (state == NpcState.QianWangGouMai)
             {
                 if (!HasReachedStateTarget())
@@ -340,12 +284,10 @@ namespace Controller
                     RestartEnsureMoveStarted();
                     return;
                 }
-
                 WaitPurchase();
                 EventCenter.Instance.TriggerEvent(EventMessages.CustomerArrivedSell, this, salesStall);
                 return;
             }
-
             if (state == NpcState.QianWangShouYinTai)
             {
                 if (!HasReachedStateTarget())
@@ -358,12 +300,10 @@ namespace Controller
                 EventCenter.Instance.TriggerEvent(EventMessages.CustomerArrived, this, salesStall);
             }
         }
-
         private bool HasReachedStateTarget()
         {
             return Vector2.Distance((Vector2)transform.position, stateTargetPosition) <= StateArrivalTolerance;
         }
-
         private void ConfigureRoute()
         {
             routeWaypoints.Clear();
@@ -371,69 +311,17 @@ namespace Controller
             {
                 return;
             }
-
             if (!customerFactory.TryBuildRoute(routeIndex, out var routeStart, out var waypoints))
             {
                 return;
             }
-
             bornPosition = routeStart;
             spawnOrigin = bornPosition;
-
             for (int i = 0; i < waypoints.Count; i++)
             {
                 routeWaypoints.Add(waypoints[i]);
             }
         }
-
-        private bool ResumeSavedMovement()
-        {
-            switch (state)
-            {
-                case NpcState.WaitGouMaiWanCheng:
-                case NpcState.None:
-                    routeMovePhase = RouteMovePhase.None;
-                    routeWaypointIndex = -1;
-                    return true;
-            }
-
-            switch (routeMovePhase)
-            {
-                case RouteMovePhase.EnterRouteForward:
-                    if (!HasRouteWaypoints || routeWaypointIndex < 0 || routeWaypointIndex >= routeWaypoints.Count)
-                    {
-                        return false;
-                    }
-
-                    return TrySetDestination(routeWaypoints[routeWaypointIndex]);
-                case RouteMovePhase.MoveToStateTarget:
-                    routeWaypointIndex = -1;
-                    return TrySetDestination(stateTargetPosition);
-                case RouteMovePhase.MoveToRouteTail:
-                    if (!HasRouteWaypoints)
-                    {
-                        return false;
-                    }
-
-                    routeWaypointIndex = routeWaypoints.Count - 1;
-                    return TrySetDestination(routeWaypoints[routeWaypointIndex]);
-                case RouteMovePhase.ReturnAlongRoute:
-                    if (routeWaypointIndex >= 0)
-                    {
-                        if (!HasRouteWaypoints || routeWaypointIndex >= routeWaypoints.Count)
-                        {
-                            return false;
-                        }
-
-                        return TrySetDestination(routeWaypoints[routeWaypointIndex]);
-                    }
-
-                    return TrySetDestination(bornPosition);
-                default:
-                    return false;
-            }
-        }
-
         private void BeginReturnMovement()
         {
             if (!HasRouteWaypoints)
@@ -443,7 +331,6 @@ namespace Controller
                 TrySetDestination(bornPosition);
                 return;
             }
-
             int tailIndex = routeWaypoints.Count - 1;
             Vector2 tailPoint = routeWaypoints[tailIndex];
             if (Vector2.Distance((Vector2)transform.position, tailPoint) <= 0.5f)
@@ -453,12 +340,10 @@ namespace Controller
                 TrySetDestination(routeWaypointIndex >= 0 ? routeWaypoints[routeWaypointIndex] : bornPosition);
                 return;
             }
-
             routeMovePhase = RouteMovePhase.MoveToRouteTail;
             routeWaypointIndex = tailIndex;
             TrySetDestination(tailPoint);
         }
-
         private bool HandleRouteArrival()
         {
             switch (routeMovePhase)
@@ -475,7 +360,6 @@ namespace Controller
                         routeWaypointIndex = -1;
                         TrySetDestination(stateTargetPosition);
                     }
-
                     RestartEnsureMoveStarted();
                     return true;
                 case RouteMovePhase.MoveToRouteTail:
@@ -492,7 +376,6 @@ namespace Controller
                         RestartEnsureMoveStarted();
                         return true;
                     }
-
                     if (routeWaypointIndex == 0)
                     {
                         routeWaypointIndex = -1;
@@ -500,14 +383,12 @@ namespace Controller
                         RestartEnsureMoveStarted();
                         return true;
                     }
-
                     routeMovePhase = RouteMovePhase.None;
                     return false;
                 default:
                     return false;
             }
         }
-
         private void RestartEnsureMoveStarted()
         {
             if (ensureMoveCoroutine != null)
@@ -517,7 +398,6 @@ namespace Controller
 
             ensureMoveCoroutine = StartCoroutine(EnsureMoveStarted());
         }
-
         private void EnsurePurchaseMovement()
         {
             if (state != NpcState.QianWangGouMai)
@@ -525,25 +405,21 @@ namespace Controller
                 purchaseIdleTimer = 0f;
                 return;
             }
-
             if (agent == null)
             {
                 return;
             }
-
             if (agent.pathPending || agent.hasPath || agent.remainingDistance > 0.1f)
             {
                 purchaseIdleTimer = 0f;
                 return;
             }
-
             purchaseIdleTimer += Time.deltaTime;
             if (purchaseIdleTimer < PurchaseIdleRelocateDelay)
             {
                 return;
             }
             purchaseIdleTimer = 0f;
-
             if (routeIndex >= 0)
             {
                 TrySetDestination(nextPosition);
@@ -551,7 +427,6 @@ namespace Controller
                 return;
             }
         }
-
         private void EnsureTravelMovement()
         {
             if (routeMovePhase == RouteMovePhase.None)
@@ -559,12 +434,10 @@ namespace Controller
                 travelRepathTimer = 0f;
                 return;
             }
-
             if (agent == null)
             {
                 return;
             }
-
             if (agent.map == null)
             {
                 EnsureMap();
@@ -573,20 +446,17 @@ namespace Controller
                     return;
                 }
             }
-
             float distSqr = (nextPosition - (Vector2)transform.position).sqrMagnitude;
             if (distSqr <= 0.25f)
             {
                 travelRepathTimer = 0f;
                 return;
             }
-
             bool needsRepath = !agent.hasPath || agent.remainingDistance < 0.1f;
             if (!needsRepath && agent.movingDirection == Vector2.zero)
             {
                 needsRepath = true;
             }
-
             if (needsRepath)
             {
                 travelRepathTimer += Time.deltaTime;
@@ -608,26 +478,21 @@ namespace Controller
             {
                 return false;
             }
-
             if (agent.map != null)
             {
                 cachedMap = agent.map;
                 return true;
             }
-
             if (cachedMap != null)
             {
                 agent.map = cachedMap;
                 return agent.map.nodesCount > 0;
             }
-
             if (Time.time < nextEnsureMapRetryTime)
             {
                 return false;
             }
-
             nextEnsureMapRetryTime = Time.time + EnsureMapRetryInterval;
-
             PolyNavMap map = null;
             var mapObj = GameObject.FindWithTag("Map");
             if (mapObj != null)
@@ -646,18 +511,15 @@ namespace Controller
             {
                 map = FindObjectOfType<PolyNavMap>();
             }
-
             agent.map = map;
             if (agent.map != null && agent.map.nodesCount == 0)
             {
                 agent.map.GenerateMap();
             }
-
             if (agent.map != null && agent.map.nodesCount > 0)
             {
                 cachedMap = agent.map;
             }
-
             if ((agent.map == null || agent.map.nodesCount == 0) && !mapWarningShown)
             {
                 mapWarningShown = true;
@@ -665,22 +527,18 @@ namespace Controller
             }
             return agent.map != null && agent.map.nodesCount > 0;
         }
-
         private Vector2 GetValidMapPoint(Vector2 point)
         {
             if (!EnsureMap())
             {
                 return point;
             }
-
             if (!agent.map.PointIsValid(point))
             {
                 point = agent.map.GetCloserEdgePoint(point);
             }
-
             return point;
         }
-
         private IEnumerator PurchaseRoutine()
         {
             float timer = 0f;
@@ -691,35 +549,29 @@ namespace Controller
                     purchaseRoutineCoroutine = null;
                     yield break;
                 }
-
                 if (purchaseList.Count >= data.carryNum)
                 {
                     Purchase();
                     yield break;
                 }
-
                 if (severing)
                 {
                     yield return null;
                     continue;
                 }
-
                 timer += Time.deltaTime;
                 yield return null;
             }
-
             if (state != NpcState.WaitGouMaiWanCheng)
             {
                 purchaseRoutineCoroutine = null;
                 yield break;
             }
-
             if (purchaseList.Count > 0)
             {
                 Purchase();
                 yield break;
             }
-
             if (severing)
             {
                 float graceTimer = 0.2f;
@@ -728,44 +580,36 @@ namespace Controller
                     graceTimer -= Time.deltaTime;
                     yield return null;
                 }
-
                 if (state != NpcState.WaitGouMaiWanCheng)
                 {
                     purchaseRoutineCoroutine = null;
                     yield break;
                 }
-
                 if (purchaseList.Count > 0)
                 {
                     Purchase();
                     yield break;
                 }
             }
-
             if (purchaseList.Count < data.carryNum)
             {
                 currentLoopAnimation = null;
                 skeletonAnimation.AnimationState.SetAnimation(0, "angry", false);
                 yield return new WaitForSeconds(1f);
-
                 if (state != NpcState.WaitGouMaiWanCheng)
                 {
                     purchaseRoutineCoroutine = null;
                     yield break;
                 }
-
                 if (purchaseList.Count > 0)
                 {
                     Purchase();
                     yield break;
                 }
-
                 OnPurchaseTimeout();
             }
-
             purchaseRoutineCoroutine = null;
         }
-
         private void Purchase()
         {
             if (state != NpcState.WaitGouMaiWanCheng)
@@ -773,7 +617,6 @@ namespace Controller
                 purchaseRoutineCoroutine = null;
                 return;
             }
-
             for (int i = 0; i < purchaseList.Count; i++)
             {
                 var obj = purchaseList[i];
@@ -781,18 +624,15 @@ namespace Controller
                 {
                     continue;
                 }
-
                 obj.SetState(ItemState.HeldByCustomer);
                 obj.transform.SetParent(transform, false);
                 obj.transform.position = receiveTransform.position;
             }
-
             severing = false;
             purchaseRoutineCoroutine = null;
             state = NpcState.QianWangShouYinTai;
             RefreshMovementByState();
         }
-
         private void OnPurchaseTimeout()
         {
             if (state != NpcState.WaitGouMaiWanCheng)
@@ -800,7 +640,6 @@ namespace Controller
                 purchaseRoutineCoroutine = null;
                 return;
             }
-
             purchaseRoutineCoroutine = null;
             severing = false;
             ReturnPurchasedProductsToStall();
@@ -808,14 +647,12 @@ namespace Controller
             RefreshMovementByState();
             EventCenter.Instance.TriggerEvent(EventMessages.CustomerLeave, salesStall, this);
         }
-
         private void ReturnPurchasedProductsToStall()
         {
             if (purchaseList.Count == 0)
             {
                 return;
             }
-
             for (int i = purchaseList.Count - 1; i >= 0; i--)
             {
                 Production product = purchaseList[i];
@@ -824,11 +661,9 @@ namespace Controller
                 {
                     continue;
                 }
-
                 salesStall?.PlaceProduct(product);
             }
         }
-
         public bool CanReceivePurchasedProduct()
         {
             return this != null &&
@@ -836,30 +671,25 @@ namespace Controller
                    gameObject.activeInHierarchy &&
                    state == NpcState.WaitGouMaiWanCheng;
         }
-
         public void ReceivePurchasedProduct(Production product)
         {
             if (product == null)
             {
                 return;
             }
-
             if (!CanReceivePurchasedProduct())
             {
                 salesStall?.PlaceProduct(product);
                 return;
             }
-
             if (!purchaseList.Contains(product))
             {
                 purchaseList.Add(product);
             }
-
             product.SetState(ItemState.HeldByCustomer);
             product.transform.SetParent(transform, false);
             product.transform.position = receiveTransform.position;
         }
-
         private bool TrySetDestination(Vector2 target)
         {
             if (agent == null)
@@ -870,59 +700,48 @@ namespace Controller
             {
                 return false;
             }
-
             var map = agent.map;
             if (map == null)
             {
                 return false;
             }
-
             if (!map.PointIsValid(target))
             {
                 target = map.GetCloserEdgePoint(target);
             }
-
             nextPosition = target;
             return agent.SetDestination(target);
         }
-
         private void UpdateMovementAnimation()
         {
             if (skeletonAnimation == null || skeletonAnimation.AnimationState == null)
             {
                 return;
             }
-
             bool isWalking = agent != null && (agent.hasPath || agent.remainingDistance > 1f);
             SetLoopAnimation(isWalking ? "walk" : "idle");
-
             Vector2 dir = agent != null ? agent.movingDirection : Vector2.zero;
             if (dir == Vector2.zero || Mathf.Abs(dir.x) <= 0.01f || skeletonAnimation.skeleton == null)
             {
                 return;
             }
-
             int facingSign = dir.x < 0 ? -1 : 1;
             if (facingSign == currentFacingSign)
             {
                 return;
             }
-
             currentFacingSign = facingSign;
             skeletonAnimation.skeleton.ScaleX = currentFacingSign;
         }
-
         private void SetLoopAnimation(string animationName)
         {
             if (currentLoopAnimation == animationName)
             {
                 return;
             }
-
             skeletonAnimation.AnimationState.SetAnimation(0, animationName, true);
             currentLoopAnimation = animationName;
         }
-
         private IEnumerator EnsureMoveStarted()
         {
             const int maxAttempts = 3;
@@ -934,40 +753,33 @@ namespace Controller
                 {
                     yield break;
                 }
-
                 if (agent.pathPending)
                 {
                     continue;
                 }
-
                 if (agent.hasPath || agent.remainingDistance > 0.1f)
                 {
                     yield break;
                 }
-
                 attempts++;
                 if (EnsureMap())
                 {
                     TrySetDestination(nextPosition);
                 }
             }
-
             if (EnsureMap())
             {
                 TrySetDestination(nextPosition);
             }
         }
-
         private void OnDestinationInvalid()
         {
             if (invalidRecoverCoroutine != null)
             {
                 return;
             }
-
             invalidRecoverCoroutine = StartCoroutine(RecoverFromInvalidPath());
         }
-
         private IEnumerator RecoverFromInvalidPath()
         {
             yield return null;
@@ -981,43 +793,26 @@ namespace Controller
                     yield return null;
                     continue;
                 }
-
                 TrySetDestination(nextPosition);
-
                 float wait = 0f;
                 while (agent != null && agent.pathPending && wait < 0.5f)
                 {
                     wait += Time.deltaTime;
                     yield return null;
                 }
-
                 if (agent != null && (agent.hasPath || agent.remainingDistance > 0.1f))
                 {
                     invalidRecoverCoroutine = null;
                     yield break;
                 }
-
                 yield return null;
             }
-
             if (EnsureMap())
             {
                 TrySetDestination(nextPosition);
             }
-
             invalidRecoverCoroutine = null;
         }
-
-        private RouteMovePhase ParseRouteMovePhase(int savedValue)
-        {
-            if (savedValue < (int)RouteMovePhase.None || savedValue > (int)RouteMovePhase.ReturnAlongRoute)
-            {
-                return RouteMovePhase.None;
-            }
-
-            return (RouteMovePhase)savedValue;
-        }
-
         private bool HasRouteWaypoints => routeWaypoints.Count > 0;
     }
 }

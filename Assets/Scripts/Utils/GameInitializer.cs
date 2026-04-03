@@ -7,7 +7,8 @@ namespace Utils
         void Awake()
         {
             QualitySettings.vSyncCount = 0; // 关闭 VSync
-            Application.targetFrameRate = 60; // 目标 60 帧
+            int refreshRate = Screen.currentResolution.refreshRate;
+            Application.targetFrameRate = refreshRate;
             DontDestroyOnLoad(this);
             Screen.orientation = ScreenOrientation.Portrait;
 

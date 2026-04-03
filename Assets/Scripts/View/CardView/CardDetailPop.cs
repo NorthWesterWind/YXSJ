@@ -51,7 +51,7 @@ namespace View.CardView
                     contenttxt.text = "健康值";
                     break;
                 case CardDevelopType.UpgradeGetYuanBaoLing:
-                    contenttxt.text = "采集数";
+                    contenttxt.text = "金元宝出产数";
                     break;
                 case CardDevelopType.UpgradeLingZhangTai:
                     contenttxt.text = "打赏";
@@ -88,29 +88,29 @@ namespace View.CardView
                 {
                     case CardDevelopType.UpgradeCharacterWithXuanCaiTuAtk:
                         float percent = (cardUpProgress.level + 1) * 0.3f; //+ 30%攻击力
-                        nexttxt.text = $"x{percent * 100f}%";
-                        currenttxt.text = "x" + $" {cardUpProgress.level * 0.3f * 100f}%";
+                        nexttxt.text = $"+{percent * 100f}%";
+                        currenttxt.text = "+" + $" {cardUpProgress.level * 0.3f * 100f}%";
                         break;
                     case CardDevelopType.UpgradeCharacterWithXuanCaiTuHp:
-                        nexttxt.text = $"x{(cardUpProgress.level + 1) * 30}"; //+ 30 生命值上限
-                        currenttxt.text = "x" + $" {cardUpProgress.level * 30}";
+                        nexttxt.text = $"+{(cardUpProgress.level + 1) * 30}"; //+ 30 生命值上限
+                        currenttxt.text = "+" + $" {cardUpProgress.level * 30}";
                         break;
                     case CardDevelopType.UpgradeGetYuanBaoLing:
                         nexttxt.text = $"<color=#00FF00>x{(cardUpProgress.level + 1) * 10}"; //+ 10 只元宝怪物存储上限
-                        currenttxt.text = "x" + $" {cardUpProgress.level * 10}";
+                        currenttxt.text = "+" + $" {cardUpProgress.level * 10}";
                         break;
                     case CardDevelopType.UpgradeLingZhangTai:
-                        nexttxt.text = $"x{(cardUpProgress.level + 1) * 0.2f * 100f}%"; //+ 20%
-                        currenttxt.text = "x" + $" {cardUpProgress.level * 0.2f * 100f}%";
+                        nexttxt.text = $"+{(cardUpProgress.level + 1) * 0.2f * 100f}%"; //+ 20%
+                        currenttxt.text = "+" + $" {cardUpProgress.level * 0.2f * 100f}%";
                         break;
                     case CardDevelopType.UpgradeLingChuGe_1:
                     case CardDevelopType.UpgradeLingChuGe_2:
-                        nexttxt.text = $"x{(cardUpProgress.level + 1) * 10}"; //+ 10 //灵储阁储物容量
-                        currenttxt.text = "x" + $" {cardUpProgress.level * 10f}";
+                        nexttxt.text = $"+{(cardUpProgress.level + 1) * 10}"; //+ 10 //灵储阁储物容量
+                        currenttxt.text = "+" + $" {cardUpProgress.level * 10f}";
                         break;
                     case CardDevelopType.UpgradeYunDiGe:
-                        nexttxt.text = $"x{(cardUpProgress.level + 1) * 1}"; //+ 1 云递者最大携带数量
-                        currenttxt.text = "x" + $" {cardUpProgress.level}";
+                        nexttxt.text = $"+{(cardUpProgress.level + 1) * 1}"; //+ 1 云递者最大携带数量
+                        currenttxt.text = "+" + $" {cardUpProgress.level}";
                         break;
                     case CardDevelopType.UpgradeYuShaHu_1:
                     case CardDevelopType.UpgradeYuShaHu_2:
@@ -139,20 +139,20 @@ namespace View.CardView
                 switch (cardLevelData.developType)
                 {
                     case CardDevelopType.UpgradeCharacterWithXuanCaiTuAtk:
-                        currenttxt.text = "x" + $" {0.5f * 100f}%";
+                        currenttxt.text = "+" + $" {0.5f * 100f}%";
                         break;
                     case CardDevelopType.UpgradeCharacterWithXuanCaiTuHp:
-                        currenttxt.text = "x30";
+                        currenttxt.text = "+30";
                         break;
                     case CardDevelopType.UpgradeGetYuanBaoLing:
-                        currenttxt.text = "x10";
+                        currenttxt.text = "+10";
                         break;
                     case CardDevelopType.UpgradeLingZhangTai:
-                        currenttxt.text = "x" + $"{0.2f * 100f}%";
+                        currenttxt.text = "+" + $"{0.2f * 100f}%";
                         break;
                     case CardDevelopType.UpgradeLingChuGe_1:
                     case CardDevelopType.UpgradeLingChuGe_2:
-                        currenttxt.text = "x10";
+                        currenttxt.text = "+10";
                         break;
                     case CardDevelopType.UpgradeYunDiGe:
                         currenttxt.text = "x1";

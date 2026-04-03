@@ -7,6 +7,7 @@ using Module.Data;
 using TMPro;
 using UnityEngine;
 using Utils;
+using View;
 
 public class MapLock : MonoBehaviour
 {
@@ -198,6 +199,7 @@ public class MapLock : MonoBehaviour
         EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
         EventCenter.Instance.TriggerEvent(EventMessages.MapLockUnlocked, mapLockData);
         EventCenter.Instance.TriggerEvent(EventMessages.UnLockMapTask, monsterType);
+        UIController.Instance.Show<TipView>( Extensions.GetSMonsterRegionNameByType(monsterType) +"区域解锁成功！");
     }
 
     private void StartAutoThrow()

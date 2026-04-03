@@ -13,12 +13,10 @@ using View.CardView;
 
 public class LingZhangTaiPop : BaseView
 {
-
     public RectTransform contentRect;
     public UIButton closeBtn;
     public TextMeshProUGUI workspeedtxt;
     public TextMeshProUGUI peopletxt;
-
     public GameObject lockObj;
     public TextMeshProUGUI cardLeveltxt;
     public UIButton cardBtn;
@@ -27,7 +25,6 @@ public class LingZhangTaiPop : BaseView
     public Image fillImage;
     public GameObject cardMask;
     public TextMeshProUGUI cardmasktxt;
-
     public TextMeshProUGUI workspeedLeveltxt;
     public TextMeshProUGUI currentworkspeedtxt;
     public TextMeshProUGUI nextworkspeedtxt;
@@ -35,12 +32,10 @@ public class LingZhangTaiPop : BaseView
     public GameObject btnMask_1;
     public TextMeshProUGUI btnMaskTxt_1;
     public TextMeshProUGUI freetxt_1;
-
     public TextMeshProUGUI peopleLeveltxt;
     public TextMeshProUGUI currentpeopletxt;
     public TextMeshProUGUI nextpeopletxt;
     public UIButton upgradePeopleBtn;
-
     public GameObject btnMask_2;
     public TextMeshProUGUI btnMaskTxt_2;
     public TextMeshProUGUI freetxt_2;
@@ -100,7 +95,6 @@ public class LingZhangTaiPop : BaseView
             cardMask.SetActive(true);
             cardmasktxt.text = cardLevelData.unlockLevel.ToString();
         }
-
         var cardprogress = playerData.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLingZhangTai);
         if (cardprogress == null)
         {
@@ -127,7 +121,6 @@ public class LingZhangTaiPop : BaseView
                 fillImage.fillAmount = 1f;
             }
             donatetxt.text = "x" + $" {cardprogress.level * 0.2f * 100f}%";
-
             if (cardprogress.level < 2)
             {
                 btnMask_2.SetActive(true);
@@ -147,7 +140,6 @@ public class LingZhangTaiPop : BaseView
         {
             playerData.cashierData = new CashierData();
         }
-
         cashierData = playerData.cashierData;
         cashierData.maxpeopleLevel = Mathf.Max(1, cashierData.maxpeopleLevel);
         cashierData.maxworkspeedLevel = Mathf.Max(1, cashierData.maxworkspeedLevel);
@@ -160,8 +152,6 @@ public class LingZhangTaiPop : BaseView
             cashierData.currentWorkingSpeed = 5f;
         }
     }
-
-
     protected override void AddEventListener()
     {
         base.AddEventListener();
@@ -170,7 +160,6 @@ public class LingZhangTaiPop : BaseView
         {
             StartCoroutine(HideAnimation());
         }));
-
         upgradeworkspeedBtn.onClick.RemoveAllListeners();
         upgradeworkspeedBtn.onClick.AddListener(OnClickUpgradeSpeedBtn);
         upgradePeopleBtn.onClick.RemoveAllListeners();
@@ -201,10 +190,10 @@ public class LingZhangTaiPop : BaseView
             PlayerDataModule.Instance.data.tongbi -= cashierData.workspeedLevel * 1000;
             cashierData.workspeedLevel += 1;
             cashierData.currentWorkingSpeed -= 0.05f;
-            cashierData.currentWorkingSpeed = (float)Math.Round(cashierData.currentWorkingSpeed, 2);
             workspeedLeveltxt.text = cashierData.workspeedLevel + "级";
             workspeedtxt.text = cashierData.currentWorkingSpeed.ToString();
             currentworkspeedtxt.text = cashierData.currentWorkingSpeed.ToString();
+            freetxt_1.text = Extensions.FormatNumber(cashierData.workspeedLevel * 1000).ToString();
             if (cashierData.workspeedLevel == cashierData.maxworkspeedLevel)
             {
                 btnMask_1.SetActive(true);
@@ -215,10 +204,8 @@ public class LingZhangTaiPop : BaseView
             {
                 nextworkspeedtxt.text = (cashierData.currentWorkingSpeed - 0.05f).ToString();
             }
-
             UIController.Instance.Show<TipView>("升级成功。");
             EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask, BuildingType.LingZhangTai);
-
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
         }
     }
@@ -247,6 +234,7 @@ public class LingZhangTaiPop : BaseView
             peopleLeveltxt.text = cashierData.peopleLevel + "级";
             peopletxt.text = cashierData.totalNum.ToString();
             currentpeopletxt.text = cashierData.totalNum.ToString();
+            freetxt_2.text = Extensions.FormatNumber(cashierData.peopleLevel * 20000).ToString();
             if (cashierData.peopleLevel == cashierData.maxpeopleLevel)
             {
                 btnMask_2.SetActive(true);
@@ -257,7 +245,6 @@ public class LingZhangTaiPop : BaseView
             {
                 nextpeopletxt.text = (cashierData.totalNum + 1).ToString();
             }
-
             UIController.Instance.Show<TipView>("升级成功。");
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
             EventCenter.Instance.TriggerEvent(EventMessages.UpdateLingZhangTai);

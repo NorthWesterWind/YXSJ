@@ -355,7 +355,7 @@ namespace View
 
                 }
 
-                bootomBtntxt1.text = (1000 * productStationdata.priceLevel).ToString();
+                bootomBtntxt1.text = Extensions.FormatNumber(1000 * productStationdata.priceLevel).ToString();
             }
             else
             {
@@ -384,7 +384,7 @@ namespace View
                 bottompreviewtxt1_1.text =
                     WorldData.productStationWorkingTimeDic[productStationdata.timelevel] + "秒  ";
                 bottompreviewtxt2_2.text = $"{WorldData.productStationWorkingTimeDic[productStationdata.timelevel + 1]}秒 ";
-                bootomBtntxt2.text = (2000 * productStationdata.timelevel).ToString();
+                bootomBtntxt2.text = Extensions.FormatNumber(2000 * productStationdata.timelevel).ToString();
             }
             else
             {

@@ -11376,6 +11376,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1657198581086453444, guid: 8f9a607632eb0334b961b21d38279230, type: 3}
+      propertyPath: m_Materials.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1657198581086453444, guid: 8f9a607632eb0334b961b21d38279230, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 87b8bdcc209dd054c9561058dcd06544, type: 2}
     - target: {fileID: 3493853297238639932, guid: 8f9a607632eb0334b961b21d38279230, type: 3}
       propertyPath: m_Mesh
       value: 
@@ -18093,6 +18101,10 @@ PrefabInstance:
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 21300000, guid: ff5b1f5e926917f449a16a3fd98fd6fb, type: 3}
+    - target: {fileID: 6203319858651599387, guid: 8d01b1939676fc1499863ff05a140e1d, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6315522051192192791, guid: 8d01b1939676fc1499863ff05a140e1d, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.7527902
@@ -18269,6 +18281,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.x
       value: 0.43
       objectReference: {fileID: 0}
+    - target: {fileID: 7767453805260308067, guid: 8d01b1939676fc1499863ff05a140e1d, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: b142c5035358aed40a2cea46b80368a5, type: 3}
     - target: {fileID: 8282502584849631397, guid: 8d01b1939676fc1499863ff05a140e1d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.33699992
@@ -20279,8 +20295,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   customerTypeList: 
   spawnTime: 5
-  spawnRadiusX: 3
-  spawnRadiusY: 1.5
   routes:
   - routeName: 1
     spawnPoint: {fileID: 930200678}
@@ -24938,7 +24952,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6977136156692966086, guid: eca4f10c72abb3443b8aa0f0a88d4a8d, type: 3}
       propertyPath: patrolAreaSize.x
-      value: 8
+      value: 7.35
       objectReference: {fileID: 0}
     - target: {fileID: 6977136156692966086, guid: eca4f10c72abb3443b8aa0f0a88d4a8d, type: 3}
       propertyPath: patrolAreaSize.y
