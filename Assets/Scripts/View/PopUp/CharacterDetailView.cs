@@ -34,11 +34,11 @@ namespace View.PopUp
            PlayerData data = PlayerDataModule.Instance.data;
            atktxt.text = (data.atk + data.addAtk).ToString();
            hptxt.text = (data.hp + data.addHp).ToString();
-           bagtxt.text = (data.bagCapacity + data.addBagCapacity).ToString();
+           bagtxt.text = PlayerDataModule.Instance.GetTotalBagCapacity().ToString();
            movetxt.text = ((1 + data.addMoveSpeed) * 100f).ToString("0") + "%";
            weaponsizetxt.text = ((1 + data.addweaponSize) * 100f).ToString("0") + "%";
            pickrangetxt.text = ((1 + data.addPickUpRange) * 100f).ToString("0") + "%";
-           atkhptxt.text = (( data.addhpRecover) * 100f).ToString("0") + "%";
+           atkhptxt.text = ( data.addhpRecover).ToString() ;
        }
     }
 }

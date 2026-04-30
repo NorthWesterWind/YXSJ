@@ -667,6 +667,12 @@ MonoBehaviour:
     - Name: addBagCapacity
       Entry: 4
       Data: 0
+    - Name: equippedBagCapacity
+      Entry: 4
+      Data: 0
+    - Name: bagCapacityDataMigrated
+      Entry: 5
+      Data: false
     - Name: addMoveSpeed
       Entry: 4
       Data: 0
@@ -682,7 +688,7 @@ MonoBehaviour:
     - Name: addhpRecover
       Entry: 4
       Data: 0
-    - Name: userName
+    - Name: playerName
       Entry: 6
       Data: 
     - Name: userAccount
@@ -709,6 +715,15 @@ MonoBehaviour:
     - Name: user_id
       Entry: 3
       Data: 0
+    - Name: headId
+      Entry: 3
+      Data: 0
+    - Name: currentClothing
+      Entry: 3
+      Data: 0
+    - Name: ownClothingList
+      Entry: 6
+      Data: 
     - Name: guidIdList
       Entry: 7
       Data: 1|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
@@ -1420,6 +1435,15 @@ MonoBehaviour:
     - Name: runtimePlayerGoodsList
       Entry: 6
       Data: 
+    - Name: runtimeYuanBaoMonsterDataList
+      Entry: 6
+      Data: 
+    - Name: runtimeYuanBaoDropDataList
+      Entry: 6
+      Data: 
+    - Name: runtimeYuanBaoStateDataList
+      Entry: 6
+      Data: 
     - Name: orderDataprogressList
       Entry: 7
       Data: 31|System.Collections.Generic.List`1[[Module.Data.OrderDataProgress,
@@ -1464,6 +1488,9 @@ MonoBehaviour:
       Data: 30
     - Name: lastRefrashTime
       Entry: 1
+      Data: 
+    - Name: yuanBaoKuangDongStateDataList
+      Entry: 6
       Data: 
     - Name: 
       Entry: 8
@@ -1684,9 +1711,29 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+    - Name: clothDataDic
+      Entry: 7
+      Data: 7|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.ClothData,
+        Assembly-CSharp]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 8|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: weaponDataDic
       Entry: 7
-      Data: 7|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[WeaponData,
+      Data: 9|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[WeaponData,
         Assembly-CSharp]], mscorlib
     - Name: comparer
       Entry: 9
@@ -1702,11 +1749,11 @@ MonoBehaviour:
       Data: 
     - Name: mapTaskDataDic1
       Entry: 7
-      Data: 8|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.TaskData,
+      Data: 10|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.TaskData,
         Assembly-CSharp]], mscorlib
     - Name: comparer
       Entry: 7
-      Data: 9|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
+      Data: 11|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
         mscorlib]], mscorlib
     - Name: 
       Entry: 8
@@ -1722,11 +1769,11 @@ MonoBehaviour:
       Data: 
     - Name: mapTaskDataDic2
       Entry: 7
-      Data: 10|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.TaskData,
+      Data: 12|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.TaskData,
         Assembly-CSharp]], mscorlib
     - Name: comparer
       Entry: 9
-      Data: 9
+      Data: 11
     - Name: 
       Entry: 12
       Data: 0
@@ -1738,11 +1785,11 @@ MonoBehaviour:
       Data: 
     - Name: mapTaskDataDic3
       Entry: 7
-      Data: 11|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.TaskData,
+      Data: 13|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.TaskData,
         Assembly-CSharp]], mscorlib
     - Name: comparer
       Entry: 9
-      Data: 9
+      Data: 11
     - Name: 
       Entry: 12
       Data: 0
@@ -1754,11 +1801,11 @@ MonoBehaviour:
       Data: 
     - Name: mapTaskDataDic4
       Entry: 7
-      Data: 12|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.TaskData,
+      Data: 14|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.TaskData,
         Assembly-CSharp]], mscorlib
     - Name: comparer
       Entry: 9
-      Data: 9
+      Data: 11
     - Name: 
       Entry: 12
       Data: 0
@@ -1770,11 +1817,11 @@ MonoBehaviour:
       Data: 
     - Name: mapTaskDataDic5
       Entry: 7
-      Data: 13|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.TaskData,
+      Data: 15|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.TaskData,
         Assembly-CSharp]], mscorlib
     - Name: comparer
       Entry: 9
-      Data: 9
+      Data: 11
     - Name: 
       Entry: 12
       Data: 0
@@ -1786,27 +1833,7 @@ MonoBehaviour:
       Data: 
     - Name: sevenDayRewardDataDic
       Entry: 7
-      Data: 14|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.SevenDayRewardData,
-        Assembly-CSharp]], mscorlib
-    - Name: comparer
-      Entry: 7
-      Data: 15|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
-        mscorlib]], mscorlib
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: talentDataDic
-      Entry: 7
-      Data: 16|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[TalentData,
+      Data: 16|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.SevenDayRewardData,
         Assembly-CSharp]], mscorlib
     - Name: comparer
       Entry: 7
@@ -1824,9 +1851,29 @@ MonoBehaviour:
     - Name: 
       Entry: 8
       Data: 
+    - Name: talentDataDic
+      Entry: 7
+      Data: 18|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[TalentData,
+        Assembly-CSharp]], mscorlib
+    - Name: comparer
+      Entry: 7
+      Data: 19|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
+        mscorlib]], mscorlib
+    - Name: 
+      Entry: 8
+      Data: 
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
     - Name: cardLevelDataList
       Entry: 7
-      Data: 18|System.Collections.Generic.List`1[[Module.Data.CardLevelData, Assembly-CSharp]],
+      Data: 20|System.Collections.Generic.List`1[[Module.Data.CardLevelData, Assembly-CSharp]],
         mscorlib
     - Name: 
       Entry: 12
@@ -1839,11 +1886,11 @@ MonoBehaviour:
       Data: 
     - Name: giftpackDataDic
       Entry: 7
-      Data: 19|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.GiftpackData,
+      Data: 21|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[Module.Data.GiftpackData,
         Assembly-CSharp]], mscorlib
     - Name: comparer
       Entry: 7
-      Data: 20|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
+      Data: 22|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
         mscorlib]], mscorlib
     - Name: 
       Entry: 8
@@ -1859,11 +1906,11 @@ MonoBehaviour:
       Data: 
     - Name: orderDataDic
       Entry: 7
-      Data: 21|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[OrderData,
+      Data: 23|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[OrderData,
         Assembly-CSharp]], mscorlib
     - Name: comparer
       Entry: 7
-      Data: 22|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
+      Data: 24|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
         mscorlib]], mscorlib
     - Name: 
       Entry: 8
@@ -1962,6 +2009,10 @@ PrefabInstance:
     - target: {fileID: 429372243563894118, guid: a8d18e97514097c4fb3de89acda5db0d, type: 3}
       propertyPath: m_Name
       value: ShanPingView
+      objectReference: {fileID: 0}
+    - target: {fileID: 429372243563894118, guid: a8d18e97514097c4fb3de89acda5db0d, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4394845555838946838, guid: a8d18e97514097c4fb3de89acda5db0d, type: 3}
       propertyPath: m_Pivot.x

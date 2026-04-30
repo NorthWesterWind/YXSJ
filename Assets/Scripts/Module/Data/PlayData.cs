@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Controller;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Unity.VisualScripting;
-using UnityEngine;
 using Utils;
 
 namespace Module.Data
@@ -16,6 +15,8 @@ namespace Module.Data
         LingChuGe_1 = 1,  //一号灵储阁
         LingChuGe_2 = 2,  //二号灵储阁
     }
+
+    [System.Serializable]
     public class PlayerData : BaseData
     {
         #region 基础属性
@@ -30,7 +31,7 @@ namespace Module.Data
         public float pickUpRange = 4f;  //拾取物品距离
         public float slowDownValue = 1f; //降低速度值
         public float weaponSize = 1f;   //武器尺寸
-        public float hpRecover = 0f;       //生命值回复
+        public float hpRecover = 0.05f;       //生命值回复
 
 
         /// <summary>
@@ -40,6 +41,8 @@ namespace Module.Data
         public float addHp;
         public float addAtk;
         public float addBagCapacity;
+        public float equippedBagCapacity;
+        public bool bagCapacityDataMigrated;
         public float addMoveSpeed;
         public float addPickUpRange;
         public float addSlowDownValue;
@@ -50,7 +53,7 @@ namespace Module.Data
 
         #region 账号信息
 
-        public string userName = "未定义";
+        public string playerName = "未定义";
         public string userAccount;
         public string userPassword;
         public int age;
@@ -58,12 +61,15 @@ namespace Module.Data
         public int monthPurchaseLimit;
         public int mothTotalSpending;
 
-        public bool isCreated;
+        public bool isCreated=false;
         public int user_id;
+        public int headId;
         #endregion
 
         #region 游玩数据
 
+        public int currentClothing = 3;
+        public List<int> ownClothingList = new List<int>() { 3 };
         public List<int> guidIdList = new List<int>() { };
         public GuideStep guideStep = GuideStep.BuildYushaPot;
 
@@ -75,9 +81,9 @@ namespace Module.Data
         public bool canPlayXuanJing = true;
         public string playXuanJingTime;
         public string lastloginday = "";
-        public CurrencyType playTrialCurrencyType ;
+        public CurrencyType playTrialCurrencyType;
         #endregion
-        
+
         public int monthlyLimitMoney; //每月限制消费金额
         public DateTime lastTime;  //判断是否跨月
         public int tongbi = 3000;  //铜币
@@ -97,6 +103,7 @@ namespace Module.Data
         public int ordenFunction = 0;
         public List<int> levelLockMapList = new() { 2, 3, 4, 5 };
         public List<int> realUnlockMapList = new() { 1 };
+
 
         public List<int> mapCompletedTaskRecordList_1 = new List<int>() { };
         public List<int> mapCompletedTaskRecordList_2 = new List<int>() { };
@@ -205,6 +212,9 @@ namespace Module.Data
         /// 玩家背包商品快照
         /// </summary>
         public List<RuntimeGoodsCount> runtimePlayerGoodsList = new List<RuntimeGoodsCount>();
+        public List<RuntimeYuanBaoMonsterData> runtimeYuanBaoMonsterDataList = new List<RuntimeYuanBaoMonsterData>();
+        public List<RuntimeYuanBaoDropData> runtimeYuanBaoDropDataList = new List<RuntimeYuanBaoDropData>();
+        public List<RuntimeYuanBaoStateData> runtimeYuanBaoStateDataList = new List<RuntimeYuanBaoStateData>();
 
         #endregion
         #endregion      
@@ -242,6 +252,7 @@ namespace Module.Data
         #region 元宝矿洞数据
         public int remainCount = 30;
         public string lastRefrashTime = "";
+        public List<YuanBaoKuangDongStateData> yuanBaoKuangDongStateDataList = new List<YuanBaoKuangDongStateData>();
 
 
 
@@ -249,7 +260,7 @@ namespace Module.Data
 
 
     }
-     public class StructureLockProgressData
+    public class StructureLockProgressData
     {
         public BuildingType buildType;
         public int needMoney;
@@ -674,12 +685,12 @@ namespace Module.Data
             goodsType = GoodsType.None;
         }
 
-        public ProductStationData(BuildingType buildingType , GoodsType goodsType)
+        public ProductStationData(BuildingType buildingType, GoodsType goodsType)
             : this(0, buildingType, goodsType)
         {
         }
 
-        public ProductStationData(int mapId, BuildingType buildingType , GoodsType goodsType)
+        public ProductStationData(int mapId, BuildingType buildingType, GoodsType goodsType)
         {
             this.mapId = mapId;
             this.buildingType = buildingType;
@@ -705,7 +716,7 @@ namespace Module.Data
         public int maxpeopleLevel = 3;
         public CashierData()
         {
-            
+
         }
     }
 
@@ -762,10 +773,9 @@ namespace Module.Data
         public int value;
         public BuildingType stationBuildingType;
         public int state;
-        public bool canPickup;
-        public float posX;
-        public float posY;
-        public float posZ;
+        [DefaultValue(1)]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public int count = 1;
     }
 
     /// <summary>
@@ -777,6 +787,42 @@ namespace Module.Data
         public int mapId;
         public BuildingType stationBuildingType;
         public int currentMaterialCount;
+    }
+
+    [Serializable]
+    public class RuntimeYuanBaoMonsterData
+    {
+        public int mapId;
+        [DefaultValue(1)]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public int count = 1;
+    }
+
+    [Serializable]
+    public class RuntimeYuanBaoDropData
+    {
+        public int mapId;
+        [DefaultValue(1)]
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public int count = 1;
+    }
+
+    [Serializable]
+    public class RuntimeYuanBaoStateData
+    {
+        public int mapId;
+        public int generatedCount;
+        public int remainCount;
+        public string lastRefreshTime;
+    }
+
+    [Serializable]
+    public class YuanBaoKuangDongStateData
+    {
+        public int mapId;
+        public int generatedCount;
+        public int remainCount = 30;
+        public string lastRefreshTime = "";
     }
 
 }

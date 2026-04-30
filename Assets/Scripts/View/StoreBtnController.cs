@@ -129,7 +129,7 @@ namespace View
                                 PlayerDataModule.Instance.data.useLingJingTotalValue += costValue;
                                 EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                             };
-                            UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}灵晶购买{rewardValue}金元宝？",
+                            UIController.Instance.Show<ExchangeView>($"是否消耗{costValue}灵晶购买{Extensions.FormatNumber(rewardValue)}金元宝？",
                                 _callback);
                             break;
                     }

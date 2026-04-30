@@ -71,7 +71,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 431.35, y: -111.716095}
+  m_AnchoredPosition: {x: 431.35, y: -495.1311}
   m_SizeDelta: {x: 766.0883, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8801207628985683100
@@ -381,9 +381,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+  m_OnPointerDown:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnPointerUp:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnDrag:
+    m_PersistentCalls:
+      m_Calls: []
   m_ClickInterval: 0.3
   m_ClickSound: {fileID: 0}
   m_SoundVolume: 1
+  m_ClickCancelDragThreshold: 15
 --- !u!1 &5374888773457679015
 GameObject:
   m_ObjectHideFlags: 0
@@ -690,10 +700,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _hideOnAwake: 0
   _showAnimationTime: 0.3
-  _hideAnimationTime: 0.2
+  _hideAnimationTime: 0
   _closeBackground: {fileID: 0}
   _isPopup: 1
-  _content: {fileID: 0}
+  _content: {fileID: 3641261378333297410}
   _enablePopupScale: 1
   _popupScaleCurve:
     serializedVersion: 2

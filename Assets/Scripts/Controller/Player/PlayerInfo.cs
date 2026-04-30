@@ -105,7 +105,7 @@ namespace Controller.Player
 
             if (carryNum >= player.maxCarryNum)
             {
-                text.text = "\u50a8\u7269\u888b\u5df2\u6ee1";
+                text.text = "储物袋已满";
             }
             else
             {

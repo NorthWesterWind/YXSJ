@@ -14,7 +14,6 @@ public class WeaponController2D : MonoBehaviour
     {
         if (other.CompareTag("Monster"))
         {
-            Debug.Log($"[Weapon] 攻击命中怪物: {other.name}");
             AttackMonster(other.gameObject);
         }
     }
@@ -24,12 +23,10 @@ public class WeaponController2D : MonoBehaviour
         var monsterCtr2 = monster.GetComponent<MonsterController2D>();
         if (monsterCtr2 != null && !monsterCtr2.isDead)
         {
-            Debug.Log($"[Weapon] 攻击命中怪物2D: atkvalue: {atkValue}");
             if (monsterCtr2.TakeDamage(atkValue))
             {
                 AudioSourceController.Instance?.PlayMonsterHitSfx(monsterCtr2.monsterType);
             }
         }
-
     }
 }

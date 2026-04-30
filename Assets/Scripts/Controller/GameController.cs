@@ -16,6 +16,14 @@ namespace Controller
         public List<Transform> waypoints = new();
     }
 
+    [Serializable]
+    public class FreightClerkRouteConfig
+    {
+        public string routeName;
+        public BuildingType targetBuildingType;
+        public List<Transform> waypoints = new();
+    }
+
     public class GameController : MonoUtil<GameController>
     {
         [Header("每种怪物的出生点")]
@@ -51,6 +59,10 @@ namespace Controller
 
         [Header("Collector Routes")]
         public List<CollectorRouteConfig> collectorRoutes = new();
+        public bool logCollectorRouteDebug;
+
+        [Header("Freight Clerk Routes")]
+        public List<FreightClerkRouteConfig> freightClerkRoutes = new();
 
         public List<BuildingType> unlockedBuildingTypes = new();
         
@@ -91,11 +103,15 @@ namespace Controller
             if (goodBuild == null) goodBuild = new Dictionary<GoodsType, StructureBase>();
             if (productionStationList == null) productionStationList = new List<ProductionStation>();
             if (salesStallList == null) salesStallList = new List<SalesStall>();
+            if (queues == null) queues = new Dictionary<StructureBase, QueueGroup>();
+            if (mapLockDic == null) mapLockDic = new Dictionary<MonsterType, MapLock>();
 
             buildings.Clear();
             goodBuild.Clear();
             productionStationList.Clear();
             salesStallList.Clear();
+            queues.Clear();
+            mapLockDic.Clear();
 
             var structures = FindObjectsOfType<StructureBase>(true);
             foreach (var structure in structures)
@@ -143,6 +159,42 @@ namespace Controller
                     buildings.Add(buildingKey, structure);
                 }
             }
+
+            RefreshQueueCaches();
+            RefreshMapLockCaches();
+        }
+
+        private void RefreshQueueCaches()
+        {
+            foreach (var structure in goodBuild.Values)
+            {
+                if (structure is SalesStall stall && stall.parchaseTransform != null)
+                {
+                    RegisterQueue(structure, stall.parchaseTransform.position);
+                }
+            }
+
+            if (buildings.TryGetValue(BuildingType.LingZhangTai, out var cashierBase) &&
+                cashierBase is CashierCounter cashier &&
+                cashier.parchaseTransform != null)
+            {
+                RegisterQueue(cashier, cashier.parchaseTransform.position);
+            }
+        }
+
+        private void RefreshMapLockCaches()
+        {
+            var mapLocks = FindObjectsOfType<MapLock>(true);
+            for (int i = 0; i < mapLocks.Length; i++)
+            {
+                var mapLock = mapLocks[i];
+                if (mapLock == null || mapLock.monsterType == MonsterType.None)
+                {
+                    continue;
+                }
+
+                mapLockDic[mapLock.monsterType] = mapLock;
+            }
         }
 
         public bool TryBuildCollectorRoute(WarehouseCategoryType warehouseCategoryType, MonsterFamily targetMonsterType, out List<Vector2> routeWaypoints)
@@ -159,6 +211,84 @@ namespace Controller
                 if (route == null ||
                     route.warehouseCategoryType != warehouseCategoryType ||
                     route.targetMonsterType != targetMonsterType)
+                {
+                    continue;
+                }
+
+                if (route.waypoints == null)
+                {
+                    if (logCollectorRouteDebug)
+                    {
+                        Debug.LogWarning($"[CollectorRoute] matched null waypoint list. warehouse={warehouseCategoryType}, monster={targetMonsterType}, routeIndex={i}, routeName={route.routeName}");
+                    }
+                    return false;
+                }
+
+                for (int j = 0; j < route.waypoints.Count; j++)
+                {
+                    var waypoint = route.waypoints[j];
+                    if (waypoint == null)
+                    {
+                        if (logCollectorRouteDebug)
+                        {
+                            Debug.LogWarning($"[CollectorRoute] skip null waypoint. warehouse={warehouseCategoryType}, monster={targetMonsterType}, routeIndex={i}, routeName={route.routeName}, waypointIndex={j}");
+                        }
+                        continue;
+                    }
+
+                    routeWaypoints.Add(waypoint.position);
+                }
+
+                if (logCollectorRouteDebug)
+                {
+                    Debug.Log($"[CollectorRoute] selected. warehouse={warehouseCategoryType}, monster={targetMonsterType}, routeIndex={i}, routeName={route.routeName}, rawWaypointCount={route.waypoints.Count}, validWaypointCount={routeWaypoints.Count}, points={FormatRoutePoints(routeWaypoints)}");
+                }
+                return routeWaypoints.Count > 0;
+            }
+
+            if (logCollectorRouteDebug)
+            {
+                Debug.LogWarning($"[CollectorRoute] not found. warehouse={warehouseCategoryType}, monster={targetMonsterType}, configuredRoutes={collectorRoutes.Count}");
+            }
+            return false;
+        }
+
+        private static string FormatRoutePoints(IReadOnlyList<Vector2> routeWaypoints)
+        {
+            if (routeWaypoints == null || routeWaypoints.Count == 0)
+            {
+                return "[]";
+            }
+
+            System.Text.StringBuilder builder = new System.Text.StringBuilder();
+            builder.Append('[');
+            for (int i = 0; i < routeWaypoints.Count; i++)
+            {
+                Vector2 point = routeWaypoints[i];
+                if (i > 0) builder.Append(", ");
+                builder.Append(i);
+                builder.Append(":(");
+                builder.Append(point.x.ToString("F2"));
+                builder.Append(", ");
+                builder.Append(point.y.ToString("F2"));
+                builder.Append(')');
+            }
+            builder.Append(']');
+            return builder.ToString();
+        }
+
+        public bool TryBuildFreightClerkRoute(BuildingType targetBuildingType, out List<Vector2> routeWaypoints)
+        {
+            routeWaypoints = new List<Vector2>();
+            if (targetBuildingType == BuildingType.None || freightClerkRoutes == null || freightClerkRoutes.Count == 0)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < freightClerkRoutes.Count; i++)
+            {
+                var route = freightClerkRoutes[i];
+                if (route == null || route.targetBuildingType != targetBuildingType)
                 {
                     continue;
                 }

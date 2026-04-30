@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,15 @@ public class PauseView : BaseView
     public UIButton closeBtn;
     public UIButton closeGameBtn;
     public UIButton continueBtn;
+
+    Action action;
+
+    public override void UpdateViewWithArgs(params object[] args)
+    {
+        base.UpdateViewWithArgs(args);
+        action = null;
+        action = args[0] as Action;
+    }
 
     protected override void AddEventListener()
     {
@@ -23,7 +33,8 @@ public class PauseView : BaseView
         closeGameBtn.onClick.AddListener((() =>
         {
             Time.timeScale = 1;
-            EventCenter.Instance.TriggerEvent(EventMessages.CloseTrialView);
+           
+            action?.Invoke();
             Hide();
         }));
 

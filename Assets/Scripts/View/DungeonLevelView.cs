@@ -1,7 +1,10 @@
 using System;
+using System.Collections;
 using Module;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 using Utils;
 using View;
 
@@ -16,6 +19,9 @@ public class DungeonLevelView : BaseView
     public UIButton gameBtn_2;
     public TextMeshProUGUI infotxt_1;
     public TextMeshProUGUI infotxt_2;
+    public GameObject loadView;
+    public Image fillImage;
+    public UIButton detailBtn;
 
     private bool isFirstSelected = true;
 
@@ -55,6 +61,12 @@ public class DungeonLevelView : BaseView
                 image_1.SetActive(false);
             }
         });
+
+        detailBtn.onClick.RemoveAllListeners();
+        detailBtn.onClick.AddListener(() =>
+        {
+            UIController.Instance.Show<DetailView>();
+        });
     }
 
     public override void UpdateViewWithArgs(params object[] args)
@@ -64,6 +76,7 @@ public class DungeonLevelView : BaseView
         isFirstSelected = true;
         image_1.SetActive(false);
         image_2.SetActive(false);
+        loadView.SetActive(false);
     }
     void Update()
     {
@@ -71,11 +84,11 @@ public class DungeonLevelView : BaseView
     }
     void UpdateTimeInfo()
     {
-        infotxt_1.text = "今日剩余挑战次数：" + PlayerDataModule.Instance.data.playLingBaoCount + "。";
+        infotxt_2.text = "今日剩余挑战次数：" + PlayerDataModule.Instance.data.playLingBaoCount + "。";
 
         if (PlayerDataModule.Instance.data.canPlayXuanJing)
         {
-            infotxt_2.text = "当前可进行挑战。";
+            infotxt_1.text = "当前可进行挑战。";
             return;
         }
 
@@ -94,7 +107,7 @@ public class DungeonLevelView : BaseView
         if (passedSeconds >= cooldownSeconds)
         {
             PlayerDataModule.Instance.data.canPlayXuanJing = true;
-            infotxt_2.text = "当前可进行挑战。";
+            infotxt_1.text = "当前可进行挑战。";
         }
         else
         {
@@ -103,7 +116,7 @@ public class DungeonLevelView : BaseView
             int minutes = Mathf.FloorToInt((float)remainSeconds / 60f);
             int seconds = Mathf.CeilToInt((float)remainSeconds % 60f);
 
-            infotxt_2.text = $"{minutes:D2}:{seconds:D2} 后可进行挑战。";
+            infotxt_1.text = $"{minutes:D2}:{seconds:D2} 后可进行挑战。";
         }
 
 
@@ -114,7 +127,7 @@ public class DungeonLevelView : BaseView
     {
         Hide();
     }
-    void OnClickGameBtn_1()
+    void OnClickGameBtn_2()
     {
         if (PlayerDataModule.Instance.data.playLingBaoCount <= 0)
         {
@@ -125,7 +138,7 @@ public class DungeonLevelView : BaseView
         UIController.Instance.Show<TrialView>(true);
         PlayerDataModule.Instance.data.playLingBaoCount -= 1;
     }
-    void OnClickGameBtn_2()
+    void OnClickGameBtn_1()
     {
         if (!PlayerDataModule.Instance.data.canPlayXuanJing)
         {
@@ -133,11 +146,54 @@ public class DungeonLevelView : BaseView
             return;
         }
         PlayerDataModule.Instance.data.playTrialCurrencyType = Module.Data.CurrencyType.LingJing;
-        UIController.Instance.Show<TrialView>(false);
         DateTime time = DateTime.Now;
         PlayerDataModule.Instance.data.playXuanJingTime = time.ToString("yyyy-MM-dd HH:mm:ss");
         PlayerDataModule.Instance.data.canPlayXuanJing = false;
+        PlayerDataModule.Instance.CaptureCurrentRuntimeState();
+        PlayerDataModule.Instance.SuspendRuntimeCaptureForSceneTransition();
+        loadView.SetActive(true);
+        StartCoroutine(LoadNextSceneCoroutine());
     }
+
+    private IEnumerator LoadNextSceneCoroutine()
+    {
+        SceneManager.sceneLoaded += OnSceneLoaded;
+        AsyncOperation asyncLoad;
+        asyncLoad = SceneManager.LoadSceneAsync($"Game_Trial");
+        asyncLoad.allowSceneActivation = false;
+        float displayProgress = 0f;
+        while (!asyncLoad.isDone)
+        {
+            float targetProgress = Mathf.Clamp01(asyncLoad.progress / 0.9f);
+            displayProgress = Mathf.MoveTowards(displayProgress, targetProgress, Time.deltaTime * 0.3f);
+            fillImage.fillAmount = displayProgress;
+            if (asyncLoad.progress >= 0.9f && displayProgress >= 0.99f)
+            {
+                displayProgress = Mathf.MoveTowards(displayProgress, 1f, Time.deltaTime * 0.3f);
+                fillImage.fillAmount = displayProgress;
+                if (displayProgress >= 1f)
+                {
+                    yield return new WaitForSeconds(0.5f);
+                    asyncLoad.allowSceneActivation = true;
+                }
+            }
+            yield return null;
+        }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        PlayerDataModule.Instance.BeginAutoSave();
+
+        if (scene.name == $"Game_Trial")
+        {
+            UIController.Instance.Show<TrialGameView>();
+        }
+
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+
     protected override void OnHideComplete()
     {
         base.OnHideComplete();

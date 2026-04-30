@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using Controller;
@@ -14,6 +13,12 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Utils;
 using View;
+using View.CardView;
+using View.CharacterInfoView;
+using View.EmployeeFunction;
+using View.MapFunction;
+using View.OrderFunction;
+using View.Task;
 using World.Controller;
 
 public class LoginView : BaseView
@@ -41,14 +46,23 @@ public class LoginView : BaseView
     public UIButton realNameReturnBtn;
     public UIButton realNameBtn;
 
-    // public GameObject setNameContent;
-    // public TMP_InputField setNameInput;
-    // public UIButton setNameBtn;
+    public GameObject setNameContent;
+    public TMP_InputField setNameInput;
+    public UIButton setNameBtn;
     public UIButton ZhuXiaoBtn;
+    public GameObject zhuxiaoContent;
+
+    public TMP_InputField zhuxiaoAccountInput;
+    public TMP_InputField zhuxiaoPasswordInput;
+    public UIButton ZhuXiaoConfirmBtn;
+    public UIButton ZhuXiaoCancleBtn;
+
+    public UIButton headIconBtn;
+    public Image headIcon;
+
     protected override void Awake()
     {
         base.Awake();
-        StartCoroutine(LoadSensitiveWordsCoroutine());
     }
     public override void UpdateViewWithArgs(params object[] args)
     {
@@ -59,7 +73,7 @@ public class LoginView : BaseView
         registerPasswordInput.text = "";
         realNameInput.text = "";
         realAccountInput.text = "";
-        //setNameInput.text = "";
+        setNameInput.text = "";
         HideAllPanels();
         SwitchToLoginPanel();
         Debug.Log($"Persistent Path: {Application.persistentDataPath}");
@@ -71,8 +85,8 @@ public class LoginView : BaseView
         loginContent.SetActive(false);
         registerContent.SetActive(false);
         realNameContent.SetActive(false);
-        //setNameContent.SetActive(false);
-
+        setNameContent.SetActive(false);
+        zhuxiaoContent.SetActive(false);
         fillBg.gameObject.SetActive(false);
     }
     public void SwitchToLoginPanel()
@@ -96,12 +110,21 @@ public class LoginView : BaseView
         realNameInput.text = "";
         realAccountInput.text = "";
     }
-    // public void SwitchToSetNamePanel()
-    // {
-    //     HideAllPanels();
-    //     setNameContent.SetActive(true);
-    //     setNameInput.text = "";
-    // }
+    public void SwitchToSetNamePanel()
+    {
+        HideAllPanels();
+        setNameContent.SetActive(true);
+        setNameInput.text = "";
+        RefreshSetNameHeadIcon();
+    }
+
+    public void SwitchToZhuXiaoPanel()
+    {
+        HideAllPanels();
+        zhuxiaoContent.SetActive(true);
+        zhuxiaoAccountInput.text = "";
+        zhuxiaoPasswordInput.text = "";
+    }
 
     protected override void AddEventListener()
     {
@@ -114,8 +137,13 @@ public class LoginView : BaseView
         passwordInput.onValueChanged.AddListener(OnPasswordValueChanged);
         registerPasswordInput.onValidateInput += ValidateAlphaNumeric;
         registerPasswordInput.onValueChanged.AddListener(OnPassword2ValueChanged);
-        // setNameInput.onValueChanged.AddListener(OnCreateNameValueChanged);
+        setNameInput.onValueChanged.AddListener(OnCreateNameValueChanged);
         realAccountInput.onValueChanged.AddListener(OnNumberValueChanged);
+        zhuxiaoAccountInput.onValidateInput += ValidateAlphaNumeric;
+        zhuxiaoAccountInput.onValueChanged.AddListener(OnZhuXiaoAccountValueChanged);
+
+        zhuxiaoPasswordInput.onValidateInput += ValidateAlphaNumeric;
+        zhuxiaoPasswordInput.onValueChanged.AddListener(OnZhuXiaoPasswordValueChanged);
 
         loginBtn.onClick.RemoveAllListeners();
         loginBtn.onClick.AddListener(LoginEvent);
@@ -133,13 +161,85 @@ public class LoginView : BaseView
         realNameBtn.onClick.RemoveAllListeners();
         realNameBtn.onClick.AddListener(OnRealNameStrict);
 
-        // setNameBtn.onClick.RemoveAllListeners();
-        // setNameBtn.onClick.AddListener(OnSetName);
+        ZhuXiaoCancleBtn.onClick.RemoveAllListeners();
+        ZhuXiaoCancleBtn.onClick.AddListener(() =>
+        {
+            SwitchToLoginPanel();
+        });
+
+        setNameBtn.onClick.RemoveAllListeners();
+        setNameBtn.onClick.AddListener(OnSetName);
+
+        headIconBtn.onClick.RemoveAllListeners();
+        headIconBtn.onClick.AddListener(OnClickHeadIconBtn);
+
+        EventCenter.Instance.AddListener(EventMessages.UpdateHeadIcon, HandleUpdateHeadIcon);
 
         ageBtn.onClick.RemoveAllListeners();
         ageBtn.onClick.AddListener(OnAge);
+        ZhuXiaoBtn.onClick.RemoveAllListeners();
+        ZhuXiaoBtn.onClick.AddListener(SwitchToZhuXiaoPanel);
+        ZhuXiaoConfirmBtn.onClick.RemoveAllListeners();
+        ZhuXiaoConfirmBtn.onClick.AddListener(() =>
+        {
+            string name = zhuxiaoAccountInput.text;
+            string password = zhuxiaoPasswordInput.text;
+            if (string.IsNullOrEmpty(name))
+            {
+                UIController.Instance.Show<TipView>("账号不能为空!");
+                return;
+            }
+            if (string.IsNullOrEmpty(password))
+            {
+                UIController.Instance.Show<TipView>("密码不能为空!");
+                return;
+            }
+
+            LoginUtil.Instance.ClearUser(name, password, responseclear =>
+            {
+                if (responseclear.state == 1)
+                {
+                    UIController.Instance.Show<TipView>(responseclear.msg);
+                    zhuxiaoAccountInput.text = "";
+                    zhuxiaoPasswordInput.text = "";
+                }
+                else if (responseclear.state == 2)
+                {
+                    UIController.Instance.Show<TipView>("账号信息不存在!");
+                }
+            });
+
+        });
 
     }
+
+    public override void RemoveEventListener()
+    {
+        EventCenter.Instance.RemoveListener(EventMessages.UpdateHeadIcon, HandleUpdateHeadIcon);
+        if (headIconBtn != null) headIconBtn.onClick.RemoveListener(OnClickHeadIconBtn);
+        base.RemoveEventListener();
+    }
+
+    private void OnClickHeadIconBtn()
+    {
+        UIController.Instance.Show<HeadIconChangeView>(PlayerDataModule.Instance.data);
+    }
+
+    private void HandleUpdateHeadIcon(params object[] args)
+    {
+        RefreshSetNameHeadIcon();
+    }
+
+    private void RefreshSetNameHeadIcon()
+    {
+        if (headIcon == null || PlayerDataModule.Instance == null || PlayerDataModule.Instance.data == null) return;
+
+        AssetHandle assetHandle = _assetHandle != null ? _assetHandle : GetComponent<AssetHandle>();
+        if (assetHandle == null) return;
+
+        headIcon.sprite = assetHandle.Get<Sprite>(PlayerDataModule.Instance.data.headId.ToString());
+    }
+
     public void OnAge()
     {
         if (fillBg.activeSelf)
@@ -148,7 +248,7 @@ public class LoginView : BaseView
         }
 
         UIController.Instance.Show<AttentionView>(
-            "\u3000\u30001、本游戏是一款以模拟经营为背景的休闲模拟类手机网络游戏，适用于年满8周岁及以上的用户，建议未成年人在家长监护下使用游戏产品。\n\r\u3000\u30002、本游戏以模拟经营为题材，核心玩法包含材料收集、建筑升级、角色养成、商品售卖及资源管理，玩家可通过策略进行模拟经营，激励玩家用心钻研和挑战自我。\n\r\u3000\u30003、根据国家新闻出版署《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》，本游戏已设置实名认证系统和防沉迷系统，并接入国家实名认证系统和防沉迷系统。游戏中部分道具需要付费，规范向未成年人提供付费服务：本游戏不会为未满8周岁的用户提供游戏充值服务；满8周岁未满16周岁的用户，单次充值金额不得超过50元人民币，每月充值金额累计不得超过200元人民币；满16周岁未满18周岁的用户，单次充值金额不得超过100元人民币，每月充值金额累计不得超过400元人民币。\n\r\u3000\u30004、本游戏为模拟经营为主题的休闲模拟类游戏。在游戏中，玩家化身在妖剑世界的一名传奇经营者，提供角色培养、材料收集、资源搭配的过程，有助于玩家日常放松。游戏玩法简单，强化应变决策力，提供放松体验，任务奖励增强玩家自信心与目标感。",
+            "\u3000\u3000（1）本游戏是一款以仙侠世界为背景的模拟经营类手游，适用于年满8周岁及以上的用户。建议未成年人在家长监护下使用游戏产品。\n\r\u3000\u3000（2）本游戏核心玩法包含材料收集、建筑升级、角色养成、物品售卖及资源管理等内容。玩家可通过策略规划开展经营，鼓励玩家用心钻研、挑战自我。\n\r\u3000\u3000（3）根据国家新闻出版署《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》，本游戏中有用户实名认证系统，未通过实名认证的用户不可进入游戏，认证为未成年人的用户将接受以下管理:\n\r\u3000\u3000认证为未成年人的用户，除周五、周六、周日及法定节假日每日20时至21时以外，其他时间均不可进入游戏。游戏中部分玩法和道具需要付费。未满8周岁的用户不能付费；8周岁以上未满16周岁的未成年人用户，单次充值金额不得超过50元人民币，每月充值金额累计不得超过200元人民币；16周岁以上未满18周岁的未成年人用户，单次充值金额不得超过100元人民币，每月充值金额累计不得超过400元人民币。\n\r\u3000\u3000（4）本游戏为仙侠主题的模拟经营类游戏，以妖剑世界的灵艺复苏为核心脉络，玩家将化身为妖剑世界的经营者，体验材料收集、建筑经营、资源调配的全过程，玩法轻松易懂，可帮助玩家放松日常压力，同时通过目标引导提升成就感。",
             "适龄提示");
     }
 
@@ -162,7 +262,7 @@ public class LoginView : BaseView
 
         if (accountInput.text.Length < 4 || accountInput.text.Length > 8)
         {
-            UIController.Instance.Show<TipView>("账号长度应为4到8!");
+            UIController.Instance.Show<TipView>("账号长度应为4到8个字符!");
             return;
         }
 
@@ -200,13 +300,16 @@ public class LoginView : BaseView
             return;
         }
 
-        // if (!PlayerDataModule.Instance.data.isCreated)
-        // {
-        //     HideAllPanels();
-        //     SwitchToSetNamePanel();
-        // }
-        // else
-        OnCanLogin();
+        if (!PlayerDataModule.Instance.data.isCreated)
+        {
+            HideAllPanels();
+            SwitchToSetNamePanel();
+        }
+        else
+        {
+            OnCanLogin();
+        }
+
     }
 
     private void OnCanLogin()
@@ -293,6 +396,21 @@ public class LoginView : BaseView
                 DataController.Instance.InitMapLock();
                 DataController.Instance.UpdateStructureLockInfo();
                 EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskMainView);
+
+
+                UIController.Instance.Preload<SettingView>();
+                UIController.Instance.Preload<StoreView>();
+                UIController.Instance.Preload<ZhuanPanView>();
+                UIController.Instance.Preload<SevenDayView>();
+                UIController.Instance.Preload<RewardConfirmView>();
+                UIController.Instance.Preload<DungeonLevelView>();
+                UIController.Instance.Preload<CharacterView>();
+                UIController.Instance.Preload<CardInfoView>();
+                UIController.Instance.Preload<CharacterView>();
+                UIController.Instance.Preload<MapSelectView>();
+                UIController.Instance.Preload<EmployeeFunctionView>();
+                UIController.Instance.Preload<OrderFunctionView>();
+                UIController.Instance.Preload<TaskPop>();
             }
         }
         AudioSourceController.Instance.PlaySound();
@@ -316,7 +434,7 @@ public class LoginView : BaseView
 
         if (registerAccountInput.text.Length < 4 || registerPasswordInput.text.Length > 8)
         {
-            UIController.Instance.Show<TipView>("账号长度应为4到8!");
+            UIController.Instance.Show<TipView>("账号长度应为4到8个字符!");
             return;
         }
         if (registerPasswordInput.text.Length < 4)
@@ -445,7 +563,7 @@ public class LoginView : BaseView
             return;
         }
 
-      StartCoroutine(SendAuthRequest(realNameInput.text, realAccountInput.text));
+        StartCoroutine(SendAuthRequest(realNameInput.text, realAccountInput.text));
     }
 
 
@@ -519,7 +637,15 @@ public class LoginView : BaseView
                        PlayerDataModule.Instance.data.age = age;
                        PlayerDataModule.Instance.SavePlayerDataAsync();
                        PlayerDataModule.Instance.SavePlayerDataToSever();
-                       OnCanLogin();
+                       if (!PlayerDataModule.Instance.data.isCreated)
+                       {
+                           HideAllPanels();
+                           SwitchToSetNamePanel();
+                       }
+                       else
+                       {
+                           OnCanLogin();
+                       }
                        break;
                    case 3:
                        UIController.Instance.Show<TipView>("实名失败输入18位身份证号数字！");
@@ -537,7 +663,7 @@ public class LoginView : BaseView
     private void OnSetName()
     {
 
-        // string name = setNameInput.text;
+        string name = setNameInput.text;
         if (string.IsNullOrEmpty(name))
         {
             UIController.Instance.Show<TipView>("昵称不能为空!");
@@ -552,15 +678,10 @@ public class LoginView : BaseView
 
         if (name.Length > 6)
         {
-            UIController.Instance.Show<TipView>("超出昵称长度限制6!");
+            UIController.Instance.Show<TipView>("昵称不能超过6位中文字符。");
             return;
         }
 
-        // if (!IsTextValid(name))
-        // {
-        //     UIController.Instance.Show<TipView>("昵称包含敏感词!");
-        //     return;
-        // }
         LoginUtil.Instance.CheckBlockedWords(name, (data) =>
         {
             if (data.code != 200)
@@ -572,7 +693,7 @@ public class LoginView : BaseView
             {
                 if (data.data.has_sensitive)
                 {
-                    UIController.Instance.Show<TipView>("昵称包含敏感词!");
+                    UIController.Instance.Show<TipView>($"输入内容包含敏感字符，请修改！");
                     Debug.LogWarning($"昵称 '{name}' 包含敏感词 '{data.data.hit_word}'，原因类型: {data.data.reason_type}，具体原因: {data.data.reason}");
                     return;
                 }
@@ -580,7 +701,7 @@ public class LoginView : BaseView
                 {
                     HideAllPanels();
                     PlayerData playerData = PlayerDataModule.Instance.data;
-                    playerData.userName = name;
+                    playerData.playerName = name;
                     playerData.isCreated = true;
                     PlayerDataModule.Instance.SavePlayerDataAsync();
                     PlayerDataModule.Instance.SavePlayerDataToSever();
@@ -630,7 +751,19 @@ public class LoginView : BaseView
             accountInput.caretPosition = filtered.Length;
         }
     }
+    private void OnZhuXiaoAccountValueChanged(string text)
+    {
+        if (Input.compositionString.Length > 0)
+            return; // 等输入法结束
 
+        string filtered = Regex.Replace(text, @"[^a-zA-Z0-9]", "");
+
+        if (filtered != text)
+        {
+            zhuxiaoAccountInput.text = filtered;
+            zhuxiaoAccountInput.caretPosition = filtered.Length;
+        }
+    }
 
     private void OnPasswordValueChanged(string text)
     {
@@ -643,6 +776,19 @@ public class LoginView : BaseView
         {
             passwordInput.text = filtered;
             passwordInput.caretPosition = filtered.Length; // 保持光标在最后
+        }
+    }
+    private void OnZhuXiaoPasswordValueChanged(string text)
+    {
+        if (Input.compositionString.Length > 0)
+            return; // 等输入法结束
+
+        string filtered = Regex.Replace(text, @"[^a-zA-Z0-9]", "");
+
+        if (filtered != text)
+        {
+            zhuxiaoPasswordInput.text = filtered;
+            zhuxiaoPasswordInput.caretPosition = filtered.Length; // 保持光标在最后
         }
     }
 
@@ -726,57 +872,7 @@ public class LoginView : BaseView
 
 
 
-    private IEnumerator LoadSensitiveWordsCoroutine()
-    {
-        sensitiveWords.Clear();
-        isInitialized = false;
 
-        Debug.Log("开始异步加载敏感词文件...");
-
-        // 遍历文件路径列表，加载每一个文件
-        foreach (string filePath in sensitiveWordsFilePaths)
-        {
-            string fullPath = Path.Combine(Application.streamingAssetsPath, filePath);
-
-            // 【关键修改】使用 UnityWebRequest 替代 File.IO
-            UnityWebRequest www = UnityWebRequest.Get(fullPath);
-
-            // 发送请求并等待其完成
-            yield return www.SendWebRequest();
-
-            // 检查请求结果
-            if (www.result == UnityWebRequest.Result.Success)
-            {
-                // 请求成功，获取文件内容
-                string fileContent = www.downloadHandler.text;
-
-                // 【关键修改】从返回的文本中按行分割，模拟 ReadAllLines
-                string[] words = fileContent.Split(new[] { "\r\n", "\r", "\n" },
-                    System.StringSplitOptions.RemoveEmptyEntries);
-
-                int countBefore = sensitiveWords.Count;
-                foreach (string word in words)
-                {
-                    string trimmedWord = word.Trim();
-                    if (!string.IsNullOrEmpty(trimmedWord))
-                    {
-                        sensitiveWords.Add(trimmedWord.ToLower());
-                    }
-                }
-
-                Debug.Log($"成功加载文件 '{filePath}'，新增 {sensitiveWords.Count - countBefore} 个敏感词。");
-            }
-            else
-            {
-                // 如果请求失败，打印错误
-                Debug.LogWarning($"加载敏感词文件失败: {fullPath} | 错误: {www.error}");
-            }
-        }
-
-        // 所有文件加载完成后，设置初始化标志
-        isInitialized = true;
-        Debug.Log($"成功加载所有敏感词，总数量: {sensitiveWords.Count}");
-    }
 
     /// <summary>
     /// 检测输入文本是否合法（返回 true = 合法）
@@ -851,7 +947,7 @@ public class LoginView : BaseView
         if (PlayerDataModule.Instance.data.age < 8)
         {
             UIController.Instance.Show<ForceQuitView>(
-                "\u3000\u3000尊敬的玩家，您当前账号为未成年人账号，已被纳入防沉迷系统。根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》的要求，本游戏不为未满8周岁的用户提供游戏服务，您的年龄未满8周岁，无法登录本游戏。");
+                "\u3000\u3000尊敬的玩家，检测到您当前登录账号未满8周岁。为更好地保护未成年人，本游戏不向未满8周岁的用户提供游戏服务，您无法登录本游戏。", "防沉迷提示");
 
             yield break;
         }
@@ -902,8 +998,8 @@ public class LoginView : BaseView
 
                 // TODO: 未成年人弹窗提示
                 UIController.Instance.Show<AttentionView>(
-                    "\u3000\u3000根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》，本游戏严格控制未成年人使用游戏时段，仅每周五、周六、周日和法定节假日的20时至21时提供1小时网络游戏服务。8周岁以上未满16周岁的未成车人用户，游戏中单次充值全额不得超过50元人民币，每月充值金额累计不得超过200元人民；16周岁以上未满18周岁的未成年人用户，单次充值全额不得超过100元人民币，每月充值金额累计不得超过400元人民币。",
-                    "防沉迷提示", (Action)RealLogin);
+                    "\u3000\u3000根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》，本游戏严格控制未成年人使用游戏时段，仅每周五、周六、周日和法定节假日的20时至21时提供1小时网络游戏服务。8周岁以上未满16周岁的未成年人用户，游戏中单次充值金额不得超过50元人民币，每月充值金额累计不得超过200元人民；16周岁以上未满18周岁的未成年人用户，单次充值金额不得超过100元人民币，每月充值金额累计不得超过400元人民币。",
+                    "未成年提示", (Action)RealLogin);
             }
             else
             {
@@ -914,7 +1010,7 @@ public class LoginView : BaseView
                         : "今天不是允许的游戏日期（需周五、六、日或节假日）";
                 Debug.Log($"限制原因：{reason}");
                 UIController.Instance.Show<ForceQuitView>(
-                    "\u3000\u3000尊敬的玩家，您目前为未成年人账号，已被纳入防沉迷系统。根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》，本游戏严格控制未成年人使用游戏时段，仅每周五、周六、周日和法定节假日的20时至21时提供1小时网络游戏服务。您当前处于防沉迷保护中，当前时段为未成年人限制在线时段，您暂时无法登录游戏，系统强制下线。");
+                    "\u3000\u3000尊敬的玩家，您目前为未成年人账号，已被纳入防沉迷系统。根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》的要求，每周五、周六、周日及法定节假日的20时至21时外为健康保护时段，当前时间段无法游玩，请合理安排时间。", "健康游戏提示");
             }
         }
         catch (Exception ex)

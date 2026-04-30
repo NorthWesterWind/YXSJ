@@ -1383,25 +1383,25 @@ namespace Utils
 					resName = "一号灵茶架";
 					break;
 				case BuildingType.YuShaHu_1:
-					resName = "一号玉沙壶";
+					resName = "一号玉砂壶";
 					break;
 				case BuildingType.LingChaJia_2:
 					resName = "二号灵茶架";
 					break;
 				case BuildingType.YuShaHu_2:
-					resName = "二号玉沙壶";
+					resName = "二号玉砂壶";
 					break;
 				case BuildingType.LingChaJia_3:
 					resName = "三号灵茶架";
 					break;
 				case BuildingType.YuShaHu_3:
-					resName = "三号玉沙壶";
+					resName = "三号玉砂壶";
 					break;
 				case BuildingType.LingChaJia_4:
 					resName = "四号灵茶架";
 					break;
 				case BuildingType.YuShaHu_4:
-					resName = "四号玉沙壶";
+					resName = "四号玉砂壶";
 					break;
 				case BuildingType.LianQiLu_1:
 					resName = "一号炼器炉";

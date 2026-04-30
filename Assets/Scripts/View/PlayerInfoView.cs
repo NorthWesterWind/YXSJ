@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Controller.Player;
 using DG.Tweening;
@@ -32,9 +33,8 @@ namespace View
         public UIButton sevendayBtn;
         public UIButton zhuanpanBtn;
         public UIButton lingjingBtn;
-        // public UIButton friendBtn;
+        public UIButton friendBtn;
         public UIButton mijingBtn;
-
 
         public UIButton characterBtn;
         public Image mask1;
@@ -46,10 +46,20 @@ namespace View
         public Image mask4;
         public UIButton ordenFunctionBtn;
         public Image mask5;
-        
-        public TextMeshProUGUI speedTimeTxt;
 
+        public TextMeshProUGUI speedTimeTxt;
         public TextMeshProUGUI tongbitxt;
+
+        public UIButton headBtn;
+        public Image headIcon;
+        public GameObject friendRedPoint;
+        private const float FriendRedPointRefreshInterval = 5f;
+        private Coroutine friendRedPointCoroutine;
+        private bool isRequestingUnreadMessage;
+        private bool isRequestingFriendRequest;
+        private bool hasUnreadFriendMessage;
+        private bool hasPendingFriendRequest;
+
         protected override void Start()
         {
             base.Start();
@@ -57,14 +67,16 @@ namespace View
             {
                 player = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
             }
+
             InitInfoItem();
             HandleUpdateLevelProgress();
             HandleShowPlayerInfoViewCartoon();
             HandleUpdateFunctionState();
             HandleUpdateMoneyInfo();
             HandleUpdateSpeedTime();
+            HandleUpdateHeadIcon();
+            StartFriendRedPointRefresh();
         }
-
 
         protected override void AddEventListener()
         {
@@ -76,54 +88,66 @@ namespace View
             EventCenter.Instance.AddListener(EventMessages.UpdateFunctionState, HandleUpdateFunctionState);
             EventCenter.Instance.AddListener(EventMessages.UpdatePlayerCarryInfo, HandleUpdatePlayerCarryInfo);
             EventCenter.Instance.AddListener(EventMessages.UpdateSpeedTime, HandleUpdateSpeedTime);
+            EventCenter.Instance.AddListener(EventMessages.UpdateHeadIcon, HandleUpdateHeadIcon);
+            EventCenter.Instance.AddListener(EventMessages.RefreshExpeditionFriendRedPoint, HandleUpdateFriendRedPoint);
 
             settingBtn.onClick.RemoveAllListeners();
             settingBtn.onClick.AddListener(OnClickSettingBtn);
+
             storeBtn.onClick.RemoveAllListeners();
             storeBtn.onClick.AddListener(OnClickStoreBtn);
+
             sevendayBtn.onClick.RemoveAllListeners();
             sevendayBtn.onClick.AddListener(OnClickSevendayBtn);
+
             characterBtn.onClick.RemoveAllListeners();
             characterBtn.onClick.AddListener((() =>
             {
                 if (PlayerDataModule.Instance.data.characterFunction != 1)
                 {
-                    UIController.Instance.Show<TipView>("账号等级2时解锁!");
+                    UIController.Instance.Show<TipView>("账号等级1时解锁！");
                     return;
                 }
+
                 UIController.Instance.Show<CharacterView>();
                 HandleHidePlayerInfoViewCartoon();
             }));
+
             cardFunctionBtn.onClick.RemoveAllListeners();
             cardFunctionBtn.onClick.AddListener((() =>
             {
                 if (PlayerDataModule.Instance.data.cardFunction != 1)
                 {
-                    UIController.Instance.Show<TipView>("账号等级2时解锁!");
+                    UIController.Instance.Show<TipView>("账号等级1时解锁！");
                     return;
                 }
+
                 UIController.Instance.Show<CardInfoView>();
                 HandleHidePlayerInfoViewCartoon();
             }));
+
             mapFunctionBtn.onClick.RemoveAllListeners();
             mapFunctionBtn.onClick.AddListener((() =>
             {
                 if (PlayerDataModule.Instance.data.mapFunction != 1)
                 {
-                    UIController.Instance.Show<TipView>("账号等级5时解锁!");
+                    UIController.Instance.Show<TipView>("账号等级5时解锁！");
                     return;
                 }
+
                 UIController.Instance.Show<MapSelectView>();
                 HandleHidePlayerInfoViewCartoon();
             }));
+
             employeeFunctionBtn.onClick.RemoveAllListeners();
             employeeFunctionBtn.onClick.AddListener((() =>
             {
                 if (PlayerDataModule.Instance.data.employeeFunction != 1)
                 {
-                    UIController.Instance.Show<TipView>("建造云递阁后解锁!");
+                    UIController.Instance.Show<TipView>("建造云递阁后解锁！");
                     return;
                 }
+
                 UIController.Instance.Show<EmployeeFunctionView>();
                 HandleHidePlayerInfoViewCartoon();
             }));
@@ -131,26 +155,30 @@ namespace View
             zhuanpanBtn.onClick.RemoveAllListeners();
             zhuanpanBtn.onClick.AddListener((() =>
             {
-
                 UIController.Instance.Show<ZhuanPanView>();
                 HandleHidePlayerInfoViewCartoon();
             }));
+
             lingjingBtn.onClick.RemoveAllListeners();
             lingjingBtn.onClick.AddListener((() =>
             {
                 if (PlayerDataModule.Instance.data.GetLingJingTime != DateTime.Now.ToString("yyyy/MM/dd"))
                 {
                     PlayerDataModule.Instance.data.lingJing += PlayerDataModule.Instance.data.GetLingJingCount;
-                    UIController.Instance.Show<RewardConfirmView>(new Dictionary<CurrencyType, int> { { CurrencyType.LingJing, PlayerDataModule.Instance.data.GetLingJingCount } });
+                    UIController.Instance.Show<RewardConfirmView>(
+                        new Dictionary<CurrencyType, int>
+                        {
+                            { CurrencyType.LingJing, PlayerDataModule.Instance.data.GetLingJingCount }
+                        });
                     PlayerDataModule.Instance.data.GetLingJingTime = DateTime.Now.ToString("yyyy/MM/dd");
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
                 }
                 else
                 {
-                    UIController.Instance.Show<TipView>("今天已经领取过灵晶！");
+                    UIController.Instance.Show<TipView>("今天已经领取过灵晶了！");
                 }
-
             }));
+
             mijingBtn.onClick.RemoveAllListeners();
             mijingBtn.onClick.AddListener((() =>
             {
@@ -159,6 +187,7 @@ namespace View
                     UIController.Instance.Show<TipView>("战斗状态无法进入副本！");
                     return;
                 }
+
                 HandleHidePlayerInfoViewCartoon();
                 UIController.Instance.Show<DungeonLevelView>();
             }));
@@ -168,19 +197,26 @@ namespace View
             {
                 if (PlayerDataModule.Instance.data.ordenFunction != 1)
                 {
-                    UIController.Instance.Show<TipView>("账号等级12时解锁!");
+                    UIController.Instance.Show<TipView>("账号等级12时解锁！");
                     return;
                 }
+
                 UIController.Instance.Show<OrderFunctionView>();
                 HandleHidePlayerInfoViewCartoon();
             }));
 
-            // friendBtn.onClick.RemoveAllListeners();
-            // friendBtn.onClick.AddListener((() =>
-            // {
-            //     UIController.Instance.Show<FriendView>();
-            //     HandleHidePlayerInfoViewCartoon();
-            // }));    
+            friendBtn.onClick.RemoveAllListeners();
+            friendBtn.onClick.AddListener((() =>
+            {
+                UIController.Instance.Show<FriendView>();
+                HandleHidePlayerInfoViewCartoon();
+            }));
+
+            headBtn.onClick.RemoveAllListeners();
+            headBtn.onClick.AddListener(() =>
+            {
+                UIController.Instance.Show<PlayerDetailView>();
+            });
         }
 
         public override void RemoveEventListener()
@@ -193,14 +229,26 @@ namespace View
             EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerCarryInfo, HandleUpdatePlayerCarryInfo);
             EventCenter.Instance.RemoveListener(EventMessages.HidePlayerInfoViewCartoon, HandleHidePlayerInfoViewCartoon);
             EventCenter.Instance.RemoveListener(EventMessages.UpdateSpeedTime, HandleUpdateSpeedTime);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateHeadIcon, HandleUpdateHeadIcon);
+            EventCenter.Instance.RemoveListener(EventMessages.RefreshExpeditionFriendRedPoint, HandleUpdateFriendRedPoint);
+            StopFriendRedPointRefresh();
         }
 
+        private void OnDisable()
+        {
+            StopFriendRedPointRefresh();
+        }
+
+        protected override void OnShow()
+        {
+            base.OnShow();
+            StartFriendRedPointRefresh();
+        }
 
         public void HandleUpdatePlayerCarryInfo(params object[] args)
         {
             InitInfoItem();
         }
-
 
         private void InitInfoItem()
         {
@@ -210,7 +258,10 @@ namespace View
                 foreach (var value in player.dropDic)
                 {
                     if (value.Value == 0)
+                    {
                         continue;
+                    }
+
                     GameObject go = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), infoItemContent, false);
                     go.GetComponent<InfoItem>().SetType(ExchangeType(value.Key));
                     go.GetComponent<InfoItem>().Init(player);
@@ -222,16 +273,110 @@ namespace View
                 foreach (var value in player.goodsDic)
                 {
                     if (value.Value == 0)
+                    {
                         continue;
+                    }
+
                     GameObject go = Instantiate(_assetHandle.Get<GameObject>("InfoItem"), infoItemContent, false);
                     go.GetComponent<InfoItem>().SetType(ExchangeType(value.Key));
                     go.GetComponent<InfoItem>().Init(player);
                 }
             }
-
         }
 
         #region 事件监听函数
+
+        public void HandleUpdateHeadIcon(params object[] args)
+        {
+            headIcon.sprite = _assetHandle.Get<Sprite>(PlayerDataModule.Instance.data.headId.ToString());
+        }
+
+        public void HandleUpdateFriendRedPoint(params object[] args)
+        {
+            if (friendRedPoint == null) return;
+
+            if (args != null && args.Length > 0 && args[0] is bool hasRedPoint)
+            {
+                SetFriendRedPoint(hasRedPoint);
+                return;
+            }
+
+            RefreshFriendRedPointFromServer();
+        }
+
+        private void StartFriendRedPointRefresh()
+        {
+            if (friendRedPointCoroutine != null) return;
+
+            RefreshFriendRedPointFromServer();
+            friendRedPointCoroutine = StartCoroutine(FriendRedPointRefreshLoop());
+        }
+
+        private void StopFriendRedPointRefresh()
+        {
+            if (friendRedPointCoroutine == null) return;
+
+            StopCoroutine(friendRedPointCoroutine);
+            friendRedPointCoroutine = null;
+            isRequestingUnreadMessage = false;
+            isRequestingFriendRequest = false;
+        }
+
+        private IEnumerator FriendRedPointRefreshLoop()
+        {
+            while (true)
+            {
+                yield return new WaitForSeconds(FriendRedPointRefreshInterval);
+                RefreshFriendRedPointFromServer();
+            }
+        }
+
+        private void RefreshFriendRedPointFromServer()
+        {
+            RequestUnreadFriendMessage();
+            RequestPendingFriendRequest();
+        }
+
+        private void RequestUnreadFriendMessage()
+        {
+            if (isRequestingUnreadMessage || PlayerDataModule.Instance == null || PlayerDataModule.Instance.data == null) return;
+
+            isRequestingUnreadMessage = true;
+            GetUnreadCount request = new GetUnreadCount(FriendsURL.GetUnreadCountUrl);
+            request.LoadMsg(PlayerDataModule.Instance.data.user_id, (data) =>
+            {
+                hasUnreadFriendMessage = data != null && data.data != null && data.data.total_unread > 0;
+                isRequestingUnreadMessage = false;
+                RefreshFriendRedPointState();
+            });
+        }
+
+        private void RequestPendingFriendRequest()
+        {
+            if (isRequestingFriendRequest || PlayerDataModule.Instance == null || PlayerDataModule.Instance.data == null) return;
+
+            isRequestingFriendRequest = true;
+            FriendRequest request = new FriendRequest(FriendsURL.FriendRequestUrl);
+            request.FriendRequestCheck(PlayerDataModule.Instance.data.user_id, "received", (data) =>
+            {
+                hasPendingFriendRequest = data != null && data.data != null && data.data.requests != null && data.data.requests.Length > 0;
+                isRequestingFriendRequest = false;
+                RefreshFriendRedPointState();
+            });
+        }
+
+        private void RefreshFriendRedPointState()
+        {
+            SetFriendRedPoint(hasUnreadFriendMessage || hasPendingFriendRequest);
+        }
+
+        private void SetFriendRedPoint(bool isShow)
+        {
+            if (friendRedPoint != null)
+            {
+                friendRedPoint.SetActive(isShow);
+            }
+        }
 
         private void OnClickSettingBtn()
         {
@@ -251,14 +396,9 @@ namespace View
             HandleHidePlayerInfoViewCartoon();
         }
 
-
-
-
         public void HandleUpdateMoneyInfo(params object[] args)
         {
             tongbitxt.text = Extensions.FormatNumber(player.dataModule.data.tongbi);
-
-
         }
 
         public void HandleUpdateSpeedTime(params object[] args)
@@ -292,26 +432,26 @@ namespace View
 
         public void HandleShowPlayerInfoViewCartoon(params object[] args)
         {
-            this.leftSideContent.transform.position = new Vector3(-200, this.leftSideContent.transform.position.y, 0);
-            this.leftSideContent.transform.DOMove(new Vector3(40, this.leftSideContent.transform.position.y, 0), 0.3f);
+            leftSideContent.transform.position = new Vector3(-200, leftSideContent.transform.position.y, 0);
+            leftSideContent.transform.DOMove(new Vector3(40, leftSideContent.transform.position.y, 0), 0.3f);
         }
 
         public void HandleHidePlayerInfoViewCartoon(params object[] args)
         {
-            this.leftSideContent.transform.position = new Vector3(40, this.leftSideContent.transform.position.y, 0);
-            this.leftSideContent.transform.DOMove(new Vector3(-200, this.leftSideContent.transform.position.y, 0), 0.3f);
+            leftSideContent.transform.position = new Vector3(40, leftSideContent.transform.position.y, 0);
+            leftSideContent.transform.DOMove(new Vector3(-200, leftSideContent.transform.position.y, 0), 0.3f);
         }
 
         public void HandleUpdateLevelProgress(params object[] args)
         {
             accountLevelTxt.text = player.dataModule.data.accountLevel.ToString();
-            accountLevelProgressTxt.text = player.dataModule.data.star + "/" + WorldData.LevelRequirementDic[player.dataModule.data.currentMapID];
-            fillImage.fillAmount = player.dataModule.data.star * 1f / WorldData.LevelRequirementDic[player.dataModule.data.currentMapID];
+            accountLevelProgressTxt.text =
+                player.dataModule.data.star + "/" + WorldData.LevelRequirementDic[player.dataModule.data.currentMapID];
+            fillImage.fillAmount =
+                player.dataModule.data.star * 1f / WorldData.LevelRequirementDic[player.dataModule.data.currentMapID];
         }
 
         #endregion
-
-
 
         public void HandleUpdateFunctionState(params object[] args)
         {
@@ -321,7 +461,6 @@ namespace View
             mask4.gameObject.SetActive(player.dataModule.data.employeeFunction != 1);
             mask5.gameObject.SetActive(player.dataModule.data.ordenFunction != 1);
         }
-
 
         private InfoType ExchangeType(DropItemType type)
         {
@@ -374,6 +513,7 @@ namespace View
                     result = InfoType.YueJingShiFragment;
                     break;
             }
+
             return result;
         }
 
@@ -410,7 +550,7 @@ namespace View
                     result = InfoType.MuLingCha;
                     break;
                 case GoodsType.JingRuiCha:
-                    result = InfoType.JingRuiCaoFragment;
+                    result = InfoType.JingRuiCha;
                     break;
                 case GoodsType.QingYanJian:
                     result = InfoType.QingYanJian;
@@ -428,6 +568,7 @@ namespace View
                     result = InfoType.YueXinJing;
                     break;
             }
+
             return result;
         }
     }

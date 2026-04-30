@@ -47,6 +47,16 @@ namespace View.EmployeeFunction
             xuancaituBtn_1.onClick.AddListener(ShowContent_2);
             xuancaituBtn_2.onClick.RemoveAllListeners();
             xuancaituBtn_2.onClick.AddListener(ShowContent_3);
+
+            EventCenter.Instance.AddListener(EventMessages.UpdateSturctureLockInfo, HandleStructureRefresh);
+            EventCenter.Instance.AddListener(EventMessages.UpdateFunctionState, HandleStructureRefresh);
+        }
+
+        public override void RemoveEventListener()
+        {
+            base.RemoveEventListener();
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateSturctureLockInfo, HandleStructureRefresh);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdateFunctionState, HandleStructureRefresh);
         }
 
         protected override void OnHideComplete()
@@ -58,24 +68,41 @@ namespace View.EmployeeFunction
         public void UpdateInfo()
         {
             PlayerData playerData = PlayerDataModule.Instance.data;
-            if(playerData.deliverData == null)
+            bool hasDeliver = playerData.deliverData != null;
+            bool hasLingChuGe1 = playerData.warehouselist != null &&
+                                 playerData.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1) != null;
+            bool hasLingChuGe2 = playerData.warehouselist != null &&
+                                 playerData.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2) != null;
+
+            yundizheObj.SetActive(hasDeliver);
+            xuancaituObj_1.SetActive(hasLingChuGe1);
+            xuancaituObj_2.SetActive(hasLingChuGe2);
+
+            if (!hasDeliver && content_1.activeSelf)
             {
-                yundizheObj.SetActive(false);
+                if (hasLingChuGe1)
+                {
+                    ShowContent_2();
+                }
+                else if (hasLingChuGe2)
+                {
+                    ShowContent_3();
+                }
             }
-            if(playerData.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1) == null)
+        }
+
+        private void HandleStructureRefresh(params object[] args)
+        {
+            if (!gameObject.activeInHierarchy)
             {
-                xuancaituObj_1.SetActive(false);
+                return;
             }
-            if(playerData.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2) == null)
-            {
-                xuancaituObj_2.SetActive(false);
-            }
+
+            UpdateInfo();
         }
 
         public void ShowContent_1()
         {
-            if (content_1.activeSelf)
-                return;
             content_1.SetActive(true);
             content_2.SetActive(false);
             content_3.SetActive(false);
@@ -86,8 +113,6 @@ namespace View.EmployeeFunction
         }
         public void ShowContent_2()
         {
-            if (content_2.activeSelf)
-                return;
             content_1.SetActive(false);
             content_2.SetActive(true);
             content_3.SetActive(false);
@@ -99,8 +124,6 @@ namespace View.EmployeeFunction
 
         public void ShowContent_3()
         {
-            if (content_3.activeSelf)
-                return;
             content_1.SetActive(false);
             content_2.SetActive(false);
             content_3.SetActive(true);

@@ -37,13 +37,11 @@ public class HuoQuPop : MonoBehaviour
             UIController.Instance.Show<TipView>("灵晶不足！");
             return;
         }
-        if (PlayerDataModule.Instance.data.lingJing >= 100)
-        {
-            PlayerDataModule.Instance.data.lingJing -= 100;
-            PlayerDataModule.Instance.AddOrderData();
-            EventCenter.Instance.TriggerEvent(EventMessages.UpdateOrderItem);
-            UIController.Instance.Show<TipView>("获取新订单成功！");
-             gameObject.SetActive(false);
-        }
+
+        PlayerDataModule.Instance.data.lingJing -= 100;
+        PlayerDataModule.Instance.AddOrderData();
+        EventCenter.Instance.TriggerEvent(EventMessages.UpdateOrderItem);
+        UIController.Instance.Show<TipView>("获取新订单成功！");
+        gameObject.SetActive(false);
     }
 }

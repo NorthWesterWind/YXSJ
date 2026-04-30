@@ -9,6 +9,7 @@ namespace Controller.Pickups
     public class DropController : BasePickup, IPickable
     {
         public DropItemType itemType;
+        public int count = 1;
         public SpriteRenderer spriteRenderer;
         public float spawnTime { get; private set; }
         [SerializeField] private float autoDestroyDelay = 15f;
@@ -18,9 +19,10 @@ namespace Controller.Pickups
 
         private System.Action _onArrive;
         private float pickableStartTime = -1f;
-        public void Init(DropItemType type)
+        public void Init(DropItemType type, int itemCount = 1)
         {
             itemType = type;
+            count = Mathf.Max(1, itemCount);
             spawnTime = Time.time;
             pickableStartTime = -1f;
             canPickup = false;
@@ -148,11 +150,17 @@ namespace Controller.Pickups
         {
             if (pickerObj.TryGetComponent(out PlayerController player))
             {
-                player.AddDropItem(itemType);
+                for (int i = 0; i < count; i++)
+                {
+                    player.AddDropItem(itemType);
+                }
             }
             else if (pickerObj.TryGetComponent(out CollectorController collector))
             {
-                collector.AddDropItem(itemType);
+                for (int i = 0; i < count; i++)
+                {
+                    collector.AddDropItem(itemType);
+                }
             }
         }
     }

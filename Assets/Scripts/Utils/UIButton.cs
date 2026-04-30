@@ -3,12 +3,21 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
+using UnityEngine.Events;
 
 [AddComponentMenu("UI/UI Button", 30)]
-public class UIButton : Selectable, IPointerClickHandler, ISubmitHandler
+public class UIButton : Selectable, IPointerClickHandler, ISubmitHandler, IPointerDownHandler, IPointerUpHandler, IInitializePotentialDragHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
+    [System.Serializable]
+    public class PointerDataEvent : UnityEvent<PointerEventData> { }
+
     [FormerlySerializedAs("onClick")]
     [SerializeField] private Button.ButtonClickedEvent m_OnClick = new Button.ButtonClickedEvent();
+
+    [Header("Pointer Events")]
+    [SerializeField] private PointerDataEvent m_OnPointerDown = new PointerDataEvent();
+    [SerializeField] private PointerDataEvent m_OnPointerUp = new PointerDataEvent();
+    [SerializeField] private PointerDataEvent m_OnDrag = new PointerDataEvent();
     
     [Header("Enhanced Settings")]
     [Tooltip("点击间隔时间(秒)")]
@@ -19,8 +28,12 @@ public class UIButton : Selectable, IPointerClickHandler, ISubmitHandler
     
     [Tooltip("音效音量")]
     [Range(0, 1)] [SerializeField] private float m_SoundVolume = 1f;
-    
+    [SerializeField] private float m_ClickCancelDragThreshold = 15f;
+
     private float m_LastClickTime;
+    private ScrollRect m_ParentScrollRect;
+    private Vector2 m_PointerDownPosition;
+    private bool m_SuppressClick;
     
     /// <summary>
     /// 原有Button的点击事件
@@ -29,6 +42,24 @@ public class UIButton : Selectable, IPointerClickHandler, ISubmitHandler
     {
         get { return m_OnClick; }
         set { m_OnClick = value; }
+    }
+
+    public PointerDataEvent onPointerDownEvent
+    {
+        get { return m_OnPointerDown; }
+        set { m_OnPointerDown = value; }
+    }
+
+    public PointerDataEvent onPointerUpEvent
+    {
+        get { return m_OnPointerUp; }
+        set { m_OnPointerUp = value; }
+    }
+
+    public PointerDataEvent onDragEvent
+    {
+        get { return m_OnDrag; }
+        set { m_OnDrag = value; }
     }
     
     /// <summary>
@@ -48,8 +79,22 @@ public class UIButton : Selectable, IPointerClickHandler, ISubmitHandler
     protected override void Awake()
     {
         base.Awake();
-        
-    
+        CacheParentScrollRect();
+    }
+
+    private ScrollRect GetParentScrollRect()
+    {
+        if (m_ParentScrollRect == null)
+        {
+            CacheParentScrollRect();
+        }
+
+        return m_ParentScrollRect;
+    }
+
+    private void CacheParentScrollRect()
+    {
+        m_ParentScrollRect = GetComponentInParent<ScrollRect>();
     }
     
     private void PlayClickSound()
@@ -86,8 +131,106 @@ public class UIButton : Selectable, IPointerClickHandler, ISubmitHandler
     {
         if (eventData.button != PointerEventData.InputButton.Left)
             return;
-        
+
+        if (ShouldSuppressClick(eventData))
+            return;
+
         Press();
+    }
+
+    public override void OnPointerDown(PointerEventData eventData)
+    {
+        base.OnPointerDown(eventData);
+
+        if (!IsActive() || !IsInteractable())
+            return;
+
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        m_PointerDownPosition = eventData.position;
+        m_SuppressClick = false;
+        m_OnPointerDown.Invoke(eventData);
+    }
+
+    public virtual void OnInitializePotentialDrag(PointerEventData eventData)
+    {
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        GetParentScrollRect()?.OnInitializePotentialDrag(eventData);
+    }
+
+    public override void OnPointerUp(PointerEventData eventData)
+    {
+        base.OnPointerUp(eventData);
+
+        if (!IsActive() || !IsInteractable())
+            return;
+
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        m_OnPointerUp.Invoke(eventData);
+    }
+
+    public virtual void OnBeginDrag(PointerEventData eventData)
+    {
+        if (!IsActive() || !IsInteractable())
+            return;
+
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        m_SuppressClick = true;
+        GetParentScrollRect()?.OnBeginDrag(eventData);
+    }
+
+    public virtual void OnDrag(PointerEventData eventData)
+    {
+        if (!IsActive() || !IsInteractable())
+            return;
+
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        if (!m_SuppressClick && HasExceededDragThreshold(eventData.position))
+        {
+            m_SuppressClick = true;
+        }
+
+        m_OnDrag.Invoke(eventData);
+        GetParentScrollRect()?.OnDrag(eventData);
+    }
+
+    public virtual void OnEndDrag(PointerEventData eventData)
+    {
+        if (!IsActive() || !IsInteractable())
+            return;
+
+        if (eventData.button != PointerEventData.InputButton.Left)
+            return;
+
+        GetParentScrollRect()?.OnEndDrag(eventData);
+    }
+
+    private bool ShouldSuppressClick(PointerEventData eventData)
+    {
+        if (m_SuppressClick || eventData.dragging)
+            return true;
+
+        return HasExceededDragThreshold(eventData.position);
+    }
+
+    private bool HasExceededDragThreshold(Vector2 currentPosition)
+    {
+        float threshold = Mathf.Max(0f, m_ClickCancelDragThreshold);
+        if (EventSystem.current != null)
+        {
+            threshold = Mathf.Max(threshold, EventSystem.current.pixelDragThreshold);
+        }
+
+        return (currentPosition - m_PointerDownPosition).sqrMagnitude > threshold * threshold;
     }
     
     // 处理键盘/手柄提交

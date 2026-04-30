@@ -9,7 +9,7 @@ using Utils;
 
 namespace Controller.Structure
 {
-    public class CashierCounter : StructureBase
+    public class CashierCounter                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         : StructureBase
     {
         public Transform parchaseTransform1;
         public Transform parchaseTransform2;
@@ -66,8 +66,8 @@ namespace Controller.Structure
         private float visualSyncTimer;
         private string currentCashierLoopAnimation;
 
-        [SerializeField] private int maxWaiters; // ◊Ó∂‡∑˛ŒÒ‘±
-        public int workingWaiters = 0;              // µ±«∞√¶µƒ∑˛ŒÒ‘± ˝
+        [SerializeField] private int maxWaiters; // ÊúÄÂ§öÊúçÂä°Âëò
+        public int workingWaiters = 0;              // ÂΩìÂâçÂøôÁöÑÊúçÂä°ÂëòÊï∞
         public override void Start()
         {
             base.Start();
@@ -136,74 +136,74 @@ namespace Controller.Structure
             {
                 var currentAnimation1 = skeletonAnimation1.AnimationState.GetCurrent(0);
 
-                if (currentAnimation1 == null || currentAnimation1.Animation.Name != "idle¥©¥Ó")
+                if (currentAnimation1 == null || currentAnimation1.Animation.Name != "idleÁ©øÊê≠")
                 {
-                    skeletonAnimation1.AnimationState.SetAnimation(0, "idle¥©¥Ó", true);
+                    skeletonAnimation1.AnimationState.SetAnimation(0, "idleÁ©øÊê≠", true);
                 }
 
                 var currentAnimation2 = skeletonAnimation2.AnimationState.GetCurrent(0);
 
-                if (currentAnimation2 == null || currentAnimation2.Animation.Name != "idle¥©¥Ó")
+                if (currentAnimation2 == null || currentAnimation2.Animation.Name != "idleÁ©øÊê≠")
                 {
-                    skeletonAnimation2.AnimationState.SetAnimation(0, "idle¥©¥Ó", true);
+                    skeletonAnimation2.AnimationState.SetAnimation(0, "idleÁ©øÊê≠", true);
                 }
                 var currentAnimation3 = skeletonAnimation3.AnimationState.GetCurrent(0);
 
-                if (currentAnimation3 == null || currentAnimation3.Animation.Name != "idle¥©¥Ó")
+                if (currentAnimation3 == null || currentAnimation3.Animation.Name != "idleÁ©øÊê≠")
                 {
-                    skeletonAnimation3.AnimationState.SetAnimation(0, "idle¥©¥Ó", true);
+                    skeletonAnimation3.AnimationState.SetAnimation(0, "idleÁ©øÊê≠", true);
                 }
 
                 var currentAnimation4 = skeletonAnimation4.AnimationState.GetCurrent(0);
 
-                if (currentAnimation4 == null || currentAnimation4.Animation.Name != "idle¥©¥Ó")
+                if (currentAnimation4 == null || currentAnimation4.Animation.Name != "idleÁ©øÊê≠")
                 {
-                    skeletonAnimation4.AnimationState.SetAnimation(0, "idle¥©¥Ó", true);
+                    skeletonAnimation4.AnimationState.SetAnimation(0, "idleÁ©øÊê≠", true);
                 }
                 var currentAnimation5 = skeletonAnimation5.AnimationState.GetCurrent(0);
 
-                if (currentAnimation5 == null || currentAnimation5.Animation.Name != "idle¥©¥Ó")
+                if (currentAnimation5 == null || currentAnimation5.Animation.Name != "idleÁ©øÊê≠")
                 {
-                    skeletonAnimation5.AnimationState.SetAnimation(0, "idle¥©¥Ó", true);
+                    skeletonAnimation5.AnimationState.SetAnimation(0, "idleÁ©øÊê≠", true);
                 }
                 var currentAnimation6 = skeletonAnimation6.AnimationState.GetCurrent(0);
 
-                if (currentAnimation6 == null || currentAnimation6.Animation.Name != "idle¥©¥Ó")
+                if (currentAnimation6 == null || currentAnimation6.Animation.Name != "idleÁ©øÊê≠")
                 {
-                    skeletonAnimation6.AnimationState.SetAnimation(0, "idle¥©¥Ó", true);
+                    skeletonAnimation6.AnimationState.SetAnimation(0, "idleÁ©øÊê≠", true);
                 }
             }
             else
             {
                 var currentAnimation1 = skeletonAnimation1.AnimationState.GetCurrent(0);
-                if (currentAnimation1 == null || currentAnimation1.Animation.Name != "¥˝ª˙")
+                if (currentAnimation1 == null || currentAnimation1.Animation.Name != "ÂæÖÊú∫")
                 {
-                    skeletonAnimation1.AnimationState.SetAnimation(0, "¥˝ª˙", true);
+                    skeletonAnimation1.AnimationState.SetAnimation(0, "ÂæÖÊú∫", true);
                 }
                 var currentAnimation2 = skeletonAnimation2.AnimationState.GetCurrent(0);
-                if (currentAnimation2 == null || currentAnimation2.Animation.Name != "¥˝ª˙")
+                if (currentAnimation2 == null || currentAnimation2.Animation.Name != "ÂæÖÊú∫")
                 {
-                    skeletonAnimation2.AnimationState.SetAnimation(0, "¥˝ª˙", true);
+                    skeletonAnimation2.AnimationState.SetAnimation(0, "ÂæÖÊú∫", true);
                 }
                 var currentAnimation3 = skeletonAnimation3.AnimationState.GetCurrent(0);
-                if (currentAnimation3 == null || currentAnimation3.Animation.Name != "¥˝ª˙")
+                if (currentAnimation3 == null || currentAnimation3.Animation.Name != "ÂæÖÊú∫")
                 {
-                    skeletonAnimation3.AnimationState.SetAnimation(0, "¥˝ª˙", true);
+                    skeletonAnimation3.AnimationState.SetAnimation(0, "ÂæÖÊú∫", true);
                 }
                 var currentAnimation4 = skeletonAnimation4.AnimationState.GetCurrent(0);
-                if (currentAnimation4 == null || currentAnimation4.Animation.Name != "¥˝ª˙")
+                if (currentAnimation4 == null || currentAnimation4.Animation.Name != "ÂæÖÊú∫")
                 {
-                    skeletonAnimation4.AnimationState.SetAnimation(0, "¥˝ª˙", true);
+                    skeletonAnimation4.AnimationState.SetAnimation(0, "ÂæÖÊú∫", true);
                 }
                 var currentAnimation5 = skeletonAnimation5.AnimationState.GetCurrent(0);
-                if (currentAnimation5 == null || currentAnimation5.Animation.Name != "¥˝ª˙")
+                if (currentAnimation5 == null || currentAnimation5.Animation.Name != "ÂæÖÊú∫")
                 {
-                    skeletonAnimation5.AnimationState.SetAnimation(0, "¥˝ª˙", true);
+                    skeletonAnimation5.AnimationState.SetAnimation(0, "ÂæÖÊú∫", true);
                 }
                 var currentAnimation6 = skeletonAnimation6.AnimationState.GetCurrent(0);
-                if (currentAnimation6 == null || currentAnimation6.Animation.Name != "¥˝ª˙")
+                if (currentAnimation6 == null || currentAnimation6.Animation.Name != "ÂæÖÊú∫")
                 {
-                    skeletonAnimation6.AnimationState.SetAnimation(0, "¥˝ª˙", true);
+                    skeletonAnimation6.AnimationState.SetAnimation(0, "ÂæÖÊú∫", true);
                 }
             }
         }
@@ -326,16 +326,17 @@ namespace Controller.Structure
             content_2.SetActive(false);
             structureLock.gameObject.SetActive(false);
             parchaseTransform = parchaseTransform1;
+            SetCashierNpcActiveState(LingZhangShi1_1, LingZhangShi2_2, LingZhangShi3_3, 0);
             if (PlayerDataModule.Instance.data.cardUpProgressesList.Find(s => s.developType == CardDevelopType.UpgradeLingZhangTai) != null)
             {
                 var data = PlayerDataModule.Instance.data.cardUpProgressesList.Find(s => s.developType == CardDevelopType.UpgradeLingZhangTai);
                 if (data.level == 1)
                 {
-                    sprite.sprite = _assetHandle.Get<Sprite>("“ªº∂¡È’ÀÃ®");
+                    sprite.sprite = _assetHandle.Get<Sprite>("‰∏ÄÁ∫ßÁÅµË¥¶Âè∞");
                 }
                 else
                 {
-                    sprite.sprite = _assetHandle.Get<Sprite>("∂˛º∂¡È’ÀÃ®");
+                    sprite.sprite = _assetHandle.Get<Sprite>("‰∫åÁ∫ßÁÅµË¥¶Âè∞");
                 }
             }
             SetCashierNpcActiveState(LingZhangShi1, LingZhangShi2, LingZhangShi3, GetActiveCashierCount());
@@ -352,6 +353,7 @@ namespace Controller.Structure
             uiPoint_1.sortingOrder = newOrder + 2;
             meshRenderer_1.sortingOrder = newOrder + 2;
             grid.basePosition = exportTransform.position;
+            RefreshCoinLayout();
         }
 
         public void ShowContent_2()
@@ -362,6 +364,7 @@ namespace Controller.Structure
             content_2.SetActive(true);
             structureLock.gameObject.SetActive(false);
             grid.basePosition = exportTransform2.position;
+            SetCashierNpcActiveState(LingZhangShi1, LingZhangShi2, LingZhangShi3, 0);
             SetCashierNpcActiveState(LingZhangShi1_1, LingZhangShi2_2, LingZhangShi3_3, GetActiveCashierCount());
             SyncCashierAnimations(true);
             int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
@@ -376,6 +379,7 @@ namespace Controller.Structure
             orderPoint.sortingOrder = newOrder + 2;
             meshRenderer_2.sortingOrder = newOrder + 2;
             meshRenderer_3.sortingOrder = newOrder + 2;
+            RefreshCoinLayout();
         }
 
         private void HideAllCashierNpcs()
@@ -417,7 +421,7 @@ namespace Controller.Structure
         {
             CacheCashierAnimations();
 
-            string targetAnimation = customerList.Count > 0 ? "idle¥©¥Ó" : "¥˝ª˙";
+            string targetAnimation = customerList.Count > 0 ? "idleÁ©øÊê≠" : "ÂæÖÊú∫";
             if (!force && currentCashierLoopAnimation == targetAnimation)
             {
                 return;
@@ -694,7 +698,8 @@ namespace Controller.Structure
         public void PrintingMoney(float value)
         {
             GameObject productObj = GameObject.Instantiate(_assetHandle.Get<GameObject>("Production"));
-            productObj.transform.position = receiveTransform.position;
+            Transform activeReceiveTransform = GetActiveReceiveTransform();
+            productObj.transform.position = activeReceiveTransform != null ? activeReceiveTransform.position : transform.position;
             Production product = productObj.GetComponent<Production>();
             product.Init(GoodsType.TongBi, (int)value);
             product.SetStation(this);
@@ -702,7 +707,7 @@ namespace Controller.Structure
             Vector2 targetPos = grid.GetNextPosition();
             if (product.spriteRenderer != null)
             {
-                product.spriteRenderer.sortingOrder = grid.GetLastSortingOrder(sprite.sortingOrder, 3);
+                product.spriteRenderer.sortingOrder = GetCoinSortingOrderByIndex(Mathf.Max(0, grid.currentIndex - 1));
             }
             product.FlyTo(targetPos, (() =>
             {
@@ -726,6 +731,41 @@ namespace Controller.Structure
             }
         }
 
+        public int GetCoinSortingBaseOrder()
+        {
+            if (content_2 != null && content_2.activeInHierarchy)
+            {
+                if (rend4 != null)
+                {
+                    return rend4.sortingOrder;
+                }
+                if (LingZhangShi1_1 != null)
+                {
+                    return 30000 - Mathf.RoundToInt((transform.position.y + LingZhangShi1_1.transform.localPosition.y) * 100) + 4;
+                }
+            }
+            else
+            {
+                if (rend1 != null)
+                {
+                    return rend1.sortingOrder;
+                }
+                if (LingZhangShi1 != null)
+                {
+                    return 30000 - Mathf.RoundToInt((transform.position.y + LingZhangShi1.transform.localPosition.y) * 100) + 4;
+                }
+            }
+            return sprite != null ? sprite.sortingOrder + 3 : 30000 - Mathf.RoundToInt(transform.position.y * 100) + 3;
+        }
+        public int GetCoinSortingOrderByIndex(int index)
+        {
+            index = Mathf.Max(0, index);
+            int columns = Mathf.Max(1, grid.columns);
+            int rows = Mathf.Max(1, grid.rows);
+            int layerSize = columns * rows;
+            int layer = index / layerSize;
+            return GetCoinSortingBaseOrder() + layer;
+        }
         public void UnregisterCoin(Production coin)
         {
             if (coin == null) return;
@@ -734,14 +774,50 @@ namespace Controller.Structure
 
         public void SortCoinsByHeight()
         {
+            RefreshCoinLayout();
+        }
+
+        private Transform GetActiveReceiveTransform()
+        {
+            if (content_2 != null && content_2.activeInHierarchy && receiveTransform1 != null)
+            {
+                return receiveTransform1;
+            }
+
+            if (content_1 != null && content_1.activeInHierarchy && receiveTransform != null)
+            {
+                return receiveTransform;
+            }
+
+            return receiveTransform1 != null ? receiveTransform1 : receiveTransform;
+        }
+
+        private void RefreshCoinLayout()
+        {
             coinList.RemoveAll(c => c == null);
             coinList.Sort((a, b) =>
             {
                 if (a == null && b == null) return 0;
                 if (a == null) return -1;
                 if (b == null) return 1;
-                return a.transform.position.y.CompareTo(b.transform.position.y);
+                int yCompare = a.transform.position.y.CompareTo(b.transform.position.y);
+                if (yCompare != 0) return yCompare;
+                return a.transform.position.x.CompareTo(b.transform.position.x);
             });
+
+            for (int i = 0; i < coinList.Count; i++)
+            {
+                Production coin = coinList[i];
+                if (coin == null) continue;
+                Vector2 pos = grid.GetPositionByIndex(i);
+                coin.transform.position = new Vector3(pos.x, pos.y, coin.transform.position.z);
+                if (coin.spriteRenderer != null)
+                {
+                    coin.spriteRenderer.sortingOrder = GetCoinSortingOrderByIndex(i);
+                }
+            }
+
+            grid.currentIndex = coinList.Count;
         }
 
         public bool TryAttractTopCoin(Transform picker, Transform receivePoint)
@@ -776,7 +852,7 @@ namespace Controller.Structure
             {
                 return;
             }
-            speed = 1.5f;
+            speed = 10f;
         }
         public void HandleStructureSpeedDown(params object[] args)
         {

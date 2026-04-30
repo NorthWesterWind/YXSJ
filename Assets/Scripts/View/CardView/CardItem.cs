@@ -85,9 +85,15 @@ namespace View.CardView
             }
 
             var playerData = PlayerDataModule.Instance.data;
-            var cardUpProgress = GetCardProgress(playerData);
-
             nametxt.text = data.name;
+
+            if (playerData.accountLevel < data.unlockLevel)
+            {
+                RenderLocked();
+                return;
+            }
+
+            var cardUpProgress = GetCardProgress(playerData);
 
             if (cardUpProgress == null)
             {
@@ -153,7 +159,7 @@ namespace View.CardView
 
             if (isMaxLevel)
             {
-                fillContent.SetActive(!hideFillOnMax);
+                fillContent.SetActive(true);
                 progresstxt.text = "已满级";
                 fillImg.fillAmount = 1f;
                 return;
@@ -182,6 +188,16 @@ namespace View.CardView
                 progresstxt.gameObject.SetActive(false);
                 MaskImg.gameObject.SetActive(false);
             }
+        }
+
+        private void RenderLocked()
+        {
+            topLeftLockImage.gameObject.SetActive(true);
+            leveltxt.gameObject.SetActive(false);
+            progresstxt.gameObject.SetActive(false);
+            fillContent.SetActive(false);
+            MaskImg.gameObject.SetActive(true);
+            masktxt.text = data.unlockLevel.ToString();
         }
     }
 }

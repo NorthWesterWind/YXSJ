@@ -16,6 +16,9 @@ namespace Utils
             Screen.autorotateToPortraitUpsideDown = false;
             Screen.autorotateToLandscapeLeft = false;
             Screen.autorotateToLandscapeRight = false;
+#if !UNITY_EDITOR && !DEVELOPMENT_BUILD
+    Debug.unityLogger.logEnabled = false;
+#endif
         }
     }
 }

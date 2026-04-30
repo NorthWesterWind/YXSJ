@@ -16,6 +16,7 @@ namespace Controller
         public Dictionary<int, MapData> mapDataDic = new();
         public Dictionary<int, RewardData> taskRewardDataDic = new();
         public Dictionary<int, StotageBagData> storageBagDataDic = new();
+        public Dictionary<int, ClothData> clothDataDic = new();
         public Dictionary<int, WeaponData> weaponDataDic = new();
         public Dictionary<int, TaskData> mapTaskDataDic1 = new(); // 30 
         public Dictionary<int, TaskData> mapTaskDataDic2 = new(); // 60
@@ -78,6 +79,9 @@ namespace Controller
             monsterDataDic.Clear();
             monsterDataDic = JsonConvert.DeserializeObject<Dictionary<MonsterType, MonsterData>>(monstetStr);
 
+            string clothStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("ClothData")).text;
+            clothDataDic.Clear();
+            clothDataDic = JsonConvert.DeserializeObject<Dictionary<int, ClothData>>(clothStr);
 
             string customerStr = (await ResourceLoader.Instance.LoadAssetAsync<TextAsset>("CustomerData")).text;
             customerDataDic.Clear();

@@ -23,7 +23,6 @@ namespace View.OrderFunction
         public Image fill;
         public TextMeshProUGUI numtxt;
 
-
         protected override void AddEventListener()
         {
             base.AddEventListener();
@@ -41,6 +40,7 @@ namespace View.OrderFunction
                 huoQuPop.gameObject.SetActive(true);
             });
         }
+
         public override void RemoveEventListener()
         {
             base.RemoveEventListener();
@@ -51,15 +51,14 @@ namespace View.OrderFunction
         public void UpdateFillAmount(params object[] args)
         {
             {
-               
             }
         }
 
         void Update()
         {
-            if(playerData.orderDataprogressList.Count <4)
+            if (playerData.orderDataprogressList.Count < 4)
             {
-               fillContent.SetActive(true);
+                fillContent.SetActive(true);
                 fill.fillAmount = PlayerDataModule.Instance.orderRefreshProgress;
             }
             else
@@ -77,7 +76,6 @@ namespace View.OrderFunction
             Extensions.ClearChildren(content);
             if (orderDataprogressList.Count < 1)
             {
-                //没有订单
                 numtxt.text = "顾客人数：0。";
             }
             else
@@ -85,33 +83,29 @@ namespace View.OrderFunction
                 for (int i = 0; i < orderDataprogressList.Count; i++)
                 {
                     GameObject obj = Instantiate(_assetHandle.Get<GameObject>("orderItem"), content, false);
-
                     obj.GetComponent<OrderItem>().Init(orderDataprogressList[i]);
                 }
-                 numtxt.text = "顾客人数：" + orderDataprogressList.Count + "。";
+                numtxt.text = "顾客人数：" + orderDataprogressList.Count + "。";
             }
         }
+
         public void HandleUpdateOrderItem(params object[] args)
         {
             playerData = PlayerDataModule.Instance.data;
             var orderDataprogressList = playerData.orderDataprogressList;
             Extensions.ClearChildren(content);
-             numtxt.text = "顾客人数：" + orderDataprogressList.Count + "。";
+            numtxt.text = "顾客人数：" + orderDataprogressList.Count + "。";
             if (orderDataprogressList.Count < 1)
             {
-                //没有订单
+                return;
             }
-            else
-            {
-                for (int i = 0; i < orderDataprogressList.Count; i++)
-                {
-                    GameObject obj = Instantiate(_assetHandle.Get<GameObject>("orderItem"), content, false);
 
-                    obj.GetComponent<OrderItem>().Init(orderDataprogressList[i]);
-                }
+            for (int i = 0; i < orderDataprogressList.Count; i++)
+            {
+                GameObject obj = Instantiate(_assetHandle.Get<GameObject>("orderItem"), content, false);
+                obj.GetComponent<OrderItem>().Init(orderDataprogressList[i]);
             }
         }
-
 
         private void ShowDetailPop(params object[] args)
         {

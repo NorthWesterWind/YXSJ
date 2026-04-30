@@ -23,8 +23,14 @@ namespace Controller
         private void Awake()
         {
             assetHandle = GetComponent<AssetHandle>();
-            EventCenter.Instance.AddListener(EventMessages.FocusView, CloseInput);
-            EventCenter.Instance.AddListener(EventMessages.RestoreFocusView, OpenInput);
+            EventCenter.Instance.AddListener(EventMessages.LockJoystickInput, CloseInput);
+            EventCenter.Instance.AddListener(EventMessages.UnlockJoystickInput, OpenInput);
+        }
+
+        private void OnDestroy()
+        {
+            EventCenter.Instance.RemoveListener(EventMessages.LockJoystickInput, CloseInput);
+            EventCenter.Instance.RemoveListener(EventMessages.UnlockJoystickInput, OpenInput);
         }
 
         void Update()
@@ -50,8 +56,8 @@ namespace Controller
                 if (!IsInJoystickArea(pos))
                     return;
 
-                // if (IsPointerOverUIExceptJoystick(pos))
-                //     return;
+                if (IsPointerOverUIExceptJoystick(pos))
+                    return;
 
                 ShowJoystick(pos, -1);
             }
@@ -206,7 +212,12 @@ namespace Controller
 
         #endregion
 
-        private void CloseInput(params object[] args) => canInput = false;
+        private void CloseInput(params object[] args)
+        {
+            canInput = false;
+            HideJoystick();
+        }
+
         private void OpenInput(params object[] args) => canInput = true;
     }
 }

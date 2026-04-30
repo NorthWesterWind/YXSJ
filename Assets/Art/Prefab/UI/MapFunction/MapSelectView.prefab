@@ -103,9 +103,13 @@ MonoBehaviour:
   tongbitxt: {fileID: 6521005008044057219}
   closeBtn: {fileID: 1138500396908618627}
   content: {fileID: 4632387461487276066}
+  viewport: {fileID: 2116138612976952246}
+  contentOffset: {x: 0, y: 0}
+  centerCurrentMapItem: 1
   mapItems: []
   loadView: {fileID: 3604809974314890570}
   fillImage: {fileID: 2819978765307072789}
+  horizontalLayoutGroup: {fileID: 8087811061052277712}
 --- !u!114 &4095989026122330679
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -379,7 +383,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\u5730\u56FE"
+  m_text: "\u7075\u5883"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: a39492218aa13b54f9f809688d32fa19, type: 2}
   m_sharedMaterial: {fileID: -3891391281964462782, guid: a39492218aa13b54f9f809688d32fa19, type: 2}
@@ -757,9 +761,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+  m_OnPointerDown:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnPointerUp:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnDrag:
+    m_PersistentCalls:
+      m_Calls: []
   m_ClickInterval: 0.3
   m_ClickSound: {fileID: 0}
   m_SoundVolume: 1
+  m_ClickCancelDragThreshold: 15
 --- !u!1 &3191088094158366250
 GameObject:
   m_ObjectHideFlags: 0

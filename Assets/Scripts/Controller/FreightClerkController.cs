@@ -28,6 +28,14 @@ namespace Controller
         public List<SalesStall> salesStallList = new List<SalesStall>();
         public Transform normalPos;
         public List<Production> productList = new List<Production>();
+        private Vector2 idleTargetPosition;
+        private int idleSlotIndex = -1;
+        private ProductionStation idleStation;
+        private readonly List<Vector2> idleRouteWaypoints = new List<Vector2>();
+        private const float IdleAnchorOffsetDistance = 0.3f;
+        private const float IdleSpreadDistance = 0.55f;
+        private const int IdleSlotsPerRing = 6;
+        private static int NextIdleSlotIndex;
 
         private ProductionStation targetStation; // 当前目标生产台
         private SalesStall targetStall;          // 对应销售摊位
@@ -89,11 +97,17 @@ namespace Controller
         {
             StationWorkingClerkCount.Clear();
             ReservedProductsByFreight.Clear();
+            NextIdleSlotIndex = 0;
         }
 
         public void CleanupBeforeDestroy()
         {
             ReleaseStationReservation();
+        }
+
+        public bool HasCarriedProducts()
+        {
+            return productList != null && productList.Count > 0;
         }
 
         private void UpdateSpeed(params object[] args)
@@ -139,7 +153,7 @@ namespace Controller
             {
                 if (EnsureMap())
                 {
-                    _agent.SetDestination(ClampToNav(normalPos.position));
+                    SetInitialIdleDestination();
                 }
             }
             _agent.maxSpeed = WorldData.speedLevelDic[deliverData.speedLevel];
@@ -148,8 +162,13 @@ namespace Controller
 
         private void ResolveIdlePosition()
         {
+            EnsureIdleSlotIndex();
             normalPos = null;
+            idleStation = null;
+            idleRouteWaypoints.Clear();
+            idleTargetPosition = transform.position;
 
+            var availableStations = new List<ProductionStation>();
             if (productionStationList != null)
             {
                 for (int i = 0; i < productionStationList.Count; i++)
@@ -157,14 +176,23 @@ namespace Controller
                     var station = productionStationList[i];
                     if (station == null) continue;
                     if (station.isLock || station.isCanUnlockState) continue;
-                    if (station.transferPoint != null)
-                    {
-                        normalPos = station.transferPoint;
-                        return;
-                    }
-                    normalPos = station.transform;
-                    return;
+                    availableStations.Add(station);
                 }
+            }
+
+            if (availableStations.Count > 0)
+            {
+                int stationIndex = Mathf.Abs(idleSlotIndex) % availableStations.Count;
+                int overlapIndex = Mathf.Abs(idleSlotIndex) / availableStations.Count;
+                var station = availableStations[stationIndex];
+                idleStation = station;
+                normalPos = station.transferPoint != null ? station.transferPoint : station.transform;
+                Vector2 anchorPosition = normalPos != null
+                    ? (Vector2)normalPos.position
+                    : (Vector2)station.transform.position;
+                idleTargetPosition = BuildIdleTargetPosition(anchorPosition, station.transform, overlapIndex, stationIndex);
+                RefreshIdleRoute();
+                return;
             }
 
             var fallbackStation = FindObjectOfType<ProductionStation>();
@@ -178,33 +206,67 @@ namespace Controller
                 normalPos = fallbackStation.transferPoint != null
                     ? fallbackStation.transferPoint
                     : fallbackStation.transform;
+                idleStation = fallbackStation;
+                Vector2 anchorPosition = normalPos != null
+                    ? (Vector2)normalPos.position
+                    : (Vector2)fallbackStation.transform.position;
+                idleTargetPosition = BuildIdleTargetPosition(anchorPosition, fallbackStation.transform, 0, 0);
+                RefreshIdleRoute();
             }
         }
 
-        private bool IsIdlePositionValid()
+        private void RefreshIdleRoute()
         {
-            if (normalPos == null)
+            idleRouteWaypoints.Clear();
+            if (idleStation == null || GameController.Instance == null)
             {
-                return false;
+                return;
             }
 
-            if (productionStationList == null)
+            if (GameController.Instance.TryBuildFreightClerkRoute(idleStation.buildingType, out var routeWaypoints))
             {
-                return false;
+                idleRouteWaypoints.AddRange(routeWaypoints);
+            }
+        }
+
+        private void EnsureIdleSlotIndex()
+        {
+            if (idleSlotIndex >= 0)
+            {
+                return;
             }
 
-            for (int i = 0; i < productionStationList.Count; i++)
+            idleSlotIndex = NextIdleSlotIndex++;
+        }
+
+        private Vector2 BuildIdleTargetPosition(Vector2 anchorPosition, Transform stationTransform, int overlapIndex, int stationSeed)
+        {
+            Vector2 baseOffset = GetIdleAnchorOffset(anchorPosition, stationTransform, stationSeed);
+            if (overlapIndex <= 0)
             {
-                var station = productionStationList[i];
-                if (station == null) continue;
-                if (station.isLock || station.isCanUnlockState) continue;
-                if (station.transferPoint == normalPos || station.transform == normalPos)
+                return anchorPosition + baseOffset;
+            }
+
+            int ring = ((overlapIndex - 1) / IdleSlotsPerRing) + 1;
+            int slotInRing = (overlapIndex - 1) % IdleSlotsPerRing;
+            float angle = ((slotInRing + (stationSeed * 0.5f)) / IdleSlotsPerRing) * Mathf.PI * 2f;
+            Vector2 ringOffset = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * (IdleSpreadDistance * ring);
+            return anchorPosition + baseOffset + ringOffset;
+        }
+
+        private Vector2 GetIdleAnchorOffset(Vector2 anchorPosition, Transform stationTransform, int stationSeed)
+        {
+            if (stationTransform != null)
+            {
+                Vector2 awayFromStation = anchorPosition - (Vector2)stationTransform.position;
+                if (awayFromStation.sqrMagnitude > 0.0001f)
                 {
-                    return true;
+                    return awayFromStation.normalized * IdleAnchorOffsetDistance;
                 }
             }
 
-            return false;
+            float fallbackAngle = stationSeed * 0.9f;
+            return new Vector2(Mathf.Cos(fallbackAngle), Mathf.Sin(fallbackAngle)) * IdleAnchorOffsetDistance;
         }
 
         private void RefreshWorkTargets()
@@ -234,10 +296,7 @@ namespace Controller
                 salesStallList.RemoveAll(x => x == null);
             }
 
-            if (!IsIdlePositionValid())
-            {
-                ResolveIdlePosition();
-            }
+            ResolveIdlePosition();
         }
 
         public void StopWorking()
@@ -270,7 +329,7 @@ namespace Controller
                     // 没有任何生产台有产品，让搬运工回到待命点 normalPos 原地待命
                     if (normalPos != null)
                     {
-                        yield return MoveTo(normalPos.position);
+                        yield return MoveToIdleTarget();
                     }
                     // 适当等待再重新尝试
                     yield return new WaitForSeconds(2f);
@@ -287,7 +346,7 @@ namespace Controller
                     ReleaseStationReservation();
                     if (normalPos != null)
                     {
-                        yield return MoveTo(normalPos.position);
+                        yield return MoveToIdleTarget();
                     }
                     yield return new WaitForSeconds(2f);
                     continue;
@@ -302,7 +361,7 @@ namespace Controller
                     ReleaseStationReservation();
                     if (normalPos != null)
                     {
-                        yield return MoveTo(normalPos.position);
+                        yield return MoveToIdleTarget();
                     }
                     yield return new WaitForSeconds(2f);
                     continue;
@@ -338,6 +397,90 @@ namespace Controller
 
             }
         }
+
+        private void SetInitialIdleDestination()
+        {
+            Vector2 initialTarget = idleTargetPosition;
+            if (TryGetIdleRouteStartDestination(out var routeStart))
+            {
+                initialTarget = routeStart;
+            }
+
+            _agent.SetDestination(ClampToNav(initialTarget));
+        }
+
+        private IEnumerator MoveToIdleTarget()
+        {
+            if (TryBuildIdleRouteTraversal(out var routeTraversal))
+            {
+                for (int i = 0; i < routeTraversal.Count; i++)
+                {
+                    yield return MoveTo(routeTraversal[i]);
+                }
+            }
+
+            yield return MoveTo(idleTargetPosition);
+        }
+
+        private bool TryGetIdleRouteStartDestination(out Vector2 routeStart)
+        {
+            routeStart = idleTargetPosition;
+            if (idleRouteWaypoints == null || idleRouteWaypoints.Count == 0)
+            {
+                return false;
+            }
+
+            routeStart = idleRouteWaypoints[0];
+            return true;
+        }
+
+        private bool TryBuildIdleRouteTraversal(out List<Vector2> traversal)
+        {
+            traversal = null;
+            if (idleRouteWaypoints == null || idleRouteWaypoints.Count == 0)
+            {
+                return false;
+            }
+
+            Vector2 currentPosition = transform.position;
+            float directDistance = Vector2.Distance(currentPosition, idleTargetPosition);
+            float firstWaypointDistance = Vector2.Distance(currentPosition, idleRouteWaypoints[0]);
+            if (directDistance <= firstWaypointDistance)
+            {
+                return false;
+            }
+
+            int startIndex = 0;
+            float nearestDistance = float.MaxValue;
+            for (int i = 0; i < idleRouteWaypoints.Count; i++)
+            {
+                float distance = Vector2.Distance(currentPosition, idleRouteWaypoints[i]);
+                if (distance < nearestDistance)
+                {
+                    nearestDistance = distance;
+                    startIndex = i;
+                }
+            }
+
+            if (nearestDistance > 2f)
+            {
+                startIndex = 0;
+            }
+
+            traversal = new List<Vector2>();
+            for (int i = startIndex; i < idleRouteWaypoints.Count; i++)
+            {
+                if (Vector2.Distance(idleRouteWaypoints[i], idleTargetPosition) <= 0.1f)
+                {
+                    continue;
+                }
+
+                traversal.Add(idleRouteWaypoints[i]);
+            }
+
+            return traversal.Count > 0;
+        }
+
         private IEnumerator MoveTo(Vector2 target)
         {
             if (!EnsureMap())

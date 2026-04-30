@@ -8,6 +8,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Utils;
+using System.Linq;
 
 namespace View.Task
 {
@@ -25,6 +26,8 @@ namespace View.Task
         public RectTransform content;
         public GameObject redPoint;
         public AssetHandle assetHandle;
+        public TextMeshProUGUI completeTxt;
+        public UIButton claimAllBtn;
 
         private void OnEnable()
         {
@@ -35,6 +38,7 @@ namespace View.Task
         {
             base.UpdateViewWithArgs(args);
             StopAllCoroutines();
+            PlayerDataModule.Instance.RefreshAllTrackedTaskProgress();
             RefreshTaskPanel();
             content.DOAnchorPos(new Vector2(0, 0), 0.5f).SetEase(Ease.InBack);
         }
@@ -50,6 +54,8 @@ namespace View.Task
 
             rewardBtn.onClick.RemoveAllListeners();
             rewardBtn.onClick.AddListener(OnClickRewardBtn);
+            claimAllBtn.onClick.RemoveAllListeners();
+            claimAllBtn.onClick.AddListener(OnClickClaimAll);
         }
 
         public override void RemoveEventListener()
@@ -58,6 +64,73 @@ namespace View.Task
             EventCenter.Instance.RemoveListener(EventMessages.HasTaskComplete, HandleHasTaskComplete);
             EventCenter.Instance.RemoveListener(EventMessages.UpdateTaskMainView, HandleUpdateTaskMainView);
             EventCenter.Instance.RemoveListener(EventMessages.MapTaskDataPrepared, HandleUpdateTaskMainView);
+        }
+
+        public void OnClickClaimAll()
+        {
+            PlayerDataModule.Instance.RefreshAllTrackedTaskProgress();
+
+            PlayerData playerData = PlayerDataModule.Instance.data;
+            if (playerData == null || playerData.listenInTaskList == null)
+            {
+                UIController.Instance.Show<TipView>("暂无可领取奖励。");
+                return;
+            }
+
+            bool hasClaimedTask = false;
+            bool hasClaimedReward = false;
+            List<int> completedTaskList = GetCurrentCompletedTaskList();
+            foreach (TaskData taskData in playerData.listenInTaskList.ToList())
+            {
+                if (!CanClaimTask(taskData, completedTaskList))
+                {
+                    continue;
+                }
+
+                completedTaskList.Add(taskData.taskId);
+                PlayerDataModule.Instance.GetTaskReward(taskData.rewardId, false);
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdateTaskInfo, taskData.taskId);
+                hasClaimedTask = true;
+            }
+
+            if (hasClaimedTask)
+            {
+                HandleHasTaskComplete();
+            }
+
+            if (CanClaimRewardBox())
+            {
+                hasClaimedReward = true;
+                OnClickRewardBtn();
+            }
+
+            if (hasClaimedTask || hasClaimedReward)
+            {
+                UIController.Instance.Show<TipView>("领取成功！");
+            }
+            else
+            {
+                RefreshTaskPanel();
+                UIController.Instance.Show<TipView>("暂无可领取奖励。");
+            }
+        }
+
+        private bool CanClaimTask(TaskData taskData, List<int> completedTaskList)
+        {
+            if (taskData == null || completedTaskList.Contains(taskData.taskId))
+            {
+                return false;
+            }
+
+            return PlayerDataModule.Instance.data.taskProgressDic.ContainsKey(taskData.taskId) &&
+                   PlayerDataModule.Instance.data.taskProgressDic[taskData.taskId] >= taskData.keyValue;
+        }
+
+        private bool CanClaimRewardBox()
+        {
+            PlayerData playerData = PlayerDataModule.Instance.data;
+            return WorldData.taskboxNeedDic.ContainsKey(playerData.currentMapID) &&
+                   playerData.taskPopCompleted >= WorldData.taskboxNeedDic[playerData.currentMapID];
         }
 
         void OnClickRewardBtn()
@@ -171,6 +244,7 @@ namespace View.Task
 
         public void HandleUpdateTaskMainView(params object[] args)
         {
+            PlayerDataModule.Instance.RefreshAllTrackedTaskProgress();
             RefreshTaskPanel();
         }
 
@@ -263,7 +337,28 @@ namespace View.Task
             float value = tempdata.taskPopCompleted * 1f / WorldData.taskboxNeedDic[tempdata.currentMapID];
             sliderFill.fillAmount = value;
             redPoint.SetActive(value >= 1f);
+            RefreshCompleteText(list);
             UpdateTaskContent();
+        }
+
+        private void RefreshCompleteText(List<int> completedTaskList)
+        {
+            if (_mapData == null || completeTxt == null)
+            {
+                return;
+            }
+
+            int completedCount = completedTaskList == null ? 0 : completedTaskList.Distinct().Count();
+            bool hasCompletedCurrentMap = completedCount >= _mapData.taskNum;
+            completeTxt.gameObject.SetActive(hasCompletedCurrentMap);
+
+            if (!hasCompletedCurrentMap)
+            {
+                return;
+            }
+
+            bool hasNextMap = DataController.Instance.mapDataDic.Keys.Any(mapId => mapId > _mapData.id);
+            completeTxt.text = hasNextMap ? "当前灵境内任务已全部完成，可进入灵境界面前往下一灵境。" : "所有灵境内任务已全部完成。";
         }
 
         private List<int> GetCurrentCompletedTaskList()

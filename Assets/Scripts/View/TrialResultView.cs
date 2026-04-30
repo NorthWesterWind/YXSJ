@@ -14,13 +14,14 @@ public class TrialResultView : BaseView
     public GameObject LjObj;
     public TextMeshProUGUI Ljtxt;
     public UIButton btn;
+    Action action;
     protected override void AddEventListener()
     {
         base.AddEventListener();
         btn.onClick.RemoveAllListeners();
         btn.onClick.AddListener(() =>
         {
-            EventCenter.Instance.TriggerEvent(EventMessages.CloseTrialView);
+            action?.Invoke();
             Hide();
         });
     }
@@ -37,6 +38,8 @@ public class TrialResultView : BaseView
         {
             bg.sprite = _assetHandle.Get<Sprite>("失败界面");
         }
+        action = null;
+        action = args[2] as Action;
         CurrencyType type = PlayerDataModule.Instance.data.playTrialCurrencyType;
         if (type == CurrencyType.JingYuanBao)
         {

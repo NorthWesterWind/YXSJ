@@ -53,9 +53,16 @@ namespace View.PlayerInfo
 
         public void HandleUpdateTaskMainView(params object[] args)
         {
+            if (PlayerDataModule.Instance.data == null)
+            {
+                return;
+            }
+
+            PlayerDataModule.Instance.RefreshAllTrackedTaskProgress();
+
             if (PlayerDataModule.Instance.data.listenInTaskList.Count == 0)
             {
-                //没有监听的任务数据
+                // 没有监听的任务数据
                 PlayerDataModule.Instance.data.listenInTaskList = DataController.Instance.GetTaskGroupIds();
                 PlayerDataModule.Instance.FillStructureLockProgressData();
             }
@@ -64,18 +71,20 @@ namespace View.PlayerInfo
 
             foreach (var data in dataList)
             {
-                if (data.type == TaskType.Construct)
+                if (data.type != TaskType.Construct)
                 {
-                    if (PlayerDataModule.Instance.data.structureLockProgressDataList.Find(x =>
-                            x.buildType == (BuildingType)data.aimId &&
-                            x.mapId == PlayerDataModule.Instance.data.currentMapID) != null)
+                    continue;
+                }
+
+                if (PlayerDataModule.Instance.data.structureLockProgressDataList.Find(x =>
+                        x.buildType == (BuildingType)data.aimId &&
+                        x.mapId == PlayerDataModule.Instance.data.currentMapID) != null)
+                {
+                    if (PlayerDataModule.Instance.data.structureLockProgressDataList
+                        .Find(x => x.buildType == (BuildingType)data.aimId &&
+                                   x.mapId == PlayerDataModule.Instance.data.currentMapID).isUnlock)
                     {
-                        if (PlayerDataModule.Instance.data.structureLockProgressDataList
-                            .Find(x => x.buildType == (BuildingType)data.aimId &&
-                                       x.mapId == PlayerDataModule.Instance.data.currentMapID).isUnlock)
-                        {
-                            PlayerDataModule.Instance.data.taskProgressDic[data.taskId] = 1;
-                        }
+                        PlayerDataModule.Instance.data.taskProgressDic[data.taskId] = 1;
                     }
                 }
             }
@@ -96,12 +105,10 @@ namespace View.PlayerInfo
 
                         continue;
                     }
-                    else
-                    {
-                        PlayerDataModule.Instance.data.nowTaskId = item.taskId;
-                        task = item;
-                        break;
-                    }
+
+                    PlayerDataModule.Instance.data.nowTaskId = item.taskId;
+                    task = item;
+                    break;
                 }
             }
             else
@@ -109,15 +116,12 @@ namespace View.PlayerInfo
                 task = dataList.Find(x => x.taskId == PlayerDataModule.Instance.data.nowTaskId);
             }
 
-
             if (task != null)
             {
                 taskInfoTxt.text = task.info + "。";
                 if (PlayerDataModule.Instance.data.taskProgressDic.ContainsKey(task.taskId))
                 {
-                    //有进度
-
-
+                    // 有进度
                     if (PlayerDataModule.Instance.data.taskProgressDic[task.taskId] >= task.keyValue)
                     {
                         var list = PlayerDataModule.Instance.data.mapCompletedTaskRecordList_1;
@@ -149,8 +153,8 @@ namespace View.PlayerInfo
                     }
                     else
                     {
-                        taskProgressTxt.text = "(" + PlayerDataModule.Instance.data.taskProgressDic[task.taskId] + "/" +
-                                               task.keyValue + ")";
+                        taskProgressTxt.text =
+                            "(" + PlayerDataModule.Instance.data.taskProgressDic[task.taskId] + "/" + task.keyValue + ")";
                     }
                 }
                 else
@@ -158,11 +162,14 @@ namespace View.PlayerInfo
                     taskProgressTxt.text = "(0/" + task.keyValue + ")";
                 }
 
-                String str = Extensions.GetTaskInfoResNameByTypeWithId(task.type, task.aimId);
+                string str = Extensions.GetTaskInfoResNameByTypeWithId(task.type, task.aimId);
                 if (str == "LingChuGe")
                 {
-                    if (PlayerDataModule.Instance.data.currentMapID == 1 || PlayerDataModule.Instance.data.currentMapID == 2)
+                    if (PlayerDataModule.Instance.data.currentMapID == 1 ||
+                        PlayerDataModule.Instance.data.currentMapID == 2)
+                    {
                         str += "1";
+                    }
                     else if (PlayerDataModule.Instance.data.currentMapID == 3)
                     {
                         str += "3";
@@ -176,25 +183,23 @@ namespace View.PlayerInfo
                         str += "5";
                     }
                 }
-                if(str == "MapLock")
-            {
-                  if (PlayerDataModule.Instance.data.currentMapID == 1 || PlayerDataModule.Instance.data.currentMapID == 2)
-                {
 
-                }
-                else if (PlayerDataModule.Instance.data.currentMapID == 3)
+                if (str == "MapLock")
                 {
-                    str += "3";
+                    if (PlayerDataModule.Instance.data.currentMapID == 3)
+                    {
+                        str += "3";
+                    }
+                    else if (PlayerDataModule.Instance.data.currentMapID == 4)
+                    {
+                        str += "4";
+                    }
+                    else if (PlayerDataModule.Instance.data.currentMapID == 5)
+                    {
+                        str += "5";
+                    }
                 }
-                else if (PlayerDataModule.Instance.data.currentMapID == 4)
-                {
-                    str += "4";
-                }
-                else
-                {
-                    str += "5";
-                }
-            }
+
                 iconImage.sprite = _assetHandle.Get<Sprite>(str);
                 if (task.type == TaskType.Upgrade || task.type == TaskType.Construct)
                 {
@@ -214,7 +219,6 @@ namespace View.PlayerInfo
         }
 
         #endregion
-
 
         void Update()
         {

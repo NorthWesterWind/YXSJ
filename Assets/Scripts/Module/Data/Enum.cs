@@ -343,7 +343,8 @@ namespace Module.Data
                 XianYunZhuanPan = 3,
                 UseLingJing = 4,
                 CardLevel = 5,
-                Purchase = 6
+                Purchase = 6,
+                UseMoney = 7
         }
 
         public enum CardLevelType

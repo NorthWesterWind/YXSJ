@@ -28,19 +28,19 @@ namespace View.MapFunction
                 switch ((BuildingType)type)
                 {
                     case BuildingType.YuShaHu_1:
-                        name = "一号玉沙壶";
+                        name = "一号玉砂壶";
                         info = "可以生产灵茶";
                         break;
                     case BuildingType.YuShaHu_2:
-                        name = "二号玉沙壶";
+                        name = "二号玉砂壶";
                         info = "可以生产灵茶";
                         break;
                     case BuildingType.YuShaHu_3:
-                        name = "三号玉沙壶";
+                        name = "三号玉砂壶";
                         info = "可以生产灵茶";
                         break;
                     case BuildingType.YuShaHu_4:
-                        name = "四号玉沙壶";
+                        name = "四号玉砂壶";
                         info = "可以生产灵茶";
                         break;
                     case BuildingType.LianQiLu_1:

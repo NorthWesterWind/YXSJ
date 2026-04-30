@@ -91,13 +91,12 @@ public class MonsterController2D : MonoBehaviour
                 StartCoroutine(DoDie());
                 if(PlayerDataModule.Instance.data.playTrialCurrencyType == CurrencyType.JingYuanBao)
                 {
-                    UIController.Instance.Show<TrialResultView>(false,100);
+                    Action action = () =>
+                    {
+                        EventCenter.Instance.TriggerEvent(EventMessages.CloseTrialView);
+                    };
+                    UIController.Instance.Show<TrialResultView>(false,100,action);
                 }
-                else
-                {
-                    UIController.Instance.Show<TrialResultView>(false,50);
-                }
-               
 
             }
         }

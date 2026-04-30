@@ -66,11 +66,11 @@ public class OrderDetailPop : MonoBehaviour
         if (submittedAnyItem)
         {
             Init(_data);
-            UIController.Instance.Show<TipView>("ÒÑÌá½»²¿·ÖÎïÆ·");
+            UIController.Instance.Show<TipView>("å·²æäº¤éƒ¨åˆ†ç‰©å“ã€‚");
             return;
         }
 
-        UIController.Instance.Show<TipView>("»õÎï²»×ã¡£");
+        UIController.Instance.Show<TipView>("è´§ç‰©ä¸è¶³ã€‚");
     }
 
     private bool SubmitGoodsRequirements()
@@ -186,7 +186,7 @@ public class OrderDetailPop : MonoBehaviour
 
         PlayerDataModule.Instance.data.orderDataprogressList.Remove(_data);
         EventCenter.Instance.TriggerEvent(EventMessages.UpdateOrderItem);
-        UIController.Instance.Show<TipView>("¶©µ¥Íê³É£¡");
+        UIController.Instance.Show<TipView>("è®¢å•å®Œæˆï¼");
         gameObject.SetActive(false);
     }
 

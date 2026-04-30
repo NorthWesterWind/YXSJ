@@ -18,6 +18,7 @@ namespace View.CharacterInfoView
         public UIButton btn;
         public WeaponData weaponData;
         public StotageBagData storageBagData;
+        public ClothData clothData;
         public TextMeshProUGUI infoTxt;
         public AssetHandle assetHandle;
 
@@ -31,9 +32,13 @@ namespace View.CharacterInfoView
                 {
                     UIController.Instance.Show<ItemInfoPop>(weaponData);
                 }
-                else
+                else if (storageBagData != null)
                 {
                     UIController.Instance.Show<ItemInfoPop>(storageBagData);
+                }
+                else if (clothData != null)
+                {
+                    UIController.Instance.Show<ItemInfoPop>(clothData);
                 }
             }));
         }
@@ -65,7 +70,7 @@ namespace View.CharacterInfoView
                         break;
                     case UnlockType.CardLevel:
                         fillRect.SetActive(true);
-                        fill.fillAmount = playerdata.cardLevelMax * 1f / weaponData.value;
+                        fill.fillAmount = GetCurrentCardLevel(playerdata) * 1f / weaponData.value;
                         break;
                     case UnlockType.talentLevel:
                         fillRect.SetActive(true);
@@ -83,10 +88,11 @@ namespace View.CharacterInfoView
                         fillRect.SetActive(false);
                         break;
 
+
                 }
                 iconImg.sprite = assetHandle.Get<Sprite>(weaponData.name);
             }
-            else
+            else if (args[0] is StotageBagData)
             {
                 storageBagData = args[0] as StotageBagData;
                 weaponData = null;
@@ -103,7 +109,7 @@ namespace View.CharacterInfoView
                         break;
                     case UnlockType.CardLevel:
                         fillRect.SetActive(true);
-                        fill.fillAmount = playerdata.cardLevelMax * 1f / storageBagData.value;
+                        fill.fillAmount = GetCurrentCardLevel(playerdata) * 1f / storageBagData.value;
                         break;
                     case UnlockType.talentLevel:
                         fillRect.SetActive(true);
@@ -123,6 +129,17 @@ namespace View.CharacterInfoView
                 }
                 iconImg.sprite = assetHandle.Get<Sprite>(storageBagData.name);
             }
+            else if (args[0] is ClothData)
+            {
+                clothData = args[0] as ClothData;
+                weaponData = null;
+                storageBagData = null;
+                fillRect.SetActive(false);
+                maskImg.gameObject.SetActive(!PlayerDataModule.Instance.data.ownClothingList.Contains(clothData.id));
+                selectImg.gameObject.SetActive(PlayerDataModule.Instance.data.currentClothing == clothData.id);
+                iconImg.sprite = assetHandle.Get<Sprite>(clothData.name);
+                infoTxt.text = clothData.name;
+            }
         }
 
         public void HandleUpdate(params object[] args)
@@ -133,11 +150,41 @@ namespace View.CharacterInfoView
                 maskImg.gameObject.SetActive(!(PlayerDataModule.Instance.data.ownWeaponList.Contains(weaponData.id)));
 
             }
-            else
+            else if (storageBagData != null)
             {
                 selectImg.gameObject.SetActive(PlayerDataModule.Instance.data.currentBag == storageBagData.id);
                 maskImg.gameObject.SetActive(!(PlayerDataModule.Instance.data.ownBagList.Contains(storageBagData.id)));
             }
+            else if (clothData != null)
+            {
+                maskImg.gameObject.SetActive(!PlayerDataModule.Instance.data.ownClothingList.Contains(clothData.id));
+                selectImg.gameObject.SetActive(PlayerDataModule.Instance.data.currentClothing == clothData.id);
+            }
+        }
+
+        private int GetCurrentCardLevel(PlayerData playerData)
+        {
+            if (playerData == null || playerData.cardUpProgressesList == null || playerData.cardUpProgressesList.Count == 0)
+            {
+                return 0;
+            }
+
+            int currentCardLevel = 0;
+            for (int i = 0; i < playerData.cardUpProgressesList.Count; i++)
+            {
+                CardUpProgress progress = playerData.cardUpProgressesList[i];
+                if (progress == null)
+                {
+                    continue;
+                }
+
+                if (progress.level > currentCardLevel)
+                {
+                    currentCardLevel = progress.level;
+                }
+            }
+
+            return currentCardLevel;
         }
 
 

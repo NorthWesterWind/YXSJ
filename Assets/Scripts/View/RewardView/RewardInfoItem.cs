@@ -36,8 +36,16 @@ public class RewardInfoItem : MonoBehaviour
         {
             contentCard.SetActive(true);
             contentOther.SetActive(false);
-            var data = args[0] as CardUpProgress;
-            switch (data.levelType)
+            int cardId = ResolveCardId(args);
+            int rewardCount = ResolveRewardCount(args);
+            var levelData = DataController.Instance.cardLevelDataList.Find(x => x.id == cardId);
+            if (levelData == null)
+            {
+                return;
+            }
+
+            cardUpProgress = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.id == cardId);
+            switch (levelData.levelType)
             {
                 case CardLevelType.FanPing:
                     iconBg.sprite = assetHandle.Get<Sprite>("白卡");
@@ -49,19 +57,11 @@ public class RewardInfoItem : MonoBehaviour
                     iconBg.sprite = assetHandle.Get<Sprite>("紫卡");
                     break;
             }
-            var leveldata = DataController.Instance.cardLevelDataList.Find(x => x.developType == data.developType);
-            cardUpProgress = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.id == leveldata.id);
-            cardNameTxt.text = leveldata.name;
-            cardLevelTxt.text = data.level + "";
-            cardNumTxt.text = "x" + (int)args[1];
-            icon.sprite = assetHandle.Get<Sprite>(leveldata.name);
-            fillImg.fillAmount = cardUpProgress.currentNum * 1f / WorldData.cardUpLevelArr[cardUpProgress.level - 1];
-            fillTxt.text = cardUpProgress.currentNum + "/" + WorldData.cardUpLevelArr[cardUpProgress.level - 1];
-            if (cardUpProgress.level == 10)
-            {
-                fillTxt.text = "已满级";
-                fillImg.fillAmount = 1f;
-            }
+            cardNameTxt.text = levelData.name;
+            cardLevelTxt.text = cardUpProgress != null ? cardUpProgress.level.ToString() : "1";
+            cardNumTxt.text = "x" + rewardCount;
+            icon.sprite = assetHandle.Get<Sprite>(levelData.name);
+            RefreshCardProgress(levelData);
 
         }
         else
@@ -98,6 +98,95 @@ public class RewardInfoItem : MonoBehaviour
         }
 
 
+    }
+
+    private int ResolveCardId(object[] args)
+    {
+        if (args == null || args.Length == 0)
+        {
+            return 0;
+        }
+
+        if (args[0] is CardUpProgress progress)
+        {
+            return progress.id;
+        }
+
+        if (args[0] is int id)
+        {
+            return id;
+        }
+
+        return 0;
+    }
+
+    private int ResolveRewardCount(object[] args)
+    {
+        if (args == null || args.Length < 2)
+        {
+            return 0;
+        }
+
+        if (args[1] is int intValue)
+        {
+            return intValue;
+        }
+
+        if (args[1] is long longValue)
+        {
+            return (int)longValue;
+        }
+
+        return 0;
+    }
+
+    private void RefreshCardProgress(CardLevelData levelData)
+    {
+        if (levelData == null)
+        {
+            fillImg.fillAmount = 0f;
+            fillTxt.text = string.Empty;
+            return;
+        }
+
+        int[] progressArr = GetProgressArray(levelData.developType);
+        if (cardUpProgress == null)
+        {
+            fillImg.fillAmount = 0f;
+            fillTxt.text = progressArr.Length > 0 ? "0/" + progressArr[0] : string.Empty;
+            return;
+        }
+
+        int progressIndex = Mathf.Max(0, cardUpProgress.level - 1);
+        if (progressIndex >= progressArr.Length)
+        {
+            fillTxt.text = "已满级";
+            fillImg.fillAmount = 1f;
+            return;
+        }
+
+        int need = Mathf.Max(1, progressArr[progressIndex]);
+        fillImg.fillAmount = Mathf.Clamp01(cardUpProgress.currentNum * 1f / need);
+        fillTxt.text = cardUpProgress.currentNum + "/" + need;
+    }
+
+    private int[] GetProgressArray(CardDevelopType developType)
+    {
+        switch (developType)
+        {
+            case CardDevelopType.UpgradeLingZhangTai:
+                return WorldData.cardUpLevelArr_LingChouLing;
+            case CardDevelopType.UpgradeLingChuGe_1:
+            case CardDevelopType.UpgradeLingChuGe_2:
+            case CardDevelopType.UpgradeYunDiGe:
+                return WorldData.cardUpLevelArr_LingChuGe_YunDiGe;
+            case CardDevelopType.UpgradeCharacterWithXuanCaiTuAtk:
+            case CardDevelopType.UpgradeCharacterWithXuanCaiTuHp:
+            case CardDevelopType.UpgradeGetYuanBaoLing:
+                return WorldData.cardUpLevelArr_WuQiLing_LingLiLingr_YuanBaoLing;
+            default:
+                return WorldData.cardUpLevelArr;
+        }
     }
 
 }

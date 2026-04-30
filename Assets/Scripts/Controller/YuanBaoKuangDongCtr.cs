@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class YuanBaoKuangDongCtr : StructureBase
 {
-    PlayerData playerData;
+    private PlayerData playerData;
     public TextMeshProUGUI nextRefreshTimeText;
     private float nextRefreshTextUpdateTime;
 
@@ -20,7 +20,8 @@ public class YuanBaoKuangDongCtr : StructureBase
     void OnEnable()
     {
         playerData ??= PlayerDataModule.Instance.data;
-        RefreshNextRefreshTimeText();
+        PlayerDataModule.Instance?.RefreshYuanBaoKuangDongDailyCountIfNeeded();
+        RefreshStatusText();
     }
 
     void Update()
@@ -29,31 +30,36 @@ public class YuanBaoKuangDongCtr : StructureBase
         if (Time.unscaledTime >= nextRefreshTextUpdateTime)
         {
             nextRefreshTextUpdateTime = Time.unscaledTime + 1f;
-            RefreshNextRefreshTimeText();
+            RefreshStatusText();
         }
     }
 
     public bool CanProduce()
     {
-        return PlayerData.remainCount > 0;
+        return PlayerDataModule.Instance != null &&
+               PlayerDataModule.Instance.GetYuanBaoKuangDongRemainingCount(PlayerData.currentMapID) > 0;
     }
 
     public void ConsumeOne(params object[] objects)
     {
-        if (PlayerData.remainCount <= 0)
+        if (PlayerDataModule.Instance == null)
+        {
             return;
+        }
 
-        PlayerData.remainCount--;
+        PlayerDataModule.Instance.TryConsumeYuanBaoKuangDongSpawnQuota(PlayerData.currentMapID);
+        RefreshStatusText();
     }
 
-    private void RefreshNextRefreshTimeText()
+    private void RefreshStatusText()
     {
         if (nextRefreshTimeText == null || PlayerDataModule.Instance == null)
         {
             return;
         }
 
-        nextRefreshTimeText.text = PlayerDataModule.Instance.GetYuanBaoKuangDongNextRefreshText();
+        int remainCount = PlayerDataModule.Instance.GetYuanBaoKuangDongRemainingCount(PlayerData.currentMapID);
+        nextRefreshTimeText.text =
+            $"{PlayerDataModule.Instance.GetYuanBaoKuangDongNextRefreshText()}";
     }
-
 }

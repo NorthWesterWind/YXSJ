@@ -50,16 +50,17 @@ namespace View.MapFunction
                         Action action = () =>
                         {
                             PlayerDataModule.Instance.CaptureCurrentRuntimeState();
-                            PlayerDataModule.Instance.ClearRuntimeStateForMapSwitch();
                             PlayerDataModule.Instance.data.tongbi -= mapData.unlockCost;
                             PlayerDataModule.Instance.data.realUnlockMapList.Add(mapData.id);
                             PlayerDataModule.Instance.data.currentMapID = mapData.id;
-                            maskImg.SetActive(false);
+                            PlayerDataModule.Instance.ClearRuntimeStateForMapSwitch();
+                            PlayerDataModule.Instance.ResetBusinessDataForCurrentMap();
+
                             UIController.Instance.Show<TipView>(mapData.name + "解锁成功！");
                             EventCenter.Instance.TriggerEvent(EventMessages.ShowLoadView);
                             StartCoroutine(LoadNextSceneCoroutine());
                         };
-                        UIController.Instance.Show<MapSelectConfirmView>($"是否花费{Extensions.FormatNumber(mapData.unlockCost)}铜币解锁并进入{mapData.name}？进入后将无法返回当前灵境！", action);
+                        UIController.Instance.Show<MapSelectConfirmView>($"\u3000\u3000是否花费{Extensions.FormatNumber(mapData.unlockCost)}铜币解锁并进入{mapData.name}？进入后将无法返回当前灵境！", action);
                     }
                     else
                     {
@@ -93,12 +94,13 @@ namespace View.MapFunction
                 if (!PlayerDataModule.Instance.data.levelLockMapList.Contains(mapData.id) && PlayerDataModule.Instance.data.realUnlockMapList.Contains(mapData.id - 1))
                 {
                     unlockBtn.gameObject.SetActive(true);
+                    maskImg.SetActive(false);
                 }
                 else
                 {
+                    maskImg.SetActive(true);
                     unlockBtn.gameObject.SetActive(false);
                 }
-                maskImg.SetActive(true);
                 masktxt.gameObject.SetActive(true);
                 masktxt.text = $"{mapData.unlockLevel}级后解锁";
                 if (PlayerDataModule.Instance.data.accountLevel < mapData.unlockLevel)
@@ -146,7 +148,7 @@ namespace View.MapFunction
 
 
 
-        #region 🔸 加载场景逻辑
+        #region 加载场景逻辑
 
         private IEnumerator LoadNextSceneCoroutine()
         {

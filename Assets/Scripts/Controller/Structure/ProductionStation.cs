@@ -11,18 +11,18 @@ namespace Controller.Structure
 {
     public class ProductionStation : StructureBase
     {
-        // [Header("½ø¶ÈÌõÎ»ÖÃ")]
+        // [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½")]
         // public Transform infoPosition;
-        [Header("ÉÌÆ·°Ú·ÅÎ»ÖÃ")]
+        [Header("ï¿½ï¿½Æ·ï¿½Ú·ï¿½Î»ï¿½ï¿½")]
         public Transform productPosition;
 
         public Transform recivePosition;
         public Transform transferPoint;
 
 
-        public int currentMaterialCount;  //µ±Ç°²ÄÁÏÊýÁ¿
-        public float baseProductionTime; // »ù´¡Éú²úÊ±¼ä
-        [Header("½ø¶ÈÌõÐÅÏ¢Àà")]
+        public int currentMaterialCount;  //ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+        public float baseProductionTime; // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½
+        [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½")]
         public ProductionInfo productionInfo;
         public DropItemType dropItemType;
         public GoodsType goodsType;
@@ -132,6 +132,23 @@ namespace Controller.Structure
             {
                 baseProductionTime = WorldData.productStationWorkingTimeDic[1];
             }
+            if(buildingType == BuildingType.YuShaHu_3 || buildingType == BuildingType.YuShaHu_4)
+            {
+                sprite.sprite = _assetHandle.Get<Sprite>("äºŒçº§çŽ‰ç ‚å£¶");
+            }
+            else if(buildingType == BuildingType.YuShaHu_1 || buildingType == BuildingType.YuShaHu_2)
+            {
+                sprite.sprite = _assetHandle.Get<Sprite>("ä¸€çº§çŽ‰ç ‚å£¶");
+            }
+             if(buildingType == BuildingType.LianQiLu_3)
+            {
+                sprite.sprite = _assetHandle.Get<Sprite>("äºŒçº§ç‚¼å™¨ç‚‰");
+            }
+            else if(buildingType == BuildingType.LianQiLu_1 || buildingType == BuildingType.LianQiLu_2)
+            {
+                sprite.sprite = _assetHandle.Get<Sprite>("ä¸€çº§ç‚¼å™¨ç‚‰");
+            }
+
 
             if (productionInfo != null)
             {
@@ -142,7 +159,6 @@ namespace Controller.Structure
                     productionInfo.StartProductionLoop(this, structureType);
                     if (icon != null && icon.AnimationState != null)
                     {
-                        // ½á¹¹Ë¢ÐÂºóÒ²Òª°Ñ»Ö¸´³öÀ´µÄÉú²úÁ÷³ÌÖØÐÂÀ­Æð¡£
                         icon.AnimationState.SetAnimation(0, "animation", true);
                     }
                 }
@@ -213,7 +229,7 @@ namespace Controller.Structure
         {
             currentMaterialCount += count;
             productionInfo.UpdateText();
-            // Ç¿ÖÆ¼¤»îUI
+            // Ç¿ï¿½Æ¼ï¿½ï¿½ï¿½UI
             if (!productionInfo.gameObject.activeSelf)
                 productionInfo.gameObject.SetActive(true);
             productionInfo.StartProductionLoop(this, structureType);
@@ -228,7 +244,7 @@ namespace Controller.Structure
         public void OnProductionFinished()
         {
             currentMaterialCount = 0;
-            productionInfo.gameObject.SetActive(false); // ÔÚÕâÀï¹Ø±ÕUI
+            productionInfo.gameObject.SetActive(false); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø±ï¿½UI
             icon.AnimationState.ClearTracks();
         }
         private void HandleProductionComplete(params object[] args)
@@ -276,10 +292,10 @@ namespace Controller.Structure
         {
             List<Production> list = new List<Production>();
 
-            // ·ÀÖ¹Íæ¼ÒÒÑ¾­ÄÃ×ßËùÓÐ²úÆ·µ¼ÖÂµÄ¿ÕÁÐ±í
+            // ï¿½ï¿½Ö¹ï¿½ï¿½ï¿½ï¿½Ñ¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð²ï¿½Æ·ï¿½ï¿½ï¿½ÂµÄ¿ï¿½ï¿½Ð±ï¿½
             if (productionList.Count == 0)
             {
-                return list; // ·µ»Ø¿ÕÁÐ±í
+                return list; // ï¿½ï¿½ï¿½Ø¿ï¿½ï¿½Ð±ï¿½
             }
 
             int num = Mathf.Min(freightClerk.currentCapacity, freightClerk.points.Count);
@@ -290,7 +306,7 @@ namespace Controller.Structure
 
             SortProductsByHeight();
 
-            // Ö»ÌôÑ¡¡°Î´±»Õ¼ÓÃ¡±ÇÒ¡°¿É±»°áÔË¡±µÄÉÌÆ·£¬±ÜÃâÓëÍæ¼ÒÍ¬Ö¡ÇÀ¶á
+            // Ö»ï¿½ï¿½Ñ¡ï¿½ï¿½Î´ï¿½ï¿½Õ¼ï¿½Ã¡ï¿½ï¿½Ò¡ï¿½ï¿½É±ï¿½ï¿½ï¿½ï¿½Ë¡ï¿½ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¬Ö¡ï¿½ï¿½ï¿½ï¿½
             for (int i = productionList.Count - 1; i >= 0 && list.Count < num; i--)
             {
                 var production = productionList[i];
@@ -299,7 +315,7 @@ namespace Controller.Structure
                 if (!production.canPickup) continue;
                 if (production.state != ItemState.OnWorkbench) continue;
 
-                // Ô¤Õ¼£ºÒ»µ©ÉúÐ§£¬Íæ¼ÒÎÞ·¨ÔÙÇÀµ½¸ÃÉÌÆ·
+                // Ô¤Õ¼ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ð§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Þ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·
                 production.isTaken = true;
                 production.canPickup = false;
                 production.SetState(ItemState.HeldByAssistant);
@@ -310,7 +326,7 @@ namespace Controller.Structure
 
             MarkProductLayoutDirty();
 
-            // ´ÓÉú²úÌ¨ÁÐ±íÒÆ³ýÒÑÔ¤Õ¼µÄÉÌÆ·
+            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ì¨ï¿½Ð±ï¿½ï¿½Æ³ï¿½ï¿½ï¿½Ô¤Õ¼ï¿½ï¿½ï¿½ï¿½Æ·
             for (int i = 0; i < list.Count; i++)
             {
                 var production = list[i];
@@ -320,7 +336,7 @@ namespace Controller.Structure
                 {
                     if (production != null)
                     {
-                        // µ½´ï°áÔË¹¤¹ÒµãºóÊÍ·ÅÕ¼ÓÃ±ê¼Ç£¬µ«±£³Ö²»¿É±»Íæ¼ÒÊ°È¡
+                        // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ë¹ï¿½ï¿½Òµï¿½ï¿½ï¿½Í·ï¿½Õ¼ï¿½Ã±ï¿½Ç£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö²ï¿½ï¿½É±ï¿½ï¿½ï¿½ï¿½Ê°È¡
                         if (carryPoint != null)
                         {
                             production.transform.SetParent(carryPoint, true);
@@ -478,30 +494,30 @@ namespace Controller.Structure
     [System.Serializable]
     public class PlacementGrid
     {
-        [Header("Íø¸ñÅäÖÃ")]
-        [Tooltip("Ã¿ÐÐµÄÁÐÊý")]
+        [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+        [Tooltip("Ã¿ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½")]
         public int columns = 3;
 
-        [Tooltip("Ã¿²ãµÄÐÐÊý")]
+        [Tooltip("Ã¿ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
         public int rows = 3;
 
-        [Header("¼ä¾àÅäÖÃ")]
-        [Tooltip("ÁÐÖ®¼äµÄË®Æ½¼ä¾à")]
+        [Header("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½")]
+        [Tooltip("ï¿½ï¿½Ö®ï¿½ï¿½ï¿½Ë®Æ½ï¿½ï¿½ï¿½")]
         public float xSpacing = 0.3f;
 
-        [Tooltip("ÐÐÖ®¼äµÄ´¹Ö±¼ä¾à£¨ÓÃÓÚÄ£ÄâÉî¶È£©")]
+        [Tooltip("ï¿½ï¿½Ö®ï¿½ï¿½Ä´ï¿½Ö±ï¿½ï¿½à£¨ï¿½ï¿½ï¿½ï¿½Ä£ï¿½ï¿½ï¿½ï¿½È£ï¿½")]
         public float rowSpacing = 0.15f;
 
-        [Tooltip("²ãÖ®¼äµÄ´¹Ö±¼ä¾à£¨¶Ñµþ¸ß¶È£©")]
+        [Tooltip("ï¿½ï¿½Ö®ï¿½ï¿½Ä´ï¿½Ö±ï¿½ï¿½à£¨ï¿½Ñµï¿½ï¿½ß¶È£ï¿½")]
         public float layerSpacing = 0.4f;
 
-        [Header("ÔËÐÐÊ±Êý¾Ý")]
+        [Header("ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½")]
         public Vector2 basePosition;
         public int currentIndex = 0;
 
         /// <summary>
-        /// »ñÈ¡ÏÂÒ»¸ö°Ú·ÅÎ»ÖÃ
-        /// Âß¼­£ºÏÈÌîÂúµÚÒ»ÐÐ£¬ÌîÂúËùÓÐÐÐºó¿ªÊ¼ÐÂµÄÒ»²ãÏòÉÏ¶Ñµþ
+        /// ï¿½ï¿½È¡ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ú·ï¿½Î»ï¿½ï¿½
+        /// ï¿½ß¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ðºï¿½Ê¼ï¿½Âµï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Ï¶Ñµï¿½
         /// </summary>
         public Vector2 GetNextPosition()
         {
@@ -515,24 +531,24 @@ namespace Controller.Structure
             columns = Mathf.Max(1, columns);
             rows = Mathf.Max(1, rows);
 
-            int layerSize = columns * rows; // Ã¿²ã¿É·ÅµÄÎïÆ·Êý
+            int layerSize = columns * rows; // Ã¿ï¿½ï¿½É·Åµï¿½ï¿½ï¿½Æ·ï¿½ï¿½
 
-            // ¼ÆËãµ±Ç°ÊÇµÚ¼¸²ã£¨´Ó0¿ªÊ¼£©
+            // ï¿½ï¿½ï¿½ãµ±Ç°ï¿½ÇµÚ¼ï¿½ï¿½ã£¨ï¿½ï¿½0ï¿½ï¿½Ê¼ï¿½ï¿½
             int layer = index / layerSize;
 
-            // ¼ÆËãÔÚµ±Ç°²ãÖÐµÄË÷Òý: 0 ~ layerSize-1
+            // ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Ç°ï¿½ï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½ï¿½: 0 ~ layerSize-1
             int indexInLayer = index % layerSize;
 
-            // ¼ÆËãÔÚµ±Ç°²ãÖÐÊÇµÚ¼¸ÐÐ¡¢µÚ¼¸ÁÐ
+            // ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ÇµÚ¼ï¿½ï¿½Ð¡ï¿½ï¿½Ú¼ï¿½ï¿½ï¿½
             int row = indexInLayer / columns;
             int col = indexInLayer % columns;
 
-            // ¼ÆËãÊµ¼ÊÎ»ÖÃ
+            // ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½Î»ï¿½ï¿½
             float x = basePosition.x + col * xSpacing;
 
-            // y×ø±ê = »ù´¡Î»ÖÃ + ²ã¸ß + ÐÐÉî
-            // ²ã¸ß¶È£ºÃ¿²ãÊ¹ÓÃ¹Ì¶¨¸ß¶È£¨²»¿çÔ½ÕûÐÐ£©£¬±ÜÃâÐÎ³ÉÇ½Ãæ¸Ð
-            // ÐÐÉî¶È£ºÍ¬Ò»²ãÄÚµÄÐÐ¼ä¾à
+            // yï¿½ï¿½ï¿½ï¿½ = ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ + ï¿½ï¿½ï¿½ + ï¿½ï¿½ï¿½ï¿½
+            // ï¿½ï¿½ß¶È£ï¿½Ã¿ï¿½ï¿½Ê¹ï¿½Ã¹Ì¶ï¿½ï¿½ß¶È£ï¿½ï¿½ï¿½ï¿½ï¿½Ô½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î³ï¿½Ç½ï¿½ï¿½ï¿½
+            // ï¿½ï¿½ï¿½ï¿½È£ï¿½Í¬Ò»ï¿½ï¿½ï¿½Úµï¿½ï¿½Ð¼ï¿½ï¿½
             float layerHeight = layerSpacing;
             float y = basePosition.y + (layer * layerHeight) + (row * rowSpacing);
 
@@ -575,7 +591,7 @@ namespace Controller.Structure
         }
 
         /// <summary>
-        /// ÊÍ·ÅÒ»¸öÎ»ÖÃ£¨ÉÌÆ·±»ÄÃ×ßÊ±µ÷ÓÃ£©
+        /// ï¿½Í·ï¿½Ò»ï¿½ï¿½Î»ï¿½Ã£ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½Ã£ï¿½
         /// </summary>
         public void ReleaseOne()
         {
@@ -584,7 +600,7 @@ namespace Controller.Structure
         }
 
         /// <summary>
-        /// ÖØÖÃÍø¸ñ£¨Çå¿ÕËùÓÐÎïÆ·Ê±µ÷ÓÃ£©
+        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·Ê±ï¿½ï¿½ï¿½Ã£ï¿½
         /// </summary>
         public void Reset()
         {

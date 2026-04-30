@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using Controller;
 using DG.Tweening;
@@ -13,6 +13,15 @@ using View.CardView;
 
 public class LingZhangTaiPop : BaseView
 {
+    private const string LevelSuffix = "级";
+    private const string FullLevelText = "已满级";
+    private const string MaxLevelText = "等级已满";
+    private const string UnlockAtLevel2Text = "2级解锁";
+    private const string MaxLevelTip = "等级已满。";
+    private const string UnlockAtLevel2Tip = "卡牌等级达到2级解锁。";
+    private const string MoneyNotEnoughTip = "铜币数量不足。";
+    private const string UpgradeSuccessTip = "升级成功。";
+
     public RectTransform contentRect;
     public UIButton closeBtn;
     public TextMeshProUGUI workspeedtxt;
@@ -51,40 +60,23 @@ public class LingZhangTaiPop : BaseView
     public override void UpdateViewWithArgs(params object[] args)
     {
         base.UpdateViewWithArgs(args);
+        RefreshView(true);
+    }
+
+    private void RefreshView(bool animate)
+    {
         playerData = PlayerDataModule.Instance.data;
-        contentRect.DOAnchorPos(new Vector2(0, 0), 0.3f);
         cashierData = playerData.cashierData;
         EnsureCashierDataValid();
-        workspeedtxt.text = cashierData.currentWorkingSpeed.ToString();
+        workspeedtxt.text = FormatWorkSpeed(cashierData.currentWorkingSpeed);
         peopletxt.text = cashierData.totalNum.ToString();
-        workspeedLeveltxt.text = cashierData.workspeedLevel + "级";
-        currentworkspeedtxt.text = cashierData.currentWorkingSpeed.ToString();
-        if (cashierData.workspeedLevel < cashierData.maxworkspeedLevel)
-        {
-            nextworkspeedtxt.text = (cashierData.currentWorkingSpeed - 0.05f).ToString();
-            btnMask_1.SetActive(false);
-        }
-        else
-        {
-            nextworkspeedtxt.text = "";
-            btnMask_1.SetActive(true);
-            btnMaskTxt_1.text = "等级已满";
-        }
-        freetxt_1.text = Extensions.FormatNumber(cashierData.workspeedLevel * 1000).ToString();
-        freetxt_2.text = Extensions.FormatNumber(cashierData.peopleLevel * 20000).ToString();
-        peopleLeveltxt.text = cashierData.peopleLevel + "级";
+        workspeedLeveltxt.text = cashierData.workspeedLevel + LevelSuffix;
+        currentworkspeedtxt.text = FormatWorkSpeed(cashierData.currentWorkingSpeed);
+        peopleLeveltxt.text = cashierData.peopleLevel + LevelSuffix;
         currentpeopletxt.text = cashierData.totalNum.ToString();
-        if (cashierData.peopleLevel < cashierData.maxpeopleLevel)
-        {
-            nextpeopletxt.text = (cashierData.totalNum + 1).ToString();
-            btnMask_2.SetActive(false);
-        }
-        else
-        {
-            nextpeopletxt.text = "";
-            btnMask_2.SetActive(true);
-            btnMaskTxt_2.text = "等级已满";
-        }
+
+        RefreshWorkSpeedUpgradeState();
+
         var cardLevelData = DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeLingZhangTai);
         if (cardLevelData.unlockLevel <= playerData.accountLevel)
         {
@@ -95,15 +87,14 @@ public class LingZhangTaiPop : BaseView
             cardMask.SetActive(true);
             cardmasktxt.text = cardLevelData.unlockLevel.ToString();
         }
+
         var cardprogress = playerData.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLingZhangTai);
         if (cardprogress == null)
         {
             fillContent.SetActive(false);
             lockObj.SetActive(true);
-
-            btnMask_2.SetActive(true);
-            btnMaskTxt_2.text = "2级解锁";
-            donatetxt.text = "x" + "0%";
+            cardLeveltxt.text = "0";
+            donatetxt.text = "x0%";
         }
         else
         {
@@ -117,21 +108,81 @@ public class LingZhangTaiPop : BaseView
             }
             else
             {
-                cardfilltxt.text = "已满级";
+                cardfilltxt.text = FullLevelText;
                 fillImage.fillAmount = 1f;
             }
-            donatetxt.text = "x" + $" {cardprogress.level * 0.2f * 100f}%";
-            if (cardprogress.level < 2)
+
+            donatetxt.text = $"x {cardprogress.level * 0.2f * 100f}%";
+        }
+
+        RefreshPeopleUpgradeState(cardprogress);
+
+        if (animate)
+        {
+            contentRect.DOAnchorPos(new Vector2(0, 0), 0.3f);
+        }
+    }
+
+    private void RefreshWorkSpeedUpgradeState()
+    {
+        bool isMaxLevel = cashierData.workspeedLevel >= cashierData.maxworkspeedLevel;
+        btnMask_1.SetActive(isMaxLevel);
+
+        if (isMaxLevel)
+        {
+            nextworkspeedtxt.text = string.Empty;
+            freetxt_1.text = string.Empty;
+            btnMaskTxt_1.text = MaxLevelText;
+            return;
+        }
+
+        nextworkspeedtxt.text = FormatWorkSpeed(cashierData.currentWorkingSpeed - 0.05f);
+        freetxt_1.text = Extensions.FormatNumber(cashierData.workspeedLevel * 1000).ToString();
+    }
+
+    private void RefreshPeopleUpgradeState(CardUpProgress cardprogress)
+    {
+        bool isMaxLevel = cashierData.peopleLevel >= cashierData.maxpeopleLevel;
+        bool isUnlocked = cardprogress != null && cardprogress.level >= 2;
+
+        if (isMaxLevel)
+        {
+            nextpeopletxt.text = string.Empty;
+            freetxt_2.text = string.Empty;
+            btnMask_2.SetActive(true);
+            btnMaskTxt_2.text = MaxLevelText;
+            return;
+        }
+
+        nextpeopletxt.text = (cashierData.totalNum + 1).ToString();
+        freetxt_2.text = Extensions.FormatNumber(cashierData.peopleLevel * 20000).ToString();
+
+        if (!isUnlocked)
+        {
+            btnMask_2.SetActive(true);
+            btnMaskTxt_2.text = UnlockAtLevel2Text;
+            return;
+        }
+
+        btnMask_2.SetActive(false);
+    }
+
+    private void RefreshCardInfoEvent(params object[] args)
+    {
+        if (!IsVisible)
+        {
+            return;
+        }
+
+        if (args != null && args.Length > 0 && args[0] is CardDevelopType changedCardType)
+        {
+            if (changedCardType != CardDevelopType.UpgradeLingZhangTai)
             {
-                btnMask_2.SetActive(true);
-                btnMaskTxt_2.text = "2级解锁";
-            }
-            else
-            {
-                btnMask_2.SetActive(false);
+                return;
             }
         }
 
+        RefreshView(false);
     }
 
     private void EnsureCashierDataValid()
@@ -140,6 +191,7 @@ public class LingZhangTaiPop : BaseView
         {
             playerData.cashierData = new CashierData();
         }
+
         cashierData = playerData.cashierData;
         cashierData.maxpeopleLevel = Mathf.Max(1, cashierData.maxpeopleLevel);
         cashierData.maxworkspeedLevel = Mathf.Max(1, cashierData.maxworkspeedLevel);
@@ -151,106 +203,87 @@ public class LingZhangTaiPop : BaseView
         {
             cashierData.currentWorkingSpeed = 5f;
         }
+
+        cashierData.currentWorkingSpeed = RoundWorkSpeed(cashierData.currentWorkingSpeed);
     }
+
     protected override void AddEventListener()
     {
         base.AddEventListener();
         closeBtn.onClick.RemoveAllListeners();
-        closeBtn.onClick.AddListener((() =>
+        closeBtn.onClick.AddListener(() =>
         {
             StartCoroutine(HideAnimation());
-        }));
+        });
         upgradeworkspeedBtn.onClick.RemoveAllListeners();
         upgradeworkspeedBtn.onClick.AddListener(OnClickUpgradeSpeedBtn);
         upgradePeopleBtn.onClick.RemoveAllListeners();
         upgradePeopleBtn.onClick.AddListener(OnClickUpgradePeopleBtn);
         cardBtn.onClick.RemoveAllListeners();
-        cardBtn.onClick.AddListener(() => { UIController.Instance.Show<CardDetailPop>(DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeLingZhangTai)); });
-        EventCenter.Instance.AddListener(EventMessages.UpdateCardInfo, UpdateViewWithArgs);
+        cardBtn.onClick.AddListener(() =>
+        {
+            UIController.Instance.Show<CardDetailPop>(DataController.Instance.cardLevelDataList.Find(x => x.developType == CardDevelopType.UpgradeLingZhangTai));
+        });
+        EventCenter.Instance.AddListener(EventMessages.UpdateCardInfo, RefreshCardInfoEvent);
     }
 
     public override void RemoveEventListener()
     {
         base.RemoveEventListener();
-        EventCenter.Instance.RemoveListener(EventMessages.UpdateCardInfo, UpdateViewWithArgs);
+        EventCenter.Instance.RemoveListener(EventMessages.UpdateCardInfo, RefreshCardInfoEvent);
     }
+
     private void OnClickUpgradeSpeedBtn()
     {
         if (cashierData.workspeedLevel == cashierData.maxworkspeedLevel)
         {
-            UIController.Instance.Show<TipView>("等级已满。");
+            UIController.Instance.Show<TipView>(MaxLevelTip);
             return;
         }
         if (PlayerDataModule.Instance.data.tongbi < cashierData.workspeedLevel * 1000)
         {
-            UIController.Instance.Show<TipView>("铜币数量不足。");
+            UIController.Instance.Show<TipView>(MoneyNotEnoughTip);
+            return;
         }
-        else
-        {
-            PlayerDataModule.Instance.data.tongbi -= cashierData.workspeedLevel * 1000;
-            cashierData.workspeedLevel += 1;
-            cashierData.currentWorkingSpeed -= 0.05f;
-            workspeedLeveltxt.text = cashierData.workspeedLevel + "级";
-            workspeedtxt.text = cashierData.currentWorkingSpeed.ToString();
-            currentworkspeedtxt.text = cashierData.currentWorkingSpeed.ToString();
-            freetxt_1.text = Extensions.FormatNumber(cashierData.workspeedLevel * 1000).ToString();
-            if (cashierData.workspeedLevel == cashierData.maxworkspeedLevel)
-            {
-                btnMask_1.SetActive(true);
-                btnMaskTxt_1.text = "等级已满";
-                nextworkspeedtxt.text = "";
-            }
-            else
-            {
-                nextworkspeedtxt.text = (cashierData.currentWorkingSpeed - 0.05f).ToString();
-            }
-            UIController.Instance.Show<TipView>("升级成功。");
-            EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask, BuildingType.LingZhangTai);
-            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
-        }
+
+        PlayerDataModule.Instance.data.tongbi -= cashierData.workspeedLevel * 1000;
+        cashierData.workspeedLevel += 1;
+        cashierData.currentWorkingSpeed = RoundWorkSpeed(cashierData.currentWorkingSpeed - 0.05f);
+        RefreshView(false);
+
+        UIController.Instance.Show<TipView>(UpgradeSuccessTip);
+        EventCenter.Instance.TriggerEvent(EventMessages.UpGradeStuctureTask, BuildingType.LingZhangTai);
+        EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
     }
+
     private void OnClickUpgradePeopleBtn()
     {
         var cardProgress = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.developType == CardDevelopType.UpgradeLingZhangTai);
         if (cardProgress == null || cardProgress.level < 2)
         {
-            UIController.Instance.Show<TipView>("卡牌等级达到2级解锁。");
+            UIController.Instance.Show<TipView>(UnlockAtLevel2Tip);
             return;
         }
         if (cashierData.peopleLevel == cashierData.maxpeopleLevel)
         {
-            UIController.Instance.Show<TipView>("等级已满。");
+            UIController.Instance.Show<TipView>(MaxLevelTip);
             return;
         }
         if (PlayerDataModule.Instance.data.tongbi < cashierData.peopleLevel * 20000)
         {
-            UIController.Instance.Show<TipView>("铜币数量不足。");
+            UIController.Instance.Show<TipView>(MoneyNotEnoughTip);
+            return;
         }
-        else
-        {
-            PlayerDataModule.Instance.data.tongbi -= cashierData.peopleLevel * 20000;
-            cashierData.peopleLevel += 1;
-            cashierData.totalNum += 1;
-            peopleLeveltxt.text = cashierData.peopleLevel + "级";
-            peopletxt.text = cashierData.totalNum.ToString();
-            currentpeopletxt.text = cashierData.totalNum.ToString();
-            freetxt_2.text = Extensions.FormatNumber(cashierData.peopleLevel * 20000).ToString();
-            if (cashierData.peopleLevel == cashierData.maxpeopleLevel)
-            {
-                btnMask_2.SetActive(true);
-                btnMaskTxt_2.text = "等级已满";
-                nextpeopletxt.text = "";
-            }
-            else
-            {
-                nextpeopletxt.text = (cashierData.totalNum + 1).ToString();
-            }
-            UIController.Instance.Show<TipView>("升级成功。");
-            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
-            EventCenter.Instance.TriggerEvent(EventMessages.UpdateLingZhangTai);
-        }
-    }
 
+        PlayerDataModule.Instance.data.tongbi -= cashierData.peopleLevel * 20000;
+        cashierData.peopleLevel += 1;
+        cashierData.totalNum += 1;
+        RefreshView(false);
+
+        UIController.Instance.Show<TipView>(UpgradeSuccessTip);
+        EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
+        EventCenter.Instance.TriggerEvent(EventMessages.UpdateLingZhangTai);
+    }
 
     private IEnumerator HideAnimation()
     {
@@ -259,4 +292,13 @@ public class LingZhangTaiPop : BaseView
         Hide();
     }
 
+    private static float RoundWorkSpeed(float value)
+    {
+        return (float)Math.Round(value, 2);
+    }
+
+    private static string FormatWorkSpeed(float value)
+    {
+        return RoundWorkSpeed(value).ToString("0.##");
+    }
 }

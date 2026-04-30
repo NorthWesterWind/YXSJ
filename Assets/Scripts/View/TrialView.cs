@@ -65,7 +65,11 @@ public class TrialView : BaseView
     public void OnClickSettingBtn()
     {
         Time.timeScale = 0;
-        UIController.Instance.Show<PauseView>();
+        Action action = () =>
+        {
+            EventCenter.Instance.TriggerEvent(EventMessages.CloseTrialView);
+        };
+        UIController.Instance.Show<PauseView>(action);
     }
     public void HandleMonsterDead2D(params object[] args)
     {
@@ -81,15 +85,13 @@ public class TrialView : BaseView
         {
             if (PlayerDataModule.Instance.data.playTrialCurrencyType == CurrencyType.JingYuanBao)
             {
-                UIController.Instance.Show<TrialResultView>(true, 500);
-            }
-            else
-            {
-                UIController.Instance.Show<TrialResultView>(true, 200);
+                Action action = () =>
+                {
+                    EventCenter.Instance.TriggerEvent(EventMessages.CloseTrialView);
+                };
+                UIController.Instance.Show<TrialResultView>(true, 500, action);
             }
             isShowUI = true;
-            Hide();
-
         }
     }
 

@@ -115,23 +115,41 @@ namespace Controller
             }
             else if (targetCount < freightClerkList.Count)
             {
-                for (int i = freightClerkList.Count - 1; i >= targetCount; i--)
+                int removeCount = freightClerkList.Count - targetCount;
+
+                for (int i = freightClerkList.Count - 1; i >= 0 && removeCount > 0; i--)
                 {
                     var clerk = freightClerkList[i];
-                    freightClerkList.RemoveAt(i);
                     if (clerk == null)
+                    {
+                        freightClerkList.RemoveAt(i);
+                        removeCount--;
+                        continue;
+                    }
+
+                    if (clerk.HasCarriedProducts())
                     {
                         continue;
                     }
 
-                    if (clerk.productList != null && clerk.productList.Count > 0)
+                    freightClerkList.RemoveAt(i);
+                    DestroyFreightClerk(clerk);
+                    removeCount--;
+                }
+
+                for (int i = freightClerkList.Count - 1; i >= 0 && removeCount > 0; i--)
+                {
+                    var clerk = freightClerkList[i];
+                    if (clerk == null)
                     {
-                        clerk.StopWorking();
+                        freightClerkList.RemoveAt(i);
+                        removeCount--;
+                        continue;
                     }
-                    else
-                    {
-                        DestroyFreightClerk(clerk);
-                    }
+
+                    freightClerkList.RemoveAt(i);
+                    clerk.StopWorking();
+                    removeCount--;
                 }
             }
         }

@@ -36,7 +36,7 @@ namespace Controller
                 enabled = false;
                 return;
             }
-            col.isTrigger = true; // 攻击检测必须是Trigger
+            col.isTrigger = true;
         }
 
 
@@ -137,10 +137,10 @@ namespace Controller
                     }
                 }
             }
+
             var monsterCtr2 = monster.GetComponent<MonsterController2D>();
             if (monsterCtr2 != null && !monsterCtr2.isDead)
             {
-                Debug.Log($"[Weapon] 攻击命中怪物2D: atkvalue: {atkValue}");
                 if (monsterCtr2.TakeDamage(atkValue))
                 {
                     if (playMonsterHitSfx)
@@ -149,7 +149,6 @@ namespace Controller
                     }
                 }
             }
-
         }
     }
 }

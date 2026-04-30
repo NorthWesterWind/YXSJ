@@ -23,8 +23,7 @@ public class RewardConfirmView : BaseView
             foreach (var pair1 in cardlevelIdDic)
             {
                 GameObject obj = GameObject.Instantiate(_assetHandle.Get<GameObject>("RewardInfoItem"), content.transform, false);
-                var data = PlayerDataModule.Instance.data.cardUpProgressesList.Find(x => x.id == pair1.Key);
-                obj.GetComponent<RewardInfoItem>().Init(1, data, pair1.Value);
+                obj.GetComponent<RewardInfoItem>().Init(1, pair1.Key, pair1.Value);
             }
             if (args.Length > 1)
             {

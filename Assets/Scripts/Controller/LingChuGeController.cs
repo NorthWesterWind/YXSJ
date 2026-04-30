@@ -29,6 +29,8 @@ namespace Controller
 
         private bool isDelivering = false;
         private List<DropController> deliveringDrops = new();
+        private bool _pendingLingChuGeInfoRefresh;
+        private Coroutine _lingChuGeInfoRefreshCoroutine;
         [Header("Delivery Visual")]
         public float deliveryLaunchInterval = 0.04f;
         public float deliveryFlyHeight = 2.2f;
@@ -262,23 +264,45 @@ namespace Controller
             EventCenter.Instance.RemoveListener(EventMessages.LingChuGeStopDelivery, HandleLingChuGeStopDelivery);
             EventCenter.Instance.RemoveListener(EventMessages.UpdateLingChuGeWorkingInfo, HandleBeginWorking);
             EventCenter.Instance.RemoveListener(EventMessages.UpdateSturctureLockInfo, Init);
+            _pendingLingChuGeInfoRefresh = false;
+            _lingChuGeInfoRefreshCoroutine = null;
         }
 
 
         private void Update()
         {
-            if (content.activeInHierarchy)
+            if (content == null || !content.activeInHierarchy)
             {
-                if (Vector2.Distance(characterController.gameObject.transform.position, transform.position) < 8)
+                return;
+            }
+
+            if (infoitem == null)
+            {
+                return;
+            }
+
+            if (characterController == null)
+            {
+                var player = GameObject.FindWithTag("Player");
+                if (player != null)
                 {
-                    infoitem.ShowInfo();
-                }
-                else
-                {
-                    infoitem.HideInfo();
+                    characterController = player.GetComponent<PlayerController>();
                 }
             }
 
+            if (characterController == null)
+            {
+                return;
+            }
+
+            if (Vector2.Distance(characterController.transform.position, transform.position) < 8f)
+            {
+                infoitem.ShowInfo();
+            }
+            else
+            {
+                infoitem.HideInfo();
+            }
         }
 
         public void HandleBeginWorking(params object[] args)
@@ -400,7 +424,7 @@ namespace Controller
             {
                 isDelivering = false;
             }
-            EventCenter.Instance.TriggerEvent(EventMessages.UpdateLingChuGeInfo);
+            RequestLingChuGeInfoRefresh();
         }
 
 
@@ -434,7 +458,7 @@ namespace Controller
 
             deliveringDrops.Clear();
             RefreshCurrentCapacityByStorage();
-            EventCenter.Instance.TriggerEvent(EventMessages.UpdateLingChuGeInfo);
+            RequestLingChuGeInfoRefresh();
         }
 
 
@@ -509,7 +533,7 @@ namespace Controller
                 controller.RefreshCarryInfo();
             }
 
-            EventCenter.Instance.TriggerEvent(EventMessages.UpdateLingChuGeInfo);
+            RequestLingChuGeInfoRefresh();
             return storedTotal;
         }
 
@@ -617,6 +641,33 @@ namespace Controller
                 }
             }
             currentcapacity = total;
+        }
+
+        private void RequestLingChuGeInfoRefresh()
+        {
+            if (_pendingLingChuGeInfoRefresh)
+            {
+                return;
+            }
+
+            _pendingLingChuGeInfoRefresh = true;
+            if (_lingChuGeInfoRefreshCoroutine == null)
+            {
+                _lingChuGeInfoRefreshCoroutine = StartCoroutine(DispatchLingChuGeInfoRefresh());
+            }
+        }
+
+        private IEnumerator DispatchLingChuGeInfoRefresh()
+        {
+            yield return null;
+            _lingChuGeInfoRefreshCoroutine = null;
+            if (!_pendingLingChuGeInfoRefresh)
+            {
+                yield break;
+            }
+
+            _pendingLingChuGeInfoRefresh = false;
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateLingChuGeInfo);
         }
 
     }

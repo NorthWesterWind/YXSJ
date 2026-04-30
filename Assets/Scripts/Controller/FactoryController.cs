@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Controller.Pickups;
+using Module;
 using Module.Data;
 using PolyNav;
 using UnityEngine;
@@ -16,15 +17,23 @@ namespace Controller
     /// </summary>
     public class FactoryController : MonoBehaviour
     {
+        private static readonly HashSet<int> ActiveFactoryIds = new();
+        private static int NextRuntimeFactorId = 1000;
+        private const string TrialModeStopEvent = "TrialModeStop";
         public bool isSpecial;
         public bool isGoldenOnly;
         private AssetHandle _assetHandle;
         public List<GameObject> monsterList = new();
+        [Header("随机生成池")]
+        public bool useSpawnPool;
+        public List<MonsterType> spawnMonsterPool = new();
+        [Header("试炼进度")]
+        public bool trialProgressMode;
         public MonsterType normalType; // 普通怪
         public MonsterType goldenType; // 金色怪
         public MonsterType giantType;  // 巨型怪（可选）
         public int maxMonsterCount = 50;
-        private float spawnInterval = 3f;
+        public float spawnInterval = 3f;
 
         public float scatterRadius = 6f;
         public AnimationCurve scatterCurve;
@@ -43,6 +52,11 @@ namespace Controller
 
         public YuanBaoKuangDongCtr dongCtr;
         private PolyNavMap _cachedMap;
+        private readonly List<MonsterType> registeredFactoryTypes = new();
+        private bool isTrialShutDown;
+        private bool hasLoggedMonsterCap;
+        private bool hasRegisteredFactorId;
+        private bool hasLoggedYuanBaoProduceBlocked;
 
         public Vector3 GetRandomSpawnPos()
         {
@@ -73,7 +87,14 @@ namespace Controller
         private void Awake()
         {
             _assetHandle = GetComponent<AssetHandle>();
+            EnsureUniqueFactorId();
         }
+
+        private void Start()
+        {
+            RefreshFactoryRegistration();
+        }
+
 
         private bool TryGetValidSpawnPos(out Vector2 spawnPos)
         {
@@ -194,25 +215,157 @@ namespace Controller
 
         private void OnEnable()
         {
+            EnsureUniqueFactorId();
             AddEvent();
+            RefreshFactoryRegistration();
         }
 
         private void OnDisable()
         {
+            ReleaseFactorId();
+            UnregisterFactoryRegistration();
             EventCenter.Instance.RemoveListener(EventMessages.MonsterDead, HandleMonsterDead);
             EventCenter.Instance.RemoveListener(EventMessages.MonsterBeginCreate, HandleMonsterCreate);
+            EventCenter.Instance.RemoveListener(TrialModeStopEvent, HandleTrialModeStop);
         }
 
         private void AddEvent()
         {
             EventCenter.Instance.AddListener(EventMessages.MonsterDead, HandleMonsterDead);
             EventCenter.Instance.AddListener(EventMessages.MonsterBeginCreate, HandleMonsterCreate);
+            EventCenter.Instance.AddListener(TrialModeStopEvent, HandleTrialModeStop);
         }
 
         private void OnDestroy()
         {
+            ReleaseFactorId();
+            UnregisterFactoryRegistration();
             EventCenter.Instance.RemoveListener(EventMessages.MonsterDead, HandleMonsterDead);
             EventCenter.Instance.RemoveListener(EventMessages.MonsterBeginCreate, HandleMonsterCreate);
+            EventCenter.Instance.RemoveListener(TrialModeStopEvent, HandleTrialModeStop);
+        }
+
+        private void EnsureUniqueFactorId()
+        {
+            if (hasRegisteredFactorId && factorID > 0 && ActiveFactoryIds.Contains(factorID))
+            {
+                return;
+            }
+
+            if (factorID > 0 && !ActiveFactoryIds.Contains(factorID))
+            {
+                ActiveFactoryIds.Add(factorID);
+                hasRegisteredFactorId = true;
+                NextRuntimeFactorId = Mathf.Max(NextRuntimeFactorId, factorID + 1);
+                return;
+            }
+
+            while (ActiveFactoryIds.Contains(NextRuntimeFactorId))
+            {
+                NextRuntimeFactorId++;
+            }
+
+            factorID = NextRuntimeFactorId++;
+            ActiveFactoryIds.Add(factorID);
+            hasRegisteredFactorId = true;
+        }
+
+        private void ReleaseFactorId()
+        {
+            if (!hasRegisteredFactorId)
+            {
+                return;
+            }
+
+            if (factorID > 0)
+            {
+                ActiveFactoryIds.Remove(factorID);
+            }
+            hasRegisteredFactorId = false;
+        }
+
+        private void RefreshFactoryRegistration()
+        {
+            UnregisterFactoryRegistration();
+
+            if (GameController.Instance == null || GameController.Instance.factoryControllers == null)
+            {
+                return;
+            }
+
+            List<MonsterType> lookupTypes = GetFactoryLookupTypes();
+            for (int i = 0; i < lookupTypes.Count; i++)
+            {
+                MonsterType monsterType = lookupTypes[i];
+                GameController.Instance.factoryControllers[monsterType] = this;
+                registeredFactoryTypes.Add(monsterType);
+            }
+        }
+
+        private void UnregisterFactoryRegistration()
+        {
+            if (registeredFactoryTypes.Count == 0)
+            {
+                return;
+            }
+
+            if (GameController.Instance != null && GameController.Instance.factoryControllers != null)
+            {
+                for (int i = 0; i < registeredFactoryTypes.Count; i++)
+                {
+                    MonsterType monsterType = registeredFactoryTypes[i];
+                    if (GameController.Instance.factoryControllers.TryGetValue(monsterType, out var controller) &&
+                        controller == this)
+                    {
+                        GameController.Instance.factoryControllers.Remove(monsterType);
+                    }
+                }
+            }
+
+            registeredFactoryTypes.Clear();
+        }
+
+        private List<MonsterType> GetFactoryLookupTypes()
+        {
+            List<MonsterType> result = new();
+            if (isSpecial)
+            {
+                AddLookupMonsterType(result, giantType);
+                return result;
+            }
+
+            if (isGoldenOnly)
+            {
+                AddLookupMonsterType(result, MonsterType.JingYuanBao);
+                return result;
+            }
+
+            if (useSpawnPool && spawnMonsterPool != null && spawnMonsterPool.Count > 0)
+            {
+                for (int i = 0; i < spawnMonsterPool.Count; i++)
+                {
+                    AddLookupMonsterType(result, spawnMonsterPool[i]);
+                }
+                if (result.Count > 0)
+                {
+                    return result;
+                }
+            }
+
+            AddLookupMonsterType(result, normalType);
+            AddLookupMonsterType(result, goldenType);
+            AddLookupMonsterType(result, giantType);
+            return result;
+        }
+
+        private static void AddLookupMonsterType(List<MonsterType> result, MonsterType monsterType)
+        {
+            if (monsterType == MonsterType.None || result.Contains(monsterType))
+            {
+                return;
+            }
+
+            result.Add(monsterType);
         }
 
 
@@ -221,6 +374,17 @@ namespace Controller
             while (true)
             {
                 yield return new WaitForSeconds(spawnInterval);
+                CleanupMonsterList();
+                if (monsterList.Count >= maxMonsterCount)
+                {
+                    if (!hasLoggedMonsterCap)
+                    {
+                        hasLoggedMonsterCap = true;
+                        Debug.Log($"[FactoryController] {name} monster count reached cap: {monsterList.Count}/{maxMonsterCount}");
+                    }
+                    continue;
+                }
+                hasLoggedMonsterCap = false;
 
                 // 检查数量
                 if (monsterList.Count < maxMonsterCount)
@@ -245,60 +409,181 @@ namespace Controller
 
         private void SpawnMonster()
         {
-            MonsterType toSpawnType = DecideSpawnType();
-            GameObject monster = GameObject.Instantiate(_assetHandle.Get<GameObject>(Extensions.GetMonsterResNameByType(toSpawnType)));
-            MonsterData data = DataController.Instance.monsterDataDic[toSpawnType];
-            monster.transform.position = GetRandomSpawnPos();
-            MonsterBehavior behavior = MonsterBehavior.Normal;
-            if (toSpawnType == giantType)
-            {
-                behavior = MonsterBehavior.Giant;
-            }
-            else if (toSpawnType == goldenType)
-            {
-                behavior = MonsterBehavior.Golden;
-            }
-
-            monster.GetComponent<MonsterController>().Init(
-                data,
-                transform.position,
-                behavior, factorID, patrolAreaSize);
-
-            monsterList.Add(monster);
+            TrySpawnMonster(DecideSpawnType());
         }
 
 
         private void SpawnMonster(YuanBaoKuangDongCtr limitCtr)
         {
             if (limitCtr != null && !limitCtr.CanProduce())
+            {
+                if (!hasLoggedYuanBaoProduceBlocked)
+                {
+                    int remainCount = PlayerDataModule.Instance?.data?.remainCount ?? -1;
+                    string lastRefreshTime = PlayerDataModule.Instance?.data?.lastRefrashTime ?? string.Empty;
+                    Debug.Log($"[FactoryController] {name} skipped JingYuanBao spawn because remainCount={remainCount}, lastRefreshTime={lastRefreshTime}");
+                    hasLoggedYuanBaoProduceBlocked = true;
+                }
                 return;
+            }
 
-            InternalSpawnMonster();
+            hasLoggedYuanBaoProduceBlocked = false;
 
-            limitCtr?.ConsumeOne();
+            if (TrySpawnMonster(DecideSpawnType()))
+            {
+                limitCtr?.ConsumeOne();
+            }
         }
 
         private void InternalSpawnMonster()
         {
-            MonsterType toSpawnType = DecideSpawnType();
+            TrySpawnMonster(DecideSpawnType());
+        }
 
-            GameObject monster = GameObject.Instantiate(_assetHandle.Get<GameObject>(Extensions.GetMonsterResNameByType(toSpawnType)));
+        public bool SpawnRuntimeMonster(MonsterType monsterType, Vector3 position)
+        {
+            return TrySpawnMonster(monsterType, position);
+        }
 
-            MonsterData data = DataController.Instance.monsterDataDic[toSpawnType];
-            monster.transform.position = GetRandomSpawnPos();
+        public bool SpawnRuntimeMonster(MonsterType monsterType)
+        {
+            return TrySpawnMonster(monsterType);
+        }
 
-            MonsterBehavior behavior = MonsterBehavior.Normal;
-            if (toSpawnType == giantType)
-                behavior = MonsterBehavior.Giant;
-            else if (toSpawnType == goldenType)
-                behavior = MonsterBehavior.Golden;
+        public List<Vector3> GetLiveMonsterPositions(MonsterType monsterType)
+        {
+            CleanupMonsterList();
+            List<Vector3> positions = new();
+            if (monsterList == null || monsterList.Count == 0)
+            {
+                return positions;
+            }
 
-            monster.GetComponent<MonsterController>().Init(
+            for (int i = 0; i < monsterList.Count; i++)
+            {
+                var monster = monsterList[i];
+                if (monster == null) continue;
+                if (!monster.activeInHierarchy) continue;
+                if (!monster.TryGetComponent(out MonsterController monsterController)) continue;
+                if (monsterController.monsterType != monsterType) continue;
+                positions.Add(monster.transform.position);
+            }
+
+            return positions;
+        }
+
+        public void ClearLiveMonsters(MonsterType monsterType, bool createDrops = false)
+        {
+            CleanupMonsterList();
+            if (monsterList == null || monsterList.Count == 0)
+            {
+                return;
+            }
+
+            List<GameObject> targets = new();
+            for (int i = 0; i < monsterList.Count; i++)
+            {
+                var monster = monsterList[i];
+                if (monster == null) continue;
+                if (!monster.TryGetComponent(out MonsterController monsterController)) continue;
+                if (monsterController.monsterType != monsterType) continue;
+                targets.Add(monster);
+            }
+
+            for (int i = 0; i < targets.Count; i++)
+            {
+                RemoveMonster(targets[i], createDrops);
+            }
+        }
+
+        private bool TrySpawnMonster(MonsterType toSpawnType)
+        {
+            return TrySpawnMonster(toSpawnType, null);
+        }
+
+        private bool TrySpawnMonster(MonsterType toSpawnType, Vector3? spawnPosition)
+        {
+            if (toSpawnType == MonsterType.None)
+            {
+                return false;
+            }
+
+            if (_assetHandle == null || DataController.Instance == null || DataController.Instance.monsterDataDic == null)
+            {
+                return false;
+            }
+
+            if (!DataController.Instance.monsterDataDic.TryGetValue(toSpawnType, out MonsterData data) || data == null)
+            {
+                Debug.LogWarning($"[FactoryController] 缺少怪物数据: {toSpawnType}");
+                return false;
+            }
+
+            string resName = Extensions.GetMonsterResNameByType(toSpawnType);
+            if (string.IsNullOrEmpty(resName))
+            {
+                Debug.LogWarning($"[FactoryController] 缺少怪物资源名: {toSpawnType}");
+                return false;
+            }
+
+            GameObject prefab = _assetHandle.Get<GameObject>(resName);
+            if (prefab == null)
+            {
+                Debug.LogWarning($"[FactoryController] 缺少怪物预制体: {resName}");
+                return false;
+            }
+
+            GameObject monster = GameObject.Instantiate(prefab);
+            if (monster == null)
+            {
+                return false;
+            }
+
+            monster.transform.position = spawnPosition ?? GetRandomSpawnPos();
+
+            if (!monster.TryGetComponent(out MonsterController monsterController))
+            {
+                Debug.LogWarning($"[FactoryController] 怪物预制体缺少 MonsterController: {resName}");
+                Destroy(monster);
+                return false;
+            }
+
+            monsterController.Init(
                 data,
                 transform.position,
-                behavior, factorID, patrolAreaSize);
+                ResolveSpawnBehavior(toSpawnType),
+                factorID,
+                patrolAreaSize);
 
             monsterList.Add(monster);
+            return true;
+        }
+
+        private static MonsterBehavior ResolveSpawnBehavior(MonsterType monsterType)
+        {
+            if (monsterType == MonsterType.JingYuanBao)
+            {
+                return MonsterBehavior.Normal;
+            }
+
+            int value = (int)monsterType;
+            if (value <= 0)
+            {
+                return MonsterBehavior.Normal;
+            }
+
+            int variant = (value - 1) % 3;
+            if (variant == 1)
+            {
+                return MonsterBehavior.Golden;
+            }
+
+            if (variant == 2)
+            {
+                return MonsterBehavior.Giant;
+            }
+
+            return MonsterBehavior.Normal;
         }
 
 
@@ -315,6 +600,15 @@ namespace Controller
             if (isGoldenOnly)
             {
                 return MonsterType.JingYuanBao;
+            }
+
+            if (useSpawnPool && spawnMonsterPool != null && spawnMonsterPool.Count > 0)
+            {
+                MonsterType poolType = GetRandomSpawnTypeFromPool();
+                if (poolType != MonsterType.None)
+                {
+                    return poolType;
+                }
             }
 
             giantCounter++;
@@ -334,24 +628,72 @@ namespace Controller
             return normalType;
         }
 
+        private MonsterType GetRandomSpawnTypeFromPool()
+        {
+            int validCount = 0;
+            for (int i = 0; i < spawnMonsterPool.Count; i++)
+            {
+                if (spawnMonsterPool[i] != MonsterType.None)
+                {
+                    validCount++;
+                }
+            }
+
+            if (validCount == 0)
+            {
+                return MonsterType.None;
+            }
+
+            int targetIndex = Random.Range(0, validCount);
+            for (int i = 0; i < spawnMonsterPool.Count; i++)
+            {
+                MonsterType monsterType = spawnMonsterPool[i];
+                if (monsterType == MonsterType.None)
+                {
+                    continue;
+                }
+
+                if (targetIndex == 0)
+                {
+                    return monsterType;
+                }
+
+                targetIndex--;
+            }
+
+            return MonsterType.None;
+        }
+
 
 
         // 当怪物死亡时记得从列表移除
-        private void RemoveMonster(GameObject monster)
+        private void RemoveMonster(GameObject monster, bool createDrops = true)
         {
             // 如果怪物不在列表中，说明已经处理过了，直接返回
-            if (!monsterList.Contains(monster))
+            if (monster == null || !monsterList.Contains(monster))
             {
                 return;
             }
 
             monsterList.Remove(monster);
 
-            GetDropType(monster.GetComponent<MonsterController>().monsterType);
+            if (!monster.TryGetComponent(out MonsterController monsterController))
+            {
+                Destroy(monster);
+                return;
+            }
+
+            if (createDrops)
+            {
+                GetDropType(monsterController.monsterType);
+            }
             Vector3 bornPos = new Vector3(monster.transform.position.x, monster.transform.position.y,
                 monster.transform.position.z);
             Destroy(monster);
-            StartCoroutine(ScatterDrops(bornPos));
+            if (createDrops)
+            {
+                StartCoroutine(ScatterDrops(bornPos));
+            }
         }
 
 
@@ -429,17 +771,26 @@ namespace Controller
 
         private void HandleMonsterDead(params object[] args)
         {
+            if (args == null || args.Length < 3)
+            {
+                return;
+            }
             var type = (MonsterType)args[0];
             var target = (GameObject)args[1];
             var id = (int)args[2];
             if (id != factorID)
                 return;
-            if (type != normalType && type != giantType && type != goldenType)
+            if (!IsSpawnedMonsterType(type))
             {
                 return;
             }
+            if (trialProgressMode)
+            {
+                RemoveMonster(target, false);
+                EventCenter.Instance.TriggerEvent("TrialMonsterDead", factorID, type, 1f);
+                return;
+            }
 
-            Debug.Log("yj ==> 处理怪物死亡逻辑");
             RemoveMonster(target);
         }
 
@@ -447,8 +798,105 @@ namespace Controller
 
         private void HandleMonsterCreate(params object[] args)
         {
+            if (trialProgressMode && isTrialShutDown)
+            {
+                return;
+            }
+
+            RefreshFactoryRegistration();
             if (spawnCoroutine != null) return;
             spawnCoroutine = StartCoroutine(SpawnLoop());
+        }
+
+        private void HandleTrialModeStop(params object[] args)
+        {
+            if (!trialProgressMode)
+            {
+                return;
+            }
+
+            StopSpawnAndClearMonsters();
+        }
+
+        public void StopSpawnAndClearMonsters()
+        {
+            if (trialProgressMode)
+            {
+                isTrialShutDown = true;
+            }
+
+            if (spawnCoroutine != null)
+            {
+                StopCoroutine(spawnCoroutine);
+                spawnCoroutine = null;
+            }
+
+            CleanupMonsterList();
+            for (int i = 0; i < monsterList.Count; i++)
+            {
+                GameObject monster = monsterList[i];
+                if (monster != null)
+                {
+                    Destroy(monster);
+                }
+            }
+
+            monsterList.Clear();
+            giantCounter = 0;
+            goldenCounter = 0;
+            hasLoggedMonsterCap = false;
+            dropDict.Clear();
+        }
+
+        private bool IsSpawnedMonsterType(MonsterType monsterType)
+        {
+            if (isSpecial)
+            {
+                return monsterType == giantType;
+            }
+
+            if (isGoldenOnly)
+            {
+                return monsterType == MonsterType.JingYuanBao;
+            }
+
+            if (useSpawnPool && spawnMonsterPool != null && spawnMonsterPool.Count > 0)
+            {
+                bool hasValidPoolType = false;
+                for (int i = 0; i < spawnMonsterPool.Count; i++)
+                {
+                    MonsterType poolType = spawnMonsterPool[i];
+                    if (poolType == MonsterType.None)
+                    {
+                        continue;
+                    }
+
+                    hasValidPoolType = true;
+                    if (poolType == monsterType)
+                    {
+                        return true;
+                    }
+                }
+
+                if (!hasValidPoolType)
+                {
+                    return monsterType == normalType || monsterType == giantType || monsterType == goldenType;
+                }
+
+                return false;
+            }
+
+            return monsterType == normalType || monsterType == giantType || monsterType == goldenType;
+        }
+
+        private void CleanupMonsterList()
+        {
+            if (monsterList == null || monsterList.Count == 0)
+            {
+                return;
+            }
+
+            monsterList.RemoveAll(monster => monster == null);
         }
 
         Dictionary<DropItemType, int> dropDict = new();
@@ -542,7 +990,7 @@ namespace Controller
                     dropDict[DropItemType.MuLingYaFragment] = 1;
                     break;
                 case MonsterType.MuLingYaGolden:
-                    dropDict[DropItemType.MuLingYaFragment] =5;
+                    dropDict[DropItemType.MuLingYaFragment] = 5;
                     dropDict[DropItemType.YingQian] = 5;
                     break;
                 case MonsterType.MuLingYaBig:

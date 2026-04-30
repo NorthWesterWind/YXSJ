@@ -436,7 +436,6 @@ MonoBehaviour:
   currentHp: 0
   currentMoveSpeed: 0
   currentPinkUpRange: 0
-  currenthpRecover: 0
   maxCarryNum: 0
   maxHp: 0
   isMoving: 0
@@ -449,22 +448,12 @@ MonoBehaviour:
   monsterLayer:
     serializedVersion: 2
     m_Bits: 64
-  productLayer:
-    serializedVersion: 2
-    m_Bits: 128
-  productStationLayer:
-    serializedVersion: 2
-    m_Bits: 256
   overlappingTrigger: []
   receiveTransform: {fileID: 6450889363661755686}
   playerInfo: {fileID: 326017815252776789}
   isDead: 0
   weaponRoot: {fileID: 5941671048440279785}
   speed: 540
-  radiusX: 1.1
-  radiusZ: 0.55
-  minScale: 0.85
-  maxScale: 1.15
   InRange: 0
   finger: {fileID: 7599181390703765998}
   fingerRoot: {fileID: 328014338142024748}
@@ -914,6 +903,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isPlayer: 1
+  playMonsterHitSfx: 1
   hitInterval: 0.25
   warehouseCategoryType: 0
   atkValue: 0
@@ -1465,7 +1455,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skeletonDataAsset: {fileID: 11400000, guid: 0219fd892b0c1ae4aa65b02ffd0f4637, type: 2}
-  initialSkinName: 
+  initialSkinName: 1
   fixPrefabOverrideViaMeshFilter: 2
   initialFlipX: 0
   initialFlipY: 0

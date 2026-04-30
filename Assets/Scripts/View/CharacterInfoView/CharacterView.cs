@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Controller;
@@ -31,10 +32,11 @@ namespace View.CharacterInfoView
         public TextMeshProUGUI Jmztxt;
         public List<Transform> children = new List<Transform>();
 
-        public List<ItemInfo> items = new List<ItemInfo>();
+        public Transform itemTransform;
 
         public UIButton weaponDetailBtn;
         public UIButton bagDetailBtn;
+        public UIButton clothBtn;
         public TextMeshProUGUI atktxt;
         public TextMeshProUGUI bagtxt;
         public TextMeshProUGUI hptxt;
@@ -46,11 +48,13 @@ namespace View.CharacterInfoView
         public SkeletonGraphic skeletonGraphic;
         public Image dressMask1;
         public Image dressMask2;
+        public Image clothMask;
+
+        private Coroutine _scrollTalentCoroutine;
 
         protected override void Start()
         {
             base.Start();
-
         }
 
         protected override void AddEventListener()
@@ -71,17 +75,25 @@ namespace View.CharacterInfoView
             weaponDetailBtn.onClick.AddListener(ShowWeapon);
             bagDetailBtn.onClick.RemoveAllListeners();
             bagDetailBtn.onClick.AddListener(ShowBag);
+            clothBtn.onClick.RemoveAllListeners();
+            clothBtn.onClick.AddListener(ShowCloth);
             detailBtn.onClick.RemoveAllListeners();
             detailBtn.onClick.AddListener(OnClickDetailBtn);
-
             EventCenter.Instance.AddListener(EventMessages.UpdatePlayerEquimentInfo, UpdateSoltState);
+            EventCenter.Instance.AddListener(EventMessages.UpdatePlayerClothingInfo, UpdateClothInfo);
+        }
+
+        public void UpdateClothInfo(params object[] args)
+        {
+            skeletonGraphic.initialSkinName = PlayerDataModule.Instance.data.currentClothing.ToString();
+            skeletonGraphic.Initialize(true);
         }
         public override void RemoveEventListener()
         {
             base.RemoveEventListener();
             EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerEquimentInfo, UpdateSoltState);
+            EventCenter.Instance.RemoveListener(EventMessages.UpdatePlayerClothingInfo, UpdateClothInfo);
         }
-
 
         public override void UpdateViewWithArgs(params object[] args)
         {
@@ -100,7 +112,7 @@ namespace View.CharacterInfoView
             PlayerData data = PlayerDataModule.Instance.data;
             if (data.talentPoint < 4)
             {
-                UIController.Instance.Show<TipView>("翠芒珠数量不足！");
+                UIController.Instance.Show<TipView>("翠芒珠材料不足！");
             }
             else
             {
@@ -116,15 +128,15 @@ namespace View.CharacterInfoView
                     case TalentType.Atkhp:
                         PlayerDataModule.Instance.data.addhpRecover += talentData.value;
                         break;
-                    case TalentType.Hp:
-                        PlayerDataModule.Instance.data.addHp += talentData.value;
-                        break;
-                    case TalentType.BackpackCapacity:
-                        PlayerDataModule.Instance.data.addBagCapacity += talentData.value;
-                        break;
-                    case TalentType.Movespeed:
-                        PlayerDataModule.Instance.data.addMoveSpeed += talentData.value;
-                        break;
+                case TalentType.Hp:
+                    PlayerDataModule.Instance.data.addHp += talentData.value;
+                    break;
+                case TalentType.BackpackCapacity:
+                    PlayerDataModule.Instance.RefreshTalentDerivedStats();
+                    break;
+                case TalentType.Movespeed:
+                    PlayerDataModule.Instance.data.addMoveSpeed += talentData.value;
+                    break;
                     case TalentType.Pickuprange:
                         PlayerDataModule.Instance.data.addPickUpRange += talentData.value;
                         break;
@@ -144,13 +156,11 @@ namespace View.CharacterInfoView
             dressRect.SetActive(false);
             talentMask.SetActive(false);
             dressMask.SetActive(true);
-
             if (datas.Count == 0)
             {
                 datas = new List<TalentData>(DataController.Instance.talentDataDic.Values);
                 datas.Sort((a, b) => a.id.CompareTo(b.id));
             }
-
             if (children.Count == 0)
             {
                 for (int i = 0; i < talentContent.childCount; i++)
@@ -160,8 +170,6 @@ namespace View.CharacterInfoView
             }
             int count = Mathf.Min(datas.Count, children.Count); // 避免越界
             int j = 0;
-            Debug.Log($"yj => {count}");
-            Debug.Log($"yj => datas.Count ={datas.Count}");
             for (int i = children.Count - 1; i >= children.Count - count; i--)
             {
                 children[i].GetComponent<TalentItemView>().Init(datas[j]);
@@ -169,6 +177,7 @@ namespace View.CharacterInfoView
             }
 
             UpdateTalentState();
+            ScrollToCurrentTalentItem();
         }
         public void UpdateTalentState(params object[] args)
         {
@@ -195,9 +204,9 @@ namespace View.CharacterInfoView
                     talentInfotxt2.text = $"<color=#00FF00>{(data.addAtk + data.atk + talentData.value)}</color>";
                     break;
                 case TalentType.Atkhp:
-                    talentInfotxt.text = "健康值回复";
-                    talentInfotxt1.text = (data.addhpRecover * 100f).ToString("0") + "%";
-                    talentInfotxt2.text = $"<color=#00FF00>{((data.addhpRecover + talentData.value) * 100f).ToString("0") + "%"} </color>";
+                    talentInfotxt.text = "击败灵植或矿石健康值回复";
+                    talentInfotxt1.text = (data.addhpRecover).ToString();
+                    talentInfotxt2.text = $"<color=#00FF00>{(data.addhpRecover + talentData.value)} </color>";
                     break;
                 case TalentType.Hp:
                     talentInfotxt.text = "健康值";
@@ -206,8 +215,8 @@ namespace View.CharacterInfoView
                     break;
                 case TalentType.BackpackCapacity:
                     talentInfotxt.text = "储物袋容量";
-                    talentInfotxt1.text = (data.addBagCapacity + data.bagCapacity) + "";
-                    talentInfotxt2.text = $"<color=#00FF00>{(data.addBagCapacity + data.bagCapacity + talentData.value)}</color>";
+                    talentInfotxt1.text = PlayerDataModule.Instance.GetTotalBagCapacity() + "";
+                    talentInfotxt2.text = $"<color=#00FF00>{(PlayerDataModule.Instance.GetTotalBagCapacity() + talentData.value)}</color>";
                     break;
                 case TalentType.Movespeed:
                     talentInfotxt.text = "移动速度";
@@ -236,9 +245,10 @@ namespace View.CharacterInfoView
             ShowWeapon();
             PlayerData data = PlayerDataModule.Instance.data;
             atktxt.text = data.addAtk + data.atk + "";
-            bagtxt.text = data.addBagCapacity + data.bagCapacity + "";
+            bagtxt.text = PlayerDataModule.Instance.GetTotalBagCapacity() + "";
             hptxt.text = data.addHp + data.hp + "";
             UpdateSoltState();
+            UpdateClothInfo();
         }
 
         public void ShowWeapon()
@@ -247,15 +257,15 @@ namespace View.CharacterInfoView
                 .Values
                 .OrderBy(x => x.id)   // 按你的武器编号排序
                 .ToList();
-
-            int count = Mathf.Min(items.Count, list.Count);
-
-            for (int i = 0; i < count; i++)
+            Extensions.ClearChildrenImmediate(itemTransform);
+            for (int i = 0; i < list.Count; i++)
             {
-                items[i].Init(list[i]);
+                GameObject obj = GameObject.Instantiate<GameObject>(_assetHandle.Get<GameObject>("itemInfo"), itemTransform);
+                obj.GetComponent<ItemInfo>().Init(list[i]);
             }
             dressMask1.gameObject.SetActive(false);
             dressMask2.gameObject.SetActive(true);
+            clothMask.gameObject.SetActive(true);
         }
 
         public void ShowBag()
@@ -264,15 +274,32 @@ namespace View.CharacterInfoView
                 .Values
                 .OrderBy(x => x.id)   // 按你的武器编号排序
                 .ToList();
-
-            int count = Mathf.Min(items.Count, list.Count);
-
-            for (int i = 0; i < count; i++)
+            Extensions.ClearChildrenImmediate(itemTransform);
+            for (int i = 0; i < list.Count; i++)
             {
-                items[i].Init(list[i]);
+                GameObject obj = GameObject.Instantiate<GameObject>(_assetHandle.Get<GameObject>("itemInfo"), itemTransform);
+                obj.GetComponent<ItemInfo>().Init(list[i]);
             }
             dressMask1.gameObject.SetActive(true);
             dressMask2.gameObject.SetActive(false);
+            clothMask.gameObject.SetActive(true);
+        }
+
+        public void ShowCloth()
+        {
+            var list = DataController.Instance.clothDataDic
+               .Values
+               .OrderBy(x => x.id)
+               .ToList();
+            Extensions.ClearChildrenImmediate(itemTransform);
+            for (int i = 0; i < list.Count; i++)
+            {
+                GameObject obj = GameObject.Instantiate<GameObject>(_assetHandle.Get<GameObject>("itemInfo"), itemTransform);
+                obj.GetComponent<ItemInfo>().Init(list[i]);
+            }
+            dressMask1.gameObject.SetActive(true);
+            dressMask2.gameObject.SetActive(true);
+            clothMask.gameObject.SetActive(false);
         }
 
         public void UpdateSoltState(params object[] args)
@@ -285,15 +312,97 @@ namespace View.CharacterInfoView
 
             weaponIcon.sprite = _assetHandle.Get<Sprite>(weaponData.name);
             bagIcon.sprite = _assetHandle.Get<Sprite>(bagData.name);
-             PlayerData data = PlayerDataModule.Instance.data;
+            PlayerData data = PlayerDataModule.Instance.data;
             atktxt.text = data.addAtk + data.atk + "";
-            bagtxt.text = data.addBagCapacity + data.bagCapacity + "";
+            bagtxt.text = PlayerDataModule.Instance.GetTotalBagCapacity() + "";
             hptxt.text = data.addHp + data.hp + "";
         }
 
         public void OnClickDetailBtn()
         {
             UIController.Instance.Show<CharacterDetailView>();
+        }
+
+        private void ScrollToCurrentTalentItem()
+        {
+            if (talentContent == null || children.Count == 0)
+            {
+                return;
+            }
+
+            if (_scrollTalentCoroutine != null)
+            {
+                StopCoroutine(_scrollTalentCoroutine);
+            }
+
+            _scrollTalentCoroutine = StartCoroutine(ScrollToCurrentTalentItemRoutine());
+        }
+
+        private IEnumerator ScrollToCurrentTalentItemRoutine()
+        {
+            yield return null;
+
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(talentContent);
+
+            ScrollRect scrollRect = talentContent.GetComponentInParent<ScrollRect>();
+            if (scrollRect == null)
+            {
+                _scrollTalentCoroutine = null;
+                yield break;
+            }
+
+            RectTransform viewport = scrollRect.viewport != null ? scrollRect.viewport : scrollRect.GetComponent<RectTransform>();
+            RectTransform target = GetCurrentTalentItem();
+            if (viewport == null || target == null)
+            {
+                _scrollTalentCoroutine = null;
+                yield break;
+            }
+
+            CenterTalentItemInViewport(scrollRect, viewport);
+            _scrollTalentCoroutine = null;
+        }
+
+        private RectTransform GetCurrentTalentItem()
+        {
+            int currentLevel = Mathf.Clamp(PlayerDataModule.Instance.data.talentLevel, 1, datas.Count);
+
+            for (int i = 0; i < children.Count; i++)
+            {
+                TalentItemView talentItemView = children[i].GetComponent<TalentItemView>();
+                if (talentItemView != null && talentItemView.data != null && talentItemView.data.id == currentLevel)
+                {
+                    return children[i] as RectTransform;
+                }
+            }
+
+            return null;
+        }
+
+        private void CenterTalentItemInViewport(ScrollRect scrollRect, RectTransform viewport)
+        {
+            if (viewport == null)
+            {
+                return;
+            }
+
+            RectTransform target = GetCurrentTalentItem();
+            if (target == null)
+            {
+                return;
+            }
+
+            Vector2 targetLocal = viewport.InverseTransformPoint(target.position);
+            Vector2 centerLocal = viewport.rect.center;
+            Vector2 delta = centerLocal - targetLocal;
+            Vector2 anchoredPosition = talentContent.anchoredPosition + new Vector2(0f, delta.y);
+
+            float maxPosY = 0f;
+            float minPosY = Mathf.Min(0f, viewport.rect.height - talentContent.rect.height);
+            anchoredPosition.y = Mathf.Clamp(anchoredPosition.y, minPosY, maxPosY);
+            talentContent.anchoredPosition = anchoredPosition;
+            scrollRect.StopMovement();
         }
     }
 }

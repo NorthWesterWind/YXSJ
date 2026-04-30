@@ -24,15 +24,17 @@ namespace View.PopUp
         public TextMeshProUGUI locktxt;
         public TextMeshProUGUI btntxt;
         public UIButton btn;
+        public UIButton purchaseBtn;
+        public TextMeshProUGUI freeTxt;
         public Image icon;
         public GameObject fillContent;
         public Image fill;
         public TextMeshProUGUI filltxt;
-        public bool isWeapon = false;
 
         private BtnState state = BtnState.None;
         private WeaponData weaponData;
         public StotageBagData stotageBagData;
+        public ClothData clothData;
 
         public override void UpdateViewWithArgs(params object[] args)
         {
@@ -41,9 +43,24 @@ namespace View.PopUp
                 return;
             }
 
-            weaponData = args[0] as WeaponData;
-            stotageBagData = args[0] as StotageBagData;
-            isWeapon = weaponData != null;
+            if (args[0] is WeaponData)
+            {
+                weaponData = args[0] as WeaponData;
+                stotageBagData = null;
+                clothData = null;
+            }
+            else if (args[0] is StotageBagData)
+            {
+                stotageBagData = args[0] as StotageBagData;
+                weaponData = null;
+                clothData = null;
+            }
+            else if (args[0] is ClothData)
+            {
+                clothData = args[0] as ClothData;
+                weaponData = null;
+                stotageBagData = null;
+            }
 
             RefreshViewState();
         }
@@ -51,17 +68,20 @@ namespace View.PopUp
         private void RefreshViewState()
         {
             PlayerData playerData = PlayerDataModule.Instance.data;
-            if (isWeapon && weaponData != null)
+
+            if (weaponData != null)
             {
                 tiptxt.text = weaponData.name;
-                locktxt.text = weaponData.unlockStr;
+                locktxt.text = weaponData.unlockStr+"。";
                 icon.sprite = _assetHandle.Get<Sprite>(weaponData.name);
+                purchaseBtn.gameObject.SetActive(false);
+                btn.gameObject.SetActive(true);
 
                 if (playerData.ownWeaponList.Contains(weaponData.id))
                 {
                     state = playerData.currentWeapon == weaponData.id ? BtnState.YiZhuangBei : BtnState.ZhuangBei;
                     btntxt.text = state == BtnState.YiZhuangBei ? "已装备" : "装备";
-                    locktxt.text = "攻击力：" + (playerData.atk + weaponData.atkValue);
+                    locktxt.text = "攻击力：" + (playerData.atk + weaponData.atkValue)+"。";
                     fillContent.SetActive(false);
                     return;
                 }
@@ -71,26 +91,50 @@ namespace View.PopUp
                 return;
             }
 
-            if (stotageBagData == null)
+            if (stotageBagData != null)
             {
+                tiptxt.text = stotageBagData.name;
+                locktxt.text = stotageBagData.unlockStr+"。";
+                icon.sprite = _assetHandle.Get<Sprite>(stotageBagData.name);
+                purchaseBtn.gameObject.SetActive(false);
+                btn.gameObject.SetActive(true);
+
+                if (playerData.ownBagList.Contains(stotageBagData.id))
+                {
+                    state = playerData.currentBag == stotageBagData.id ? BtnState.YiZhuangBei : BtnState.ZhuangBei;
+                    btntxt.text = state == BtnState.YiZhuangBei ? "已装备" : "装备";
+                    locktxt.text = "储物容量：" + (playerData.bagCapacity + stotageBagData.capacity)+"。";
+                    fillContent.SetActive(false);
+                    return;
+                }
+
+                fillContent.SetActive(true);
+                RefreshUnlockState(stotageBagData.lockType, stotageBagData.value);
                 return;
             }
 
-            tiptxt.text = stotageBagData.name;
-            locktxt.text = stotageBagData.unlockStr;
-            icon.sprite = _assetHandle.Get<Sprite>(stotageBagData.name);
-
-            if (playerData.ownBagList.Contains(stotageBagData.id))
+            if (clothData != null)
             {
-                state = playerData.currentBag == stotageBagData.id ? BtnState.YiZhuangBei : BtnState.ZhuangBei;
-                btntxt.text = state == BtnState.YiZhuangBei ? "已装备" : "装备";
-                locktxt.text = "储物容量：" + (playerData.bagCapacity + stotageBagData.capacity);
+                tiptxt.text = clothData.name;
+                locktxt.text = clothData.unlockStr+"。";
+                icon.sprite = _assetHandle.Get<Sprite>(clothData.name);
                 fillContent.SetActive(false);
-                return;
-            }
 
-            fillContent.SetActive(true);
-            RefreshUnlockState(stotageBagData.lockType, stotageBagData.value);
+                if (playerData.ownClothingList.Contains(clothData.id))
+                {
+                    state = playerData.currentClothing == clothData.id ? BtnState.YiZhuangBei : BtnState.ZhuangBei;
+                    btntxt.text = state == BtnState.YiZhuangBei ? "换下" : "穿戴";
+                    locktxt.text = "健康值增加：" + clothData.hpValue+"。";
+                    purchaseBtn.gameObject.SetActive(false);
+                    btn.gameObject.SetActive(true);
+                    return;
+                }
+
+                purchaseBtn.gameObject.SetActive(true);
+                freeTxt.text = clothData.value.ToString();
+                btn.gameObject.SetActive(false);
+                state = BtnState.DaiJieSuo;
+            }
         }
 
         private void RefreshUnlockState(UnlockType unlockType, int targetValue)
@@ -102,7 +146,7 @@ namespace View.PopUp
                     SetUnlockProgress(playerData.accountLevel, targetValue);
                     break;
                 case UnlockType.CardLevel:
-                    SetUnlockProgress(playerData.cardLevelMax, targetValue);
+                    SetUnlockProgress(GetCurrentCardLevel(playerData), targetValue);
                     break;
                 case UnlockType.talentLevel:
                     SetUnlockProgress(playerData.talentLevel, targetValue);
@@ -126,6 +170,31 @@ namespace View.PopUp
                     btntxt.text = "待解锁";
                     break;
             }
+        }
+
+        private int GetCurrentCardLevel(PlayerData playerData)
+        {
+            if (playerData == null || playerData.cardUpProgressesList == null || playerData.cardUpProgressesList.Count == 0)
+            {
+                return 0;
+            }
+
+            int currentCardLevel = 0;
+            for (int i = 0; i < playerData.cardUpProgressesList.Count; i++)
+            {
+                CardUpProgress progress = playerData.cardUpProgressesList[i];
+                if (progress == null)
+                {
+                    continue;
+                }
+
+                if (progress.level > currentCardLevel)
+                {
+                    currentCardLevel = progress.level;
+                }
+            }
+
+            return currentCardLevel;
         }
 
         private void SetUnlockProgress(int currentValue, int targetValue)
@@ -161,11 +230,26 @@ namespace View.PopUp
             {
                 if (state == BtnState.ZhuangBei)
                 {
+                    if (clothData != null)
+                    {
+                        EquipClothing();
+                        return;
+                    }
+
                     EquipCurrentItem();
                     RefreshViewState();
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
                     return;
+                }
+
+                if (state == BtnState.YiZhuangBei)
+                {
+                    if (clothData != null)
+                    {
+                        UnequipClothing();
+                        return;
+                    }
                 }
 
                 if (state == BtnState.JieSuo)
@@ -175,12 +259,31 @@ namespace View.PopUp
                     EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
                 }
             });
+
+            purchaseBtn.onClick.RemoveAllListeners();
+            purchaseBtn.onClick.AddListener(() =>
+            {
+                if (PlayerDataModule.Instance.data.lingJing >= clothData.value)
+                {
+                    UIController.Instance.Show<TipView>("购买成功！");
+                    PlayerDataModule.Instance.data.lingJing -= clothData.value;
+                    PlayerDataModule.Instance.data.ownClothingList.Add(clothData.id);
+                    RefreshViewState();
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
+                    PlayerDataModule.Instance.data.useLingJingTotalValue += clothData.value;
+                    EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
+                }
+                else
+                {
+                    UIController.Instance.Show<TipView>("灵晶不足！");
+                }
+            });
         }
 
         private void EquipCurrentItem()
         {
             PlayerData playerData = PlayerDataModule.Instance.data;
-            if (isWeapon && weaponData != null)
+            if (weaponData != null)
             {
                 if (DataController.Instance.weaponDataDic.TryGetValue(playerData.currentWeapon, out var currentWeaponData))
                 {
@@ -197,19 +300,52 @@ namespace View.PopUp
                 return;
             }
 
-            if (DataController.Instance.storageBagDataDic.TryGetValue(playerData.currentBag, out var currentBagData))
+            playerData.currentBag = stotageBagData.id;
+            playerData.equippedBagCapacity = PlayerDataModule.Instance.GetBagCapacityById(stotageBagData.id);
+        }
+
+        private void EquipClothing()
+        {
+            PlayerData playerData = PlayerDataModule.Instance.data;
+            AdjustClothingHp(playerData.currentClothing, -1);
+            playerData.currentClothing = clothData.id;
+            AdjustClothingHp(playerData.currentClothing, 1);
+
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerClothingInfo);
+            RefreshViewState();
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
+        }
+
+        private void UnequipClothing()
+        {
+            PlayerData playerData = PlayerDataModule.Instance.data;
+            AdjustClothingHp(playerData.currentClothing, -1);
+            playerData.currentClothing = 3;
+
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerClothingInfo);
+            RefreshViewState();
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerValueInfo);
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerEquimentInfo);
+        }
+
+        private void AdjustClothingHp(int clothingId, int direction)
+        {
+            if (clothData == null || clothingId == 3)
             {
-                playerData.addBagCapacity -= currentBagData.capacity;
+                return;
             }
 
-            playerData.currentBag = stotageBagData.id;
-            playerData.addBagCapacity += stotageBagData.capacity;
+            if (DataController.Instance.clothDataDic.TryGetValue(clothingId, out var currentClothData))
+            {
+                PlayerDataModule.Instance.data.addHp += currentClothData.hpValue * direction;
+            }
         }
 
         private void UnlockCurrentItem()
         {
             PlayerData playerData = PlayerDataModule.Instance.data;
-            if (isWeapon && weaponData != null)
+            if (weaponData != null)
             {
                 if (!playerData.ownWeaponList.Contains(weaponData.id))
                 {

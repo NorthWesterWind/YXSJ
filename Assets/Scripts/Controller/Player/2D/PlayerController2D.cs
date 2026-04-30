@@ -23,38 +23,25 @@ public class PlayerController2D : MonoBehaviour
     void Awake()
     {
         if (_assetHandle == null) _assetHandle = GetComponent<AssetHandle>();
-        // skeletonGraphic = transform.Find("Character").GetComponent<SkeletonGraphic>();
-         WeaponData weaponData = DataController.Instance.weaponDataDic[PlayerDataModule.Instance.data.currentWeapon];
-        weaponRenderer.sprite = _assetHandle.Get<Sprite>(weaponData.name);
-        // skeletonGraphic.Skeleton.SetAttachment(weaponData.slotName, weaponData.attachmentName);
-        // SkeletonDataAsset skeletonDataAsset = _assetHandle.Get<SkeletonDataAsset>(weaponData.name + "data");
-        // weaponEffect.skeletonDataAsset = skeletonDataAsset;
-        // weaponEffect.Initialize(true);
-         StotageBagData stotageBagData = DataController.Instance.storageBagDataDic[PlayerDataModule.Instance.data.currentBag];
-         skeletonGraphic.Skeleton.SetAttachment(stotageBagData.slotName, stotageBagData.attachmentName);
-
+        if (DataController.Instance.weaponDataDic.ContainsKey(PlayerDataModule.Instance.data.currentWeapon))
+        {
+            WeaponData weaponData = DataController.Instance.weaponDataDic[PlayerDataModule.Instance.data.currentWeapon];
+            weaponRenderer.sprite = _assetHandle.Get<Sprite>(weaponData.name);
+        }
+        skeletonGraphic.initialSkinName = PlayerDataModule.Instance.data.currentClothing.ToString();
+        skeletonGraphic.Initialize(true);
     }
     void Start()
     {
+        ApplyCurrentClothing();
+        ApplyCurrentEquipment();
+
         var state = skeletonGraphic.AnimationState;
         var current = state.GetCurrent(0);
         if (current == null || current.Animation.Name != "攻击腿不动")
         {
             state.SetAnimation(0, "攻击腿不动", true);
         }
-        if (DataController.Instance.weaponDataDic.ContainsKey(PlayerDataModule.Instance.data.currentWeapon))
-        {
-            WeaponData weaponData = DataController.Instance.weaponDataDic[PlayerDataModule.Instance.data.currentWeapon];
-            weaponRenderer.sprite = _assetHandle.Get<Sprite>(weaponData.name);
-            skeletonGraphic.Skeleton.SetAttachment(weaponData.slotName, weaponData.attachmentName);
-        }
-        if (DataController.Instance.storageBagDataDic.ContainsKey(PlayerDataModule.Instance.data.currentBag))
-        {
-            StotageBagData stotageBagData = DataController.Instance.storageBagDataDic[PlayerDataModule.Instance.data.currentBag];
-            skeletonGraphic.Skeleton.SetAttachment(stotageBagData.slotName, stotageBagData.attachmentName);
-        }
-
-
     }
     public float moveSpeed;
     bool newIsMoving = false;
@@ -121,5 +108,47 @@ public class PlayerController2D : MonoBehaviour
     public void SetDir(Vector2 direction)
     {
         _dirValue = direction;
+    }
+
+    private void ApplyCurrentClothing()
+    {
+        if (skeletonGraphic == null)
+        {
+            return;
+        }
+
+        skeletonGraphic.Initialize(false);
+
+        string skinName = PlayerDataModule.Instance.data.currentClothing.ToString();
+        if (skeletonGraphic.Skeleton.Data.FindSkin(skinName) == null)
+        {
+            Debug.LogWarning($"PlayerController2D missing skin: {skinName}");
+            return;
+        }
+
+        skeletonGraphic.Skeleton.SetSkin(skinName);
+        skeletonGraphic.Skeleton.SetSlotsToSetupPose();
+        skeletonGraphic.AnimationState.Apply(skeletonGraphic.Skeleton);
+    }
+
+    private void ApplyCurrentEquipment()
+    {
+        if (skeletonGraphic == null)
+        {
+            return;
+        }
+
+        if (DataController.Instance.weaponDataDic.ContainsKey(PlayerDataModule.Instance.data.currentWeapon))
+        {
+            WeaponData weaponData = DataController.Instance.weaponDataDic[PlayerDataModule.Instance.data.currentWeapon];
+            weaponRenderer.sprite = _assetHandle.Get<Sprite>(weaponData.name);
+            skeletonGraphic.Skeleton.SetAttachment(weaponData.slotName, weaponData.attachmentName);
+        }
+
+        if (DataController.Instance.storageBagDataDic.ContainsKey(PlayerDataModule.Instance.data.currentBag))
+        {
+            StotageBagData stotageBagData = DataController.Instance.storageBagDataDic[PlayerDataModule.Instance.data.currentBag];
+            skeletonGraphic.Skeleton.SetAttachment(stotageBagData.slotName, stotageBagData.attachmentName);
+        }
     }
 }

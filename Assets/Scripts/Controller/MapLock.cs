@@ -51,7 +51,8 @@ public class MapLock : MonoBehaviour
         var progress = GetProgressData();
         if (progress == null)
             return;
-        progress.currentOwnMoney += 100;
+        int amount = args.Length > 1 ? Mathf.Max(0, (int)args[1]) : 100;
+        progress.currentOwnMoney += amount;
         UpdateProgress(progress.currentOwnMoney);
     }
 
@@ -147,6 +148,18 @@ public class MapLock : MonoBehaviour
         return playerData.mapLockDataProgressList.Find(
             x => x.lockId == mapLockData.lockId &&
                  x.mapId == playerData.currentMapID);
+    }
+
+    public int GetRemainingUnlockCost()
+    {
+        if (mapLockData == null)
+            return 0;
+
+        var progress = GetProgressData();
+        if (progress == null || progress.isUnlock)
+            return 0;
+
+        return Mathf.Max(0, mapLockData.needMoney - Mathf.CeilToInt(progress.currentOwnMoney));
     }
 
     #endregion

@@ -1,8 +1,9 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading.Tasks;
 using Controller;
 using Controller.Pickups;
@@ -12,6 +13,7 @@ using Module.Data;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Utils;
 using View;
 using Extensions = Utils.Extensions;
@@ -23,6 +25,7 @@ namespace Module
         public PlayerData data = new();
         private Coroutine _runtimeRestoreCoroutine;
         private Coroutine _runtimeLayerFixCoroutine;
+        private Coroutine _runtimeRestoreVerifyCoroutine;
         private Coroutine _autoSaveCoroutine;
         private PlayerController _cachedPlayerController;
         private bool _inventoryCapturePending;
@@ -30,11 +33,12 @@ namespace Module
         private float _lastServerSaveRealtime = float.NegativeInfinity;
         private int _runtimeRestoredMapId = -1;
         private int _lastSpeedTimeSecond = -1;
-        private bool _isSavingLocalData;
-        private bool _pendingLocalSave;
+        private bool _runtimeCaptureSuspended;
         private const float InventoryCaptureDelaySeconds = 0.05f;
-        private const float AutoSaveIntervalSeconds = 30f;
-        private const float AutoUploadIntervalSeconds = 120f;
+        private const float AutoSaveIntervalSeconds = 5f;
+        private const float AutoUploadIntervalSeconds = 5f;
+        private const int YuanBaoKuangDongRefreshHours = 3;
+        private const string YuanBaoKuangDongTimeFormat = "yyyy-MM-dd HH:mm:ss";
 
         public override void Awake()
         {
@@ -59,7 +63,7 @@ namespace Module
 
         private void ProcessPendingInventoryCapture()
         {
-            if (!_inventoryCapturePending || Time.unscaledTime < _inventoryCaptureAt)
+            if (_runtimeCaptureSuspended || !_inventoryCapturePending || Time.unscaledTime < _inventoryCaptureAt)
             {
                 return;
             }
@@ -96,6 +100,11 @@ namespace Module
 
         private void HandlePlayerInventoryChanged(params object[] args)
         {
+            if (_runtimeCaptureSuspended)
+            {
+                return;
+            }
+
             if (_runtimeRestoredMapId != data.currentMapID)
             {
                 bool hasSavedRuntime = (data.runtimePlayerDropList != null && data.runtimePlayerDropList.Count > 0) ||
@@ -105,13 +114,21 @@ namespace Module
                     return;
                 }
             }
-
             _inventoryCapturePending = true;
             _inventoryCaptureAt = Time.unscaledTime + InventoryCaptureDelaySeconds;
         }
 
         public void FillStructureLockProgressData()
         {
+            if (data == null || DataController.Instance == null || data.listenInTaskList == null)
+            {
+                return;
+            }
+
+            data.structureLockProgressDataList ??= new List<StructureLockProgressData>();
+            data.mapLockDataProgressList ??= new List<MapLockDataProgress>();
+            NormalizeStructureUnlockData();
+
             foreach (var task in data.listenInTaskList)
             {
                 if (task.type == TaskType.Upgrade)
@@ -158,130 +175,74 @@ namespace Module
                 if (task.type == TaskType.Construct)
                 {
                     BuildingType type = (BuildingType)task.aimId;
-                    var _data = data.structureLockProgressDataList.Find(x => x.buildType == type && x.mapId == data.currentMapID);
-                    if (_data == null)
+                    var progressData = data.structureLockProgressDataList.Find(x => x.buildType == type && x.mapId == data.currentMapID);
+                    if (progressData == null)
                     {
-                        switch (data.currentMapID)
+                        if (data.currentMapID == 1 &&
+                            (type == BuildingType.LingZhangTai || type == BuildingType.YuShaHu_1 ||
+                             type == BuildingType.LingChaJia_1))
                         {
-                            case 1:
-                                if (type != BuildingType.LingZhangTai && type != BuildingType.YuShaHu_1 &&
-                                    type != BuildingType.LingChaJia_1)
-                                {
-                                    StructureLockData data1 = DataController.Instance.structureLockDataList_1.Find(x => x.buildingType == type);
-                                    StructureLockProgressData progress1 = new StructureLockProgressData(type,
-                                        data1.needMoney, data1.lockId, data.currentMapID);
-                                    data.structureLockProgressDataList.Add(progress1);
-                                    if (!data.structCanUnLockDataDic[data.currentMapID].Contains(type))
-                                    {
-                                        data.structCanUnLockDataDic[data.currentMapID].Add(type);
-                                    }
-                                    if (data.structLockDataDic[data.currentMapID].Contains(type))
-                                    {
-                                        data.structLockDataDic[data.currentMapID].Remove(type);
-                                    }
-                                }
-                                break;
-                            case 2:
-                                StructureLockData data2 = DataController.Instance.structureLockDataList_2.Find(x => x.buildingType == type);
-                                StructureLockProgressData progress2 = new StructureLockProgressData(type,
-                                    data2.needMoney, data2.lockId, data.currentMapID);
-                                data.structureLockProgressDataList.Add(progress2);
-                                if (!data.structCanUnLockDataDic[data.currentMapID].Contains(type))
-                                {
-                                    data.structCanUnLockDataDic[data.currentMapID].Add(type);
-                                }
-                                if (data.structLockDataDic[data.currentMapID].Contains(type))
-                                {
-                                    data.structLockDataDic[data.currentMapID].Remove(type);
-                                }
-                                break;
-                            case 3:
-                                StructureLockData data3 = DataController.Instance.structureLockDataList_3.Find(x => x.buildingType == type);
-                                StructureLockProgressData progress3 = new StructureLockProgressData(type,
-                                    data3.needMoney, data3.lockId, data.currentMapID);
-                                data.structureLockProgressDataList.Add(progress3);
-                                if (!data.structCanUnLockDataDic[data.currentMapID].Contains(type))
-                                {
-                                    data.structCanUnLockDataDic[data.currentMapID].Add(type);
-                                }
-                                if (data.structLockDataDic[data.currentMapID].Contains(type))
-                                {
-                                    data.structLockDataDic[data.currentMapID].Remove(type);
-                                }
-                                break;
-                            case 4:
-                                StructureLockData data4 = DataController.Instance.structureLockDataList_4.Find(x => x.buildingType == type);
-                                StructureLockProgressData progress4 = new StructureLockProgressData(type,
-                                    data4.needMoney, data4.lockId, data.currentMapID);
-                                data.structureLockProgressDataList.Add(progress4);
-                                if (!data.structCanUnLockDataDic[data.currentMapID].Contains(type))
-                                {
-                                    data.structCanUnLockDataDic[data.currentMapID].Add(type);
-                                }
-                                if (data.structLockDataDic[data.currentMapID].Contains(type))
-                                {
-                                    data.structLockDataDic[data.currentMapID].Remove(type);
-                                }
-                                break;
-                            case 5:
-                                StructureLockData data5 = DataController.Instance.structureLockDataList_5.Find(x => x.buildingType == type);
-                                StructureLockProgressData progress5 = new StructureLockProgressData(type,
-                                    data5.needMoney, data5.lockId, data.currentMapID);
-                                data.structureLockProgressDataList.Add(progress5);
-                                if (!data.structCanUnLockDataDic[data.currentMapID].Contains(type))
-                                {
-                                    data.structCanUnLockDataDic[data.currentMapID].Add(type);
-                                }
-                                if (data.structLockDataDic[data.currentMapID].Contains(type))
-                                {
-                                    data.structLockDataDic[data.currentMapID].Remove(type);
-                                }
-                                break;
-
+                            RemoveTaskProgress(task.taskId);
+                            continue;
                         }
 
+                        StructureLockData structureLockData = GetStructureLockData(type, data.currentMapID);
+                        if (structureLockData == null)
+                        {
+                            Debug.LogWarning(
+                                $"[FillStructureLockProgressData] Missing StructureLockData. mapId={data.currentMapID}, buildingType={type}, taskId={task.taskId}");
+                            RemoveTaskProgress(task.taskId);
+                            continue;
+                        }
+
+                        data.structureLockProgressDataList.Add(new StructureLockProgressData(
+                            type,
+                            structureLockData.needMoney,
+                            structureLockData.lockId,
+                            data.currentMapID));
+
+                        if (data.structCanUnLockDataDic.TryGetValue(data.currentMapID, out var canUnlockList) &&
+                            canUnlockList != null &&
+                            !canUnlockList.Contains(type))
+                        {
+                            canUnlockList.Add(type);
+                        }
+
+                        if (data.structLockDataDic.TryGetValue(data.currentMapID, out var lockList) &&
+                            lockList != null &&
+                            lockList.Contains(type))
+                        {
+                            lockList.Remove(type);
+                        }
+                    }
+                    else if (progressData.isUnlock)
+                    {
+                        SetTaskProgressAtLeast(task.taskId, 1);
                     }
                     else
                     {
-                        SetTaskProgressAtLeast(task.taskId, 1);
+                        RemoveTaskProgress(task.taskId);
                     }
                 }
                 if (task.type == TaskType.Unlock)
                 {
                     MonsterType monster = (MonsterType)task.aimId;
-                    MapLockData data1 = null;
-                    switch (data.currentMapID)
+                    MapLockData mapLockData = GetMapLockData(monster, data.currentMapID);
+                    if (mapLockData == null)
                     {
-                        case 1:
-                            data1 = DataController.Instance.mapLockDataList_1.Find(x => x.monsterType == monster);
-                            break;
-                        case 2:
-                            data1 = DataController.Instance.mapLockDataList_2.Find(x => x.monsterType == monster);
-                            break;
-                        case 3:
-                            data1 = DataController.Instance.mapLockDataList_3.Find(x => x.monsterType == monster);
-                            break;
-                        case 4:
-                            data1 = DataController.Instance.mapLockDataList_4.Find(x => x.monsterType == monster);
-                            break;
-                        case 5:
-                            data1 = DataController.Instance.mapLockDataList_5.Find(x => x.monsterType == monster);
-                            break;
+                        Debug.LogWarning(
+                            $"[FillStructureLockProgressData] Missing MapLockData. mapId={data.currentMapID}, monsterType={monster}, taskId={task.taskId}");
+                        RemoveTaskProgress(task.taskId);
+                        continue;
                     }
 
-                    // data1 可能为 null（currentMapID 不在 1-5 范围内，或 Find 未找到匹配项）
-                    if (data1 == null)
+                    var mapProgressData = data.mapLockDataProgressList.Find(x => x.monsterType == monster && x.mapId == data.currentMapID);
+                    if (mapProgressData == null)
                     {
-                        Debug.LogError("data1 == null");
-                    }
-
-                    var _data = data.mapLockDataProgressList.Find(x => x.monsterType == monster && x.mapId == data.currentMapID);
-                    if (_data == null)
-                    {
-                        data.mapLockDataProgressList.Add(new MapLockDataProgress(monster, data.currentMapID, data1.lockId, false, 0, true));
+                        data.mapLockDataProgressList.Add(new MapLockDataProgress(monster, data.currentMapID, mapLockData.lockId, false, 0, true));
                         EventCenter.Instance.TriggerEvent(EventMessages.UpdateMapLockState, monster);
                     }
-                    else if (_data.isUnlock)
+                    else if (mapProgressData.isUnlock)
                     {
                         SetTaskProgressAtLeast(task.taskId, 1);
                     }
@@ -289,6 +250,343 @@ namespace Module
             }
 
             DataController.Instance.UpdateStructureLockInfo();
+        }
+
+        public void RefreshTrackedTaskProgress()
+        {
+            if (data == null || DataController.Instance == null)
+            {
+                return;
+            }
+
+            if (data.listenInTaskList == null)
+            {
+                data.listenInTaskList = new List<TaskData>();
+            }
+
+            if (data.listenInTaskList.Count == 0)
+            {
+                var taskGroup = DataController.Instance.GetTaskGroupIds();
+                if (taskGroup != null)
+                {
+                    data.listenInTaskList = taskGroup;
+                }
+            }
+
+            if (data.listenInTaskList.Count == 0)
+            {
+                return;
+            }
+
+            TaskData trackedTask = data.listenInTaskList.Find(x => x.taskId == data.nowTaskId);
+            RefreshSingleTaskProgress(trackedTask);
+        }
+
+        public void RefreshAllTrackedTaskProgress()
+        {
+            if (data == null || DataController.Instance == null)
+            {
+                return;
+            }
+
+            if (data.listenInTaskList == null)
+            {
+                data.listenInTaskList = new List<TaskData>();
+            }
+
+            if (data.listenInTaskList.Count == 0)
+            {
+                var taskGroup = DataController.Instance.GetTaskGroupIds();
+                if (taskGroup != null)
+                {
+                    data.listenInTaskList = taskGroup;
+                }
+            }
+
+            if (data.listenInTaskList.Count == 0)
+            {
+                return;
+            }
+
+            foreach (var task in data.listenInTaskList)
+            {
+                RefreshSingleTaskProgress(task);
+            }
+        }
+
+        public float GetTotalBagCapacity()
+        {
+            if (data == null)
+            {
+                return 0f;
+            }
+
+            return data.bagCapacity + GetTalentBagCapacityBonus() + GetCurrentEquippedBagCapacity();
+        }
+
+        public float GetTalentBagCapacityBonus()
+        {
+            if (data == null || DataController.Instance == null || DataController.Instance.talentDataDic == null)
+            {
+                return data != null ? data.addBagCapacity : 0f;
+            }
+
+            float total = 0f;
+            int maxTalentLevel = Mathf.Max(0, data.talentLevel);
+            for (int i = 1; i <= maxTalentLevel; i++)
+            {
+                if (!DataController.Instance.talentDataDic.TryGetValue(i, out var talentData) || talentData == null)
+                {
+                    continue;
+                }
+
+                if (talentData.type != TalentType.BackpackCapacity)
+                {
+                    continue;
+                }
+
+                total += talentData.value;
+            }
+
+            return total;
+        }
+
+        public void RefreshTalentDerivedStats()
+        {
+            if (data == null)
+            {
+                return;
+            }
+
+            data.addBagCapacity = GetTalentBagCapacityBonus();
+        }
+
+        public float GetCurrentEquippedBagCapacity()
+        {
+            if (data == null)
+            {
+                return 0f;
+            }
+
+            if (!data.bagCapacityDataMigrated)
+            {
+                NormalizeBagCapacityData();
+            }
+
+            if (!TryGetBagCapacityById(data.currentBag, out float configuredCapacity))
+            {
+                return data.equippedBagCapacity;
+            }
+
+            if (!Mathf.Approximately(configuredCapacity, data.equippedBagCapacity))
+            {
+                data.equippedBagCapacity = configuredCapacity;
+            }
+
+            return data.equippedBagCapacity;
+        }
+
+        public float GetBagCapacityById(int bagId)
+        {
+            if (!TryGetBagCapacityById(bagId, out float capacity))
+            {
+                return 0f;
+            }
+
+            return capacity;
+        }
+
+        private void RefreshSingleTaskProgress(TaskData task)
+        {
+            if (task == null)
+            {
+                return;
+            }
+
+            switch (task.type)
+            {
+                case TaskType.Upgrade:
+                    RefreshUpgradeTaskProgress(task);
+                    break;
+                case TaskType.Construct:
+                    RefreshConstructTaskProgress(task);
+                    break;
+                case TaskType.Unlock:
+                    RefreshUnlockTaskProgress(task);
+                    break;
+            }
+        }
+
+        private void RefreshUpgradeTaskProgress(TaskData task)
+        {
+            BuildingType type = (BuildingType)task.aimId;
+            var stationData = GetProductStationData(type);
+            if (stationData != null)
+            {
+                SetTaskProgressAtLeast(task.taskId, stationData.priceLevel);
+            }
+
+            if (type == BuildingType.LingZhangTai && data.cashierData != null)
+            {
+                SetTaskProgressAtLeast(task.taskId, data.cashierData.workspeedLevel);
+            }
+
+            if (type == BuildingType.YunDiGe)
+            {
+                if (data.deliverData == null)
+                {
+                    data.deliverData = new DeliverData();
+                }
+                SetTaskProgressAtLeast(task.taskId, data.deliverData.speedLevel);
+            }
+
+            if (type == BuildingType.LingChuGe_1)
+            {
+                if (data.warehouselist == null)
+                {
+                    return;
+                }
+                var warehouse = data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_1);
+                if (warehouse != null)
+                {
+                    SetTaskProgressAtLeast(task.taskId, warehouse.atkLevel);
+                }
+            }
+
+            if (type == BuildingType.LingChuGe_2)
+            {
+                if (data.warehouselist == null)
+                {
+                    return;
+                }
+                var warehouse = data.warehouselist.Find(x => x.warehouseCategoryType == WarehouseCategoryType.LingChuGe_2);
+                if (warehouse != null)
+                {
+                    SetTaskProgressAtLeast(task.taskId, warehouse.atkLevel);
+                }
+            }
+        }
+
+        private void RefreshConstructTaskProgress(TaskData task)
+        {
+            BuildingType type = (BuildingType)task.aimId;
+            if (data.structureLockProgressDataList == null)
+            {
+                data.structureLockProgressDataList = new List<StructureLockProgressData>();
+            }
+            var progressData = data.structureLockProgressDataList.Find(x => x.buildType == type && x.mapId == data.currentMapID);
+            if (progressData != null)
+            {
+                if (progressData.isUnlock)
+                {
+                    SetTaskProgressAtLeast(task.taskId, 1);
+                }
+                else
+                {
+                    RemoveTaskProgress(task.taskId);
+                }
+                return;
+            }
+
+            if (data.currentMapID == 1 &&
+                (type == BuildingType.LingZhangTai || type == BuildingType.YuShaHu_1 || type == BuildingType.LingChaJia_1))
+            {
+                RemoveTaskProgress(task.taskId);
+                return;
+            }
+
+            StructureLockData structureLockData = GetStructureLockData(type, data.currentMapID);
+            if (structureLockData == null)
+            {
+                return;
+            }
+
+            data.structureLockProgressDataList.Add(new StructureLockProgressData(
+                type,
+                structureLockData.needMoney,
+                structureLockData.lockId,
+                data.currentMapID));
+
+            if (data.structCanUnLockDataDic != null &&
+                data.structCanUnLockDataDic.ContainsKey(data.currentMapID) &&
+                !data.structCanUnLockDataDic[data.currentMapID].Contains(type))
+            {
+                data.structCanUnLockDataDic[data.currentMapID].Add(type);
+            }
+
+            if (data.structLockDataDic != null &&
+                data.structLockDataDic.ContainsKey(data.currentMapID) &&
+                data.structLockDataDic[data.currentMapID].Contains(type))
+            {
+                data.structLockDataDic[data.currentMapID].Remove(type);
+            }
+
+            DataController.Instance.UpdateStructureLockInfo();
+        }
+
+        private void RefreshUnlockTaskProgress(TaskData task)
+        {
+            MonsterType monster = (MonsterType)task.aimId;
+            MapLockData mapLockData = GetMapLockData(monster, data.currentMapID);
+            if (mapLockData == null)
+            {
+                return;
+            }
+
+            if (data.mapLockDataProgressList == null)
+            {
+                data.mapLockDataProgressList = new List<MapLockDataProgress>();
+            }
+            var progressData = data.mapLockDataProgressList.Find(x => x.monsterType == monster && x.mapId == data.currentMapID);
+            if (progressData == null)
+            {
+                data.mapLockDataProgressList.Add(new MapLockDataProgress(monster, data.currentMapID, mapLockData.lockId, false, 0, true));
+                EventCenter.Instance.TriggerEvent(EventMessages.UpdateMapLockState, monster);
+                return;
+            }
+
+            if (progressData.isUnlock)
+            {
+                SetTaskProgressAtLeast(task.taskId, 1);
+            }
+        }
+
+        private StructureLockData GetStructureLockData(BuildingType type, int mapId)
+        {
+            switch (mapId)
+            {
+                case 1:
+                    return DataController.Instance.structureLockDataList_1.Find(x => x.buildingType == type);
+                case 2:
+                    return DataController.Instance.structureLockDataList_2.Find(x => x.buildingType == type);
+                case 3:
+                    return DataController.Instance.structureLockDataList_3.Find(x => x.buildingType == type);
+                case 4:
+                    return DataController.Instance.structureLockDataList_4.Find(x => x.buildingType == type);
+                case 5:
+                    return DataController.Instance.structureLockDataList_5.Find(x => x.buildingType == type);
+                default:
+                    return null;
+            }
+        }
+
+        private MapLockData GetMapLockData(MonsterType monster, int mapId)
+        {
+            switch (mapId)
+            {
+                case 1:
+                    return DataController.Instance.mapLockDataList_1.Find(x => x.monsterType == monster);
+                case 2:
+                    return DataController.Instance.mapLockDataList_2.Find(x => x.monsterType == monster);
+                case 3:
+                    return DataController.Instance.mapLockDataList_3.Find(x => x.monsterType == monster);
+                case 4:
+                    return DataController.Instance.mapLockDataList_4.Find(x => x.monsterType == monster);
+                case 5:
+                    return DataController.Instance.mapLockDataList_5.Find(x => x.monsterType == monster);
+                default:
+                    return null;
+            }
         }
 
         private void SetTaskProgressAtLeast(int taskId, int value)
@@ -301,6 +599,16 @@ namespace Module
             {
                 data.taskProgressDic.Add(taskId, value);
             }
+        }
+
+        private void RemoveTaskProgress(int taskId)
+        {
+            if (data?.taskProgressDic == null)
+            {
+                return;
+            }
+
+            data.taskProgressDic.Remove(taskId);
         }
         public void BeginJugmentRemainTime(params object[] args)
         {
@@ -325,8 +633,8 @@ namespace Module
                     if (remainingMinutes == 10)
                     {
                         UIController.Instance.Show<AttentionView>(
-                            "\u3000\u3000尊敬的玩家，您当前账号为未成年人账号，已被纳入防沉迷系统。根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》的要求，您剩余游戏时间还有10分钟!",
-                            "疲劳游戏提示");
+                            "尊敬的玩家，当前账号已纳入防沉迷系统。当前可游玩时间还剩 10 分钟，10 分钟后系统将强制下线。",
+                            "剩余时间提示");
                     }
 
                     Debug.Log($"[防沉迷检测] 当前可游玩，还剩约 {remainingMinutes} 分钟");
@@ -335,8 +643,8 @@ namespace Module
                 {
                     Debug.Log("[防沉迷检测] 已超出允许时间段，执行强制下线。");
                     UIController.Instance.Show<ForceQuitView>(
-                        "\u3000\u3000尊敬的玩家，您目前为未成年人账号，已被纳入防沉迷系统。根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》，本游戏严格控制未成年人使用游戏时段，仅每周五、周六、周日和法定节假日的20时至21时提供1小时网络游戏服务。您已经进入疲劳游戏时间，系统将强制下线。",
-                        "疲劳游戏提示", (Action)ForceQuit);
+                        "尊敬的玩家，当前账号已纳入防沉迷系统，目前不在可游玩时段内，请合理安排游戏时间。",
+                        "健康游戏提示", (Action)ForceQuit);
 
                     yield break; // 停止检测
                 }
@@ -377,39 +685,96 @@ namespace Module
             {
                 data.runtimePlayerGoodsList = new List<RuntimeGoodsCount>();
             }
+
+            if (data.runtimeYuanBaoMonsterDataList == null)
+            {
+                data.runtimeYuanBaoMonsterDataList = new List<RuntimeYuanBaoMonsterData>();
+            }
+
+            if (data.runtimeYuanBaoDropDataList == null)
+            {
+                data.runtimeYuanBaoDropDataList = new List<RuntimeYuanBaoDropData>();
+            }
+
+            if (data.runtimeYuanBaoStateDataList == null)
+            {
+                data.runtimeYuanBaoStateDataList = new List<RuntimeYuanBaoStateData>();
+            }
         }
 
         private bool TryGetRuntimeContext(out GameController gameController, out ScenePickupController pickupController)
         {
-            gameController = FindObjectOfType<GameController>();
+            gameController = null;
             pickupController = null;
+            if (!TryGetExpectedRuntimeSceneName(out string expectedSceneName))
+            {
+                return false;
+            }
+
+            var gameControllers = FindObjectsOfType<GameController>(true);
+            if (gameControllers != null)
+            {
+                gameController = gameControllers.FirstOrDefault(x =>
+                    x != null &&
+                    x.gameObject != null &&
+                    x.gameObject.scene.IsValid() &&
+                    x.gameObject.scene.name == expectedSceneName);
+            }
+
             if (gameController == null)
             {
                 return false;
             }
 
-            var pickupControllers = FindObjectsOfType<ScenePickupController>();
-            if (pickupControllers == null || pickupControllers.Length == 0)
+            var pickupControllers = FindObjectsOfType<ScenePickupController>(true);
+            if (pickupControllers != null && pickupControllers.Length > 0)
+            {
+                pickupController = pickupControllers.FirstOrDefault(x =>
+                    x != null &&
+                    x.gameObject != null &&
+                    x.gameObject.scene.IsValid() &&
+                    x.gameObject.scene.name == expectedSceneName);
+            }
+
+            return true;
+        }
+
+        private bool TryGetExpectedRuntimeSceneName(out string sceneName)
+        {
+            sceneName = null;
+            if (data == null || data.currentMapID <= 0)
             {
                 return false;
             }
 
-            pickupController = pickupControllers.FirstOrDefault(x =>
-                x != null &&
-                x.gameObject != null &&
-                x.gameObject.scene.IsValid() &&
-                x.gameObject.scene.name.StartsWith("Game_"));
-            if (pickupController == null)
+            sceneName = $"Game_{data.currentMapID}";
+            return true;
+        }
+
+        private bool IsRuntimeCaptureSceneValid()
+        {
+            if (!TryGetExpectedRuntimeSceneName(out string expectedSceneName))
             {
-                pickupController = pickupControllers.FirstOrDefault(x => x != null && x.gameObject != null);
+                return false;
             }
 
-            return pickupController != null;
+            Scene activeScene = SceneManager.GetActiveScene();
+            return activeScene.IsValid() && activeScene.name == expectedSceneName;
         }
 
         private void CaptureRuntimeWorldState()
         {
             EnsureRuntimeWorldSaveData();
+
+            if (_runtimeCaptureSuspended)
+            {
+                return;
+            }
+
+            if (!IsRuntimeCaptureSceneValid())
+            {
+                return;
+            }
 
             CapturePlayerInventory();
 
@@ -422,8 +787,11 @@ namespace Module
             if (_runtimeRestoredMapId != currentMapId)
             {
                 bool hasSavedRuntime = data.runtimeProductionDataList.Any(x => x.mapId == currentMapId) ||
-                                       data.runtimeProductionStationDataList.Any(x => x.mapId == currentMapId);
-                if (hasSavedRuntime && pickupController.products.Count == 0)
+                                       data.runtimeProductionStationDataList.Any(x => x.mapId == currentMapId) ||
+                                       data.runtimeYuanBaoMonsterDataList.Any(x => x.mapId == currentMapId) ||
+                                       data.runtimeYuanBaoDropDataList.Any(x => x.mapId == currentMapId) ||
+                                       data.runtimeYuanBaoStateDataList.Any(x => x.mapId == currentMapId);
+                if (hasSavedRuntime)
                 {
                     return;
                 }
@@ -432,48 +800,261 @@ namespace Module
             data.runtimeCustomerDataList.Clear();
             data.runtimeProductionDataList.RemoveAll(x => x.mapId == currentMapId);
             data.runtimeProductionStationDataList.RemoveAll(x => x.mapId == currentMapId);
+            data.runtimeYuanBaoMonsterDataList.RemoveAll(x => x.mapId == currentMapId);
+            data.runtimeYuanBaoDropDataList.RemoveAll(x => x.mapId == currentMapId);
+            data.runtimeYuanBaoStateDataList.RemoveAll(x => x.mapId == currentMapId);
 
-            var products = pickupController.products;
-            for (int i = products.Count - 1; i >= 0; i--)
+            CaptureRuntimeProducts(currentMapId, gameController, pickupController);
+            CaptureProductionStationMaterials(currentMapId, gameController);
+            CaptureYuanBaoRuntimeState(currentMapId, gameController, pickupController);
+        }
+
+        private void CaptureRuntimeProducts(int currentMapId, GameController gameController, ScenePickupController pickupController)
+        {
+            HashSet<int> capturedIds = new HashSet<int>();
+
+            if (gameController != null)
             {
-                var pickup = products[i];
-                if (pickup == null || !pickup.gameObject.activeInHierarchy) continue;
-                if (!(pickup is Production production)) continue;
-                if (production.station == null) continue;
-                if (!(production.station is StructureBase stationBase)) continue;
-                if (production.isTaken) continue;
-                if (production.state != ItemState.OnWorkbench && production.state != ItemState.OnShelf) continue;
-
-                BuildingType stationBuildingType = stationBase.structureType;
-                if (stationBase is SalesStall stall && stall.buildingType != BuildingType.None)
+                if (gameController.productionStationList != null)
                 {
-                    stationBuildingType = stall.buildingType;
+                    for (int i = 0; i < gameController.productionStationList.Count; i++)
+                    {
+                        var station = gameController.productionStationList[i];
+                        if (station == null || station.productionList == null) continue;
+                        for (int j = 0; j < station.productionList.Count; j++)
+                        {
+                            CaptureRuntimeProductFromContainer(
+                                currentMapId,
+                                station.productionList[j],
+                                station,
+                                ItemState.OnWorkbench,
+                                capturedIds);
+                        }
+                    }
                 }
-                else if (stationBase is ProductionStation productionStation && productionStation.buildingType != BuildingType.None)
+
+                if (gameController.salesStallList != null)
                 {
-                    stationBuildingType = productionStation.buildingType;
+                    for (int i = 0; i < gameController.salesStallList.Count; i++)
+                    {
+                        var stall = gameController.salesStallList[i];
+                        if (stall == null || stall.productList == null) continue;
+                        for (int j = 0; j < stall.productList.Count; j++)
+                        {
+                            CaptureRuntimeProductFromContainer(
+                                currentMapId,
+                                stall.productList[j],
+                                stall,
+                                ItemState.OnShelf,
+                                capturedIds);
+                        }
+                    }
                 }
 
-                Vector3 pos = production.transform.position;
-                data.runtimeProductionDataList.Add(new RuntimeProductionData
+                if (gameController.buildings != null &&
+                    gameController.buildings.TryGetValue(BuildingType.LingZhangTai, out var cashierBase) &&
+                    cashierBase is CashierCounter cashier &&
+                    cashier.coinList != null)
                 {
-                    mapId = currentMapId,
-                    goodsType = production.goodsType,
-                    value = production.value,
-                    stationBuildingType = stationBuildingType,
-                    state = (int)production.state,
-                    canPickup = production.canPickup,
-                    posX = pos.x,
-                    posY = pos.y,
-                    posZ = pos.z
-                });
+                    for (int i = 0; i < cashier.coinList.Count; i++)
+                    {
+                        CaptureRuntimeProductFromContainer(
+                            currentMapId,
+                            cashier.coinList[i],
+                            cashier,
+                            ItemState.OnWorkbench,
+                            capturedIds);
+                    }
+                }
             }
 
-            CaptureProductionStationMaterials(currentMapId, gameController);
+            if (pickupController == null || pickupController.products == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < pickupController.products.Count; i++)
+            {
+                if (pickupController.products[i] is not Production production) continue;
+                CaptureRuntimeProductEntry(currentMapId, production, capturedIds);
+            }
+        }
+
+        private void AddOrIncrementRuntimeProductionData(
+            int currentMapId,
+            GoodsType goodsType,
+            int value,
+            BuildingType stationBuildingType,
+            ItemState state)
+        {
+            data.runtimeProductionDataList ??= new List<RuntimeProductionData>();
+
+            int normalizedValue = goodsType == GoodsType.TongBi ? value : 0;
+            int stateValue = (int)state;
+            var saved = data.runtimeProductionDataList.Find(x =>
+                x.mapId == currentMapId &&
+                x.goodsType == goodsType &&
+                x.stationBuildingType == stationBuildingType &&
+                x.state == stateValue &&
+                (goodsType == GoodsType.TongBi || x.value == normalizedValue));
+
+            if (saved != null)
+            {
+                if (goodsType == GoodsType.TongBi)
+                {
+                    saved.value = Mathf.Max(0, saved.value) + Mathf.Max(0, normalizedValue);
+                    saved.count = 1;
+                    return;
+                }
+
+                saved.count = Mathf.Max(1, saved.count) + 1;
+                return;
+            }
+
+            data.runtimeProductionDataList.Add(new RuntimeProductionData
+            {
+                mapId = currentMapId,
+                goodsType = goodsType,
+                value = normalizedValue,
+                stationBuildingType = stationBuildingType,
+                state = stateValue,
+                count = 1
+            });
+        }
+
+        private void AddOrIncrementRuntimeYuanBaoMonsterData(int currentMapId, int count)
+        {
+            if (count <= 0)
+            {
+                return;
+            }
+
+            data.runtimeYuanBaoMonsterDataList ??= new List<RuntimeYuanBaoMonsterData>();
+            var saved = data.runtimeYuanBaoMonsterDataList.Find(x => x.mapId == currentMapId);
+            if (saved != null)
+            {
+                saved.count = Mathf.Max(1, saved.count) + count;
+                return;
+            }
+
+            data.runtimeYuanBaoMonsterDataList.Add(new RuntimeYuanBaoMonsterData
+            {
+                mapId = currentMapId,
+                count = count
+            });
+        }
+
+        private void AddOrIncrementRuntimeYuanBaoDropData(int currentMapId, int count)
+        {
+            if (count <= 0)
+            {
+                return;
+            }
+
+            data.runtimeYuanBaoDropDataList ??= new List<RuntimeYuanBaoDropData>();
+            var saved = data.runtimeYuanBaoDropDataList.Find(x => x.mapId == currentMapId);
+            if (saved != null)
+            {
+                saved.count = Mathf.Max(1, saved.count) + count;
+                return;
+            }
+
+            data.runtimeYuanBaoDropDataList.Add(new RuntimeYuanBaoDropData
+            {
+                mapId = currentMapId,
+                count = count
+            });
+        }
+
+        private void CaptureRuntimeProductFromContainer(
+            int currentMapId,
+            Production production,
+            StructureBase container,
+            ItemState forcedState,
+            HashSet<int> capturedIds)
+        {
+            if (production == null || container == null || !production.gameObject.activeInHierarchy)
+            {
+                return;
+            }
+
+            int instanceId = production.GetInstanceID();
+            if (!capturedIds.Add(instanceId))
+            {
+                return;
+            }
+
+            BuildingType stationBuildingType = container.structureType;
+            if (container is SalesStall stall && stall.buildingType != BuildingType.None)
+            {
+                stationBuildingType = stall.buildingType;
+            }
+            else if (container is ProductionStation productionStation && productionStation.buildingType != BuildingType.None)
+            {
+                stationBuildingType = productionStation.buildingType;
+            }
+
+            AddOrIncrementRuntimeProductionData(
+                currentMapId,
+                production.goodsType,
+                production.value,
+                stationBuildingType,
+                forcedState);
+        }
+
+        private void CaptureRuntimeProductEntry(int currentMapId, Production production, HashSet<int> capturedIds)
+        {
+            if (production == null || !production.gameObject.activeInHierarchy)
+            {
+                return;
+            }
+
+            int instanceId = production.GetInstanceID();
+            if (!capturedIds.Add(instanceId))
+            {
+                return;
+            }
+
+            if (production.station == null || production.station is not StructureBase stationBase)
+            {
+                return;
+            }
+
+            if (production.isTaken)
+            {
+                return;
+            }
+
+            if (production.state != ItemState.OnWorkbench && production.state != ItemState.OnShelf)
+            {
+                return;
+            }
+
+            BuildingType stationBuildingType = stationBase.structureType;
+            if (stationBase is SalesStall stall && stall.buildingType != BuildingType.None)
+            {
+                stationBuildingType = stall.buildingType;
+            }
+            else if (stationBase is ProductionStation productionStation && productionStation.buildingType != BuildingType.None)
+            {
+                stationBuildingType = productionStation.buildingType;
+            }
+
+            AddOrIncrementRuntimeProductionData(
+                currentMapId,
+                production.goodsType,
+                production.value,
+                stationBuildingType,
+                production.state);
         }
 
         private void CapturePlayerInventory()
         {
+            if (!IsRuntimeCaptureSceneValid())
+            {
+                return;
+            }
+
             var player = GetCachedPlayerController();
             if (player == null)
             {
@@ -550,6 +1131,72 @@ namespace Module
             }
         }
 
+        private void CaptureYuanBaoRuntimeState(int currentMapId, GameController gameController, ScenePickupController pickupController)
+        {
+            EnsureYuanBaoKuangDongStateData();
+            var state = GetOrCreateYuanBaoKuangDongState(currentMapId, DateTime.Now);
+            data.runtimeYuanBaoStateDataList.RemoveAll(x => x.mapId == currentMapId);
+            data.runtimeYuanBaoStateDataList.Add(new RuntimeYuanBaoStateData
+            {
+                mapId = currentMapId,
+                generatedCount = state.generatedCount,
+                remainCount = state.remainCount,
+                lastRefreshTime = state.lastRefreshTime
+            });
+
+            FactoryController factory = FindYuanBaoFactory(gameController);
+            if (factory != null)
+            {
+                int liveMonsterCount = factory.GetLiveMonsterPositions(MonsterType.JingYuanBao).Count;
+                AddOrIncrementRuntimeYuanBaoMonsterData(currentMapId, liveMonsterCount);
+            }
+
+            if (pickupController == null || pickupController.materials == null)
+            {
+                return;
+            }
+
+            int liveDropCount = 0;
+            for (int i = 0; i < pickupController.materials.Count; i++)
+            {
+                if (pickupController.materials[i] is not DropController drop) continue;
+                if (!drop.gameObject.activeInHierarchy) continue;
+                if (drop.isTaken) continue;
+                if (drop.itemType != DropItemType.JingYuanBao) continue;
+                liveDropCount += Mathf.Max(1, drop.count);
+            }
+
+            AddOrIncrementRuntimeYuanBaoDropData(currentMapId, liveDropCount);
+        }
+
+        private FactoryController FindYuanBaoFactory(GameController gameController)
+        {
+            if (gameController == null)
+            {
+                return null;
+            }
+
+            if (gameController.factoryControllers != null &&
+                gameController.factoryControllers.TryGetValue(MonsterType.JingYuanBao, out var factory) &&
+                factory != null)
+            {
+                return factory;
+            }
+
+            var scene = gameController.gameObject.scene;
+            var factories = FindObjectsOfType<FactoryController>(true);
+            for (int i = 0; i < factories.Length; i++)
+            {
+                var candidate = factories[i];
+                if (candidate == null) continue;
+                if (candidate.gameObject.scene != scene) continue;
+                if (!candidate.isGoldenOnly) continue;
+                return candidate;
+            }
+
+            return null;
+        }
+
         private PlayerController GetCachedPlayerController()
         {
             if (_cachedPlayerController == null)
@@ -563,6 +1210,101 @@ namespace Module
         public void CaptureCurrentRuntimeState()
         {
             CaptureRuntimeWorldState();
+            int currentMapId = data != null ? data.currentMapID : -1;
+            int productCount = data?.runtimeProductionDataList?.Count(x => x.mapId == currentMapId) ?? 0;
+            int stationCount = data?.runtimeProductionStationDataList?.Count(x => x.mapId == currentMapId && x.currentMaterialCount > 0) ?? 0;
+            int yuanBaoMonsterCount = GetSavedYuanBaoMonsterCount(currentMapId);
+            int yuanBaoDropCount = GetSavedYuanBaoDropCount(currentMapId);
+            Debug.Log($"[RuntimeCapture] map={currentMapId} products={productCount} stations={stationCount} yuanBaoMonsters={yuanBaoMonsterCount} yuanBaoDrops={yuanBaoDropCount}");
+            DebugLogManualRuntimeCaptureDetails();
+        }
+
+        private void DebugLogManualRuntimeCaptureDetails()
+        {
+            string activeSceneName = SceneManager.GetActiveScene().name;
+            if (!TryGetRuntimeContext(out var gameController, out var pickupController))
+            {
+                Debug.Log($"[RuntimeCaptureDetail] activeScene={activeSceneName} runtimeContext=missing expectedScene=Game_{data?.currentMapID}");
+                return;
+            }
+
+            int totalPickups = pickupController?.products?.Count ?? 0;
+            int activeProductions = 0;
+            int workbenchProducts = 0;
+            int shelfProducts = 0;
+            int missingStation = 0;
+            int takenProducts = 0;
+            int invalidStateProducts = 0;
+
+            if ( pickupController != null &&pickupController.products != null)
+            {
+                for (int i = 0; i < pickupController.products.Count; i++)
+                {
+                    if (pickupController.products[i] is not Production production) continue;
+                    if (production == null || !production.gameObject.activeInHierarchy) continue;
+
+                    activeProductions++;
+                    if (production.station == null)
+                    {
+                        missingStation++;
+                    }
+                    if (production.isTaken)
+                    {
+                        takenProducts++;
+                    }
+
+                    if (production.state == ItemState.OnWorkbench)
+                    {
+                        workbenchProducts++;
+                    }
+                    else if (production.state == ItemState.OnShelf)
+                    {
+                        shelfProducts++;
+                    }
+                    else
+                    {
+                        invalidStateProducts++;
+                    }
+                }
+            }
+
+            List<string> stationSummaries = new List<string>();
+            if (gameController.productionStationList != null)
+            {
+                for (int i = 0; i < gameController.productionStationList.Count; i++)
+                {
+                    var station = gameController.productionStationList[i];
+                    if (station == null) continue;
+                    stationSummaries.Add($"{station.name}(build={station.buildingType},struct={station.structureType},mat={station.currentMaterialCount},products={station.productionList?.Count ?? 0})");
+                }
+            }
+
+            List<string> stallSummaries = new List<string>();
+            if (gameController.salesStallList != null)
+            {
+                for (int i = 0; i < gameController.salesStallList.Count; i++)
+                {
+                    var stall = gameController.salesStallList[i];
+                    if (stall == null) continue;
+                    stallSummaries.Add($"{stall.name}(build={stall.buildingType},goods={stall.currentGoodsType},count={stall.currentGoodsCount},list={stall.productList?.Count ?? 0})");
+                }
+            }
+
+            Debug.Log($"[RuntimeCaptureDetail] activeScene={activeSceneName} expectedScene=Game_{data?.currentMapID} pickups={totalPickups} productions={activeProductions} workbench={workbenchProducts} shelf={shelfProducts} missingStation={missingStation} taken={takenProducts} invalidState={invalidStateProducts}");
+            Debug.Log($"[RuntimeCaptureDetail] stations={string.Join(" | ", stationSummaries)}");
+            Debug.Log($"[RuntimeCaptureDetail] stalls={string.Join(" | ", stallSummaries)}");
+        }
+
+        public void SuspendRuntimeCaptureForSceneTransition()
+        {
+            _runtimeCaptureSuspended = true;
+            _inventoryCapturePending = false;
+            _inventoryCaptureAt = -1f;
+        }
+
+        public void ResumeRuntimeCaptureForSceneTransition()
+        {
+            _runtimeCaptureSuspended = false;
         }
 
         public ProductStationData GetProductStationData(BuildingType buildingType, int mapId = -1)
@@ -627,11 +1369,43 @@ namespace Module
             {
                 data.runtimeProductionDataList.RemoveAll(x => x.mapId == mapId);
                 data.runtimeProductionStationDataList.RemoveAll(x => x.mapId == mapId);
+                data.runtimeYuanBaoMonsterDataList.RemoveAll(x => x.mapId == mapId);
+                data.runtimeYuanBaoDropDataList.RemoveAll(x => x.mapId == mapId);
+                data.runtimeYuanBaoStateDataList.RemoveAll(x => x.mapId == mapId);
             }
             else
             {
                 data.runtimeProductionDataList.Clear();
                 data.runtimeProductionStationDataList.Clear();
+                data.runtimeYuanBaoMonsterDataList.Clear();
+                data.runtimeYuanBaoDropDataList.Clear();
+                data.runtimeYuanBaoStateDataList.Clear();
+            }
+
+            _runtimeRestoredMapId = -1;
+        }
+
+        public void ClearRuntimeYuanBaoMonsterCache(int mapId = -1, bool clearDrops = false)
+        {
+            EnsureRuntimeWorldSaveData();
+
+            if (mapId > 0)
+            {
+                data.runtimeYuanBaoMonsterDataList.RemoveAll(x => x.mapId == mapId);
+                data.runtimeYuanBaoStateDataList.RemoveAll(x => x.mapId == mapId);
+                if (clearDrops)
+                {
+                    data.runtimeYuanBaoDropDataList.RemoveAll(x => x.mapId == mapId);
+                }
+            }
+            else
+            {
+                data.runtimeYuanBaoMonsterDataList.Clear();
+                data.runtimeYuanBaoStateDataList.Clear();
+                if (clearDrops)
+                {
+                    data.runtimeYuanBaoDropDataList.Clear();
+                }
             }
 
             _runtimeRestoredMapId = -1;
@@ -678,6 +1452,55 @@ namespace Module
             ClearRuntimePlayerInventoryCache();
         }
 
+        public void ResetBusinessDataForCurrentMap()
+        {
+            if (data == null)
+            {
+                return;
+            }
+
+            ResetYuanBaoKuangDongCountForMapSwitch();
+            ResetBusinessDataForMap(data.currentMapID);
+        }
+
+        private void ResetBusinessDataForMap(int mapId)
+        {
+            if (data == null || mapId <= 0)
+            {
+                return;
+            }
+
+            data.cashierData = null;
+            data.deliverData = null;
+            data.warehouselist = new List<WarehouseCategory>();
+
+            if (!data.structUnLockDataDic.TryGetValue(mapId, out var unlockedBuildings) || unlockedBuildings == null)
+            {
+                return;
+            }
+
+            if (unlockedBuildings.Contains(BuildingType.LingZhangTai))
+            {
+                data.cashierData = new CashierData();
+                NormalizeCashierData();
+            }
+
+            if (unlockedBuildings.Contains(BuildingType.YunDiGe))
+            {
+                data.deliverData = new DeliverData();
+            }
+
+            if (unlockedBuildings.Contains(BuildingType.LingChuGe_1))
+            {
+                data.warehouselist.Add(new WarehouseCategory(WarehouseCategoryType.LingChuGe_1));
+            }
+
+            if (unlockedBuildings.Contains(BuildingType.LingChuGe_2))
+            {
+                data.warehouselist.Add(new WarehouseCategory(WarehouseCategoryType.LingChuGe_2));
+            }
+        }
+
         private void HandleMapDataPrepared(params object[] args)
         {
             if (_runtimeRestoreCoroutine != null)
@@ -698,10 +1521,10 @@ namespace Module
             {
                 var gameController = FindObjectOfType<GameController>();
                 if (gameController != null &&
-                    FindObjectOfType<ScenePickupController>() != null &&
                     FindObjectOfType<PlayerController>() != null)
                 {
                     RestoreRuntimeWorldState();
+                    ResumeRuntimeCaptureForSceneTransition();
                     _runtimeRestoreCoroutine = null;
                     yield break;
                 }
@@ -711,6 +1534,7 @@ namespace Module
             }
 
             RestoreRuntimeWorldState();
+            ResumeRuntimeCaptureForSceneTransition();
             _runtimeRestoreCoroutine = null;
         }
 
@@ -751,9 +1575,256 @@ namespace Module
             data.runtimeCustomerDataList.Clear();
             RestoreProductsForCurrentMap(currentMapId, gameController, pickupController);
             RestoreProductionStationsForCurrentMap(currentMapId, gameController);
+            RestoreYuanBaoRuntimeStateForCurrentMap(currentMapId, gameController, pickupController);
             RestorePlayerInventory();
             _runtimeRestoredMapId = currentMapId;
+            Debug.Log($"[RuntimeRestore] map={currentMapId} savedProducts={(data.runtimeProductionDataList?.Count(x => x.mapId == currentMapId) ?? 0)} savedStations={(data.runtimeProductionStationDataList?.Count(x => x.mapId == currentMapId && x.currentMaterialCount > 0) ?? 0)} savedYuanBaoMonsters={GetSavedYuanBaoMonsterCount(currentMapId)} savedYuanBaoDrops={GetSavedYuanBaoDropCount(currentMapId)} liveProducts={CountLiveRuntimeProducts(gameController, pickupController)} liveStations={CountLiveRuntimeStations(gameController)} liveYuanBaoMonsters={CountLiveYuanBaoMonsters(gameController)} liveYuanBaoDrops={CountLiveYuanBaoDrops(pickupController)}");
             ScheduleRuntimeSortingFix(gameController, pickupController);
+            ScheduleRuntimeRestoreVerification();
+        }
+
+        private void ScheduleRuntimeRestoreVerification()
+        {
+            if (_runtimeRestoreVerifyCoroutine != null)
+            {
+                StopCoroutine(_runtimeRestoreVerifyCoroutine);
+                _runtimeRestoreVerifyCoroutine = null;
+            }
+
+            _runtimeRestoreVerifyCoroutine = StartCoroutine(RuntimeRestoreVerificationCoroutine());
+        }
+
+        private IEnumerator RuntimeRestoreVerificationCoroutine()
+        {
+            yield return null;
+            yield return new WaitForEndOfFrame();
+            yield return new WaitForEndOfFrame();
+            VerifyAndRepairRuntimeWorldState();
+            _runtimeRestoreVerifyCoroutine = null;
+        }
+
+        private void VerifyAndRepairRuntimeWorldState()
+        {
+            EnsureRuntimeWorldSaveData();
+
+            if (!TryGetRuntimeContext(out var gameController, out var pickupController))
+            {
+                return;
+            }
+
+            int currentMapId = data.currentMapID;
+            int savedProductCount = data.runtimeProductionDataList?.Count(x => x.mapId == currentMapId) ?? 0;
+            int savedStationCount = data.runtimeProductionStationDataList?.Count(x => x.mapId == currentMapId && x.currentMaterialCount > 0) ?? 0;
+            int savedYuanBaoMonsterCount = GetSavedYuanBaoMonsterCount(currentMapId);
+            int savedYuanBaoDropCount = GetSavedYuanBaoDropCount(currentMapId);
+
+            if (savedProductCount <= 0 &&
+                savedStationCount <= 0 &&
+                savedYuanBaoMonsterCount <= 0 &&
+                savedYuanBaoDropCount <= 0)
+            {
+                return;
+            }
+
+            int liveProductCount = CountLiveRuntimeProducts(gameController, pickupController);
+            int liveStationCount = CountLiveRuntimeStations(gameController);
+            int liveYuanBaoMonsterCount = CountLiveYuanBaoMonsters(gameController);
+            int liveYuanBaoDropCount = CountLiveYuanBaoDrops(pickupController);
+
+            bool needRestoreProducts = savedProductCount > 0 && liveProductCount == 0;
+            bool needRestoreStations = savedStationCount > 0 && liveStationCount == 0;
+            bool needRestoreYuanBaoMonsters = savedYuanBaoMonsterCount > liveYuanBaoMonsterCount;
+            bool needRestoreYuanBaoDrops = savedYuanBaoDropCount > liveYuanBaoDropCount;
+            Debug.Log($"[RuntimeVerify] map={currentMapId} savedProducts={savedProductCount} savedStations={savedStationCount} savedYuanBaoMonsters={savedYuanBaoMonsterCount} savedYuanBaoDrops={savedYuanBaoDropCount} liveProducts={liveProductCount} liveStations={liveStationCount} liveYuanBaoMonsters={liveYuanBaoMonsterCount} liveYuanBaoDrops={liveYuanBaoDropCount} needProducts={needRestoreProducts} needStations={needRestoreStations} needYuanBaoMonsters={needRestoreYuanBaoMonsters} needYuanBaoDrops={needRestoreYuanBaoDrops}");
+            if (!needRestoreProducts &&
+                !needRestoreStations &&
+                !needRestoreYuanBaoMonsters &&
+                !needRestoreYuanBaoDrops)
+            {
+                return;
+            }
+
+            if (needRestoreProducts)
+            {
+                RestoreProductsForCurrentMap(currentMapId, gameController, pickupController);
+            }
+
+            if (needRestoreStations)
+            {
+                RestoreProductionStationsForCurrentMap(currentMapId, gameController);
+            }
+
+            if (needRestoreYuanBaoMonsters || needRestoreYuanBaoDrops)
+            {
+                RestoreYuanBaoRuntimeStateForCurrentMap(currentMapId, gameController, pickupController);
+            }
+
+            ScheduleRuntimeSortingFix(gameController, pickupController);
+        }
+
+        private int CountLiveRuntimeProducts(GameController gameController, ScenePickupController pickupController)
+        {
+            HashSet<int> countedIds = new HashSet<int>();
+            int count = 0;
+
+            if (gameController != null)
+            {
+                if (gameController.productionStationList != null)
+                {
+                    for (int i = 0; i < gameController.productionStationList.Count; i++)
+                    {
+                        var station = gameController.productionStationList[i];
+                        if (station == null || station.productionList == null) continue;
+                        for (int j = 0; j < station.productionList.Count; j++)
+                        {
+                            if (IsLiveRuntimeProduct(station.productionList[j], countedIds))
+                            {
+                                count++;
+                            }
+                        }
+                    }
+                }
+
+                if (gameController.salesStallList != null)
+                {
+                    for (int i = 0; i < gameController.salesStallList.Count; i++)
+                    {
+                        var stall = gameController.salesStallList[i];
+                        if (stall == null || stall.productList == null) continue;
+                        for (int j = 0; j < stall.productList.Count; j++)
+                        {
+                            if (IsLiveRuntimeProduct(stall.productList[j], countedIds))
+                            {
+                                count++;
+                            }
+                        }
+                    }
+                }
+
+                if (gameController.buildings != null &&
+                    gameController.buildings.TryGetValue(BuildingType.LingZhangTai, out var cashierBase) &&
+                    cashierBase is CashierCounter cashier &&
+                    cashier.coinList != null)
+                {
+                    for (int i = 0; i < cashier.coinList.Count; i++)
+                    {
+                        if (IsLiveRuntimeProduct(cashier.coinList[i], countedIds))
+                        {
+                            count++;
+                        }
+                    }
+                }
+            }
+
+            if (pickupController == null || pickupController.products == null)
+            {
+                return count;
+            }
+
+            for (int i = 0; i < pickupController.products.Count; i++)
+            {
+                if (pickupController.products[i] is not Production production) continue;
+                if (IsLiveRuntimeProduct(production, countedIds))
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private bool IsLiveRuntimeProduct(Production production, HashSet<int> countedIds)
+        {
+            if (production == null || !production.gameObject.activeInHierarchy)
+            {
+                return false;
+            }
+
+            if (production.station is not StructureBase)
+            {
+                return false;
+            }
+
+            if (production.state != ItemState.OnWorkbench && production.state != ItemState.OnShelf)
+            {
+                return false;
+            }
+
+            return countedIds.Add(production.GetInstanceID());
+        }
+
+        private int CountLiveRuntimeStations(GameController gameController)
+        {
+            if (gameController == null || gameController.productionStationList == null)
+            {
+                return 0;
+            }
+
+            int count = 0;
+            for (int i = 0; i < gameController.productionStationList.Count; i++)
+            {
+                var station = gameController.productionStationList[i];
+                if (station == null) continue;
+                if (station.currentMaterialCount <= 0) continue;
+                count++;
+            }
+
+            return count;
+        }
+
+        private int CountLiveYuanBaoMonsters(GameController gameController)
+        {
+            var factory = FindYuanBaoFactory(gameController);
+            if (factory == null)
+            {
+                return 0;
+            }
+
+            return factory.GetLiveMonsterPositions(MonsterType.JingYuanBao).Count;
+        }
+
+        private int CountLiveYuanBaoDrops(ScenePickupController pickupController)
+        {
+            if (pickupController == null || pickupController.materials == null)
+            {
+                return 0;
+            }
+
+            int count = 0;
+            for (int i = 0; i < pickupController.materials.Count; i++)
+            {
+                if (pickupController.materials[i] is not DropController drop) continue;
+                if (!drop.gameObject.activeInHierarchy) continue;
+                if (drop.isTaken) continue;
+                if (drop.itemType != DropItemType.JingYuanBao) continue;
+                count += Mathf.Max(1, drop.count);
+            }
+
+            return count;
+        }
+
+        private int GetSavedYuanBaoMonsterCount(int mapId)
+        {
+            if (data?.runtimeYuanBaoMonsterDataList == null)
+            {
+                return 0;
+            }
+
+            return data.runtimeYuanBaoMonsterDataList
+                .Where(x => x.mapId == mapId)
+                .Sum(x => Mathf.Max(1, x.count));
+        }
+
+        private int GetSavedYuanBaoDropCount(int mapId)
+        {
+            if (data?.runtimeYuanBaoDropDataList == null)
+            {
+                return 0;
+            }
+
+            return data.runtimeYuanBaoDropDataList
+                .Where(x => x.mapId == mapId)
+                .Sum(x => Mathf.Max(1, x.count));
         }
 
         private void RestoreProductsForCurrentMap(int currentMapId, GameController gameController, ScenePickupController pickupController)
@@ -812,66 +1883,73 @@ namespace Module
                     continue;
                 }
 
-                GameObject obj = Instantiate(prefab);
-                obj.transform.position = new Vector3(saved.posX, saved.posY, saved.posZ);
-
-                var production = obj.GetComponent<Production>();
-                if (production == null)
+                int restoreCount = saved.goodsType == GoodsType.TongBi
+                    ? (saved.value > 0 ? 1 : 0)
+                    : Mathf.Max(1, saved.count);
+                for (int restoreIndex = 0; restoreIndex < restoreCount; restoreIndex++)
                 {
-                    Destroy(obj);
-                    continue;
-                }
+                    GameObject obj = Instantiate(prefab);
+                    obj.transform.position = stationBase.transform.position;
 
-                production.Init(saved.goodsType, saved.value);
-                production.SetStation(stationBase);
-                production.canPickup = saved.canPickup;
-                production.isTaken = false;
-                production.SetState((ItemState)saved.state);
-
-                if (production.spriteRenderer != null)
-                {
-                    int baseOrder = 30000 - Mathf.RoundToInt(stationBase.transform.position.y * 100);
-                    if (stationBase.sprite != null && stationBase.sprite.sortingOrder > 0)
+                    var production = obj.GetComponent<Production>();
+                    if (production == null)
                     {
-                        baseOrder = stationBase.sprite.sortingOrder;
+                        Destroy(obj);
+                        continue;
                     }
 
-                    int orderOffset = 3;
-                    if (production.state == ItemState.OnShelf || stationBase is SalesStall)
+                    production.Init(saved.goodsType, saved.value);
+                    production.SetStation(stationBase);
+                    production.canPickup = saved.state == (int)ItemState.OnWorkbench || saved.state == (int)ItemState.OnShelf;
+                    production.isTaken = false;
+                    production.SetState((ItemState)saved.state);
+                    if (pickupController != null && pickupController.products != null && !pickupController.products.Contains(production))
                     {
-                        orderOffset = 2;
+                        pickupController.products.Add(production);
                     }
-                    if (stationBase is ProductionStation stationWithGrid)
-                    {
-                        production.spriteRenderer.sortingOrder =
-                            stationWithGrid.grid.GetSortingOrderByPosition(baseOrder, orderOffset, production.transform.position);
-                    }
-                    else if (stationBase is SalesStall stallWithGrid)
-                    {
-                        production.spriteRenderer.sortingOrder =
-                            stallWithGrid.grid.GetSortingOrderByPosition(baseOrder, orderOffset, production.transform.position);
-                    }
-                    else if (stationBase is CashierCounter cashierWithGrid)
-                    {
-                        production.spriteRenderer.sortingOrder =
-                            cashierWithGrid.grid.GetSortingOrderByPosition(baseOrder, orderOffset, production.transform.position);
-                    }
-                    else
-                    {
-                        production.spriteRenderer.sortingOrder = baseOrder + orderOffset;
-                    }
-                }
 
-                if (stationBase is ProductionStation productionStation &&
-                    production.state == ItemState.OnWorkbench)
-                {
-                    productionStation.productionList.Add(production);
-                }
+                    if (production.spriteRenderer != null)
+                    {
+                        int baseOrder = 30000 - Mathf.RoundToInt(stationBase.transform.position.y * 100);
+                        if (stationBase.sprite != null && stationBase.sprite.sortingOrder > 0)
+                        {
+                            baseOrder = stationBase.sprite.sortingOrder;
+                        }
 
-                if (stationBase is SalesStall salesStall &&
-                    production.state == ItemState.OnShelf)
-                {
-                    salesStall.productList.Add(production);
+                        int orderOffset = 3;
+                        if (production.state == ItemState.OnShelf || stationBase is SalesStall)
+                        {
+                            orderOffset = 2;
+                        }
+
+                        if (stationBase is CashierCounter cashierWithGrid)
+                        {
+                            production.spriteRenderer.sortingOrder = cashierWithGrid.GetCoinSortingBaseOrder();
+                        }
+                        else
+                        {
+                            production.spriteRenderer.sortingOrder = baseOrder + orderOffset;
+                        }
+                    }
+
+                    if (stationBase is ProductionStation productionStation &&
+                        production.state == ItemState.OnWorkbench)
+                    {
+                        productionStation.productionList.Add(production);
+                    }
+
+                    if (stationBase is SalesStall salesStall &&
+                        production.state == ItemState.OnShelf)
+                    {
+                        salesStall.productList.Add(production);
+                    }
+
+                    if (stationBase is CashierCounter cashierCounter &&
+                        production.goodsType == GoodsType.TongBi &&
+                        production.state == ItemState.OnWorkbench)
+                    {
+                        cashierCounter.RegisterCoin(production);
+                    }
                 }
             }
 
@@ -892,7 +1970,7 @@ namespace Module
 
         private void ScheduleRuntimeSortingFix(GameController gameController, ScenePickupController pickupController)
         {
-            if (gameController == null || pickupController == null)
+            if (gameController == null)
             {
                 return;
             }
@@ -997,8 +2075,7 @@ namespace Module
                 coin.transform.position = new Vector3(pos.x, pos.y, coin.transform.position.z);
                 if (coin.spriteRenderer != null)
                 {
-                    coin.spriteRenderer.sortingOrder =
-                        cashier.grid.GetSortingOrderByIndex(baseOrder, 3, i);
+                    coin.spriteRenderer.sortingOrder = cashier.GetCoinSortingOrderByIndex(i);
                 }
                 cashier.RegisterCoin(coin);
             }
@@ -1076,6 +2153,153 @@ namespace Module
             }
         }
 
+        private void RestoreYuanBaoRuntimeStateForCurrentMap(int currentMapId, GameController gameController, ScenePickupController pickupController)
+        {
+            RestoreYuanBaoStateForCurrentMap(currentMapId);
+            RestoreYuanBaoMonstersForCurrentMap(currentMapId, gameController);
+            RestoreYuanBaoDropsForCurrentMap(currentMapId, gameController, pickupController);
+        }
+
+        private void RestoreYuanBaoStateForCurrentMap(int currentMapId)
+        {
+            EnsureRuntimeWorldSaveData();
+            EnsureYuanBaoKuangDongStateData();
+
+            var savedState = data.runtimeYuanBaoStateDataList.LastOrDefault(x => x.mapId == currentMapId);
+            if (savedState == null)
+            {
+                return;
+            }
+
+            DateTime now = DateTime.Now;
+            var state = GetOrCreateYuanBaoKuangDongState(currentMapId, now);
+
+            DateTime currentRefreshTime;
+            DateTime savedRefreshTime;
+            bool hasCurrentRefresh = DateTime.TryParse(state.lastRefreshTime, out currentRefreshTime);
+            bool hasSavedRefresh = DateTime.TryParse(savedState.lastRefreshTime, out savedRefreshTime);
+            if (hasSavedRefresh && (!hasCurrentRefresh || savedRefreshTime >= currentRefreshTime))
+            {
+                state.lastRefreshTime = savedRefreshTime.ToString(YuanBaoKuangDongTimeFormat);
+                state.generatedCount = Mathf.Max(0, savedState.generatedCount);
+                state.remainCount = Mathf.Max(0, savedState.remainCount);
+                NormalizeYuanBaoKuangDongState(state, now);
+                if (currentMapId == Mathf.Max(1, data.currentMapID))
+                {
+                    SyncLegacyYuanBaoKuangDongState(state);
+                }
+            }
+        }
+
+        private void RestoreYuanBaoMonstersForCurrentMap(int currentMapId, GameController gameController)
+        {
+            int savedMonsterCount = GetSavedYuanBaoMonsterCount(currentMapId);
+            if (savedMonsterCount <= 0)
+            {
+                return;
+            }
+
+            var factory = FindYuanBaoFactory(gameController);
+            if (factory == null)
+            {
+                return;
+            }
+
+            int liveCount = CountLiveYuanBaoMonsters(gameController);
+            for (int i = liveCount; i < savedMonsterCount; i++)
+            {
+                factory.SpawnRuntimeMonster(MonsterType.JingYuanBao);
+            }
+        }
+
+        private void RestoreYuanBaoDropsForCurrentMap(int currentMapId, GameController gameController, ScenePickupController pickupController)
+        {
+            int savedDropCount = GetSavedYuanBaoDropCount(currentMapId);
+            if (savedDropCount <= 0)
+            {
+                return;
+            }
+
+            var mine = FindYuanBaoKuangDong(gameController);
+            if (mine == null)
+            {
+                return;
+            }
+
+            var assetHandle = mine.GetComponent<AssetHandle>();
+            if (assetHandle == null)
+            {
+                return;
+            }
+
+            var prefab = assetHandle.Get<GameObject>("DropObj");
+            if (prefab == null)
+            {
+                return;
+            }
+
+            int liveCount = CountLiveYuanBaoDrops(pickupController);
+            int missingCount = savedDropCount - liveCount;
+            if (missingCount <= 0)
+            {
+                return;
+            }
+
+            var obj = Instantiate(prefab);
+            if (obj == null)
+            {
+                return;
+            }
+
+            obj.transform.position = GetRuntimeYuanBaoDropSpawnPosition(mine.transform.position);
+            var drop = obj.GetComponent<DropController>();
+            if (drop == null)
+            {
+                Destroy(obj);
+                return;
+            }
+
+            drop.Init(DropItemType.JingYuanBao, missingCount);
+            drop.canPickup = true;
+            if (drop.spriteRenderer != null)
+            {
+                drop.spriteRenderer.sortingOrder = 30000 - Mathf.RoundToInt(obj.transform.position.y * 100f) + 2;
+            }
+        }
+
+        private Vector3 GetRuntimeYuanBaoDropSpawnPosition(Vector3 center)
+        {
+            Vector2 offset = UnityEngine.Random.insideUnitCircle * 0.8f;
+            return new Vector3(center.x + offset.x, center.y + offset.y, center.z);
+        }
+
+        private YuanBaoKuangDongCtr FindYuanBaoKuangDong(GameController gameController)
+        {
+            if (gameController == null)
+            {
+                return null;
+            }
+
+            if (gameController.buildings != null &&
+                gameController.buildings.TryGetValue(BuildingType.YuanBaoKuangDong, out var structure) &&
+                structure is YuanBaoKuangDongCtr mine)
+            {
+                return mine;
+            }
+
+            var scene = gameController.gameObject.scene;
+            var mines = FindObjectsOfType<YuanBaoKuangDongCtr>(true);
+            for (int i = 0; i < mines.Length; i++)
+            {
+                var candidate = mines[i];
+                if (candidate == null) continue;
+                if (candidate.gameObject.scene != scene) continue;
+                return candidate;
+            }
+
+            return null;
+        }
+
         private void RestorePlayerInventory()
         {
             var player = GetCachedPlayerController();
@@ -1085,6 +2309,7 @@ namespace Module
             }
 
             player.dropDic.Clear();
+            int carryCount = 0;
             if (data.runtimePlayerDropList != null)
             {
                 foreach (var entry in data.runtimePlayerDropList)
@@ -1092,6 +2317,7 @@ namespace Module
                     if (entry == null) continue;
                     if (entry.count <= 0) continue;
                     player.dropDic[entry.itemType] = entry.count;
+                    carryCount += entry.count;
                 }
             }
 
@@ -1103,8 +2329,11 @@ namespace Module
                     if (entry == null) continue;
                     if (entry.count <= 0) continue;
                     player.goodsDic[entry.goodsType] = entry.count;
+                    carryCount += entry.count;
                 }
             }
+
+            player.currentCarryNum = carryCount;
 
             if (player.playerInfo != null)
             {
@@ -1114,35 +2343,17 @@ namespace Module
             {
                 EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerInfo);
             }
+
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerCarryInfo);
         }
 
-        public async Task SavePlayerDataAsync(bool captureRuntime = true)
+        public Task SavePlayerDataAsync(bool captureRuntime = true)
         {
             if (captureRuntime)
             {
                 CaptureRuntimeWorldState();
             }
-
-            _pendingLocalSave = true;
-            if (_isSavingLocalData)
-            {
-                return;
-            }
-
-            _isSavingLocalData = true;
-            try
-            {
-                var path = Path.Combine(Application.persistentDataPath, JsonFileName.PlayerData + "." + data.userAccount);
-                while (_pendingLocalSave)
-                {
-                    _pendingLocalSave = false;
-                    await JsonUtil.SaveDataAsync(data, path);
-                }
-            }
-            finally
-            {
-                _isSavingLocalData = false;
-            }
+            return Task.CompletedTask;
         }
         public void SavePlayerDataToSever(bool captureRuntime = true)
         {
@@ -1151,8 +2362,36 @@ namespace Module
                 CaptureRuntimeWorldState();
             }
 
+            var snapshot = CreatePlayerDataSnapshot();
+            if (snapshot == null)
+            {
+                return;
+            }
+
+            try
+            {
+                string snapshotJson = JsonConvert.SerializeObject(snapshot, Formatting.None);
+                Debug.Log(
+                    $"[RuntimeSave] user={snapshot.userAccount} digest={BuildCloudDataDigest(snapshotJson)} products={(snapshot.runtimeProductionDataList?.Count ?? 0)} stations={(snapshot.runtimeProductionStationDataList?.Count ?? 0)} playerDrop={(snapshot.runtimePlayerDropList?.Count ?? 0)} playerGoods={(snapshot.runtimePlayerGoodsList?.Count ?? 0)}");
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[RuntimeSave] Failed to build upload digest: {ex.Message}");
+            }
+
             _lastServerSaveRealtime = Time.realtimeSinceStartup;
-            LoginUtil.Instance.SaveToServer();
+            LoginUtil.Instance.SaveToServer(snapshot);
+        }
+
+        public void StopAutoSave()
+        {
+            if (_autoSaveCoroutine == null)
+            {
+                return;
+            }
+
+            StopCoroutine(_autoSaveCoroutine);
+            _autoSaveCoroutine = null;
         }
 
         public void BeginAutoSave()
@@ -1207,46 +2446,52 @@ namespace Module
             {
                 case 0:
                     UIController.Instance.Show<AttentionView>(
-                               "\u3000\u3000尊敬的玩家，您当前账号为未成年人账号，已被纳入防沉迷系统。根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》的要求，游戏中未满8周岁的用户，无法充值。",
-                               "不可充值提示");
+                               "当前账号为未满 8 周岁的未成年人账号，无法进行充值。",
+                               "健康游戏提示");
                     return false;
                 case 1:
                     if (money > 50)
                     {
                         UIController.Instance.Show<AttentionView>(
-                            "\u3000\u3000尊敬的玩家，您当前账号为未成年人账号，已被纳入防沉迷系统。根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》的要求，游戏中8周岁以上未满16周岁的用户，单次充值金额不得超过50元人民币，每月充值金额累计不得超过200元人民币，您本次剩余充值50元人民币。",
-                            "充值提示");
+                            "当前账号为 8 周岁以上未满 16 周岁的未成年人账号，单笔充值不能超过 50 元。",
+                            "健康游戏提示");
                         return false;
                     }
 
                     if (data.monthlyLimitMoney + money > 200)
                     {
                         UIController.Instance.Show<AttentionView>(
-                            $"\u3000\u3000尊敬的玩家，您当前账号为未成年人账号，已被纳入防沉迷系统。根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》的要求，游戏中8周岁以上未满16周岁的用户，单次充值金额不得超过50元人民币，每月充值金额累计不得超过200元人民币。您本月剩余充值{(200 - data.monthlyLimitMoney)}元人民币，无法充值。",
-                            "充值提示");
+                            "当前账号为 8 周岁以上未满 16 周岁的未成年人账号，本月累计充值不能超过 200 元。",
+                            "健康游戏提示");
                         return false;
                     }
 
                     data.monthlyLimitMoney += money;
+                      UIController.Instance.Show<AttentionView>(
+                            $"当前账号为 8 周岁以上未满 16 周岁的未成年人账号，本月剩余可充值额度：{Math.Max(0, 200 - data.monthlyLimitMoney)} 元。",
+                            "健康游戏提示");
                     return true;
                 case 2:
                     if (money > 100)
                     {
                         UIController.Instance.Show<AttentionView>(
-                            $"\u3000\u3000尊敬的玩家，您当前账号为未成年人账号，已被纳入防沉迷系统。根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》的要求，游戏中16周岁以上未满18周岁的用户，单次充值金额不得超过100元人民币，每月充值金额累计不得超过400元人民币，您本次剩余充值100元人民币。",
-                            "充值提示");
+                            "当前账号为 16 周岁以上未满 18 周岁的未成年人账号，单笔充值不能超过 100 元。",
+                            "健康游戏提示");
                         return false;
                     }
 
                     if (data.monthlyLimitMoney + money > 400)
                     {
                         UIController.Instance.Show<AttentionView>(
-                            $"\u3000\u3000尊敬的玩家，您当前账号为未成年人账号，已被纳入防沉迷系统。根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》的要求，游戏中16周岁以上未满18周岁的用户，单次充值金额不得超过100元人民币，每月充值金额累计不得超过400元人民币，您本月剩余充值{(400 - data.monthlyLimitMoney)}元人民币，无法充值。",
-                            "充值提示");
+                            "当前账号为 16 周岁以上未满 18 周岁的未成年人账号，本月累计充值不能超过 400 元。",
+                            "健康游戏提示");
                         return false;
                     }
 
                     data.monthlyLimitMoney += money;
+                     UIController.Instance.Show<AttentionView>(
+                            $"当前账号为 16 周岁以上未满 18 周岁的未成年人账号，本月剩余可充值额度：{Math.Max(0, 400 - data.monthlyLimitMoney)} 元。",
+                            "健康游戏提示");
                     return true;
                 case 3:
                     return true;
@@ -1266,7 +2511,7 @@ namespace Module
         /// <param name="onFailure"></param>
         public void Register(string username, string password, Action onSuccess, Action<string> onFailure)
         {
-            // 创建新账户
+            // 创建新账号
             LoginUtil.Instance.RegisterCheck(username, password, (respon) =>
             {
                 if (respon == null)
@@ -1275,7 +2520,7 @@ namespace Module
                     return;
                 }
 
-                switch (respon.state) //1.是注册成功，2.是注册失败 3.是用户已存在
+                switch (respon.state) // 1.注册成功，2.注册失败，3.用户已存在
                 {
                     case 1:
                         onSuccess?.Invoke();
@@ -1294,7 +2539,7 @@ namespace Module
         }
 
         /// <summary>
-        /// 实名
+        /// 实名认证
         /// </summary>
         public void RealName(string idnum, string chinese, string fcmLvl,
             Action<ResponseRealName> callback)
@@ -1303,7 +2548,7 @@ namespace Module
             {
                 if (response == null)
                 {
-                    Debug.Log("JSON解析失败，检查格式是否正确");
+                    Debug.Log("JSON解析失败，请检查格式是否正确。");
                     return;
                 }
 
@@ -1317,31 +2562,50 @@ namespace Module
              {
                  if (respone.state == 1)
                  {
-                     if (respone.more != null && !string.IsNullOrEmpty(respone.more))
+                     bool hasServerSave = !string.IsNullOrWhiteSpace(respone.more);
+                     if (hasServerSave)
                      {
-                         data = null;
-                         data = DeserializePlayerDataWithLegacyFallback(respone.more);
-                         NormalizeOrderProgressData();
-                         NormalizeCashierData();
-                         NormalizeStructureUnlockData();
-                         NormalizeProductStationData();
-                         data.age = respone.age;
-                         Debug.Log($"[RuntimeLoad] products={(data.runtimeProductionDataList?.Count ?? 0)} stations={(data.runtimeProductionStationDataList?.Count ?? 0)} drop={(data.runtimePlayerDropList?.Count ?? 0)} goods={(data.runtimePlayerGoodsList?.Count ?? 0)}");
-                         SavePlayerDataAsync();
+                         if (TryDeserializePlayerDataWithLegacyFallback(respone.more, out var serverData))
+                         {
+                             data = serverData;
+                             NormalizeOrderProgressData();
+                             NormalizeCashierData();
+                             NormalizeStructureUnlockData();
+                             NormalizeWarehouseData();
+                             NormalizeBagCapacityData();
+                             NormalizeProductStationData();
+                             Debug.Log($"[RuntimeLoad] source=server products={(data.runtimeProductionDataList?.Count ?? 0)} stations={(data.runtimeProductionStationDataList?.Count ?? 0)} drop={(data.runtimePlayerDropList?.Count ?? 0)} goods={(data.runtimePlayerGoodsList?.Count ?? 0)}");
+                         }
+                         else
+                         {
+                             Debug.LogError($"[RuntimeLoad] source=server_corrupted user={user} more={BuildCloudDataDigest(respone.more)}");
+                             UIController.Instance.Show<TipView>("云存档数据损坏，无法登录该账号。");
+                             return;
+                         }
                      }
                      else
                      {
                          data = new PlayerData();
-                         data.userAccount = user;
-                         data.userPassword = password;
-
                          FiilOrderData();
                          NormalizeCashierData();
                          NormalizeStructureUnlockData();
+                         NormalizeWarehouseData();
+                         NormalizeBagCapacityData();
                          NormalizeProductStationData();
-                         SavePlayerDataAsync();
-                         SavePlayerDataToSever();
+                         Debug.Log($"[RuntimeLoad] source=new_player user={user}");
+                     }
 
+                     ApplyLoginIdentity(respone, user, password);
+                     SyncAgeFromLoginResponse(respone);
+                     SavePlayerDataAsync();
+                     if (!hasServerSave)
+                     {
+                         SavePlayerDataToSever();
+                     }
+
+                     if (false)
+                     {
+                         UIController.Instance.Show<TipView>("云存档损坏，已使用降级存档登录。");
                      }
 
                      EnsureRuntimeWorldSaveData();
@@ -1367,7 +2631,7 @@ namespace Module
                          data.lastloginday = now.ToString("yyyy/MM/dd");
                      }
 
-                     callback?.Invoke(respone.fcm);
+                     callback?.Invoke(respone.GetResolvedFcm());
                      DataController.Instance.UpdateStructureLockInfo();
                      StartOrderAutoCheck();
                  }
@@ -1384,6 +2648,39 @@ namespace Module
                      UIController.Instance.Show<TipView>(respone.msg);
                  }
              });
+        }
+
+        private void ApplyLoginIdentity(ResponseLogin response, string fallbackAccount, string fallbackPassword)
+        {
+            if (data == null)
+            {
+                return;
+            }
+
+            string resolvedAccount = response != null ? response.GetResolvedAccount() : null;
+            string resolvedPassword = response != null ? response.GetResolvedPassword() : null;
+            data.userAccount = !string.IsNullOrWhiteSpace(resolvedAccount) ? resolvedAccount : fallbackAccount;
+            data.userPassword = !string.IsNullOrWhiteSpace(resolvedPassword) ? resolvedPassword : fallbackPassword;
+
+            int resolvedId = response != null ? response.GetResolvedId() : 0;
+            if (resolvedId > 0)
+            {
+                data.user_id = resolvedId;
+            }
+        }
+
+        private void SyncAgeFromLoginResponse(ResponseLogin response)
+        {
+            if (data == null || response == null)
+            {
+                return;
+            }
+
+            int resolvedAge = response.GetResolvedAge();
+            if (resolvedAge > 0)
+            {
+                data.age = resolvedAge;
+            }
         }
 
         public void FiilOrderData()
@@ -1426,7 +2723,7 @@ namespace Module
             }
             catch (JsonException ex)
             {
-                Debug.LogWarning($"[PlayerDataLoad] Primary deserialize failed: {ex.Message}");
+                Debug.LogWarning($"[PlayerDataLoad] Primary deserialize failed: {ex.Message}; summary={BuildCloudDataDigest(json)}");
             }
 
             if (TryNormalizeLegacyOrderProgressJson(json, out string repairedJson))
@@ -1438,7 +2735,7 @@ namespace Module
                 }
                 catch (JsonException ex)
                 {
-                    Debug.LogWarning($"[PlayerDataLoad] Normalized retry failed: {ex.Message}");
+                    Debug.LogWarning($"[PlayerDataLoad] Normalized retry failed: {ex.Message}; summary={BuildCloudDataDigest(repairedJson)}");
                 }
             }
 
@@ -1451,9 +2748,39 @@ namespace Module
             return JsonConvert.DeserializeObject<PlayerData>(json, settings);
         }
 
+        private bool TryDeserializePlayerDataWithLegacyFallback(string json, out PlayerData playerData)
+        {
+            playerData = null;
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return false;
+            }
+
+            try
+            {
+                playerData = DeserializePlayerDataWithLegacyFallback(json);
+                return playerData != null;
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning($"[PlayerDataLoad] Final deserialize failed: {ex.Message}; summary={BuildCloudDataDigest(json)}");
+                return false;
+            }
+        }
+
         public void RefreshYuanBaoKuangDongDailyCountIfNeeded()
         {
             RefreshYuanBaoKuangDongDailyCountIfNeeded(DateTime.Now);
+        }
+
+        public void ResetYuanBaoKuangDongCountForMapSwitch()
+        {
+            ResetYuanBaoKuangDongCountForMapSwitch(DateTime.Now);
+        }
+
+        public void ResetYuanBaoKuangDongCountForMapSwitch(DateTime now)
+        {
+            RefreshYuanBaoKuangDongDailyCountIfNeeded(now);
         }
 
         public void RefreshYuanBaoKuangDongDailyCountIfNeeded(DateTime now)
@@ -1463,13 +2790,50 @@ namespace Module
                 return;
             }
 
-            if (!ShouldRefreshYuanBaoKuangDong(now))
+            GetOrCreateYuanBaoKuangDongState(Mathf.Max(1, data.currentMapID), now);
+        }
+
+        public int GetYuanBaoKuangDongRemainingCount(int mapId = -1)
+        {
+            if (data == null)
             {
-                return;
+                return 0;
             }
 
-            data.lastRefrashTime = now.ToString("yyyy-MM-dd HH:mm:ss");
-            data.remainCount = GetYuanBaoKuangDongDailyCount();
+            int targetMapId = mapId > 0 ? mapId : Mathf.Max(1, data.currentMapID);
+            return GetOrCreateYuanBaoKuangDongState(targetMapId, DateTime.Now).remainCount;
+        }
+
+        public int GetYuanBaoKuangDongGeneratedCount(int mapId = -1)
+        {
+            if (data == null)
+            {
+                return 0;
+            }
+
+            int targetMapId = mapId > 0 ? mapId : Mathf.Max(1, data.currentMapID);
+            return GetOrCreateYuanBaoKuangDongState(targetMapId, DateTime.Now).generatedCount;
+        }
+
+        public bool TryConsumeYuanBaoKuangDongSpawnQuota(int mapId = -1)
+        {
+            if (data == null)
+            {
+                return false;
+            }
+
+            int targetMapId = mapId > 0 ? mapId : Mathf.Max(1, data.currentMapID);
+            var state = GetOrCreateYuanBaoKuangDongState(targetMapId, DateTime.Now);
+            int limit = GetYuanBaoKuangDongWindowCount();
+            if (state.remainCount <= 0)
+            {
+                return false;
+            }
+
+            state.generatedCount = Mathf.Min(limit, state.generatedCount + 1);
+            state.remainCount = Mathf.Clamp(limit - state.generatedCount, 0, limit);
+            SyncLegacyYuanBaoKuangDongState(state);
+            return true;
         }
 
         public DateTime GetYuanBaoKuangDongNextRefreshTime()
@@ -1479,7 +2843,18 @@ namespace Module
 
         public DateTime GetYuanBaoKuangDongNextRefreshTime(DateTime now)
         {
-            return now.Date.AddDays(1);
+            if (data == null)
+            {
+                return now.AddHours(YuanBaoKuangDongRefreshHours);
+            }
+
+            var state = GetOrCreateYuanBaoKuangDongState(Mathf.Max(1, data.currentMapID), now);
+            if (!DateTime.TryParse(state.lastRefreshTime, out DateTime lastRefreshTime))
+            {
+                return now.AddHours(YuanBaoKuangDongRefreshHours);
+            }
+
+            return lastRefreshTime.AddHours(YuanBaoKuangDongRefreshHours);
         }
 
         public string GetYuanBaoKuangDongNextRefreshText()
@@ -1497,22 +2872,90 @@ namespace Module
             return $"还有{hours}小时{minutes}分钟刷新。";
         }
 
-        private bool ShouldRefreshYuanBaoKuangDong(DateTime now)
+        private string GetYuanBaoKuangDongNextRefreshText_Legacy(DateTime now)
         {
-            if (string.IsNullOrEmpty(data.lastRefrashTime))
-            {
-                return true;
-            }
-
-            if (!DateTime.TryParse(data.lastRefrashTime, out DateTime lastRefreshTime))
-            {
-                return true;
-            }
-
-            return lastRefreshTime.Date < now.Date;
+            return string.Empty;
         }
 
-        private int GetYuanBaoKuangDongDailyCount()
+        private void EnsureYuanBaoKuangDongStateData()
+        {
+            if (data == null)
+            {
+                return;
+            }
+
+            data.yuanBaoKuangDongStateDataList ??= new List<YuanBaoKuangDongStateData>();
+            if (data.yuanBaoKuangDongStateDataList.Count > 0)
+            {
+                return;
+            }
+
+            int mapId = Mathf.Max(1, data.currentMapID);
+            int limit = GetYuanBaoKuangDongWindowCount();
+            int remainCount = Mathf.Clamp(data.remainCount, 0, limit);
+            data.yuanBaoKuangDongStateDataList.Add(new YuanBaoKuangDongStateData
+            {
+                mapId = mapId,
+                generatedCount = Mathf.Clamp(limit - remainCount, 0, limit),
+                remainCount = remainCount,
+                lastRefreshTime = data.lastRefrashTime
+            });
+        }
+
+        private YuanBaoKuangDongStateData GetOrCreateYuanBaoKuangDongState(int mapId, DateTime now)
+        {
+            EnsureYuanBaoKuangDongStateData();
+            var state = data.yuanBaoKuangDongStateDataList.Find(x => x.mapId == mapId);
+            if (state == null)
+            {
+                state = new YuanBaoKuangDongStateData
+                {
+                    mapId = mapId,
+                    generatedCount = 0,
+                    remainCount = GetYuanBaoKuangDongWindowCount(),
+                    lastRefreshTime = now.ToString(YuanBaoKuangDongTimeFormat)
+                };
+                data.yuanBaoKuangDongStateDataList.Add(state);
+            }
+
+            NormalizeYuanBaoKuangDongState(state, now);
+            if (mapId == Mathf.Max(1, data.currentMapID))
+            {
+                SyncLegacyYuanBaoKuangDongState(state);
+            }
+
+            return state;
+        }
+
+        private void NormalizeYuanBaoKuangDongState(YuanBaoKuangDongStateData state, DateTime now)
+        {
+            int limit = GetYuanBaoKuangDongWindowCount();
+            DateTime windowStart;
+            if (!DateTime.TryParse(state.lastRefreshTime, out windowStart))
+            {
+                windowStart = now;
+            }
+
+            while (windowStart.AddHours(YuanBaoKuangDongRefreshHours) <= now)
+            {
+                windowStart = windowStart.AddHours(YuanBaoKuangDongRefreshHours);
+                state.generatedCount = 0;
+                state.remainCount = limit;
+            }
+
+            int generatedFromRemain = Mathf.Clamp(limit - Mathf.Clamp(state.remainCount, 0, limit), 0, limit);
+            state.generatedCount = Mathf.Clamp(Mathf.Max(state.generatedCount, generatedFromRemain), 0, limit);
+            state.remainCount = Mathf.Clamp(limit - state.generatedCount, 0, limit);
+            state.lastRefreshTime = windowStart.ToString(YuanBaoKuangDongTimeFormat);
+        }
+
+        private void SyncLegacyYuanBaoKuangDongState(YuanBaoKuangDongStateData state)
+        {
+            data.remainCount = state.remainCount;
+            data.lastRefrashTime = state.lastRefreshTime;
+        }
+
+        private int GetYuanBaoKuangDongWindowCount()
         {
             int count = 30;
             var cardProgress = data.cardUpProgressesList?.Find(x => x.developType == CardDevelopType.UpgradeGetYuanBaoLing);
@@ -1712,6 +3155,310 @@ namespace Module
             cashierData.earning = Mathf.Max(1f, cashierData.earning);
         }
 
+        private void NormalizeWarehouseData()
+        {
+            if (data == null)
+            {
+                return;
+            }
+
+            const int defaultWarehouseCapacity = 60;
+            const int defaultMaxAtkLevel = 60;
+            const int defaultMaxNumLevel = 3;
+            const float defaultWarehouseAtk = 10f;
+            const float warehouseAtkLevelStep = 1.5f;
+
+            data.warehouselist ??= new List<WarehouseCategory>();
+
+            List<WarehouseCategoryType> expectedTypes = GetExpectedWarehouseTypesForCurrentMap();
+            Dictionary<WarehouseCategoryType, WarehouseCategory> normalizedWarehouseMap = new Dictionary<WarehouseCategoryType, WarehouseCategory>();
+
+            foreach (var warehouse in data.warehouselist)
+            {
+                if (warehouse == null || !IsSupportedWarehouseType(warehouse.warehouseCategoryType))
+                {
+                    continue;
+                }
+
+                if (!expectedTypes.Contains(warehouse.warehouseCategoryType))
+                {
+                    continue;
+                }
+
+                NormalizeWarehouseCategory(warehouse);
+                if (!normalizedWarehouseMap.TryGetValue(warehouse.warehouseCategoryType, out var existingWarehouse))
+                {
+                    normalizedWarehouseMap[warehouse.warehouseCategoryType] = warehouse;
+                    continue;
+                }
+
+                if (ReferenceEquals(existingWarehouse, warehouse))
+                {
+                    NormalizeWarehouseCategory(existingWarehouse);
+                    continue;
+                }
+
+                existingWarehouse.capacity = Mathf.Max(existingWarehouse.capacity, warehouse.capacity);
+                existingWarehouse.maxAtkLevel = Mathf.Max(existingWarehouse.maxAtkLevel, warehouse.maxAtkLevel);
+                existingWarehouse.maxNumLevel = Mathf.Max(existingWarehouse.maxNumLevel, warehouse.maxNumLevel);
+                existingWarehouse.atkLevel = Mathf.Max(existingWarehouse.atkLevel, warehouse.atkLevel);
+                existingWarehouse.numLevel = Mathf.Max(existingWarehouse.numLevel, warehouse.numLevel);
+                existingWarehouse.peopleNum = Mathf.Max(existingWarehouse.peopleNum, warehouse.peopleNum);
+                existingWarehouse.atk = Mathf.Max(existingWarehouse.atk, warehouse.atk);
+                existingWarehouse.workingCollectorList.AddRange(warehouse.workingCollectorList);
+                existingWarehouse.unworkingCollectorList.AddRange(warehouse.unworkingCollectorList);
+                existingWarehouse.targetTypeList.AddRange(warehouse.targetTypeList);
+                existingWarehouse.ownItemList.list.AddRange(warehouse.ownItemList.list);
+                NormalizeWarehouseCategory(existingWarehouse);
+            }
+
+            foreach (var expectedType in expectedTypes)
+            {
+                if (normalizedWarehouseMap.ContainsKey(expectedType))
+                {
+                    continue;
+                }
+
+                var warehouse = new WarehouseCategory(expectedType)
+                {
+                    capacity = defaultWarehouseCapacity,
+                    maxAtkLevel = defaultMaxAtkLevel,
+                    maxNumLevel = defaultMaxNumLevel,
+                    atk = defaultWarehouseAtk
+                };
+                NormalizeWarehouseCategory(warehouse);
+                normalizedWarehouseMap[expectedType] = warehouse;
+            }
+
+            data.warehouselist = expectedTypes
+                .Where(normalizedWarehouseMap.ContainsKey)
+                .Select(type => normalizedWarehouseMap[type])
+                .ToList();
+
+            return;
+
+            List<WarehouseCategoryType> GetExpectedWarehouseTypesForCurrentMap()
+            {
+                List<WarehouseCategoryType> result = new List<WarehouseCategoryType>();
+                if (data.structUnLockDataDic == null)
+                {
+                    return result;
+                }
+
+                int mapId = Mathf.Clamp(data.currentMapID, 1, 5);
+                if (!data.structUnLockDataDic.TryGetValue(mapId, out var unlockedBuildings) || unlockedBuildings == null)
+                {
+                    return result;
+                }
+
+                if (unlockedBuildings.Contains(BuildingType.LingChuGe_1))
+                {
+                    result.Add(WarehouseCategoryType.LingChuGe_1);
+                }
+
+                if (unlockedBuildings.Contains(BuildingType.LingChuGe_2))
+                {
+                    result.Add(WarehouseCategoryType.LingChuGe_2);
+                }
+
+                return result;
+            }
+
+            bool IsSupportedWarehouseType(WarehouseCategoryType warehouseType)
+            {
+                return warehouseType == WarehouseCategoryType.LingChuGe_1 ||
+                       warehouseType == WarehouseCategoryType.LingChuGe_2;
+            }
+
+            void NormalizeWarehouseCategory(WarehouseCategory warehouse)
+            {
+                warehouse.workingCollectorList ??= new List<Collector>();
+                warehouse.unworkingCollectorList ??= new List<Collector>();
+                warehouse.targetTypeList ??= new List<MonsterFamily>();
+                warehouse.ownItemList ??= new SerializableIntDictionary<int>();
+                warehouse.ownItemList.list ??= new List<IntKeyValue<int>>();
+
+                warehouse.capacity = defaultWarehouseCapacity;
+                warehouse.maxAtkLevel = defaultMaxAtkLevel;
+                warehouse.maxNumLevel = defaultMaxNumLevel;
+                warehouse.atkLevel = Mathf.Clamp(Mathf.Max(1, warehouse.atkLevel), 1, warehouse.maxAtkLevel);
+                warehouse.numLevel = Mathf.Clamp(Mathf.Max(1, warehouse.numLevel), 1, warehouse.maxNumLevel);
+
+                List<Collector> workingCollectors = new List<Collector>();
+                HashSet<MonsterFamily> assignedMonsterSet = new HashSet<MonsterFamily>();
+                foreach (var collector in warehouse.workingCollectorList)
+                {
+                    if (collector == null || !Enum.IsDefined(typeof(MonsterFamily), collector.monsterType) || collector.monsterType == MonsterFamily.None)
+                    {
+                        continue;
+                    }
+
+                    if (!assignedMonsterSet.Add(collector.monsterType))
+                    {
+                        continue;
+                    }
+
+                    workingCollectors.Add(collector);
+                }
+
+                int normalizedPeopleNum = Mathf.Clamp(
+                    Mathf.Max(1, warehouse.peopleNum, warehouse.numLevel, workingCollectors.Count),
+                    1,
+                    warehouse.maxNumLevel);
+                warehouse.numLevel = Mathf.Clamp(Mathf.Max(warehouse.numLevel, normalizedPeopleNum), 1, warehouse.maxNumLevel);
+                warehouse.peopleNum = warehouse.numLevel;
+
+                if (workingCollectors.Count > warehouse.peopleNum)
+                {
+                    workingCollectors = workingCollectors.Take(warehouse.peopleNum).ToList();
+                }
+
+                List<Collector> unworkingCollectors = new List<Collector>();
+                foreach (var collector in warehouse.unworkingCollectorList)
+                {
+                    if (collector == null)
+                    {
+                        continue;
+                    }
+
+                    collector.monsterType = MonsterFamily.None;
+                    unworkingCollectors.Add(collector);
+                }
+
+                int nextCollectorId = 1;
+                foreach (var collector in workingCollectors)
+                {
+                    collector.id = nextCollectorId++;
+                }
+
+                int needIdleCollectorCount = warehouse.peopleNum - workingCollectors.Count;
+                List<Collector> finalUnworkingCollectors = new List<Collector>();
+                for (int i = 0; i < needIdleCollectorCount; i++)
+                {
+                    Collector collector = i < unworkingCollectors.Count
+                        ? unworkingCollectors[i]
+                        : new Collector(nextCollectorId, MonsterFamily.None);
+                    collector.id = nextCollectorId++;
+                    collector.monsterType = MonsterFamily.None;
+                    finalUnworkingCollectors.Add(collector);
+                }
+
+                warehouse.workingCollectorList = workingCollectors;
+                warehouse.unworkingCollectorList = finalUnworkingCollectors;
+                warehouse.atk = defaultWarehouseAtk + (warehouse.atkLevel - 1) * warehouseAtkLevelStep;
+
+                HashSet<MonsterFamily> targetTypeSet = new HashSet<MonsterFamily>();
+                foreach (var targetType in warehouse.targetTypeList)
+                {
+                    if (!Enum.IsDefined(typeof(MonsterFamily), targetType) || targetType == MonsterFamily.None)
+                    {
+                        continue;
+                    }
+
+                    targetTypeSet.Add(targetType);
+                }
+
+                foreach (var collector in warehouse.workingCollectorList)
+                {
+                    if (collector != null && collector.monsterType != MonsterFamily.None)
+                    {
+                        targetTypeSet.Add(collector.monsterType);
+                    }
+                }
+
+                warehouse.targetTypeList = targetTypeSet
+                    .OrderBy(value => (int)value)
+                    .ToList();
+
+                Dictionary<int, int> mergedOwnItemMap = new Dictionary<int, int>();
+                foreach (var item in warehouse.ownItemList.list)
+                {
+                    if (item == null || item.value <= 0 || !Enum.IsDefined(typeof(DropItemType), item.key))
+                    {
+                        continue;
+                    }
+
+                    if (!mergedOwnItemMap.TryAdd(item.key, item.value))
+                    {
+                        mergedOwnItemMap[item.key] += item.value;
+                    }
+                }
+
+                warehouse.ownItemList.list = mergedOwnItemMap
+                    .OrderBy(pair => pair.Key)
+                    .Select(pair => new IntKeyValue<int> { key = pair.Key, value = pair.Value })
+                    .ToList();
+            }
+        }
+
+        private PlayerData CreatePlayerDataSnapshot()
+        {
+            if (data == null)
+            {
+                return null;
+            }
+
+            NormalizeBagCapacityData();
+
+            try
+            {
+                string json = JsonConvert.SerializeObject(data, Formatting.None);
+                var settings = new JsonSerializerSettings
+                {
+                    ObjectCreationHandling = ObjectCreationHandling.Replace
+                };
+                return JsonConvert.DeserializeObject<PlayerData>(json, settings);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError($"[PlayerDataSave] Failed to create snapshot: {ex.Message}");
+                return null;
+            }
+        }
+
+        private void NormalizeBagCapacityData()
+        {
+            if (data == null)
+            {
+                return;
+            }
+
+            if (!TryGetBagCapacityById(data.currentBag, out float equippedCapacity))
+            {
+                if (data.currentBag != 1)
+                {
+                    return;
+                }
+
+                equippedCapacity = 0f;
+            }
+
+            if (!data.bagCapacityDataMigrated)
+            {
+                data.bagCapacityDataMigrated = true;
+            }
+
+            RefreshTalentDerivedStats();
+            data.equippedBagCapacity = equippedCapacity;
+        }
+
+        private bool TryGetBagCapacityById(int bagId, out float capacity)
+        {
+            capacity = 0f;
+            if (DataController.Instance == null || DataController.Instance.storageBagDataDic == null)
+            {
+                return false;
+            }
+
+            if (!DataController.Instance.storageBagDataDic.TryGetValue(bagId, out var bagData) || bagData == null)
+            {
+                return false;
+            }
+
+            capacity = bagData.capacity;
+            return true;
+        }
+
         private void NormalizeProductStationData()
         {
             if (data == null)
@@ -1824,7 +3571,7 @@ namespace Module
                 data.structLockDataDic[mapId].RemoveAll(x => sanitizedUnlocked.Contains(x));
             }
 
-            EnsureEmployeeFunctionUnlockedByYunDiGe();
+            SyncEmployeeFunctionStateByYunDiGe();
         }
 
         public void RefreshStructureUnlockData()
@@ -1832,21 +3579,48 @@ namespace Module
             NormalizeStructureUnlockData();
         }
 
-        private void EnsureEmployeeFunctionUnlockedByYunDiGe()
+        private void SyncEmployeeFunctionStateByYunDiGe()
         {
-            if (data == null || data.employeeFunction == 1 || data.structUnLockDataDic == null)
+            if (data == null || data.structUnLockDataDic == null)
             {
                 return;
             }
 
-            foreach (var unlockedList in data.structUnLockDataDic.Values)
+            bool shouldUnlock = HasUnlockedYunDiGeInRealUnlockedMaps();
+            int targetState = shouldUnlock ? 1 : 0;
+            if (data.employeeFunction == targetState)
             {
-                if (unlockedList != null && unlockedList.Contains(BuildingType.YunDiGe))
+                return;
+            }
+
+            data.employeeFunction = targetState;
+            EventCenter.Instance.TriggerEvent(EventMessages.UpdateFunctionState);
+        }
+
+        private bool HasUnlockedYunDiGeInRealUnlockedMaps()
+        {
+            if (data?.structUnLockDataDic == null)
+            {
+                return false;
+            }
+
+            var realUnlockedMaps = data.realUnlockMapList;
+            if (realUnlockedMaps == null || realUnlockedMaps.Count == 0)
+            {
+                realUnlockedMaps = new List<int> { Mathf.Max(1, data.currentMapID) };
+            }
+
+            foreach (var mapId in realUnlockedMaps)
+            {
+                if (data.structUnLockDataDic.TryGetValue(mapId, out var unlockedList) &&
+                    unlockedList != null &&
+                    unlockedList.Contains(BuildingType.YunDiGe))
                 {
-                    UnlockEmployeeFunction();
-                    return;
+                    return true;
                 }
             }
+
+            return false;
         }
 
         private static IEnumerable<BuildingType> GetDefaultUnlockedBuildingsForMap(int mapId)
@@ -2077,8 +3851,8 @@ namespace Module
         {
 
             data.accountLevel += 1;
-            UIController.Instance.Show<TipView>($"等级提升，获得翠芒珠x4！");
-            if (data.accountLevel >= 2)
+            UIController.Instance.Show<UpLevelView>();
+            if (data.accountLevel >= 1)
             {
                 if (data.characterFunction == 0)
                 {
@@ -2144,7 +3918,7 @@ namespace Module
             EventCenter.Instance.TriggerEvent(EventMessages.UpdateFunctionState);
         }
 
-        public void GetTaskReward(int rewardId)
+        public void GetTaskReward(int rewardId, bool showTip = true)
         {
             RewardData rewardData = DataController.Instance.taskRewardDataDic[rewardId];
             data.star += rewardData.Jmz;
@@ -2158,7 +3932,10 @@ namespace Module
             data.tongbi += rewardData.Tq;
             data.goldIngot += rewardData.Jyb;
             EventCenter.Instance.TriggerEvent(EventMessages.MakeTongBiTask, rewardData.Tq);
-            UIController.Instance.Show<TipView>("领取成功！");
+            if (showTip)
+            {
+                UIController.Instance.Show<TipView>("领取成功！");
+            }
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerMoneyInfo);
             EventCenter.Instance.TriggerEvent(EventMessages.UpdateLevelProgress);
         }
@@ -2289,21 +4066,19 @@ namespace Module
 
         public void HandleUpGradeStuctureTask(params object[] args)
         {
-            BuildingType buildingType = (BuildingType)args[0];
+            if (args == null || args.Length == 0 || args[0] is not BuildingType buildingType)
+            {
+                Debug.LogWarning("[HandleUpGradeStuctureTask] Missing or invalid buildingType argument.");
+                return;
+            }
+
             foreach (var _data in data.listenInTaskList)
             {
                 if (_data.type == TaskType.Upgrade)
                 {
                     if ((BuildingType)_data.aimId == buildingType)
                     {
-                        if (data.taskProgressDic.ContainsKey(_data.taskId))
-                        {
-                            data.taskProgressDic[_data.taskId]++;
-                        }
-                        else
-                        {
-                            data.taskProgressDic.Add(_data.taskId, 1);
-                        }
+                        RefreshUpgradeTaskProgress(_data);
                     }
                     if (buildingType == BuildingType.YuShaHu_1 && data.guideStep == GuideStep.UpgradePot)
                     {
@@ -2533,6 +4308,71 @@ namespace Module
         {
             throw new NotImplementedException();
         }
+
+        private static string BuildCloudDataDigest(string text)
+        {
+            if (text == null)
+            {
+                return "null";
+            }
+
+            if (text.Length == 0)
+            {
+                return "empty";
+            }
+
+            int bytes = Encoding.UTF8.GetByteCount(text);
+            int openBraceCount = CountChar(text, '{');
+            int closeBraceCount = CountChar(text, '}');
+            int quoteCount = CountChar(text, '"');
+            return $"chars={text.Length} bytes={bytes} sha256={ComputeSha256Prefix(text)} braces={openBraceCount}/{closeBraceCount} quotes={quoteCount} head=\"{GetSnippet(text, true)}\" tail=\"{GetSnippet(text, false)}\"";
+        }
+
+        private static int CountChar(string text, char value)
+        {
+            int count = 0;
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (text[i] == value)
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private static string ComputeSha256Prefix(string text)
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(text);
+            byte[] hash;
+            using (SHA256 sha256 = SHA256.Create())
+            {
+                hash = sha256.ComputeHash(bytes);
+            }
+            StringBuilder sb = new StringBuilder(16);
+            for (int i = 0; i < 8 && i < hash.Length; i++)
+            {
+                sb.Append(hash[i].ToString("x2"));
+            }
+
+            return sb.ToString();
+        }
+
+        private static string GetSnippet(string text, bool fromStart, int maxLength = 80)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return string.Empty;
+            }
+
+            string snippet = fromStart
+                ? text.Substring(0, Math.Min(maxLength, text.Length))
+                : text.Substring(Math.Max(0, text.Length - maxLength));
+            return snippet.Replace("\r", "\\r").Replace("\n", "\\n");
+        }
     }
 
 }
+
+

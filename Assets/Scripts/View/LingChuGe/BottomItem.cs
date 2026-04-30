@@ -14,6 +14,7 @@ namespace View.LingChuGe
         public int num;
         public WarehouseCategoryType warehouseCategoryType;
         public MonsterType type;
+        public WarehouseCategory warehouseCategory;
         public AssetHandle assetHandle;
         public TextMeshProUGUI numtxt;
 
@@ -21,6 +22,8 @@ namespace View.LingChuGe
         {
             type = monsterType;
             warehouseCategoryType = waretype;
+            warehouseCategory = PlayerDataModule.Instance.data.warehouselist
+                .Find(x => x.warehouseCategoryType == warehouseCategoryType);
             if (assetHandle == null)
             {
                 assetHandle = GetComponent<AssetHandle>();
@@ -41,14 +44,11 @@ namespace View.LingChuGe
 
         public void HandleUpdateLingChuGeInfo(params object[] args)
         {
-            WarehouseCategory data = PlayerDataModule.Instance.data.warehouselist
-                .Find(x => x.warehouseCategoryType == warehouseCategoryType);
-            if (data == null)
+            if (warehouseCategory == null)
             {
-                Debug.LogError(" WarehouseCategory data == null");
                 return;
             }
-            num = data.ownItemList.Get((int)type);
+            num = warehouseCategory.ownItemList.Get((int)type);
             numtxt.text = num.ToString();
         }
     }

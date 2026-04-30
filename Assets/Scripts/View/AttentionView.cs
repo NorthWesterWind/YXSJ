@@ -28,6 +28,10 @@ public class AttentionView : BaseView
         infotxt.gameObject.SetActive(false);
         infotxt.gameObject.SetActive(true);
         Canvas.ForceUpdateCanvases();
+        infotxt.ForceMeshUpdate(); 
+        LayoutRebuilder.ForceRebuildLayoutImmediate(
+            verticalLayoutGroup.GetComponent<RectTransform>()
+        );
 
     }
 

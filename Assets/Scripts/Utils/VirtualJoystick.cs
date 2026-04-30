@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Utils;
 
 public class VirtualJoystick : MonoBehaviour,
     IPointerDownHandler,
@@ -26,6 +27,7 @@ public class VirtualJoystick : MonoBehaviour,
     private Canvas canvas;
     private Camera uiCamera;
     private bool ignoreCurrentPointer;
+    private bool canInput = true;
 
     public float Horizontal => horizontal ? InputVector.x : 0f;
     public float Vertical => vertical ? InputVector.y : 0f;
@@ -36,8 +38,6 @@ public class VirtualJoystick : MonoBehaviour,
 
     public void Awake()
     {
-
-
         if (isTrial)
         {
 
@@ -53,6 +53,9 @@ public class VirtualJoystick : MonoBehaviour,
             ? null
             : canvas.worldCamera;
         baseRect.gameObject.SetActive(false);
+
+        EventCenter.Instance.AddListener(EventMessages.LockJoystickInput, CloseInput);
+        EventCenter.Instance.AddListener(EventMessages.UnlockJoystickInput, OpenInput);
     }
 
     void OnEnable()
@@ -60,8 +63,20 @@ public class VirtualJoystick : MonoBehaviour,
         ResetJoystick();
         ignoreCurrentPointer = false;
     }
+
+    private void OnDestroy()
+    {
+        EventCenter.Instance.RemoveListener(EventMessages.LockJoystickInput, CloseInput);
+        EventCenter.Instance.RemoveListener(EventMessages.UnlockJoystickInput, OpenInput);
+    }
+
     public void OnPointerDown(PointerEventData eventData)
     {
+        if (!canInput)
+        {
+            return;
+        }
+
         if (!isTrial && TryPassThroughToUnderlyingClickable(eventData))
         {
             ignoreCurrentPointer = true;
@@ -90,7 +105,7 @@ public class VirtualJoystick : MonoBehaviour,
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (ignoreCurrentPointer) return;
+        if (!canInput || ignoreCurrentPointer) return;
         HandleDragInternal(eventData);
     }
 
@@ -205,5 +220,17 @@ public class VirtualJoystick : MonoBehaviour,
         }
 
         return false;
+    }
+
+    private void CloseInput(params object[] args)
+    {
+        canInput = false;
+        ignoreCurrentPointer = false;
+        ResetJoystick();
+    }
+
+    private void OpenInput(params object[] args)
+    {
+        canInput = true;
     }
 }

@@ -194,7 +194,8 @@ public class StructureLock : MonoBehaviour
         var progress = GetProgressData();
         if (progress == null)
             return;
-        progress.currentOwnMoney += 100;
+        int amount = args.Length > 1 ? Mathf.Max(0, (int)args[1]) : 100;
+        progress.currentOwnMoney += amount;
         UpdateProgress(progress.currentOwnMoney);
     }
 
@@ -235,6 +236,18 @@ public class StructureLock : MonoBehaviour
         return playerData.structureLockProgressDataList.Find(
             x => x.buildType == _data.buildingType &&
                  x.mapId == playerData.currentMapID);
+    }
+
+    public int GetRemainingUnlockCost()
+    {
+        if (_data == null)
+            return 0;
+
+        var progress = GetProgressData();
+        if (progress == null || progress.isUnlock)
+            return 0;
+
+        return Mathf.Max(0, _data.needMoney - Mathf.CeilToInt(progress.currentOwnMoney));
     }
 
     private void Unlock()

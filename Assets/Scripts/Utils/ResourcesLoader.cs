@@ -63,6 +63,14 @@ namespace Utils
             Debug.LogError($"Failed to load resource at {address}");
             throw new Exception($"Failed to load resource at {address}");
         }
+
+        /// <summary>
+        /// 预热资源到缓存中，避免首次真正使用时再承担 Addressables 初始化与加载开销。
+        /// </summary>
+        public async Task<T> PreloadAssetAsync<T>(string address) where T : UnityEngine.Object
+        {
+            return await LoadAssetAsync<T>(address);
+        }
         
         
         public async Task<T> LoadUIAsync<T>(string address) where T : Object

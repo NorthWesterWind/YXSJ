@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -13,10 +12,11 @@ namespace Utils
         [DictionaryDrawerSettings(KeyLabel = "Key", ValueLabel = "Value")]
         public Dictionary<Type, BaseView> _uiPanels = new();
 
-        public List<BaseView> UIPanels = new List<BaseView>();
+        public List<BaseView> UIPanels = new();
 
-        private Stack<BaseView> _uiStack = new();
-
+        private readonly Stack<BaseView> _uiStack = new();
+        private readonly Dictionary<string, Transform> _canvasCache = new();
+        private readonly Dictionary<string, GameObject> _scenePanelCache = new();
 
         public override void Awake()
         {
@@ -26,9 +26,10 @@ namespace Utils
 
         private void OnSceneChanged(Scene oldScene, Scene newScene)
         {
-            // 场景切换时清理缓存
             _uiPanels.Clear();
             _uiStack.Clear();
+            _canvasCache.Clear();
+            _scenePanelCache.Clear();
         }
 
         private void Update()
@@ -39,84 +40,72 @@ namespace Utils
             }
         }
 
-        /// <summary>
-        /// 显示 UI 面板
-        /// </summary>
         public async void Show<T>(params object[] args) where T : BaseView
         {
             var type = typeof(T);
-            // 检查缓存是否有效
             if (!_uiPanels.TryGetValue(type, out var view) || view == null || view.gameObject == null)
             {
+                var canvas = GetCanvasTransform("Canvas");
+                var popCanvas = GetCanvasTransform("PopupCanvas") ?? canvas;
 
-                Transform _canvas = GameObject.Find("Canvas")?.transform;
-                Transform _popCanvas = GameObject.Find("PopupCanvas")?.transform;
-                if(_popCanvas  == null)
+                if (canvas == null && popCanvas == null)
                 {
-                    _popCanvas = _canvas;
+                    Debug.LogError($"UI {type.Name} failed: Canvas not found.");
+                    return;
                 }
-                if (_canvas != null || _popCanvas != null)
+
+                var existingPanel = FindExistingPanel(type.Name);
+                if (existingPanel != null)
                 {
-                    var go = _canvas.GetComponentsInChildren<Transform>(true) // ✅ true = 包含失活物体
-                        .FirstOrDefault(t => t.name == type.Name)?.gameObject;
-                    var go_1 = _popCanvas.GetComponentsInChildren<Transform>(true) // ✅ true = 包含失活物体
-                        .FirstOrDefault(t => t.name == type.Name)?.gameObject;
-                    if (go != null)
+                    view = existingPanel.GetComponent<T>();
+                    if (view != null)
                     {
-                        var _view = go.GetComponent<T>();
-                        if (_view != null)
-                        {
-                            view = _view;
-                            _uiPanels[type] = view;
-                        }
+                        _uiPanels[type] = view;
                     }
-                    else if (go_1 != null)
+                }
+                else
+                {
+                    try
                     {
-                        var _view = go.GetComponent<T>();
-                        if (_view != null)
+                        var ui = await ResourceLoader.Instance.LoadUIAsync<GameObject>(type.Name);
+                        if (ui == null)
                         {
-                            view = _view;
-                            _uiPanels[type] = view;
-                        }
-                    }
-                    else
-                    {
-                        // 动态加载
-                        try
-                        {
-                            var ui = await ResourceLoader.Instance.LoadUIAsync<GameObject>(type.Name);
-                            if (ui == null)
-                            {
-                                Debug.LogError($"加载UI失败：{type.Name}");
-                                return;
-                            }
-                            Transform parent = null;
-                            view = ui.GetComponent<T>();
-                            if (view.IsPopup)
-                            {
-                                parent = _popCanvas;
-                            }
-                            else
-                            {
-                                parent = _canvas;
-                            }
-                            ui.transform.SetParent(parent, false);
-                            if (view == null)
-                            {
-                                Debug.LogError($"UI {type.Name} 缺少 {typeof(T).Name} 组件！");
-                                ResourceLoader.Instance.ReleaseAsset(type.Name);
-                                return;
-                            }
-                            _uiPanels[type] = view;
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.LogError($"加载 UI 失败: {type.Name}, {e}");
+                            Debug.LogError($"Load UI failed: {type.Name}");
                             return;
                         }
+
+                        view = ui.GetComponent<T>();
+                        if (view == null)
+                        {
+                            Debug.LogError($"UI {type.Name} is missing component {typeof(T).Name}");
+                            Destroy(ui);
+                            return;
+                        }
+
+                        var parent = view.IsPopup ? popCanvas : canvas;
+                        if (parent == null)
+                        {
+                            Debug.LogError($"UI {type.Name} failed: target canvas not found.");
+                            Destroy(ui);
+                            return;
+                        }
+
+                        ui.transform.SetParent(parent, false);
+                        RegisterScenePanel(type.Name, ui);
+                        _uiPanels[type] = view;
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.LogError($"Load UI failed: {type.Name}, {e}");
+                        return;
                     }
                 }
+            }
 
+            if (view == null || view.gameObject == null)
+            {
+                Debug.LogError($"UI {type.Name} failed to initialize.");
+                return;
             }
 
             view.gameObject.SetActive(true);
@@ -127,13 +116,33 @@ namespace Utils
             if (view.IsPopup)
             {
                 _uiStack.Push(view);
-
             }
         }
 
-        /// <summary>
-        /// 隐藏 UI 面板
-        /// </summary>
+        public async void Preload<T>() where T : BaseView
+        {
+            var type = typeof(T);
+
+            if (_uiPanels.TryGetValue(type, out var loadedView) && loadedView != null && loadedView.gameObject != null)
+            {
+                return;
+            }
+
+            if (_scenePanelCache.TryGetValue(type.Name, out var scenePanel) && scenePanel != null)
+            {
+                return;
+            }
+
+            try
+            {
+                await ResourceLoader.Instance.PreloadAssetAsync<GameObject>(type.Name);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"Preload UI failed: {type.Name}, {e.Message}");
+            }
+        }
+
         public void Hide<T>() where T : BaseView
         {
             var type = typeof(T);
@@ -143,7 +152,6 @@ namespace Utils
             }
             else
             {
-                // 如果 UI 已被销毁就从缓存移除
                 _uiPanels.Remove(type);
             }
         }
@@ -154,26 +162,20 @@ namespace Utils
             view.gameObject.SetActive(false);
         }
 
-        /// <summary>
-        /// 返回（关闭栈顶 UI）
-        /// </summary>
         public void Back()
         {
-            if (_uiStack.Count > 0)
+            if (_uiStack.Count <= 0)
             {
-                var top = _uiStack.Pop();
-                if (top != null)
-                {
-                    top.Hide();
-                }
+                return;
+            }
 
+            var top = _uiStack.Pop();
+            if (top != null)
+            {
+                top.Hide();
             }
         }
 
-
-        /// <summary>
-        /// 移除并释放 UI
-        /// </summary>
         public void Remove<T>() where T : BaseView
         {
             var type = typeof(T);
@@ -184,16 +186,88 @@ namespace Utils
                     var newStack = new Stack<BaseView>(_uiStack.Count);
                     foreach (var v in _uiStack)
                     {
-                        if (v != view) newStack.Push(v);
+                        if (v != view)
+                        {
+                            newStack.Push(v);
+                        }
                     }
 
                     _uiStack.Clear();
-                    foreach (var v in newStack) _uiStack.Push(v);
+                    foreach (var v in newStack)
+                    {
+                        _uiStack.Push(v);
+                    }
                 }
 
+                _scenePanelCache.Remove(type.Name);
                 Addressables.ReleaseInstance(view.gameObject);
                 _uiPanels.Remove(type);
             }
+        }
+
+        private Transform GetCanvasTransform(string canvasName)
+        {
+            if (_canvasCache.TryGetValue(canvasName, out var cachedTransform) && cachedTransform != null)
+            {
+                return cachedTransform;
+            }
+
+            var canvasTransform = GameObject.Find(canvasName)?.transform;
+            if (canvasTransform != null)
+            {
+                _canvasCache[canvasName] = canvasTransform;
+            }
+
+            return canvasTransform;
+        }
+
+        private GameObject FindExistingPanel(string panelName)
+        {
+            if (_scenePanelCache.TryGetValue(panelName, out var cachedPanel) && cachedPanel != null)
+            {
+                return cachedPanel;
+            }
+
+            CachePanelsUnderRoot(GetCanvasTransform("Canvas"));
+            CachePanelsUnderRoot(GetCanvasTransform("PopupCanvas"));
+
+            if (_scenePanelCache.TryGetValue(panelName, out cachedPanel) && cachedPanel != null)
+            {
+                return cachedPanel;
+            }
+
+            return null;
+        }
+
+        private void CachePanelsUnderRoot(Transform root)
+        {
+            if (root == null)
+            {
+                return;
+            }
+
+            var transforms = root.GetComponentsInChildren<Transform>(true);
+            for (int i = 0; i < transforms.Length; i++)
+            {
+                var current = transforms[i];
+                if (!_scenePanelCache.ContainsKey(current.name))
+                {
+                    _scenePanelCache[current.name] = current.gameObject;
+                }
+            }
+        }
+
+        private void RegisterScenePanel(string panelName, GameObject panel)
+        {
+            if (panel != null)
+            {
+                _scenePanelCache[panelName] = panel;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            SceneManager.activeSceneChanged -= OnSceneChanged;
         }
     }
 }

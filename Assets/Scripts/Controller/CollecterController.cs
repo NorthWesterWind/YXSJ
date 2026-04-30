@@ -33,18 +33,20 @@ namespace Controller
     public class CollectorController : MonoBehaviour
     {
         #region Fields
-        public float detectRadius = 6f;      
-        public float collectRadius = 5f;      
-        public float collectorPickupDelay = 0.8f; 
-        public float collectScanInterval = 0.08f; 
-        public float unloadInterval = 0.12f; 
+        public float detectRadius = 6f;
+        public float collectRadius = 5f;
+        public float collectorPickupDelay = 0.8f;
+        public float collectScanInterval = 0.08f;
+        public int collectScanBudget = 24;
+        public float unloadInterval = 0.12f;
         public int unloadPerBatch = 1;
         public float depotArriveDistance = 0.8f;
-        public LayerMask monsterLayer;      
-        public float waitTime = 2f;     
+        public LayerMask monsterLayer;
+        public float waitTime = 2f;
         public float attackStopDistance = 1.2f;
-        public float fightRepathInterval = 0.2f; 
-        public float fightTargetRefreshInterval = 0.12f; 
+        public float fightRepathInterval = 0.2f;
+        public float fightTargetRefreshInterval = 0.12f;
+        public float routeRepathInterval = 0.2f;
         public PolyNavAgent agent;
         public GameObject weapon;
         public Transform weaponRoot;
@@ -59,7 +61,7 @@ namespace Controller
         public CollectorInfo collectorInfo;
         public Collector collectorData;
         public MonsterType monsterType;
-        public DropItemType targetType;  
+        public DropItemType targetType;
         private CollectorState currentState;
         private CollectorRouteMovePhase routeMovePhase;
         private FactoryController currentTarget;
@@ -80,10 +82,11 @@ namespace Controller
         private float nextCollectScanTime;
         private float nextFightRepathTime;
         private float nextFightTargetRefreshTime;
+        private float nextRouteRepathTime;
         private Vector2 lastFightDestination;
         private bool hasFightDestination;
         private Transform cachedFightTarget;
-        private int pendingPickupCount;
+        private int collectScanCursor = -1;
         private float lastDamageTime = -999f;
         private bool isRegenerating = false;
         private Coroutine regenCoroutine;
@@ -100,16 +103,40 @@ namespace Controller
         private readonly Collider2D[] monsterDetectResults = new Collider2D[32];
         private int lastLayerBaseOrder = int.MinValue;
         private int lastWeaponOrderOffset = int.MinValue;
+        private readonly Queue<float> pendingPickupDeadlines = new();
+        private const float PendingPickupReservationTimeout = 2f;
+        private float stalledSinceTime = -1f;
+        private const float MovementStallTimeout = 0.6f;
+        private const float MovementStallDistanceEpsilon = 0.04f;
+        private Coroutine ensureMoveCoroutine;
+        private Coroutine invalidRecoverCoroutine;
+        private Vector2 lastRequestedDestination;
+        private bool hasRequestedDestination;
         public Canvas canvas;
         public WeaponController weaponController;
         #endregion
         #region Unity Lifecycle
         void Awake()
         {
-            if(canvas == null)
+            if (agent == null)
+            {
+                agent = GetComponent<PolyNavAgent>();
+            }
+            if (canvas == null)
             {
                 canvas = GetComponentInChildren<Canvas>();
             }
+        }
+        private void OnEnable()
+        {
+            EnsureAgentCallbacks();
+            EventCenter.Instance.AddListener(EventMessages.MonsterDead, HandleMonsterDead);
+        }
+        private void OnDisable()
+        {
+            RemoveAgentCallbacks();
+            StopMovementRecoveryCoroutines();
+            EventCenter.Instance.RemoveListener(EventMessages.MonsterDead, HandleMonsterDead);
         }
         private void Start()
         {
@@ -165,22 +192,29 @@ namespace Controller
             CacheSkeletonScale();
             RefreshCarryInfo();
             lastWorldPos = transform.position;
+            DesyncRuntimeTimers();
             ChangeState(CollectorState.Idle);
         }
         private void Update()
         {
+            ClearExpiredPendingPickupReservations();
             CheckMonster();
             UpdateWeaponSpin();
             UpdateFacing();
             SetLayer();
             UpdateAnimation();
-            if (ShouldReturnToDepot() && !IsInDepotWorkflow())
+            TryRecoverFromMovementStall();
+            if (ShouldReturnToDepot() && !IsInDepotWorkflow() && !IsFollowingResourceRoute())
             {
+                LogRouteDebug($"interrupt route: should return to depot. carry={GetReservedCarryNum()}/{maxCarryNum}, pos={FormatPoint(transform.position)}");
                 ChangeState(CollectorState.ReturnToDepot);
                 return;
             }
             UpdateState();
-            TryDoCollect();
+            if (!IsFollowingResourceRoute())
+            {
+                TryDoCollect();
+            }
         }
         private void CacheSkeletonScale()
         {
@@ -263,6 +297,9 @@ namespace Controller
             currentTarget = null;
             ConfigureRoute();
             ResetRouteMovement();
+            StopMovementRecoveryCoroutines();
+            hasRequestedDestination = false;
+            stalledSinceTime = -1f;
             if (agent != null)
             {
                 agent.Stop();
@@ -283,13 +320,14 @@ namespace Controller
             currentHp = maxHp;
             currentCarryNum = 0;
             maxCarryNum = (int)c.bagCapacity;
-            pendingPickupCount = 0;
+            ClearPendingPickupReservations();
             if (collectorInfo != null)
             {
                 collectorInfo.Bind(this);
                 collectorInfo.UpdateFill(1f);
             }
             RefreshCarryInfo();
+            DesyncRuntimeTimers();
             if (weaponController != null)
             {
                 weaponController.warehouseCategoryType = structure.warehouseCategory.warehouseCategoryType;
@@ -316,6 +354,7 @@ namespace Controller
                 return;
             }
             routeWaypoints.AddRange(waypoints);
+            LogRouteDebug($"configured route. depot={depot.categoryType}, monsterFamily={collectorData.monsterType}, monsterType={monsterType}, waypointCount={routeWaypoints.Count}, points={FormatRoutePoints(routeWaypoints)}");
         }
         private void ResetRouteMovement()
         {
@@ -326,7 +365,7 @@ namespace Controller
         {
             return routeWaypoints != null && routeWaypoints.Count > 0;
         }
-        private bool HasReachedRoutePoint(Vector2 target)
+        private bool HasReachedRoutePoint(Vector2 target, bool allowLooseArrive = true)
         {
             Vector2 offset = (Vector2)transform.position - target;
             float distanceSqr = offset.sqrMagnitude;
@@ -342,7 +381,7 @@ namespace Controller
             {
                 return false;
             }
-            if (distanceSqr <= 0.64f && (!agent.hasPath || agent.remainingDistance <= 0.15f))
+            if (allowLooseArrive && distanceSqr <= 0.64f && (!agent.hasPath || agent.remainingDistance <= 0.15f))
             {
                 return true;
             }
@@ -350,11 +389,136 @@ namespace Controller
         }
         private void SetAgentDestination(Vector2 target)
         {
-            if (agent == null)
+            TrySetAgentDestination(target);
+        }
+        private void RestartEnsureMoveStarted()
+        {
+            if (ensureMoveCoroutine != null)
+            {
+                StopCoroutine(ensureMoveCoroutine);
+            }
+
+            ensureMoveCoroutine = StartCoroutine(EnsureMoveStarted());
+        }
+        private void BeginInvalidRecovery()
+        {
+            if (invalidRecoverCoroutine != null)
             {
                 return;
             }
-            agent.SetDestination(target);
+
+            invalidRecoverCoroutine = StartCoroutine(RecoverFromInvalidPath());
+        }
+        private void StopMovementRecoveryCoroutines()
+        {
+            if (ensureMoveCoroutine != null)
+            {
+                StopCoroutine(ensureMoveCoroutine);
+                ensureMoveCoroutine = null;
+            }
+
+            if (invalidRecoverCoroutine != null)
+            {
+                StopCoroutine(invalidRecoverCoroutine);
+                invalidRecoverCoroutine = null;
+            }
+        }
+        private IEnumerator EnsureMoveStarted()
+        {
+            const int maxAttempts = 3;
+            int attempts = 0;
+            while (attempts < maxAttempts)
+            {
+                yield return null;
+                if (agent == null || !IsMovementState())
+                {
+                    ensureMoveCoroutine = null;
+                    yield break;
+                }
+                if (agent.pathPending)
+                {
+                    continue;
+                }
+                if (agent.hasPath || agent.remainingDistance > 0.1f)
+                {
+                    ensureMoveCoroutine = null;
+                    yield break;
+                }
+
+                attempts++;
+                if (TryGetCurrentMovementDestination(out var target))
+                {
+                    TrySetAgentDestination(target, false);
+                }
+            }
+
+            ensureMoveCoroutine = null;
+            BeginInvalidRecovery();
+        }
+        private bool CanRequestRoutePath()
+        {
+            if (Time.time < nextRouteRepathTime)
+            {
+                return false;
+            }
+
+            nextRouteRepathTime = Time.time + Mathf.Max(0.05f, routeRepathInterval);
+            return true;
+        }
+        private bool EnsureAgentMap()
+        {
+            if (agent == null)
+            {
+                return false;
+            }
+            if (agent.map != null)
+            {
+                return true;
+            }
+            var mapObj = GameObject.FindWithTag("Map");
+            if (mapObj == null)
+            {
+                return false;
+            }
+            agent.map = mapObj.GetComponent<PolyNavMap>();
+            return agent.map != null;
+        }
+        private bool TrySetAgentDestination(Vector2 target, bool restartEnsureMove = true)
+        {
+            if (agent == null || !EnsureAgentMap())
+            {
+                return false;
+            }
+            var map = agent.map;
+            if (map == null)
+            {
+                return false;
+            }
+            if (!map.PointIsValid(target))
+            {
+                Vector2 originalTarget = target;
+                target = map.GetCloserEdgePoint(target);
+                LogRouteDebug($"destination adjusted by nav map. original={FormatPoint(originalTarget)}, adjusted={FormatPoint(target)}");
+            }
+            lastRequestedDestination = target;
+            hasRequestedDestination = true;
+
+            bool success = agent.SetDestination(target);
+            LogRouteDebug($"set destination. target={FormatPoint(target)}, success={success}, hasPath={agent.hasPath}, pathPending={agent.pathPending}, remaining={agent.remainingDistance:F2}");
+            if (success)
+            {
+                if (restartEnsureMove)
+                {
+                    RestartEnsureMoveStarted();
+                }
+            }
+            else
+            {
+                LogRouteDebug($"set destination failed. target={FormatPoint(target)}, pos={FormatPoint(transform.position)}");
+                BeginInvalidRecovery();
+            }
+
+            return success;
         }
         private void SetDepotDestination()
         {
@@ -363,7 +527,7 @@ namespace Controller
             {
                 return;
             }
-            SetAgentDestination(depotTarget.position);
+            TrySetAgentDestination(depotTarget.position);
         }
         private void BeginMoveToResource()
         {
@@ -376,12 +540,14 @@ namespace Controller
             {
                 routeMovePhase = CollectorRouteMovePhase.MoveToResource;
                 routeWaypointIndex = -1;
-                SetAgentDestination(currentTarget.transform.position);
+                LogRouteDebug($"begin move without route. targetFactory={GetTargetName(currentTarget)}, target={FormatPoint(currentTarget.transform.position)}");
+                TrySetAgentDestination(currentTarget.transform.position);
                 return;
             }
             routeMovePhase = CollectorRouteMovePhase.EnterRouteForward;
             routeWaypointIndex = 0;
-            SetAgentDestination(routeWaypoints[routeWaypointIndex]);
+            LogRouteDebug($"begin route to resource. targetFactory={GetTargetName(currentTarget)}, waypointIndex={routeWaypointIndex}/{routeWaypoints.Count - 1}, target={FormatPoint(routeWaypoints[routeWaypointIndex])}");
+            TrySetAgentDestination(routeWaypoints[routeWaypointIndex]);
         }
         private bool UpdateGoToResourceRoute()
         {
@@ -395,26 +561,32 @@ namespace Controller
                 routeWaypointIndex = -1;
                 if (currentTarget != null)
                 {
-                    SetAgentDestination(currentTarget.transform.position);
+                    LogRouteDebug($"route invalid, fallback to factory. targetFactory={GetTargetName(currentTarget)}, target={FormatPoint(currentTarget.transform.position)}");
+                    TrySetAgentDestination(currentTarget.transform.position);
                 }
                 return false;
             }
             Vector2 currentWaypoint = routeWaypoints[routeWaypointIndex];
-            if (HasReachedRoutePoint(currentWaypoint))
+            bool isLastRouteWaypoint = routeWaypointIndex >= routeWaypoints.Count - 1;
+            if (HasReachedRoutePoint(currentWaypoint, !isLastRouteWaypoint))
             {
+                LogRouteDebug($"reached route waypoint. index={routeWaypointIndex}/{routeWaypoints.Count - 1}, isLast={isLastRouteWaypoint}, waypoint={FormatPoint(currentWaypoint)}, pos={FormatPoint(transform.position)}");
                 if (routeWaypointIndex < routeWaypoints.Count - 1)
                 {
                     routeWaypointIndex++;
-                    SetAgentDestination(routeWaypoints[routeWaypointIndex]);
+                    LogRouteDebug($"advance route waypoint. nextIndex={routeWaypointIndex}/{routeWaypoints.Count - 1}, next={FormatPoint(routeWaypoints[routeWaypointIndex])}");
+                    TrySetAgentDestination(routeWaypoints[routeWaypointIndex]);
                     return true;
                 }
                 ResetRouteMovement();
+                LogRouteDebug($"route complete, enter fight. targetFactory={GetTargetName(currentTarget)}, pos={FormatPoint(transform.position)}");
                 ChangeState(CollectorState.Fight);
                 return true;
             }
-            if (agent != null && !agent.hasPath)
+            if (agent != null && !agent.hasPath && CanRequestRoutePath())
             {
-                SetAgentDestination(currentWaypoint);
+                LogRouteDebug($"route path missing, retry waypoint. index={routeWaypointIndex}/{routeWaypoints.Count - 1}, target={FormatPoint(currentWaypoint)}, pos={FormatPoint(transform.position)}");
+                TrySetAgentDestination(currentWaypoint);
             }
             return true;
         }
@@ -434,7 +606,7 @@ namespace Controller
             }
             int tailIndex = routeWaypoints.Count - 1;
             Vector2 tailPoint = routeWaypoints[tailIndex];
-            if (HasReachedRoutePoint(tailPoint))
+            if (HasReachedRoutePoint(tailPoint, false))
             {
                 if (tailIndex <= 0)
                 {
@@ -445,12 +617,13 @@ namespace Controller
                 }
                 routeMovePhase = CollectorRouteMovePhase.ReturnAlongRoute;
                 routeWaypointIndex = tailIndex - 1;
-                SetAgentDestination(routeWaypoints[routeWaypointIndex]);
+                TrySetAgentDestination(routeWaypoints[routeWaypointIndex]);
                 return;
             }
             routeMovePhase = CollectorRouteMovePhase.MoveToRouteTail;
             routeWaypointIndex = tailIndex;
-            SetAgentDestination(tailPoint);
+            LogRouteDebug($"begin return via route tail. tailIndex={routeWaypointIndex}/{routeWaypoints.Count - 1}, tail={FormatPoint(tailPoint)}, pos={FormatPoint(transform.position)}");
+            TrySetAgentDestination(tailPoint);
         }
         private bool UpdateReturnToDepotRoute()
         {
@@ -465,7 +638,7 @@ namespace Controller
                         return false;
                     }
                     Vector2 tailPoint = routeWaypoints[routeWaypointIndex];
-                    if (HasReachedRoutePoint(tailPoint))
+                    if (HasReachedRoutePoint(tailPoint, false))
                     {
                         if (routeWaypointIndex <= 0)
                         {
@@ -476,12 +649,12 @@ namespace Controller
                         }
                         routeMovePhase = CollectorRouteMovePhase.ReturnAlongRoute;
                         routeWaypointIndex--;
-                        SetAgentDestination(routeWaypoints[routeWaypointIndex]);
+                        TrySetAgentDestination(routeWaypoints[routeWaypointIndex]);
                         return true;
                     }
-                    if (agent != null && !agent.hasPath)
+                    if (agent != null && !agent.hasPath && CanRequestRoutePath())
                     {
-                        SetAgentDestination(tailPoint);
+                        TrySetAgentDestination(tailPoint);
                     }
                     return true;
                 case CollectorRouteMovePhase.ReturnAlongRoute:
@@ -498,7 +671,7 @@ namespace Controller
                         routeWaypointIndex--;
                         if (routeWaypointIndex >= 0)
                         {
-                            SetAgentDestination(routeWaypoints[routeWaypointIndex]);
+                            TrySetAgentDestination(routeWaypoints[routeWaypointIndex]);
                             return true;
                         }
                         routeMovePhase = CollectorRouteMovePhase.MoveToDepot;
@@ -506,9 +679,9 @@ namespace Controller
                         SetDepotDestination();
                         return false;
                     }
-                    if (agent != null && !agent.hasPath)
+                    if (agent != null && !agent.hasPath && CanRequestRoutePath())
                     {
-                        SetAgentDestination(currentWaypoint);
+                        TrySetAgentDestination(currentWaypoint);
                     }
                     return true;
             }
@@ -520,6 +693,7 @@ namespace Controller
         {
             if (currentState == newState) return;
 
+            LogRouteDebug($"state change. {currentState} -> {newState}, carry={GetReservedCarryNum()}/{maxCarryNum}, waypointIndex={routeWaypointIndex}, waypointCount={(routeWaypoints == null ? 0 : routeWaypoints.Count)}, pos={FormatPoint(transform.position)}");
             ExitState(currentState);
             currentState = newState;
             EnterState(newState);
@@ -543,6 +717,7 @@ namespace Controller
         }
         private void EnterState(CollectorState state)
         {
+            StopMovementRecoveryCoroutines();
             switch (state)
             {
                 case CollectorState.Idle:
@@ -550,7 +725,7 @@ namespace Controller
                     break;
                 case CollectorState.FindResource:
                     ResetRouteMovement();
-                    if (TryGetFactoryController(out var targetFactory))
+                    if (TryGetActiveFactoryController(out var targetFactory))
                     {
                         currentTarget = targetFactory;
                         ChangeState(CollectorState.GoToResource);
@@ -558,7 +733,7 @@ namespace Controller
                     else
                     {
                         currentTarget = null;
-                        ChangeState(CollectorState.Wait);
+                        ChangeState(GetNoWorkFallbackState());
                     }
                     break;
                 case CollectorState.GoToResource:
@@ -612,12 +787,14 @@ namespace Controller
                 case CollectorState.GoToResource:
                     if (currentTarget == null)
                     {
+                        LogRouteDebug("go to resource interrupted: currentTarget is null.");
                         ChangeState(CollectorState.FindResource);
                         break;
                     }
                     if (!HasAliveMonsters(currentTarget))
                     {
-                        ChangeState(CollectorState.Wait);
+                        LogRouteDebug($"go to resource interrupted: no alive monsters. targetFactory={GetTargetName(currentTarget)}");
+                        ChangeState(GetNoWorkFallbackState());
                         break;
                     }
                     if (UpdateGoToResourceRoute())
@@ -634,7 +811,10 @@ namespace Controller
                     else if (agent != null && !agent.hasPath)
                     {
                         routeMovePhase = CollectorRouteMovePhase.MoveToResource;
-                        SetAgentDestination(currentTarget.transform.position);
+                        if (CanRequestRoutePath())
+                        {
+                            TrySetAgentDestination(currentTarget.transform.position);
+                        }
                     }
                     break;
                 case CollectorState.Fight:
@@ -662,7 +842,10 @@ namespace Controller
                     else if (agent != null && !agent.hasPath)
                     {
                         routeMovePhase = CollectorRouteMovePhase.MoveToDepot;
-                        SetDepotDestination();
+                        if (CanRequestRoutePath())
+                        {
+                            SetDepotDestination();
+                        }
                     }
                     break;
                 case CollectorState.Unloading:
@@ -729,6 +912,10 @@ namespace Controller
                         }
                         break;
                     }
+                    if (ShouldReturnToDepot())
+                    {
+                        ChangeState(CollectorState.ReturnToDepot);
+                    }
                     break;
             }
         }
@@ -774,18 +961,18 @@ namespace Controller
         {
             if (!TryGetFactoryController(out var targetFactory))
             {
-                ChangeState(CollectorState.Wait);
+                ChangeState(GetNoWorkFallbackState());
                 return;
             }
             var list = targetFactory.monsterList;
             if (list == null || list.Count == 0)
             {
-                ChangeState(CollectorState.Wait);
+                ChangeState(GetNoWorkFallbackState());
                 return;
             }
             if (!TryGetFightTarget(targetFactory, out var nearest, out var minDist))
             {
-                ChangeState(CollectorState.Wait);
+                ChangeState(GetNoWorkFallbackState());
                 return;
             }
             SetFacingByDirection(nearest.position.x - transform.position.x);
@@ -803,9 +990,16 @@ namespace Controller
                                           || (destination - lastFightDestination).sqrMagnitude > 0.04f;
                         if (needRepath)
                         {
-                            agent.SetDestination(destination);
-                            lastFightDestination = destination;
-                            hasFightDestination = true;
+                            if (TrySetAgentDestination(destination))
+                            {
+                                lastFightDestination = destination;
+                                hasFightDestination = true;
+                            }
+                            else
+                            {
+                                ChangeState(GetNoWorkFallbackState());
+                                return;
+                            }
                         }
                         nextFightRepathTime = Time.time + Mathf.Max(0.05f, fightRepathInterval);
                     }
@@ -858,6 +1052,22 @@ namespace Controller
             nextFightRepathTime = 0f;
             cachedFightTarget = null;
             nextFightTargetRefreshTime = 0f;
+            stalledSinceTime = -1f;
+        }
+
+        private void DesyncRuntimeTimers()
+        {
+            float collectOffset = UnityEngine.Random.Range(0f, Mathf.Max(0.02f, collectScanInterval));
+            float monsterOffset = UnityEngine.Random.Range(0f, MonsterCheckInterval);
+            float fightTargetOffset = UnityEngine.Random.Range(0f, Mathf.Max(0.05f, fightTargetRefreshInterval));
+            float fightRepathOffset = UnityEngine.Random.Range(0f, Mathf.Max(0.05f, fightRepathInterval));
+            float routeRepathOffset = UnityEngine.Random.Range(0f, Mathf.Max(0.05f, routeRepathInterval));
+
+            nextCollectScanTime = Time.time + collectOffset;
+            nextMonsterCheckTime = Time.time + monsterOffset;
+            nextFightTargetRefreshTime = Time.time + fightTargetOffset;
+            nextFightRepathTime = Time.time + fightRepathOffset;
+            nextRouteRepathTime = Time.time + routeRepathOffset;
         }
         #endregion
         #region Collection
@@ -871,13 +1081,15 @@ namespace Controller
             if (inventory.GetTotalCount() >= inventory.max)
             {
                 RefreshCarryInfo();
+                LogRouteDebug($"add drop interrupted: inventory already full. carry={inventory.GetTotalCount()}/{inventory.max}, pos={FormatPoint(transform.position)}");
                 ChangeState(CollectorState.ReturnToDepot);
                 return;
             }
             inventory.Add(itemType);
             RefreshCarryInfo();
-            if (GetReservedCarryNum() >= maxCarryNum)
+            if (GetReservedCarryNum() >= maxCarryNum && !IsFollowingResourceRoute())
             {
+                LogRouteDebug($"add drop triggers return. carry={GetReservedCarryNum()}/{maxCarryNum}, pos={FormatPoint(transform.position)}");
                 ChangeState(CollectorState.ReturnToDepot);
             }
         }
@@ -902,6 +1114,7 @@ namespace Controller
             }
             if (inventory.IsFull())
             {
+                LogRouteDebug($"collect interrupted: inventory full. carry={inventory.GetTotalCount()}/{inventory.max}, pos={FormatPoint(transform.position)}");
                 ChangeState(CollectorState.ReturnToDepot);
                 return;
             }
@@ -927,9 +1140,42 @@ namespace Controller
             bool hasPlayer = playerTransform != null;
             Vector2 playerPosition = hasPlayer ? (Vector2)playerTransform.position : Vector2.zero;
             var materials = scenePickup.materials;
-            for (int i = materials.Count - 1; i >= 0; i--)
+            int materialCount = materials.Count;
+            if (materialCount <= 0)
             {
-                var item = materials[i];
+                return;
+            }
+
+            int scanBudget = Mathf.Clamp(collectScanBudget, 1, materialCount);
+            if (collectScanCursor < 0 || collectScanCursor >= materialCount)
+            {
+                collectScanCursor = materialCount - 1;
+            }
+
+            for (int scanned = 0; scanned < scanBudget; scanned++)
+            {
+                if (materialCount != materials.Count)
+                {
+                    materialCount = materials.Count;
+                    if (materialCount <= 0)
+                    {
+                        collectScanCursor = -1;
+                        return;
+                    }
+                    if (collectScanCursor >= materialCount)
+                    {
+                        collectScanCursor = materialCount - 1;
+                    }
+                }
+
+                int index = collectScanCursor;
+                collectScanCursor--;
+                if (collectScanCursor < 0)
+                {
+                    collectScanCursor = materialCount - 1;
+                }
+
+                var item = materials[index];
                 if (item == null) continue;
                 if (!item.gameObject.activeInHierarchy) continue;
                 var drop = item as DropController;
@@ -946,6 +1192,7 @@ namespace Controller
                 }
                 if (!HasCarryCapacityForOne())
                 {
+                    LogRouteDebug($"collect triggers return: no carry capacity. carry={GetReservedCarryNum()}/{maxCarryNum}, item={drop.itemType}, itemPos={FormatPoint(item.transform.position)}, pos={FormatPoint(transform.position)}");
                     ChangeState(CollectorState.ReturnToDepot);
                     return;
                 }
@@ -958,6 +1205,7 @@ namespace Controller
                 }
                 if (GetReservedCarryNum() >= maxCarryNum)
                 {
+                    LogRouteDebug($"collect reserved full. carry={GetReservedCarryNum()}/{maxCarryNum}, item={drop.itemType}, itemPos={FormatPoint(item.transform.position)}, pos={FormatPoint(transform.position)}");
                     ChangeState(CollectorState.ReturnToDepot);
                     return;
                 }
@@ -1013,7 +1261,7 @@ namespace Controller
             lastWorldPos = transform.position;
             ignorePickupUntil = Time.time + 1f;
             currentHp = maxHp;
-            pendingPickupCount = 0;
+            ClearPendingPickupReservations();
             if (collectorInfo != null)
             {
                 collectorInfo.ShowHpInfo();
@@ -1103,6 +1351,7 @@ namespace Controller
             {
                 state.SetAnimation(0, anim, true);
             }
+            
         }
         private bool TryGetFactoryController(out FactoryController factory)
         {
@@ -1188,9 +1437,58 @@ namespace Controller
                    || currentState == CollectorState.Unloading
                    || currentState == CollectorState.WaitDepotSpace;
         }
+        private bool IsFollowingResourceRoute()
+        {
+            return currentState == CollectorState.GoToResource
+                   && routeMovePhase == CollectorRouteMovePhase.EnterRouteForward
+                   && HasRouteWaypoints()
+                   && routeWaypointIndex >= 0
+                   && routeWaypointIndex < routeWaypoints.Count;
+        }
+        private void LogRouteDebug(string message)
+        {
+            if (GameController.Instance == null || !GameController.Instance.logCollectorRouteDebug)
+            {
+                return;
+            }
+
+            string collectorName = name;
+            Debug.Log($"[CollectorRoute] collector={collectorName}, depot={depot?.categoryType}, state={currentState}, phase={routeMovePhase}, {message}", this);
+        }
+        private static string GetTargetName(FactoryController factory)
+        {
+            return factory == null ? "null" : factory.name;
+        }
+        private static string FormatPoint(Vector2 point)
+        {
+            return $"({point.x:F2}, {point.y:F2})";
+        }
+        private static string FormatRoutePoints(IReadOnlyList<Vector2> points)
+        {
+            if (points == null || points.Count == 0)
+            {
+                return "[]";
+            }
+
+            System.Text.StringBuilder builder = new System.Text.StringBuilder();
+            builder.Append('[');
+            for (int i = 0; i < points.Count; i++)
+            {
+                if (i > 0) builder.Append(", ");
+                builder.Append(i);
+                builder.Append(':');
+                builder.Append(FormatPoint(points[i]));
+            }
+            builder.Append(']');
+            return builder.ToString();
+        }
         private bool ShouldReturnToDepot()
         {
             return GetReservedCarryNum() >= maxCarryNum;
+        }
+        private CollectorState GetNoWorkFallbackState()
+        {
+            return ShouldReturnToDepot() ? CollectorState.ReturnToDepot : CollectorState.Wait;
         }
         private Transform GetDepotTargetTransform()
         {
@@ -1210,7 +1508,7 @@ namespace Controller
         }
         private int GetReservedCarryNum()
         {
-            return inventory.GetTotalCount() + pendingPickupCount;
+            return inventory.GetTotalCount() + GetPendingPickupCount();
         }
         private bool HasCarryCapacityForOne()
         {
@@ -1218,11 +1516,278 @@ namespace Controller
         }
         private void ReservePendingPickupSlot()
         {
-            pendingPickupCount++;
+            ClearExpiredPendingPickupReservations();
+            pendingPickupDeadlines.Enqueue(Time.time + PendingPickupReservationTimeout);
         }
         private void ReleasePendingPickupSlot()
         {
-            pendingPickupCount = Mathf.Max(0, pendingPickupCount - 1);
+            ClearExpiredPendingPickupReservations();
+            if (pendingPickupDeadlines.Count > 0)
+            {
+                pendingPickupDeadlines.Dequeue();
+            }
+        }
+        private int GetPendingPickupCount()
+        {
+            ClearExpiredPendingPickupReservations();
+            return pendingPickupDeadlines.Count;
+        }
+        private void ClearExpiredPendingPickupReservations()
+        {
+            while (pendingPickupDeadlines.Count > 0 && pendingPickupDeadlines.Peek() <= Time.time)
+            {
+                pendingPickupDeadlines.Dequeue();
+            }
+        }
+        private void ClearPendingPickupReservations()
+        {
+            pendingPickupDeadlines.Clear();
+        }
+        private bool TryGetCurrentMovementDestination(out Vector2 target)
+        {
+            target = Vector2.zero;
+            switch (currentState)
+            {
+                case CollectorState.GoToResource:
+                    if (routeMovePhase == CollectorRouteMovePhase.EnterRouteForward &&
+                        HasRouteWaypoints() &&
+                        routeWaypointIndex >= 0 &&
+                        routeWaypointIndex < routeWaypoints.Count)
+                    {
+                        target = routeWaypoints[routeWaypointIndex];
+                        return true;
+                    }
+                    if (currentTarget != null)
+                    {
+                        target = currentTarget.transform.position;
+                        return true;
+                    }
+                    break;
+                case CollectorState.ReturnToDepot:
+                    if ((routeMovePhase == CollectorRouteMovePhase.MoveToRouteTail ||
+                         routeMovePhase == CollectorRouteMovePhase.ReturnAlongRoute) &&
+                        HasRouteWaypoints() &&
+                        routeWaypointIndex >= 0 &&
+                        routeWaypointIndex < routeWaypoints.Count)
+                    {
+                        target = routeWaypoints[routeWaypointIndex];
+                        return true;
+                    }
+                    Transform depotTarget = GetDepotTargetTransform();
+                    if (depotTarget != null)
+                    {
+                        target = depotTarget.position;
+                        return true;
+                    }
+                    break;
+                case CollectorState.Fight:
+                    if (cachedFightTarget != null)
+                    {
+                        target = cachedFightTarget.position;
+                        return true;
+                    }
+                    if (TryGetFactoryController(out var factory) &&
+                        TryGetNearestAliveMonster(factory, out var nearestMonster, out _))
+                    {
+                        target = nearestMonster.position;
+                        return true;
+                    }
+                    break;
+            }
+
+            if (hasRequestedDestination)
+            {
+                target = lastRequestedDestination;
+                return true;
+            }
+
+            return false;
+        }
+        private bool IsMovementState()
+        {
+            return currentState == CollectorState.GoToResource
+                   || currentState == CollectorState.ReturnToDepot
+                   || currentState == CollectorState.Fight;
+        }
+        private bool ShouldBeAdvancing()
+        {
+            if (agent == null)
+            {
+                return false;
+            }
+            if (currentState == CollectorState.Fight)
+            {
+                return hasFightDestination && agent.hasPath && agent.remainingDistance > attackStopDistance + 0.15f;
+            }
+            return agent.hasPath && agent.remainingDistance > 0.2f;
+        }
+        private void TryRecoverFromMovementStall()
+        {
+            if (!IsMovementState() || !ShouldBeAdvancing())
+            {
+                stalledSinceTime = -1f;
+                return;
+            }
+            Vector2 movingDirection = agent != null ? agent.movingDirection : Vector2.zero;
+            bool isActuallyMoving = movingDirection.sqrMagnitude > MovementStallDistanceEpsilon * MovementStallDistanceEpsilon;
+            if (isActuallyMoving || (agent != null && agent.pathPending))
+            {
+                stalledSinceTime = -1f;
+                return;
+            }
+            if (stalledSinceTime < 0f)
+            {
+                stalledSinceTime = Time.time;
+                return;
+            }
+            if (Time.time - stalledSinceTime < MovementStallTimeout)
+            {
+                return;
+            }
+            stalledSinceTime = -1f;
+            RecoverFromMovementStall();
+        }
+        private void RecoverFromMovementStall()
+        {
+            ResetFightChaseCache();
+            switch (currentState)
+            {
+                case CollectorState.GoToResource:
+                    ChangeState(ShouldReturnToDepot() ? CollectorState.ReturnToDepot : CollectorState.FindResource);
+                    break;
+                case CollectorState.ReturnToDepot:
+                {
+                    Transform depotTarget = GetDepotTargetTransform();
+                    if (depotTarget != null)
+                    {
+                        transform.position = depotTarget.position;
+                        if (agent != null)
+                        {
+                            agent.Stop();
+                        }
+                        ChangeState(CollectorState.Unloading);
+                    }
+                    else
+                    {
+                        BeginReturnToDepot();
+                    }
+                    break;
+                }
+                case CollectorState.Fight:
+                    ChangeState(ShouldReturnToDepot() ? CollectorState.ReturnToDepot : CollectorState.FindResource);
+                    break;
+            }
+        }
+        private void EnsureAgentCallbacks()
+        {
+            if (agent == null)
+            {
+                agent = GetComponent<PolyNavAgent>();
+            }
+
+            if (agent != null)
+            {
+                agent.OnDestinationInvalid -= OnDestinationInvalid;
+                agent.OnDestinationInvalid += OnDestinationInvalid;
+            }
+        }
+        private void RemoveAgentCallbacks()
+        {
+            if (agent != null)
+            {
+                agent.OnDestinationInvalid -= OnDestinationInvalid;
+            }
+        }
+        private void OnDestinationInvalid()
+        {
+            BeginInvalidRecovery();
+        }
+        private IEnumerator RecoverFromInvalidPath()
+        {
+            yield return null;
+
+            const int maxAttempts = 3;
+            int attempts = 0;
+            while (attempts < maxAttempts)
+            {
+                attempts++;
+
+                if (!IsMovementState())
+                {
+                    invalidRecoverCoroutine = null;
+                    yield break;
+                }
+
+                if (!TryGetCurrentMovementDestination(out var target))
+                {
+                    break;
+                }
+
+                if (!EnsureAgentMap())
+                {
+                    yield return null;
+                    continue;
+                }
+
+                TrySetAgentDestination(target, false);
+                float wait = 0f;
+                while (agent != null && agent.pathPending && wait < 0.5f)
+                {
+                    wait += Time.deltaTime;
+                    yield return null;
+                }
+
+                if (agent != null && (agent.hasPath || agent.remainingDistance > 0.1f))
+                {
+                    invalidRecoverCoroutine = null;
+                    RestartEnsureMoveStarted();
+                    yield break;
+                }
+
+                yield return null;
+            }
+
+            invalidRecoverCoroutine = null;
+            RecoverFromMovementStall();
+        }
+        private void HandleMonsterDead(params object[] args)
+        {
+            if (args == null || args.Length < 3 || currentTarget == null)
+            {
+                return;
+            }
+            if (args[1] is not GameObject deadMonster)
+            {
+                return;
+            }
+            if (args[2] is not int deadFactoryId || deadFactoryId != currentTarget.factorID)
+            {
+                return;
+            }
+
+            bool deadWasCurrentFightTarget = cachedFightTarget != null && cachedFightTarget.gameObject == deadMonster;
+            bool noAliveMonsters = !HasAliveMonsters(currentTarget);
+
+            if (currentState == CollectorState.Fight && deadWasCurrentFightTarget)
+            {
+                ResetFightChaseCache();
+            }
+
+            if (noAliveMonsters)
+            {
+                ResetFightChaseCache();
+            }
+
+            if (ShouldReturnToDepot())
+            {
+                ChangeState(CollectorState.ReturnToDepot);
+                return;
+            }
+
+            if (currentState == CollectorState.Fight && noAliveMonsters)
+            {
+                ChangeState(GetNoWorkFallbackState());
+            }
         }
         #endregion
     }
@@ -1230,38 +1795,39 @@ namespace Controller
     {
         public int max = 20;
         public Dictionary<DropItemType, int> dic = new();
+        private int totalCount;
         public bool IsFull()
         {
-            int sum = 0;
-            foreach (var v in dic.Values) sum += v;
-            return sum >= max;
+            return totalCount >= max;
         }
         public int GetTotalCount()
         {
-            int sum = 0;
-            foreach (var v in dic.Values) sum += v;
-            return sum;
+            return totalCount;
         }
         public void Add(DropItemType t)
         {
             if (!dic.ContainsKey(t)) dic[t] = 0;
             dic[t]++;
+            totalCount++;
         }
         public void Clear()
         {
             dic.Clear();
+            totalCount = 0;
         }
         public void Remove(DropItemType t, int count)
         {
             if (!dic.ContainsKey(t)) return;
 
+            int removed = Mathf.Min(count, dic[t]);
             dic[t] -= count;
+            totalCount = Mathf.Max(0, totalCount - removed);
             if (dic[t] <= 0)
                 dic.Remove(t);
         }
         public bool IsEmpty()
         {
-            return dic.Count == 0;
+            return totalCount <= 0;
         }
     }
 }

@@ -121,6 +121,21 @@ namespace View
         }
         public void HandleUpdateCardInfo(params object[] args)
         {
+            if (!IsVisible)
+            {
+                return;
+            }
+
+            CardDevelopType? currentCardType = GetCurrentCardDevelopType();
+            if (currentCardType.HasValue &&
+                args != null &&
+                args.Length > 0 &&
+                args[0] is CardDevelopType changedCardType &&
+                changedCardType != currentCardType.Value)
+            {
+                return;
+            }
+
             UpdateInfo();
         }
 
@@ -146,6 +161,7 @@ namespace View
                     UIController.Instance.Show<TipView>("铜币不足。");
                     return;
                 }
+                UIController.Instance.Show<TipView>("升级成功。");
                 PlayerDataModule.Instance.data.tongbi -= productStationdata.priceLevel * 1000;
                 productStationdata.priceLevel++;
                 UpdateStationInfo(productStationdata);
@@ -171,6 +187,7 @@ namespace View
                     UIController.Instance.Show<TipView>("铜币不足。");
                     return;
                 }
+                UIController.Instance.Show<TipView>("升级成功。");
                 PlayerDataModule.Instance.data.tongbi -= productStationdata.timelevel * 1000;
                 productStationdata.timelevel++;
                 UpdateStationInfo(productStationdata);
@@ -238,6 +255,30 @@ namespace View
             UpdateStationInfo(productStationdata);
             UpdateCardInfo(cardLevelData);
         }
+
+        private CardDevelopType? GetCurrentCardDevelopType()
+        {
+            switch (type)
+            {
+                case BuildingType.YuShaHu_1:
+                    return CardDevelopType.UpgradeYuShaHu_1;
+                case BuildingType.YuShaHu_2:
+                    return CardDevelopType.UpgradeYuShaHu_2;
+                case BuildingType.YuShaHu_3:
+                    return CardDevelopType.UpgradeYuShaHu_3;
+                case BuildingType.YuShaHu_4:
+                    return CardDevelopType.UpgradeYuShaHu_4;
+                case BuildingType.LianQiLu_1:
+                    return CardDevelopType.UpgradeLianQiLu_1;
+                case BuildingType.LianQiLu_2:
+                    return CardDevelopType.UpgradeLianQiLu_2;
+                case BuildingType.LianQiLu_3:
+                    return CardDevelopType.UpgradeLianQiLu_3;
+                default:
+                    return null;
+            }
+        }
+
         private void InitBaseInfo(PlayerData player, out CardLevelData cardLevelData)
         {
             cardLevelData = null;
@@ -407,6 +448,7 @@ namespace View
             else
             {
                 lockObj.SetActive(false);
+                fillContent.SetActive(true);
                 cardleveltxt.text = cardData.level.ToString();
 
                 if (cardData.level == WorldData.cardUpLevelArr.Length + 1)

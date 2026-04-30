@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using Cinemachine;
+using Controller.Player;
 using Controller.Monster;
 using DG.Tweening;
 using Module.Data;
@@ -12,6 +13,7 @@ using Utils;
 using View;
 using World.Controller;
 using Random = UnityEngine.Random;
+using UnityEngine.SceneManagement;
 
 namespace Controller
 {
@@ -258,6 +260,15 @@ namespace Controller
 
         private void ApplyState(MonsterState newState)
         {
+            if (state == MonsterState.Flee)
+            {
+                isFleeing = false;
+                if (agent != null)
+                {
+                    agent.OnDestinationReached -= OnReachDestinationForFlee;
+                }
+            }
+
             if (stateRoutine != null)
             {
                 StopCoroutine(stateRoutine);
@@ -420,6 +431,40 @@ namespace Controller
         }
 
         // ---------------- 巨型怪物逻辑 ----------------
+        public bool KillImmediately(Transform attacker, bool isPlayer = true)
+        {
+            if (isDead) return false;
+
+            this.attacker = attacker;
+            currentHp = 0f;
+            lastDamageTime = Time.time;
+
+            if (regenCoroutine != null)
+            {
+                StopCoroutine(regenCoroutine);
+                regenCoroutine = null;
+                isRegenerating = false;
+            }
+
+            if (!fillBg.activeSelf)
+            {
+                fillBg.SetActive(true);
+            }
+
+            fillImg.fillAmount = 0f;
+            isDead = true;
+            agent.Stop();
+            var state = skeletonAnimation.AnimationState;
+            var current = state.GetCurrent(0);
+            if (current == null || current.Animation.Name != "dead")
+            {
+                state.SetAnimation(0, "dead", false);
+            }
+
+            StartCoroutine(DoDie(isPlayer));
+            return true;
+        }
+
         public void CheckPlayer()
         {
             if (behaviorType != MonsterBehavior.Giant) return;
@@ -466,7 +511,19 @@ namespace Controller
             if (other.CompareTag("Player"))
             {
                 hasHitPlayer = true;
-                EventCenter.Instance.TriggerEvent(EventMessages.PlayerTakeDamage, atk);
+                float totalDamage = atk;
+                PlayerController playerController = other.GetComponent<PlayerController>();
+                if (playerController == null)
+                {
+                    playerController = other.GetComponentInParent<PlayerController>();
+                }
+
+                if (playerController != null)
+                {
+                    totalDamage += playerController.maxHp * 0.1f;
+                }
+
+                EventCenter.Instance.TriggerEvent(EventMessages.PlayerTakeDamage, totalDamage);
                 return;
             }
 
@@ -554,15 +611,19 @@ namespace Controller
             EventCenter.Instance.RemoveListener(EventMessages.NotifyToFlee, HandleNotifyToFlee);
             if (monsterType == MonsterType.JingYuanBao)
             {
-                EventCenter.Instance.TriggerEvent(EventMessages.JingYuanBaoDead);
+                EventCenter.Instance.TriggerEvent(EventMessages.JingYuanBaoDead, isPlayer);
             }
             yield return new WaitForSeconds(deadtime * 0.85f);
-            if (isPlayer)
+            bool isTrialScene = SceneManager.GetActiveScene().name == "Game_Trial";
+            if (isPlayer && !isTrialScene)
             {
                 impulseSource.GenerateImpulse(0.7f * AudioSourceController.Instance.soundVolume);
             }
-            EventCenter.Instance.TriggerEvent(EventMessages.CameraBeginShaking);
-            EventCenter.Instance.TriggerEvent(EventMessages.MonsterDead, monsterType, gameObject, factorID);
+            if (!isTrialScene)
+            {
+                EventCenter.Instance.TriggerEvent(EventMessages.CameraBeginShaking);
+            }
+            EventCenter.Instance.TriggerEvent(EventMessages.MonsterDead, monsterType, gameObject, factorID, isPlayer);
         }
 
         private void OnDestroy()

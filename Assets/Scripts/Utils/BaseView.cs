@@ -252,7 +252,7 @@ namespace Utils
             if (!IsVisible) return;
             if (!IsBackgroundCloseTriggered()) return;
 
-            if (_closeBackground != null && IsPointerOverGraphic(_closeBackground))
+            if (_closeBackground != null && IsPointerTopGraphic(_closeBackground))
                 Hide();
         }
 
@@ -284,6 +284,19 @@ namespace Utils
                     return true;
 
             return false;
+        }
+
+        private bool IsPointerTopGraphic(Graphic graphic)
+        {
+            if (graphic == null || EventSystem.current == null) return false;
+
+            var eventData = new PointerEventData(EventSystem.current)
+            { position = Input.mousePosition };
+
+            var results = new System.Collections.Generic.List<RaycastResult>();
+            EventSystem.current.RaycastAll(eventData, results);
+
+            return results.Count > 0 && results[0].gameObject == graphic.gameObject;
         }
 
         private bool IsPointerOverUI()

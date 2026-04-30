@@ -426,7 +426,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c11927b99c65f6f499447e8e844520c0, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2711692e42e7f7c47a4875219fb6993f, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1
@@ -612,6 +612,15 @@ MonoBehaviour:
   fill: {fileID: 2443443174882951777}
   fillRect: {fileID: 6043148687433265437}
   btn: {fileID: 5270110895775664925}
+  storageBagData:
+    id: 0
+    name: 
+    capacity: 0
+    unlockStr: 
+    lockType: 0
+    value: 0
+    attachmentName: 
+    slotName: 
   infoTxt: {fileID: 5666382444436556707}
   assetHandle: {fileID: 5316911083185758380}
 --- !u!114 &5270110895775664925
@@ -658,6 +667,15 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+  m_OnPointerDown:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnPointerUp:
+    m_PersistentCalls:
+      m_Calls: []
+  m_OnDrag:
+    m_PersistentCalls:
+      m_Calls: []
   m_ClickInterval: 0.3
   m_ClickSound: {fileID: 0}
   m_SoundVolume: 1
@@ -686,6 +704,8 @@ MonoBehaviour:
   - {fileID: 2800000, guid: c11927b99c65f6f499447e8e844520c0, type: 3}
   - {fileID: 2800000, guid: dd088992ab31e1747a21a461e81a0886, type: 3}
   - {fileID: 2800000, guid: c4f28d399b6047c46bc006bd21665794, type: 3}
+  - {fileID: 2800000, guid: 1f4772dd2edbade40bf267853fad89f0, type: 3}
+  - {fileID: 2800000, guid: 2711692e42e7f7c47a4875219fb6993f, type: 3}
 --- !u!1 &7823934947913713171
 GameObject:
   m_ObjectHideFlags: 0

@@ -104,6 +104,7 @@ namespace View
         private void Logout()
         {
             SavePlayerDataBeforeExit();
+            PlayerDataModule.Instance?.StopAutoSave();
             StartCoroutine(LoadNextSceneCoroutine());
         }
 

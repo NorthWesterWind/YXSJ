@@ -17,6 +17,8 @@ namespace Utils
         public const string NotifyToFlee = "NotifyToFlee";                   //怪物被攻击通知其它怪物
         public const string FocusView = "FocusView";                         //拉进摄像机高度
         public const string RestoreFocusView = "RestoreFocusView";           //恢复摄像机高度
+        public const string LockJoystickInput = "LockJoystickInput";         //锁定摇杆输入
+        public const string UnlockJoystickInput = "UnlockJoystickInput";     //恢复摇杆输入
         public const string PlayerTakeDamage = "PlayerTakeDamage";           //玩家受到伤害
         public const string UpdatePlayerMoneyInfo = "UpdatePlayerMoneyInfo"; //更新玩家货币信息
         public const string ProductionComplete = "ProductionComplete";       //产品生产完成
@@ -57,6 +59,8 @@ namespace Utils
 
         public const string UpdatePlayerEquimentInfo = "UpdatePlayerEquipmentInfo"; //更新玩家装备信息
         public const string UpdatePlayerCarryInfo = "UpdatePlayerCarryInfo"; //更新玩家携带信息
+
+        public const string UpdatePlayerClothingInfo = "UpdatePlayerClothingInfo"; //更新玩家服装信息
 
         public const string CustomerLeave = "CustomerLeave"; //顾客离开售卖摊
 
@@ -99,5 +103,15 @@ namespace Utils
         public const string UpdateSpeedTime = "UpdateSpeedTime"; //更新加速倒计时
         public const string ShowGuideFinger = "ShowGuideFinger";//显示引导手指
         public const string HideGuideFinger = "HideGuideFinger";//隐藏引导手指
+
+        public const string UpdateChatRecord = "UpdateChatRecord"; //更新聊天记录
+        public const string RefreshExpeditionFriendRedPoint = "RefreshExpeditionFriendRedPoint"; //更新好友界面红点信息
+        public const string RefreshFriendList = "RefreshFriendList"; //刷新好友列表
+        public const string DeleteReqItem = "DeleteReqItem"; //删除好友请求item
+
+        public const string UpdateHeadItemSelect = "UpdateHeadItemSelect"; //更新头像选择状态
+        public const string UpdateHeadID = "UpdateHeadID"; //更新头像Id
+        public const string UpdateHeadIcon = "UpdateHeadIcon"; //更新头像
+        public const string ChangeHeadIcon = "changeHeadIcon"; //更换头像
     }
 }

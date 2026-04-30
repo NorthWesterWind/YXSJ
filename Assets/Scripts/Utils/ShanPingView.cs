@@ -1,4 +1,5 @@
 using System.Collections;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -8,44 +9,19 @@ namespace World.View.UI
 {
     public class ShanPingView : MonoBehaviour
     {
-        // Start is called before the first frame update
         public CanvasGroup canvasGroup;
+
         void Start()
         {
             canvasGroup.alpha = 0;
-            canvasGroup.DOFade(1,  0.5f);
-            StartCoroutine(LoadNextSceneCoroutine());
+            canvasGroup.DOFade(1, 0.5f);
+            LoadNextScene().Forget();
         }
-
-        // Update is called once per frame
-        void Update()
+        private async UniTask LoadNextScene()
         {
-        
-        }
-        
-        private IEnumerator LoadNextSceneCoroutine()
-        {
-            // 注册回调（只注册一次）
-            SceneManager.sceneLoaded += OnSceneLoaded;
-
-            yield return new WaitForSeconds(1f);
-            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("Login");
-            while (!asyncLoad.isDone)
-            {
-                yield return null;
-            }
-        }
-
-        private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
-        {
-            // 只在加载 Main 场景时执行
-            if (scene.name == "Login")
-            {
-                // 显示UI
-                UIController.Instance.Show<LoginView>();
-            }
-            // 用完就移除，防止多次注册
-            SceneManager.sceneLoaded -= OnSceneLoaded;
+            await UniTask.Delay(5000);
+            await SceneManager.LoadSceneAsync("Login");
+            UIController.Instance.Show<LoginView>();
         }
     }
 }

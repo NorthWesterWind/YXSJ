@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Controller;
@@ -5,6 +6,7 @@ using Module;
 using Module.Data;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Utils;
 
 namespace View.CardView
@@ -13,6 +15,7 @@ namespace View.CardView
     {
         public TextMeshProUGUI jybtxt;
         public UIButton closeBtn;
+        public Image fill;
         public TextMeshProUGUI progressTxt;
         public AssetHandle assetHandle;
         public Transform transform_1;
@@ -22,14 +25,18 @@ namespace View.CardView
 
         public Transform transform_2;
         public Transform transform_3;
+        private Coroutine _layoutRefreshCoroutine;
 
         public override void UpdateViewWithArgs(params object[] args)
         {
             base.UpdateViewWithArgs(args);
             UpdateInfoTxt();
-            progressTxt.text = PlayerDataModule.Instance.data.cardUpProgressesList.Count + "/" +
-                               DataController.Instance.cardLevelDataList.Count;
+            int unlockedOwnedCardCount = GetUnlockedOwnedCardCount();
+            int totalCardCount = DataController.Instance.cardLevelDataList.Count;
+            progressTxt.text = unlockedOwnedCardCount + "/" + totalCardCount;
+            fill.fillAmount = totalCardCount <= 0 ? 0f : unlockedOwnedCardCount * 1f / totalCardCount;
             UpdateCardItem();
+            RefreshLayout();
         }
 
         public void UpdateCardItem()
@@ -45,17 +52,17 @@ namespace View.CardView
 
             foreach (var card in DataController.Instance.cardLevelDataList)
             {
-                if (ownedIds.Contains(card.id))
+                if (data.accountLevel < card.unlockLevel)
+                {
+                    list3.Add(card);
+                }
+                else if (ownedIds.Contains(card.id))
                 {
                     list1.Add(card);
                 }
-                else if (data.accountLevel >= card.unlockLevel)
-                {
-                    list2.Add(card);
-                }
                 else
                 {
-                    list3.Add(card);
+                    list2.Add(card);
                 }
             }
 
@@ -114,6 +121,12 @@ namespace View.CardView
             EventCenter.Instance.AddListener(EventMessages.UpdatePlayerMoneyInfo, UpdateInfoTxt);
         }
 
+        protected override void OnShow()
+        {
+            base.OnShow();
+            RefreshLayout();
+        }
+
         protected override void OnHideComplete()
         {
             base.OnHideComplete();
@@ -124,6 +137,98 @@ namespace View.CardView
         {
             PlayerData playerData = PlayerDataModule.Instance.data;
             jybtxt.text = Extensions.FormatNumber(playerData.goldIngot);
+        }
+
+        private int GetUnlockedOwnedCardCount()
+        {
+            PlayerData playerData = PlayerDataModule.Instance.data;
+            if (playerData == null || DataController.Instance == null || DataController.Instance.cardLevelDataList == null)
+            {
+                return 0;
+            }
+
+            int count = 0;
+            for (int i = 0; i < DataController.Instance.cardLevelDataList.Count; i++)
+            {
+                CardLevelData cardLevelData = DataController.Instance.cardLevelDataList[i];
+                if (cardLevelData == null || playerData.accountLevel < cardLevelData.unlockLevel)
+                {
+                    continue;
+                }
+
+                CardUpProgress progress = playerData.cardUpProgressesList.Find(x => x.id == cardLevelData.id);
+                if (progress == null)
+                {
+                    continue;
+                }
+
+                count++;
+            }
+
+            return count;
+        }
+
+        private void RefreshLayout()
+        {
+            if (_layoutRefreshCoroutine != null)
+            {
+                StopCoroutine(_layoutRefreshCoroutine);
+            }
+
+            _layoutRefreshCoroutine = StartCoroutine(RefreshLayoutCoroutine());
+        }
+
+        private IEnumerator RefreshLayoutCoroutine()
+        {
+            yield return null;
+            RebuildLayoutTree();
+            yield return null;
+            RebuildLayoutTree();
+            _layoutRefreshCoroutine = null;
+        }
+
+        private void RebuildLayoutTree()
+        {
+            RectTransform root = transform as RectTransform;
+            if (root == null)
+            {
+                return;
+            }
+
+            Canvas.ForceUpdateCanvases();
+
+            ContentSizeFitter[] fitters = GetComponentsInChildren<ContentSizeFitter>(true);
+            for (int i = 0; i < fitters.Length; i++)
+            {
+                if (fitters[i] == null)
+                {
+                    continue;
+                }
+
+                RectTransform rect = fitters[i].transform as RectTransform;
+                if (rect != null)
+                {
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
+                }
+            }
+
+            HorizontalOrVerticalLayoutGroup[] layoutGroups = GetComponentsInChildren<HorizontalOrVerticalLayoutGroup>(true);
+            for (int i = 0; i < layoutGroups.Length; i++)
+            {
+                if (layoutGroups[i] == null)
+                {
+                    continue;
+                }
+
+                RectTransform rect = layoutGroups[i].transform as RectTransform;
+                if (rect != null)
+                {
+                    LayoutRebuilder.ForceRebuildLayoutImmediate(rect);
+                }
+            }
+
+            LayoutRebuilder.ForceRebuildLayoutImmediate(root);
+            Canvas.ForceUpdateCanvases();
         }
     }
 }
