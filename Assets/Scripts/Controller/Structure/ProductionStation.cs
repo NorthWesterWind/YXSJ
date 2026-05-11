@@ -140,11 +140,11 @@ namespace Controller.Structure
             {
                 sprite.sprite = _assetHandle.Get<Sprite>("一级玉砂壶");
             }
-             if(buildingType == BuildingType.LianQiLu_3)
+             if(buildingType == BuildingType.LianQiLu_3 || buildingType == BuildingType.LianQiLu_2)
             {
                 sprite.sprite = _assetHandle.Get<Sprite>("二级炼器炉");
             }
-            else if(buildingType == BuildingType.LianQiLu_1 || buildingType == BuildingType.LianQiLu_2)
+            else if(buildingType == BuildingType.LianQiLu_1 )
             {
                 sprite.sprite = _assetHandle.Get<Sprite>("一级炼器炉");
             }

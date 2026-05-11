@@ -82,6 +82,8 @@ namespace Controller
         private float nextCollectScanTime;
         private float nextFightRepathTime;
         private float nextFightTargetRefreshTime;
+        private float nextFightEnterTime;
+        private float nextFightPathFailRetryTime;
         private float nextRouteRepathTime;
         private Vector2 lastFightDestination;
         private bool hasFightDestination;
@@ -95,6 +97,11 @@ namespace Controller
         private const string AnimWalk = "walk";
         private const string AnimAttack = "gongji";
         private const string AnimWalkAttack = "zoulugongji";
+        private string currentLoopAnimation;
+        private const float MoveAnimationSpeedThreshold = 0.04f;
+        private const float FightEnterCooldown = 0.35f;
+        private const float FightPathFailRetryInterval = 0.25f;
+        private const float AttackRangeHysteresis = 0.15f;
         private Vector3 lastWorldPos;
         private Vector3 baseSkeletonScale = Vector3.one;
         private bool hasBaseSkeletonScale;
@@ -108,10 +115,14 @@ namespace Controller
         private float stalledSinceTime = -1f;
         private const float MovementStallTimeout = 0.6f;
         private const float MovementStallDistanceEpsilon = 0.04f;
+        private const float WeaponHideDelay = 0.35f;
+        private float keepWeaponVisibleUntil;
         private Coroutine ensureMoveCoroutine;
         private Coroutine invalidRecoverCoroutine;
         private Vector2 lastRequestedDestination;
         private bool hasRequestedDestination;
+        private float nextNavDiagnosticTime;
+        private const float NavDiagnosticInterval = 1f;
         public Canvas canvas;
         public WeaponController weaponController;
         #endregion
@@ -245,9 +256,16 @@ namespace Controller
             {
                 return;
             }
-            var scale = baseSkeletonScale;
-            scale.x = Mathf.Abs(baseSkeletonScale.x) * (dirX >= 0 ? 1f : -1f);
-            skeletonAnimation.transform.localScale = scale;
+            if(dirX >= 0)
+            {
+                skeletonAnimation.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
+                skeletonAnimation.skeleton.SetAttachment("衣服", "6");
+            }
+            else
+            {
+                skeletonAnimation.transform.localScale = new Vector3(-0.6f, 0.6f, 0.6f);
+                skeletonAnimation.skeleton.SetAttachment("衣服", "6_2");
+            }
         }
         public void RefreshCarryInfo()
         {
@@ -268,9 +286,13 @@ namespace Controller
             {
                 return;
             }
+            if (currentState == CollectorState.Fight)
+            {
+                keepWeaponVisibleUntil = Time.time + WeaponHideDelay;
+            }
             if (weapon != null)
             {
-                bool shouldActive = currentState == CollectorState.Fight;
+                bool shouldActive = currentState == CollectorState.Fight || Time.time < keepWeaponVisibleUntil;
                 if (weapon.activeSelf != shouldActive)
                 {
                     weapon.SetActive(shouldActive);
@@ -279,10 +301,6 @@ namespace Controller
             if (weapon != null && weapon.activeSelf)
             {
                 weaponRoot.Rotate(0f, 0f, -weaponSpinSpeed * Time.deltaTime);
-            }
-            else
-            {
-                weaponRoot.localRotation = Quaternion.identity;
             }
         }
         #endregion
@@ -305,6 +323,8 @@ namespace Controller
                 agent.Stop();
             }
             ResetFightChaseCache();
+            nextFightEnterTime = 0f;
+            currentLoopAnimation = null;
             currentState = CollectorState.Idle;
             inventory.max = (int)c.bagCapacity;
             if (agent != null)
@@ -381,7 +401,18 @@ namespace Controller
             {
                 return false;
             }
-            if (allowLooseArrive && distanceSqr <= 0.64f && (!agent.hasPath || agent.remainingDistance <= 0.15f))
+            if (allowLooseArrive && distanceSqr <= 0.72f * 0.72f)
+            {
+                if (!agent.hasPath)
+                {
+                    return true;
+                }
+                if (agent.remainingDistance <= Mathf.Max(agent.stoppingDistance, 0.15f) + 0.05f)
+                {
+                    return true;
+                }
+            }
+            if (!allowLooseArrive && distanceSqr <= 0.45f * 0.45f && (!agent.hasPath || agent.remainingDistance <= 0.2f))
             {
                 return true;
             }
@@ -483,7 +514,7 @@ namespace Controller
             agent.map = mapObj.GetComponent<PolyNavMap>();
             return agent.map != null;
         }
-        private bool TrySetAgentDestination(Vector2 target, bool restartEnsureMove = true)
+        private bool TrySetAgentDestination(Vector2 target, bool restartEnsureMove = true, bool forceRepath = false)
         {
             if (agent == null || !EnsureAgentMap())
             {
@@ -500,12 +531,17 @@ namespace Controller
                 target = map.GetCloserEdgePoint(target);
                 LogRouteDebug($"destination adjusted by nav map. original={FormatPoint(originalTarget)}, adjusted={FormatPoint(target)}");
             }
+            if (forceRepath)
+            {
+                agent.Stop();
+            }
             lastRequestedDestination = target;
             hasRequestedDestination = true;
 
             bool success = agent.SetDestination(target);
+            bool hasUsableNavigation = success && (agent.hasPath || agent.pathPending || ((Vector2)transform.position - target).sqrMagnitude <= Mathf.Max(agent.stoppingDistance, 0.15f) * Mathf.Max(agent.stoppingDistance, 0.15f));
             LogRouteDebug($"set destination. target={FormatPoint(target)}, success={success}, hasPath={agent.hasPath}, pathPending={agent.pathPending}, remaining={agent.remainingDistance:F2}");
-            if (success)
+            if (hasUsableNavigation)
             {
                 if (restartEnsureMove)
                 {
@@ -514,11 +550,11 @@ namespace Controller
             }
             else
             {
-                LogRouteDebug($"set destination failed. target={FormatPoint(target)}, pos={FormatPoint(transform.position)}");
+                LogRouteDebug($"set destination failed or produced no path. target={FormatPoint(target)}, pos={FormatPoint(transform.position)}, success={success}, hasPath={agent.hasPath}, pathPending={agent.pathPending}");
                 BeginInvalidRecovery();
             }
 
-            return success;
+            return hasUsableNavigation;
         }
         private void SetDepotDestination()
         {
@@ -545,9 +581,37 @@ namespace Controller
                 return;
             }
             routeMovePhase = CollectorRouteMovePhase.EnterRouteForward;
-            routeWaypointIndex = 0;
+            routeWaypointIndex = GetRouteStartWaypointIndex();
             LogRouteDebug($"begin route to resource. targetFactory={GetTargetName(currentTarget)}, waypointIndex={routeWaypointIndex}/{routeWaypoints.Count - 1}, target={FormatPoint(routeWaypoints[routeWaypointIndex])}");
             TrySetAgentDestination(routeWaypoints[routeWaypointIndex]);
+        }
+        private int GetRouteStartWaypointIndex()
+        {
+            if (!HasRouteWaypoints())
+            {
+                return -1;
+            }
+
+            int nearestIndex = 0;
+            float nearestDistanceSqr = float.MaxValue;
+            Vector2 position = transform.position;
+            for (int i = 0; i < routeWaypoints.Count; i++)
+            {
+                float distanceSqr = (routeWaypoints[i] - position).sqrMagnitude;
+                if (distanceSqr < nearestDistanceSqr)
+                {
+                    nearestDistanceSqr = distanceSqr;
+                    nearestIndex = i;
+                }
+            }
+
+            float resumeDistance = Mathf.Max(RouteArriveDistance, 0.8f);
+            if (nearestDistanceSqr <= resumeDistance * resumeDistance && nearestIndex < routeWaypoints.Count - 1)
+            {
+                return nearestIndex + 1;
+            }
+
+            return nearestIndex;
         }
         private bool UpdateGoToResourceRoute()
         {
@@ -568,7 +632,8 @@ namespace Controller
             }
             Vector2 currentWaypoint = routeWaypoints[routeWaypointIndex];
             bool isLastRouteWaypoint = routeWaypointIndex >= routeWaypoints.Count - 1;
-            if (HasReachedRoutePoint(currentWaypoint, !isLastRouteWaypoint))
+            LogRouteDebug($"go-to-resource tick. waypointIndex={routeWaypointIndex}/{routeWaypoints.Count - 1}, waypoint={FormatPoint(currentWaypoint)}, pos={FormatPoint(transform.position)}, hasPath={agent?.hasPath}, remaining={(agent != null ? agent.remainingDistance : 0f):F2}, speed={(agent != null ? agent.currentSpeed : 0f):F2}");
+            if (HasReachedRoutePoint(currentWaypoint, true))
             {
                 LogRouteDebug($"reached route waypoint. index={routeWaypointIndex}/{routeWaypoints.Count - 1}, isLast={isLastRouteWaypoint}, waypoint={FormatPoint(currentWaypoint)}, pos={FormatPoint(transform.position)}");
                 if (routeWaypointIndex < routeWaypoints.Count - 1)
@@ -578,14 +643,19 @@ namespace Controller
                     TrySetAgentDestination(routeWaypoints[routeWaypointIndex]);
                     return true;
                 }
-                ResetRouteMovement();
-                LogRouteDebug($"route complete, enter fight. targetFactory={GetTargetName(currentTarget)}, pos={FormatPoint(transform.position)}");
-                ChangeState(CollectorState.Fight);
+                routeMovePhase = CollectorRouteMovePhase.MoveToResource;
+                routeWaypointIndex = -1;
+                if (currentTarget != null)
+                {
+                    LogRouteDebug($"route complete, move to factory. targetFactory={GetTargetName(currentTarget)}, target={FormatPoint(currentTarget.transform.position)}, pos={FormatPoint(transform.position)}");
+                    TrySetAgentDestination(currentTarget.transform.position);
+                }
                 return true;
             }
             if (agent != null && !agent.hasPath && CanRequestRoutePath())
             {
                 LogRouteDebug($"route path missing, retry waypoint. index={routeWaypointIndex}/{routeWaypoints.Count - 1}, target={FormatPoint(currentWaypoint)}, pos={FormatPoint(transform.position)}");
+                LogNavDiagnostic(currentWaypoint, "route-missing");
                 TrySetAgentDestination(currentWaypoint);
             }
             return true;
@@ -638,8 +708,10 @@ namespace Controller
                         return false;
                     }
                     Vector2 tailPoint = routeWaypoints[routeWaypointIndex];
-                    if (HasReachedRoutePoint(tailPoint, false))
+                    LogRouteDebug($"return-to-depot tick(tail). waypointIndex={routeWaypointIndex}/{routeWaypoints.Count - 1}, waypoint={FormatPoint(tailPoint)}, pos={FormatPoint(transform.position)}, hasPath={agent?.hasPath}, remaining={(agent != null ? agent.remainingDistance : 0f):F2}, speed={(agent != null ? agent.currentSpeed : 0f):F2}");
+                    if (HasReachedRoutePoint(tailPoint, true))
                     {
+                        LogRouteDebug($"reached tail waypoint. index={routeWaypointIndex}/{routeWaypoints.Count - 1}, waypoint={FormatPoint(tailPoint)}, pos={FormatPoint(transform.position)}");
                         if (routeWaypointIndex <= 0)
                         {
                             routeMovePhase = CollectorRouteMovePhase.MoveToDepot;
@@ -666,8 +738,10 @@ namespace Controller
                         return false;
                     }
                     Vector2 currentWaypoint = routeWaypoints[routeWaypointIndex];
+                    LogRouteDebug($"return-to-depot tick(back). waypointIndex={routeWaypointIndex}/{routeWaypoints.Count - 1}, waypoint={FormatPoint(currentWaypoint)}, pos={FormatPoint(transform.position)}, hasPath={agent?.hasPath}, remaining={(agent != null ? agent.remainingDistance : 0f):F2}, speed={(agent != null ? agent.currentSpeed : 0f):F2}");
                     if (HasReachedRoutePoint(currentWaypoint))
                     {
+                        LogRouteDebug($"reached return waypoint. index={routeWaypointIndex}/{routeWaypoints.Count - 1}, waypoint={FormatPoint(currentWaypoint)}, pos={FormatPoint(transform.position)}");
                         routeWaypointIndex--;
                         if (routeWaypointIndex >= 0)
                         {
@@ -697,6 +771,25 @@ namespace Controller
             ExitState(currentState);
             currentState = newState;
             EnterState(newState);
+        }
+        private void ReturnFromFightToResourceMove()
+        {
+            routeMovePhase = CollectorRouteMovePhase.MoveToResource;
+            routeWaypointIndex = -1;
+            if (currentTarget != null)
+            {
+                TrySetAgentDestination(currentTarget.transform.position);
+            }
+
+            if (currentState == CollectorState.Fight)
+            {
+                ExitState(currentState);
+                currentState = CollectorState.GoToResource;
+            }
+            else
+            {
+                ChangeState(CollectorState.GoToResource);
+            }
         }
         private void ExitState(CollectorState state)
         {
@@ -785,6 +878,7 @@ namespace Controller
                     }
                     break;
                 case CollectorState.GoToResource:
+                    LogRouteDebug($"state=GoToResource tick. phase={routeMovePhase}, target={GetTargetName(currentTarget)}, pos={FormatPoint(transform.position)}, hasPath={agent?.hasPath}, remaining={(agent != null ? agent.remainingDistance : 0f):F2}, speed={(agent != null ? agent.currentSpeed : 0f):F2}");
                     if (currentTarget == null)
                     {
                         LogRouteDebug("go to resource interrupted: currentTarget is null.");
@@ -801,10 +895,7 @@ namespace Controller
                     {
                         break;
                     }
-                    float targetDistSqr = ((Vector2)(currentTarget.transform.position - transform.position)).sqrMagnitude;
-                    float targetEnterFightDistance = detectRadius * 0.8f;
-                    if (targetDistSqr <= targetEnterFightDistance * targetEnterFightDistance ||
-                        (agent != null && agent.hasPath && agent.remainingDistance < 0.1f))
+                    if (CanEnterFightAtResource())
                     {
                         ChangeState(CollectorState.Fight);
                     }
@@ -818,6 +909,11 @@ namespace Controller
                     }
                     break;
                 case CollectorState.Fight:
+                    LogRouteDebug($"state=Fight tick. target={GetTargetName(currentTarget)}, pos={FormatPoint(transform.position)}, hasPath={agent?.hasPath}, remaining={(agent != null ? agent.remainingDistance : 0f):F2}, speed={(agent != null ? agent.currentSpeed : 0f):F2}, nextFightEnter={nextFightEnterTime:F2}");
+                    if (Time.time < nextFightEnterTime)
+                    {
+                        break;
+                    }
                     DoFight();
                     break;
                 case CollectorState.ReturnToDepot:
@@ -919,6 +1015,32 @@ namespace Controller
                     break;
             }
         }
+        private bool CanEnterFightAtResource()
+        {
+            if (currentTarget == null)
+            {
+                return false;
+            }
+
+            if (!TryGetNearestAliveMonster(currentTarget, out _, out var nearestMonsterDistSqr))
+            {
+                return false;
+            }
+
+            if (nearestMonsterDistSqr > detectRadius * detectRadius)
+            {
+                return false;
+            }
+
+            if (routeMovePhase == CollectorRouteMovePhase.MoveToResource || routeMovePhase == CollectorRouteMovePhase.None)
+            {
+                return true;
+            }
+
+            float targetEnterFightDistance = detectRadius * 0.9f;
+            float targetDistSqr = ((Vector2)(currentTarget.transform.position - transform.position)).sqrMagnitude;
+            return targetDistSqr <= targetEnterFightDistance * targetEnterFightDistance;
+        }
         #endregion
         #region Combat
         public void CheckMonster()
@@ -959,32 +1081,38 @@ namespace Controller
         }
         private void DoFight()
         {
+            LogRouteDebug($"fight tick enter. targetFactory={GetTargetName(currentTarget)}, pos={FormatPoint(transform.position)}, hasPath={agent?.hasPath}, remaining={(agent != null ? agent.remainingDistance : 0f):F2}, speed={(agent != null ? agent.currentSpeed : 0f):F2}");
             if (!TryGetFactoryController(out var targetFactory))
             {
+                LogRouteDebug("fight abort: no factory controller.");
                 ChangeState(GetNoWorkFallbackState());
                 return;
             }
             var list = targetFactory.monsterList;
             if (list == null || list.Count == 0)
             {
+                LogRouteDebug($"fight abort: monster list empty. factory={GetTargetName(targetFactory)}");
                 ChangeState(GetNoWorkFallbackState());
                 return;
             }
             if (!TryGetFightTarget(targetFactory, out var nearest, out var minDist))
             {
+                LogRouteDebug($"fight abort: no alive monster target. factory={GetTargetName(targetFactory)}");
                 ChangeState(GetNoWorkFallbackState());
                 return;
             }
             SetFacingByDirection(nearest.position.x - transform.position.x);
             float stopDistance = Mathf.Max(attackStopDistance, 0.8f);
-            float stopDistanceSqr = stopDistance * stopDistance;
-            if (minDist > stopDistanceSqr)
+            float chaseDistance = stopDistance + AttackRangeHysteresis;
+            float chaseDistanceSqr = chaseDistance * chaseDistance;
+            if (minDist > chaseDistanceSqr)
             {
+                LogRouteDebug($"fight chase target. monster={nearest.name}, dist={Mathf.Sqrt(minDist):F2}, stopDistance={stopDistance:F2}, hasPath={agent?.hasPath}, remaining={(agent != null ? agent.remainingDistance : 0f):F2}");
                 if (agent != null)
                 {
                     if (Time.time >= nextFightRepathTime)
                     {
-                        Vector2 destination = nearest.position;
+                        Vector2 destination = GetReachableFightDestination(nearest.position, stopDistance);
                         bool needRepath = !agent.hasPath
                                           || !hasFightDestination
                                           || (destination - lastFightDestination).sqrMagnitude > 0.04f;
@@ -994,10 +1122,15 @@ namespace Controller
                             {
                                 lastFightDestination = destination;
                                 hasFightDestination = true;
+                                nextFightPathFailRetryTime = 0f;
                             }
                             else
                             {
-                                ChangeState(GetNoWorkFallbackState());
+                                LogRouteDebug($"fight chase path failed, stay in fight and retry. target={FormatPoint(destination)}, monster={FormatPoint(nearest.position)}, dist={Mathf.Sqrt(minDist):F2}, detectRadius={detectRadius:F2}");
+                                LogFightTargetDiagnostic(nearest, "fight-path-failed");
+                                LogNavDiagnostic(destination, "fight-path-failed");
+                                nextFightPathFailRetryTime = Time.time + FightPathFailRetryInterval;
+                                nextFightRepathTime = nextFightPathFailRetryTime;
                                 return;
                             }
                         }
@@ -1007,6 +1140,8 @@ namespace Controller
             }
             else
             {
+                LogRouteDebug($"fight in range. monster={nearest.name}, dist={Mathf.Sqrt(minDist):F2}, stopDistance={stopDistance:F2}, chaseDistance={chaseDistance:F2}");
+                LogFightTargetDiagnostic(nearest, "fight-in-range");
                 if (agent != null)
                 {
                     if (agent.hasPath)
@@ -1031,25 +1166,81 @@ namespace Controller
                                || !IsAliveFactoryMonster(cachedFightTarget.gameObject);
             if (needRefresh)
             {
+                LogRouteDebug($"fight target refresh. factory={GetTargetName(factory)}, cached={(cachedFightTarget == null ? "null" : cachedFightTarget.name)}, time={Time.time:F2}");
                 if (!TryGetNearestAliveMonster(factory, out cachedFightTarget, out minDist))
                 {
                     cachedFightTarget = null;
                     nextFightTargetRefreshTime = Time.time + Mathf.Max(0.05f, fightTargetRefreshInterval);
+                    LogRouteDebug($"fight target refresh failed. factory={GetTargetName(factory)}, nextRefresh={nextFightTargetRefreshTime:F2}");
                     return false;
                 }
                 nextFightTargetRefreshTime = Time.time + Mathf.Max(0.05f, fightTargetRefreshInterval);
+                LogRouteDebug($"fight target refreshed. target={cachedFightTarget.name}, dist={Mathf.Sqrt(minDist):F2}, nextRefresh={nextFightTargetRefreshTime:F2}");
+                LogFightTargetDiagnostic(cachedFightTarget, "fight-target-refreshed");
             }
             else
             {
+                if (cachedFightTarget == null)
+                {
+                    return false;
+                }
                 minDist = ((Vector2)(cachedFightTarget.position - transform.position)).sqrMagnitude;
             }
             nearest = cachedFightTarget;
             return nearest != null;
         }
+        private Vector2 GetReachableFightDestination(Vector2 target, float stopDistance)
+        {
+            if (agent == null || !EnsureAgentMap() || agent.map == null)
+            {
+                return target;
+            }
+
+            Vector2 position = transform.position;
+            Vector2 toTarget = target - position;
+            if (toTarget.sqrMagnitude <= 0.0001f)
+            {
+                return target;
+            }
+
+            Vector2 desired = target - toTarget.normalized * Mathf.Max(stopDistance * 0.85f, 0.6f);
+            if (!agent.map.PointIsValid(desired))
+            {
+                Vector2 adjusted = agent.map.GetCloserEdgePoint(desired);
+                LogRouteDebug($"fight destination adjusted to nav edge. original={FormatPoint(desired)}, adjusted={FormatPoint(adjusted)}, monster={FormatPoint(target)}");
+                return adjusted;
+            }
+
+            return desired;
+        }
+        private void LogNavDiagnostic(Vector2 target, string reason)
+        {
+            if (GameController.Instance == null || !GameController.Instance.logCollectorRouteDebug)
+            {
+                return;
+            }
+            if (Time.time < nextNavDiagnosticTime)
+            {
+                return;
+            }
+            nextNavDiagnosticTime = Time.time + NavDiagnosticInterval;
+            if (agent == null || !EnsureAgentMap() || agent.map == null)
+            {
+                LogRouteDebug($"nav diagnostic skipped. reason={reason}, mapMissing=True");
+                return;
+            }
+
+            Vector2 position = transform.position;
+            bool startValid = agent.map.PointIsValid(position);
+            bool targetValid = agent.map.PointIsValid(target);
+            bool lineOfSight = agent.map.CheckLOS(position, target);
+            LogRouteDebug($"nav diagnostic. reason={reason}, start={FormatPoint(position)}, target={FormatPoint(target)}, startValid={startValid}, targetValid={targetValid}, los={lineOfSight}, hasPath={agent.hasPath}, pending={agent.pathPending}, remaining={agent.remainingDistance:F2}");
+        }
         private void ResetFightChaseCache()
         {
             hasFightDestination = false;
             nextFightRepathTime = 0f;
+            nextFightPathFailRetryTime = 0f;
             cachedFightTarget = null;
             nextFightTargetRefreshTime = 0f;
             stalledSinceTime = -1f;
@@ -1248,6 +1439,11 @@ namespace Controller
             {
                 weapon.SetActive(false);
             }
+            keepWeaponVisibleUntil = 0f;
+            if (weaponRoot != null)
+            {
+                weaponRoot.localRotation = Quaternion.identity;
+            }
             if (agent != null)
             {
                 agent.Stop();
@@ -1342,14 +1538,15 @@ namespace Controller
             }
             var state = skeletonAnimation.AnimationState;
             var current = state.GetCurrent(0);
-            bool moving = agent.hasPath && agent.remainingDistance > 1f;
+            bool moving = agent.pathPending || agent.currentSpeed > MoveAnimationSpeedThreshold;
             bool fighting = currentState == CollectorState.Fight;
             string anim = fighting
                 ? (moving ? AnimWalkAttack : AnimAttack)
                 : (moving ? AnimWalk : AnimIdle);
-            if (current == null || current.Animation.Name != anim)
+            if (currentLoopAnimation != anim || current == null || current.Animation == null || current.Animation.Name != anim)
             {
                 state.SetAnimation(0, anim, true);
+                currentLoopAnimation = anim;
             }
             
         }
@@ -1410,7 +1607,12 @@ namespace Controller
                 {
                     continue;
                 }
-                float dist = ((Vector2)(monster.transform.position - transform.position)).sqrMagnitude;
+                Vector2 distancePoint = monster.transform.position;
+                if (monster.TryGetComponent(out Collider2D monsterCollider))
+                {
+                    distancePoint = monsterCollider.ClosestPoint(transform.position);
+                }
+                float dist = (distancePoint - (Vector2)transform.position).sqrMagnitude;
                 if (dist < minDist)
                 {
                     minDist = dist;
@@ -1451,9 +1653,6 @@ namespace Controller
             {
                 return;
             }
-
-            string collectorName = name;
-            Debug.Log($"[CollectorRoute] collector={collectorName}, depot={depot?.categoryType}, state={currentState}, phase={routeMovePhase}, {message}", this);
         }
         private static string GetTargetName(FactoryController factory)
         {
@@ -1462,6 +1661,34 @@ namespace Controller
         private static string FormatPoint(Vector2 point)
         {
             return $"({point.x:F2}, {point.y:F2})";
+        }
+        private void LogFightTargetDiagnostic(Transform target, string reason)
+        {
+            if (GameController.Instance == null || !GameController.Instance.logCollectorRouteDebug || target == null)
+            {
+                return;
+            }
+            if (Time.time < nextNavDiagnosticTime)
+            {
+                return;
+            }
+
+            nextNavDiagnosticTime = Time.time + NavDiagnosticInterval;
+            Vector2 collectorPosition = transform.position;
+            Vector2 targetPosition = target.position;
+            var collider = target.GetComponent<Collider2D>();
+            if (collider == null)
+            {
+                collider = target.GetComponentInChildren<Collider2D>();
+            }
+            Vector2 colliderCenter = collider != null ? collider.bounds.center : targetPosition;
+            Vector2 colliderClosest = collider != null ? collider.ClosestPoint(collectorPosition) : targetPosition;
+            Transform character = target.Find("character");
+            Transform uiAnchor = target.Find("uiAnchor");
+            float rootDistance = Vector2.Distance(collectorPosition, targetPosition);
+            float colliderCenterDistance = Vector2.Distance(collectorPosition, colliderCenter);
+            float colliderClosestDistance = Vector2.Distance(collectorPosition, colliderClosest);
+            LogRouteDebug($"fight target diagnostic. reason={reason}, monster={target.name}, collector={FormatPoint(collectorPosition)}, root={FormatPoint(targetPosition)}, rootDist={rootDistance:F2}, collider={(collider == null ? "null" : collider.GetType().Name)}, colliderCenter={FormatPoint(colliderCenter)}, colliderCenterDist={colliderCenterDistance:F2}, colliderClosest={FormatPoint(colliderClosest)}, colliderClosestDist={colliderClosestDistance:F2}, character={(character == null ? "null" : FormatPoint(character.position))}, uiAnchor={(uiAnchor == null ? "null" : FormatPoint(uiAnchor.position))}");
         }
         private static string FormatRoutePoints(IReadOnlyList<Vector2> points)
         {
@@ -1653,30 +1880,80 @@ namespace Controller
             switch (currentState)
             {
                 case CollectorState.GoToResource:
+                    if (TryFallbackFromUnreachableRouteWaypoint())
+                    {
+                        break;
+                    }
+                    if (routeMovePhase == CollectorRouteMovePhase.MoveToResource)
+                    {
+                        if (CanEnterFightAtResource())
+                        {
+                            ChangeState(CollectorState.Fight);
+                        }
+                        else
+                        {
+                            ChangeState(GetNoWorkFallbackState());
+                        }
+                        break;
+                    }
                     ChangeState(ShouldReturnToDepot() ? CollectorState.ReturnToDepot : CollectorState.FindResource);
                     break;
                 case CollectorState.ReturnToDepot:
-                {
-                    Transform depotTarget = GetDepotTargetTransform();
-                    if (depotTarget != null)
-                    {
-                        transform.position = depotTarget.position;
-                        if (agent != null)
-                        {
-                            agent.Stop();
-                        }
-                        ChangeState(CollectorState.Unloading);
-                    }
-                    else
-                    {
-                        BeginReturnToDepot();
-                    }
+                    LogRouteDebug("return route stalled, retry return route instead of teleporting.");
+                    BeginReturnToDepot();
                     break;
-                }
                 case CollectorState.Fight:
+                    if (TryGetFightTarget(currentTarget, out var nearest, out var minDist) && minDist <= detectRadius * detectRadius)
+                    {
+                        LogRouteDebug($"fight stall but target still in detect radius. monster={nearest.name}, dist={Mathf.Sqrt(minDist):F2}, stay in Fight.");
+                        break;
+                    }
+                    nextFightEnterTime = Time.time + FightEnterCooldown;
                     ChangeState(ShouldReturnToDepot() ? CollectorState.ReturnToDepot : CollectorState.FindResource);
                     break;
             }
+        }
+        private bool TryFallbackFromUnreachableRouteWaypoint()
+        {
+            if (currentState != CollectorState.GoToResource ||
+                !HasRouteWaypoints() ||
+                routeMovePhase != CollectorRouteMovePhase.EnterRouteForward ||
+                routeWaypointIndex < 0 ||
+                routeWaypointIndex >= routeWaypoints.Count)
+            {
+                return false;
+            }
+
+            while (routeWaypointIndex >= 0 && routeWaypointIndex < routeWaypoints.Count)
+            {
+                bool isLastWaypoint = routeWaypointIndex >= routeWaypoints.Count - 1;
+                Vector2 unreachableWaypoint = routeWaypoints[routeWaypointIndex];
+                if (isLastWaypoint)
+                {
+                    routeMovePhase = CollectorRouteMovePhase.MoveToResource;
+                    routeWaypointIndex = -1;
+                    if (currentTarget != null)
+                    {
+                        LogRouteDebug($"skip unreachable final route waypoint, move to factory. waypoint={FormatPoint(unreachableWaypoint)}, targetFactory={GetTargetName(currentTarget)}, target={FormatPoint(currentTarget.transform.position)}, pos={FormatPoint(transform.position)}");
+                        if (TrySetAgentDestination(currentTarget.transform.position))
+                        {
+                            return true;
+                        }
+                    }
+
+                    ChangeState(CanEnterFightAtResource() ? CollectorState.Fight : GetNoWorkFallbackState());
+                    return true;
+                }
+
+                routeWaypointIndex++;
+                LogRouteDebug($"skip unreachable route waypoint. skipped={FormatPoint(unreachableWaypoint)}, nextIndex={routeWaypointIndex}/{routeWaypoints.Count - 1}, next={FormatPoint(routeWaypoints[routeWaypointIndex])}, pos={FormatPoint(transform.position)}");
+                if (TrySetAgentDestination(routeWaypoints[routeWaypointIndex]))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
         private void EnsureAgentCallbacks()
         {
@@ -1748,6 +2025,10 @@ namespace Controller
             }
 
             invalidRecoverCoroutine = null;
+            if (TryFallbackFromUnreachableRouteWaypoint())
+            {
+                yield break;
+            }
             RecoverFromMovementStall();
         }
         private void HandleMonsterDead(params object[] args)

@@ -624,877 +624,121 @@ MonoBehaviour:
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
-    SerializationNodes:
-    - Name: data
-      Entry: 7
-      Data: 0|Module.Data.PlayerData, Assembly-CSharp
-    - Name: id
-      Entry: 6
-      Data: 
-    - Name: name
-      Entry: 6
-      Data: 
-    - Name: hp
-      Entry: 4
-      Data: 30
-    - Name: atk
-      Entry: 4
-      Data: 20
-    - Name: bagCapacity
-      Entry: 4
-      Data: 20
-    - Name: moveSpeed
-      Entry: 4
-      Data: 5
-    - Name: pickUpRange
-      Entry: 4
-      Data: 4
-    - Name: slowDownValue
-      Entry: 4
-      Data: 3
-    - Name: weaponSize
-      Entry: 4
-      Data: 1
-    - Name: hpRecover
-      Entry: 4
-      Data: 0
-    - Name: addHp
-      Entry: 4
-      Data: 0
-    - Name: addAtk
-      Entry: 4
-      Data: 0
-    - Name: addBagCapacity
-      Entry: 4
-      Data: 0
-    - Name: equippedBagCapacity
-      Entry: 4
-      Data: 0
-    - Name: bagCapacityDataMigrated
-      Entry: 5
-      Data: false
-    - Name: addMoveSpeed
-      Entry: 4
-      Data: 0
-    - Name: addPickUpRange
-      Entry: 4
-      Data: 0
-    - Name: addSlowDownValue
-      Entry: 4
-      Data: 0
-    - Name: addweaponSize
-      Entry: 4
-      Data: 0
-    - Name: addhpRecover
-      Entry: 4
-      Data: 0
-    - Name: playerName
-      Entry: 6
-      Data: 
-    - Name: userAccount
-      Entry: 6
-      Data: 
-    - Name: userPassword
-      Entry: 6
-      Data: 
-    - Name: age
-      Entry: 3
-      Data: 0
-    - Name: oncePurchaseLimit
-      Entry: 3
-      Data: 0
-    - Name: monthPurchaseLimit
-      Entry: 3
-      Data: 0
-    - Name: mothTotalSpending
-      Entry: 3
-      Data: 0
-    - Name: isCreated
-      Entry: 5
-      Data: false
-    - Name: user_id
-      Entry: 3
-      Data: 0
-    - Name: headId
-      Entry: 3
-      Data: 0
-    - Name: currentClothing
-      Entry: 3
-      Data: 0
-    - Name: ownClothingList
-      Entry: 6
-      Data: 
-    - Name: guidIdList
-      Entry: 7
-      Data: 1|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: guideStep
-      Entry: 3
-      Data: 1
-    - Name: todayUseZhuanPanNum
-      Entry: 3
-      Data: 0
-    - Name: currentUseNum
-      Entry: 3
-      Data: 0
-    - Name: playLingBaoCount
-      Entry: 3
-      Data: 0
-    - Name: canPlayXuanJing
-      Entry: 5
-      Data: false
-    - Name: playXuanJingTime
-      Entry: 6
-      Data: 
-    - Name: lastloginday
-      Entry: 6
-      Data: 
-    - Name: playTrialCurrencyType
-      Entry: 3
-      Data: 0
-    - Name: monthlyLimitMoney
-      Entry: 3
-      Data: 0
-    - Name: lastTime
-      Entry: 7
-      Data: System.DateTime, mscorlib
-    - Name: 
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: tongbi
-      Entry: 3
-      Data: 5000000
-    - Name: goldIngot
-      Entry: 3
-      Data: 5000000
-    - Name: lingJing
-      Entry: 3
-      Data: 500000
-    - Name: star
-      Entry: 3
-      Data: 0
-    - Name: talentPoint
-      Entry: 3
-      Data: 0
-    - Name: currentMapID
-      Entry: 3
-      Data: 1
-    - Name: speedTime
-      Entry: 4
-      Data: 0
-    - Name: accountLevel
-      Entry: 3
-      Data: 1
-    - Name: characterFunction
-      Entry: 3
-      Data: 1
-    - Name: cardFunction
-      Entry: 3
-      Data: 1
-    - Name: mapFunction
-      Entry: 3
-      Data: 1
-    - Name: employeeFunction
-      Entry: 3
-      Data: 1
-    - Name: ordenFunction
-      Entry: 3
-      Data: 1
-    - Name: levelLockMapList
-      Entry: 7
-      Data: 2|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 4
-    - Name: 
-      Entry: 3
-      Data: 2
-    - Name: 
-      Entry: 3
-      Data: 3
-    - Name: 
-      Entry: 3
-      Data: 4
-    - Name: 
-      Entry: 3
-      Data: 5
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: realUnlockMapList
-      Entry: 7
-      Data: 3|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: mapCompletedTaskRecordList_1
-      Entry: 6
-      Data: 
-    - Name: mapCompletedTaskRecordList_2
-      Entry: 6
-      Data: 
-    - Name: mapCompletedTaskRecordList_3
-      Entry: 6
-      Data: 
-    - Name: mapCompletedTaskRecordList_4
-      Entry: 6
-      Data: 
-    - Name: mapCompletedTaskRecordList_5
-      Entry: 6
-      Data: 
-    - Name: nowTaskId
-      Entry: 3
-      Data: 0
-    - Name: listenInTaskList
-      Entry: 7
-      Data: 4|System.Collections.Generic.List`1[[Module.Data.TaskData, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: taskProgressDic
-      Entry: 7
-      Data: 5|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[System.Int32,
-        mscorlib]], mscorlib
-    - Name: comparer
-      Entry: 7
-      Data: 6|System.Collections.Generic.GenericEqualityComparer`1[[System.Int32,
-        mscorlib]], mscorlib
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 0
-    - Name: $v
-      Entry: 3
-      Data: 0
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: taskPopCompleted
-      Entry: 3
-      Data: 0
-    - Name: FanPingBaoXiaoTime
-      Entry: 6
-      Data: 
-    - Name: LingShunLingTime
-      Entry: 6
-      Data: 
-    - Name: GetLingJingTime
-      Entry: 6
-      Data: 
-    - Name: GetLingJingCount
-      Entry: 3
-      Data: 0
-    - Name: sevenDayRecordList
-      Entry: 7
-      Data: 7|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: sevenDayRecordTime
-      Entry: 6
-      Data: 
-    - Name: GetSevenDayRewardIndex
-      Entry: 3
-      Data: 0
-    - Name: SeventRecentlyWeek
-      Entry: 3
-      Data: 0
-    - Name: talentLevel
-      Entry: 3
-      Data: 0
-    - Name: ownWeaponList
-      Entry: 7
-      Data: 8|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: currentWeapon
-      Entry: 3
-      Data: 1
-    - Name: ownBagList
-      Entry: 7
-      Data: 9|System.Collections.Generic.List`1[[System.Int32, mscorlib]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 1
-    - Name: 
-      Entry: 3
-      Data: 1
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: currentBag
-      Entry: 3
-      Data: 1
-    - Name: cardLevelMax
-      Entry: 3
-      Data: 0
-    - Name: useLingJingTotalValue
-      Entry: 3
-      Data: 0
-    - Name: useZhuanPanTotalValue
-      Entry: 3
-      Data: 0
-    - Name: cardUpProgressesList
-      Entry: 7
-      Data: 10|System.Collections.Generic.List`1[[Module.Data.CardUpProgress, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: structLockDataDic
-      Entry: 7
-      Data: 11|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[System.Collections.Generic.List`1[[Module.Data.BuildingType,
-        Assembly-CSharp]], mscorlib]], mscorlib
-    - Name: comparer
-      Entry: 9
-      Data: 6
-    - Name: 
-      Entry: 12
-      Data: 5
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 1
-    - Name: $v
-      Entry: 7
-      Data: 12|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 2
-    - Name: $v
-      Entry: 7
-      Data: 13|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 3
-    - Name: $v
-      Entry: 7
-      Data: 14|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 4
-    - Name: $v
-      Entry: 7
-      Data: 15|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 5
-    - Name: $v
-      Entry: 7
-      Data: 16|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: structUnLockDataDic
-      Entry: 7
-      Data: 17|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[System.Collections.Generic.List`1[[Module.Data.BuildingType,
-        Assembly-CSharp]], mscorlib]], mscorlib
-    - Name: comparer
-      Entry: 9
-      Data: 6
-    - Name: 
-      Entry: 12
-      Data: 5
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 1
-    - Name: $v
-      Entry: 7
-      Data: 18|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 2
-    - Name: $v
-      Entry: 7
-      Data: 19|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 3
-    - Name: $v
-      Entry: 7
-      Data: 20|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 4
-    - Name: $v
-      Entry: 7
-      Data: 21|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 5
-    - Name: $v
-      Entry: 7
-      Data: 22|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: structCanUnLockDataDic
-      Entry: 7
-      Data: 23|System.Collections.Generic.Dictionary`2[[System.Int32, mscorlib],[System.Collections.Generic.List`1[[Module.Data.BuildingType,
-        Assembly-CSharp]], mscorlib]], mscorlib
-    - Name: comparer
-      Entry: 9
-      Data: 6
-    - Name: 
-      Entry: 12
-      Data: 5
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 1
-    - Name: $v
-      Entry: 7
-      Data: 24|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 2
-    - Name: $v
-      Entry: 7
-      Data: 25|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 3
-    - Name: $v
-      Entry: 7
-      Data: 26|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 4
-    - Name: $v
-      Entry: 7
-      Data: 27|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 7
-      Data: 
-    - Name: $k
-      Entry: 3
-      Data: 5
-    - Name: $v
-      Entry: 7
-      Data: 28|System.Collections.Generic.List`1[[Module.Data.BuildingType, Assembly-CSharp]],
-        mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: cashierData
-      Entry: 6
-      Data: 
-    - Name: deliverData
-      Entry: 6
-      Data: 
-    - Name: warehouselist
-      Entry: 7
-      Data: 29|System.Collections.Generic.List`1[[Module.Data.WarehouseCategory,
-        Assembly-CSharp]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: ProductStationDataList
-      Entry: 7
-      Data: 30|System.Collections.Generic.List`1[[Module.Data.ProductStationData,
-        Assembly-CSharp]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: runtimeCustomerDataList
-      Entry: 6
-      Data: 
-    - Name: runtimeProductionDataList
-      Entry: 6
-      Data: 
-    - Name: runtimeProductionStationDataList
-      Entry: 6
-      Data: 
-    - Name: runtimePlayerDropList
-      Entry: 6
-      Data: 
-    - Name: runtimePlayerGoodsList
-      Entry: 6
-      Data: 
-    - Name: runtimeYuanBaoMonsterDataList
-      Entry: 6
-      Data: 
-    - Name: runtimeYuanBaoDropDataList
-      Entry: 6
-      Data: 
-    - Name: runtimeYuanBaoStateDataList
-      Entry: 6
-      Data: 
-    - Name: orderDataprogressList
-      Entry: 7
-      Data: 31|System.Collections.Generic.List`1[[Module.Data.OrderDataProgress,
-        Assembly-CSharp]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: mapLockDataProgressList
-      Entry: 7
-      Data: 32|System.Collections.Generic.List`1[[Module.Data.MapLockDataProgress,
-        Assembly-CSharp]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: structureLockProgressDataList
-      Entry: 7
-      Data: 33|System.Collections.Generic.List`1[[Module.Data.StructureLockProgressData,
-        Assembly-CSharp]], mscorlib
-    - Name: 
-      Entry: 12
-      Data: 0
-    - Name: 
-      Entry: 13
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
-    - Name: remainCount
-      Entry: 3
-      Data: 30
-    - Name: lastRefrashTime
-      Entry: 1
-      Data: 
-    - Name: yuanBaoKuangDongStateDataList
-      Entry: 6
-      Data: 
-    - Name: 
-      Entry: 8
-      Data: 
+    SerializationNodes: []
+  data:
+    id: 
+    name: 
+    hp: 30
+    atk: 20
+    bagCapacity: 20
+    moveSpeed: 5
+    pickUpRange: 4
+    slowDownValue: 3
+    weaponSize: 1
+    hpRecover: 0
+    addHp: 0
+    addAtk: 0
+    addBagCapacity: 0
+    equippedBagCapacity: 0
+    bagCapacityDataMigrated: 0
+    addMoveSpeed: 0
+    addPickUpRange: 0
+    addSlowDownValue: 0
+    addweaponSize: 0
+    addhpRecover: 0
+    playerName: 
+    userAccount: 
+    userPassword: 
+    age: 0
+    oncePurchaseLimit: 0
+    monthPurchaseLimit: 0
+    mothTotalSpending: 0
+    isCreated: 0
+    user_id: 0
+    headId: 0
+    currentClothing: 0
+    ownClothingList: 
+    guidIdList: 
+    guideStep: 1
+    todayUseZhuanPanNum: 0
+    currentUseNum: 0
+    playLingBaoCount: 0
+    canPlayXuanJing: 0
+    playXuanJingTime: 
+    lastloginday: 
+    playTrialCurrencyType: 0
+    monthlyLimitMoney: 0
+    tongbi: 5000000
+    goldIngot: 5000000
+    lingJing: 500000
+    star: 0
+    talentPoint: 0
+    currentMapID: 1
+    speedTime: 0
+    accountLevel: 1
+    characterFunction: 1
+    cardFunction: 1
+    mapFunction: 1
+    employeeFunction: 1
+    ordenFunction: 1
+    levelLockMapList: 02000000030000000400000005000000
+    realUnlockMapList: 01000000
+    mapCompletedTaskRecordList_1: 
+    mapCompletedTaskRecordList_2: 
+    mapCompletedTaskRecordList_3: 
+    mapCompletedTaskRecordList_4: 
+    mapCompletedTaskRecordList_5: 
+    nowTaskId: 0
+    listenInTaskList: []
+    taskPopCompleted: 0
+    FanPingBaoXiaoTime: 
+    LingShunLingTime: 
+    GetLingJingTime: 
+    GetLingJingCount: 0
+    sevenDayRecordList: 
+    sevenDayRecordTime: 
+    GetSevenDayRewardIndex: 0
+    SeventRecentlyWeek: 0
+    talentLevel: 0
+    ownWeaponList: 01000000
+    currentWeapon: 1
+    ownBagList: 01000000
+    currentBag: 1
+    cardLevelMax: 0
+    useLingJingTotalValue: 0
+    useZhuanPanTotalValue: 0
+    cardUpProgressesList: []
+    cashierData:
+      workingNum: 0
+      totalNum: 1
+      currentWorkingSpeed: 5
+      earning: 1
+      workspeedLevel: 1
+      peopleLevel: 1
+      maxworkspeedLevel: 50
+      maxpeopleLevel: 3
+    deliverData:
+      workingNum: 1
+      totalNum: 1
+      capacity: 1
+      speedLevel: 1
+      peopleLevel: 1
+      maxSpeedLevel: 60
+      maxpeopleLevel: 3
+      yunDiZheWorkingBuildList: 
+    warehouselist: []
+    ProductStationDataList: []
+    runtimeCustomerDataList: []
+    runtimeProductionDataList: []
+    runtimeProductionStationDataList: []
+    runtimePlayerDropList: []
+    runtimePlayerGoodsList: []
+    runtimeYuanBaoMonsterDataList: []
+    runtimeYuanBaoDropDataList: []
+    runtimeYuanBaoStateDataList: []
+    remainCount: 30
+    lastRefrashTime: 
+    yuanBaoKuangDongStateDataList: []
   maxOrderCount: 4
   refreshInterval: 180
   checkInterval: 5

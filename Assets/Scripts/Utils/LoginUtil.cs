@@ -342,7 +342,7 @@ namespace Utils
                         }
                         else
                         {
-                            UIController.Instance.Show<TipView>("登录失败!");
+                            UIController.Instance.Show<TipView>("登录失败！");
                         }
                         int resolvedId = responseLogin != null ? responseLogin.GetResolvedId() : 0;
                         if (resolvedId > 0)
@@ -353,13 +353,13 @@ namespace Utils
                     catch (Exception ex)
                     {
                         Debug.LogError($"[Login] Login flow failed: {ex}");
-                        UIController.Instance.Show<TipView>("登录失败!");
+                        UIController.Instance.Show<TipView>("登录失败！");
                     }
                 }
                 else
                 {
                     Debug.LogError($"登录失败: {webRequest.error}, URL: {Loginurl}");
-                    UIController.Instance.Show<TipView>("登录失败!");
+                    UIController.Instance.Show<TipView>("登录失败！");
                 }
             }
         }

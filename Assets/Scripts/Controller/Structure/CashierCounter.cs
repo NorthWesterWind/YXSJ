@@ -354,6 +354,10 @@ namespace Controller.Structure
             meshRenderer_1.sortingOrder = newOrder + 2;
             grid.basePosition = exportTransform.position;
             RefreshCoinLayout();
+
+            skeletonAnimation1.skeleton.SetAttachment("衣服", "1_2");
+            skeletonAnimation2.skeleton.SetAttachment("衣服", "1_2");
+            skeletonAnimation3.skeleton.SetAttachment("衣服", "1_2");
         }
 
         public void ShowContent_2()
@@ -380,6 +384,9 @@ namespace Controller.Structure
             meshRenderer_2.sortingOrder = newOrder + 2;
             meshRenderer_3.sortingOrder = newOrder + 2;
             RefreshCoinLayout();
+            skeletonAnimation4.skeleton.SetAttachment("衣服", "1_2");
+            skeletonAnimation5.skeleton.SetAttachment("衣服", "1_2");
+            skeletonAnimation6.skeleton.SetAttachment("衣服", "1_2");
         }
 
         private void HideAllCashierNpcs()
@@ -596,17 +603,22 @@ namespace Controller.Structure
                 playerData.cashierData = new CashierData();
             }
 
-            float t = 0f;
-            float productionTime = Mathf.Max(0.01f, playerData.cashierData.currentWorkingSpeed / Mathf.Max(0.01f, speed));
+            float progressTime = 0f;
 
             customer.fillBg.gameObject.SetActive(true);
             customer.fill.transform.localScale = new Vector3(0, 1, 1);
 
-            while (t < productionTime)
+            while (true)
             {
-                t += Time.deltaTime;
-                float value = Mathf.Clamp01(t / productionTime);
+                float productionTime = Mathf.Max(0.01f, playerData.cashierData.currentWorkingSpeed);
+                progressTime += Time.deltaTime * Mathf.Max(0.01f, speed);
+                float value = Mathf.Clamp01(progressTime / productionTime);
                 customer.fill.transform.localScale = new Vector3(value, 1, 1);
+                if (value >= 1f)
+                {
+                    break;
+                }
+
                 yield return null;
             }
 

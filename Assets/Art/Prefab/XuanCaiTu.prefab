@@ -452,7 +452,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8ad01a612f3dfe34ea07b1d10296cea8, type: 2}
+  - {fileID: 2100000, guid: 56c365c10217752459f2bb770d532d81, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -486,7 +486,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d247ba06193faa74d9335f5481b2b56c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skeletonDataAsset: {fileID: 11400000, guid: 328bef1ab697d2343a224e4609a855e8, type: 2}
+  skeletonDataAsset: {fileID: 11400000, guid: 2f2fc2e52360a0a4ab04877820a9ec8c, type: 2}
   initialSkinName: 
   fixPrefabOverrideViaMeshFilter: 2
   initialFlipX: 0
@@ -766,6 +766,8 @@ MonoBehaviour:
   detectRadius: 10
   collectRadius: 5
   collectorPickupDelay: 0.8
+  collectScanInterval: 0.08
+  collectScanBudget: 24
   unloadInterval: 0.12
   unloadPerBatch: 1
   depotArriveDistance: 0.8
@@ -774,6 +776,9 @@ MonoBehaviour:
     m_Bits: 64
   waitTime: 2
   attackStopDistance: 1.2
+  fightRepathInterval: 0.2
+  fightTargetRefreshInterval: 0.12
+  routeRepathInterval: 0.2
   agent: {fileID: 975175239268052875}
   weapon: {fileID: 6064793176159173579}
   weaponRoot: {fileID: 0}
@@ -888,6 +893,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isPlayer: 0
+  playMonsterHitSfx: 1
   hitInterval: 0.25
   warehouseCategoryType: 0
   atkValue: 3

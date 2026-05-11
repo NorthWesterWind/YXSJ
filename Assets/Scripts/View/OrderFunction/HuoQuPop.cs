@@ -34,7 +34,7 @@ public class HuoQuPop : MonoBehaviour
 
         if (PlayerDataModule.Instance.data.lingJing < 100)
         {
-            UIController.Instance.Show<TipView>("灵晶不足！");
+            UIController.Instance.Show<TipView>("灵晶数量不足！");
             return;
         }
 

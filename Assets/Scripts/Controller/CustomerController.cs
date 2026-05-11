@@ -152,6 +152,7 @@ namespace Controller
             transform.position = new Vector3(bornPosition.x, bornPosition.y, transform.position.z);
             fillBg.gameObject.SetActive(false);
             fill.gameObject.transform.localScale = new Vector3(0, 1, 1);
+            HandleCharacterFace();
             if (startMovement)
             {
                 RefreshMovementByState();
@@ -732,6 +733,88 @@ namespace Controller
             }
             currentFacingSign = facingSign;
             skeletonAnimation.skeleton.ScaleX = currentFacingSign;
+            HandleCharacterFace();
+        }
+
+        public void HandleCharacterFace()
+        {
+            if (skeletonAnimation == null || skeletonAnimation.skeleton == null || skeletonAnimation.skeletonDataAsset == null)
+            {
+                return;
+            }
+
+            bool isFacingRight = skeletonAnimation.skeleton.ScaleX >= 0f;
+
+            if (isFacingRight)
+            {
+                if (skeletonAnimation.skeletonDataAsset.name == "cnangyungedizi_SkeletonData")
+                {
+                    skeletonAnimation.skeleton.SetAttachment("衣服", "9_2");
+                }
+                else if (skeletonAnimation.skeletonDataAsset.name == "cangyungezhanglao_SkeletonData")
+                {
+                    skeletonAnimation.skeleton.SetAttachment("衣服", "1_2");
+                }
+                else if (skeletonAnimation.skeletonDataAsset.name == "qinglangudizi_SkeletonData")
+                {
+                    skeletonAnimation.skeleton.SetAttachment("衣服", "7_2");
+                }
+                else if (skeletonAnimation.skeletonDataAsset.name == "qinglanguzhanglao_SkeletonData")
+                {
+                    skeletonAnimation.skeleton.SetAttachment("衣服", "3_2");
+                }
+                else if (skeletonAnimation.skeletonDataAsset.name == "sucaigedizi_SkeletonData")
+                {
+                    skeletonAnimation.skeleton.SetAttachment("衣服", "9_2");
+                }
+                else if (skeletonAnimation.skeletonDataAsset.name == "sucaigezhanglao_SkeletonData")
+                {
+                    skeletonAnimation.skeleton.SetAttachment("衣服", "11_2");
+                }
+                else if (skeletonAnimation.skeletonDataAsset.name == "yunzhitangdizi_SkeletonData")
+                {
+                    skeletonAnimation.skeleton.SetAttachment("衣服", "10_2");
+                }
+                else if (skeletonAnimation.skeletonDataAsset.name == "yunzhitangzhanglao_SkeletonData")
+                {
+                    skeletonAnimation.skeleton.SetAttachment("衣服", "7_2");
+                }
+            }
+            else
+            {
+                if (skeletonAnimation.skeletonDataAsset.name == "cnangyungedizi_SkeletonData")
+                {
+                    skeletonAnimation.skeleton.SetAttachment("衣服", "9");
+                }
+                else if (skeletonAnimation.skeletonDataAsset.name == "cangyungezhanglao_SkeletonData")
+                {
+                    skeletonAnimation.skeleton.SetAttachment("衣服", "1");
+                }
+                else if (skeletonAnimation.skeletonDataAsset.name == "qinglangudizi_SkeletonData")
+                {
+                    skeletonAnimation.skeleton.SetAttachment("衣服", "7");
+                }
+                else if (skeletonAnimation.skeletonDataAsset.name == "qinglanguzhanglao_SkeletonData")
+                {
+                    skeletonAnimation.skeleton.SetAttachment("衣服", "3");
+                }
+                else if (skeletonAnimation.skeletonDataAsset.name == "sucaigedizi_SkeletonData")
+                {
+                    skeletonAnimation.skeleton.SetAttachment("衣服", "9");
+                }
+                else if (skeletonAnimation.skeletonDataAsset.name == "sucaigezhanglao_SkeletonData")
+                {
+                    skeletonAnimation.skeleton.SetAttachment("衣服", "11");
+                }
+                else if (skeletonAnimation.skeletonDataAsset.name == "yunzhitangdizi_SkeletonData")
+                {
+                    skeletonAnimation.skeleton.SetAttachment("衣服", "10");
+                }
+                else if (skeletonAnimation.skeletonDataAsset.name == "yunzhitangzhanglao_SkeletonData")
+                {
+                    skeletonAnimation.skeleton.SetAttachment("衣服", "7");
+                }
+            }
         }
         private void SetLoopAnimation(string animationName)
         {
@@ -741,6 +824,7 @@ namespace Controller
             }
             skeletonAnimation.AnimationState.SetAnimation(0, animationName, true);
             currentLoopAnimation = animationName;
+            HandleCharacterFace();
         }
         private IEnumerator EnsureMoveStarted()
         {

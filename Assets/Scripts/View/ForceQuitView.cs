@@ -6,12 +6,13 @@ public class ForceQuitView : BaseView
 {
     public TextMeshProUGUI infotxt;
     public UIButton quitBtn;
-
+    public TextMeshProUGUI titleTxt;
 
     public override void UpdateViewWithArgs(params object[] args)
     {
         base.UpdateViewWithArgs(args);
         infotxt.text = args[0] as string;
+        titleTxt.text = args[1] as string;
     }
 
     protected override void AddEventListener()

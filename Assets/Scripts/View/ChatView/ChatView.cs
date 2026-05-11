@@ -318,6 +318,6 @@ public class ChatView : BaseView
         inputField.interactable = status;
 
         if (!status)
-            UIController.Instance.Show<TipView>("对方已将你删除!");
+            UIController.Instance.Show<TipView>("对方已将你删除！");
     }
 }

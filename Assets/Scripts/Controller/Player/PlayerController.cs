@@ -24,6 +24,10 @@ namespace Controller.Player
         public float maxHp;
         public int RemainCapacity => (int)maxCarryNum - currentCarryNum;
         public int CurrentSortingOrder => renderer != null ? renderer.sortingOrder : 0;
+        private const int SortingOrderMin = -32768;
+        private const int SortingOrderMax = 32767;
+        private const int PlayerSortingOrderBase = 30000;
+        private const int PlayerSortingOrderScale = 100;
         private SkeletonAnimation _skeletonAnimation;
         private Vector2 _dirValue;
         public bool isMoving = false;
@@ -132,6 +136,17 @@ namespace Controller.Player
             _skeletonAnimation.Skeleton.SetSkin(skinName);
             _skeletonAnimation.Skeleton.SetSlotsToSetupPose();
             _skeletonAnimation.AnimationState.Apply(_skeletonAnimation.Skeleton);
+
+            if (face == -1)
+            {
+                _skeletonAnimation.skeleton.SetAttachment("衣服", "衣服");
+                _skeletonAnimation.transform.localScale = new Vector3(-0.6f, 0.6f, 0.6f);
+            }
+            else
+            {
+                _skeletonAnimation.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
+                _skeletonAnimation.skeleton.SetAttachment("衣服", "8_2");
+            }
         }
         public void HandleShowGuideFinger(params object[] args)
         {
@@ -260,12 +275,24 @@ namespace Controller.Player
         }
         public void SetLayer()
         {
-            int newOrder = 30000 - Mathf.RoundToInt(transform.position.y * 100);
-            canvas.sortingOrder = newOrder + 1;
+            int newOrder = GetPlayerSortingOrder();
+            canvas.sortingOrder = AddSortingOrderOffset(newOrder, 1);
             renderer.sortingOrder = newOrder;
             shadowRenderer.sortingOrder = newOrder;
         }
+
+        private int GetPlayerSortingOrder()
+        {
+            int order = PlayerSortingOrderBase - Mathf.RoundToInt(transform.position.y * PlayerSortingOrderScale);
+            return Mathf.Clamp(order, SortingOrderMin, SortingOrderMax);
+        }
+
+        private int AddSortingOrderOffset(int order, int offset)
+        {
+            return Mathf.Clamp(order + offset, SortingOrderMin, SortingOrderMax);
+        }
         public bool isShowUI = false;
+        public int face = 1;
         void Update()
         {
             SetLayer();
@@ -278,11 +305,15 @@ namespace Controller.Player
                 isMoving = true;
                 if (_dirValue.x < 0)
                 {
+                    _skeletonAnimation.skeleton.SetAttachment("衣服", "衣服");
                     _skeletonAnimation.transform.localScale = new Vector3(-0.6f, 0.6f, 0.6f);
+                    face = -1;
                 }
                 else
                 {
                     _skeletonAnimation.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
+                    _skeletonAnimation.skeleton.SetAttachment("衣服", "8_2");
+                    face = 1;
                 }
 
                 var state = _skeletonAnimation.AnimationState;
@@ -355,8 +386,8 @@ namespace Controller.Player
                 weaponRoot.Rotate(0f, 0f, -speed * Time.deltaTime);
                 float z = weaponRoot.localEulerAngles.z;
                 if (z > 180f) z -= 360f;
-                weaponRenderer.sortingOrder = renderer.sortingOrder + 1;
-                weaponEffect.GetComponent<MeshRenderer>().sortingOrder = renderer.sortingOrder + 1;
+                weaponRenderer.sortingOrder = AddSortingOrderOffset(renderer.sortingOrder, 1);
+                weaponEffect.GetComponent<MeshRenderer>().sortingOrder = AddSortingOrderOffset(renderer.sortingOrder, 1);
                 float t = Mathf.Abs(Mathf.Cos(z * Mathf.Deg2Rad));
                 float scale = Mathf.Lerp(0.85f, 1.1f, t);
                 weaponRoot.localScale = Vector3.one * scale;
@@ -377,7 +408,7 @@ namespace Controller.Player
             {
                 Vector2 dir = guidePosition - (Vector2)transform.position;
                 fingerRoot.transform.right = dir;
-                finger.GetComponent<SpriteRenderer>().sortingOrder = renderer.sortingOrder + 100;
+                finger.GetComponent<SpriteRenderer>().sortingOrder = AddSortingOrderOffset(renderer.sortingOrder, 100);
                 if (Vector2.Distance(guidePosition, transform.position) < 3f)
                 {
                     finger.SetActive(false);
@@ -412,7 +443,7 @@ namespace Controller.Player
             );
             var coinCtrl = coinObj.GetComponent<Production>();
             coinCtrl.Init(GoodsType.TongBi, throwAmount);
-            coinCtrl.spriteRenderer.sortingOrder = renderer.sortingOrder + 2;
+            coinCtrl.spriteRenderer.sortingOrder = AddSortingOrderOffset(renderer.sortingOrder, 2);
             coinCtrl.FlyTo_1(
                 target.position, 0.08f, target,
                 () =>

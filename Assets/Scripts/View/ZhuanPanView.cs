@@ -85,12 +85,12 @@ public class ZhuanPanView : BaseView
     {
         if (PlayerDataModule.Instance.data.lingJing < 50)
         {
-            UIController.Instance.Show<TipView>("灵晶不足!");
+            UIController.Instance.Show<TipView>("灵晶数量不足！");
             return;
         }
         if (PlayerDataModule.Instance.data.todayUseZhuanPanNum >= 10)
         {
-            UIController.Instance.Show<TipView>("今日转盘次数已用完!");
+            UIController.Instance.Show<TipView>("今日转盘次数已用完！");
             return;
         }
          PlayerDataModule.Instance.data.useZhuanPanTotalValue += 1;

@@ -131,7 +131,7 @@ public class DungeonLevelView : BaseView
     {
         if (PlayerDataModule.Instance.data.playLingBaoCount <= 0)
         {
-            UIController.Instance.Show<TipView>("今日挑战次数已用完!");
+            UIController.Instance.Show<TipView>("今日挑战次数已用完！");
             return;
         }
         PlayerDataModule.Instance.data.playTrialCurrencyType = Module.Data.CurrencyType.JingYuanBao;
@@ -142,7 +142,7 @@ public class DungeonLevelView : BaseView
     {
         if (!PlayerDataModule.Instance.data.canPlayXuanJing)
         {
-            UIController.Instance.Show<TipView>("当前关卡冷却中!");
+            UIController.Instance.Show<TipView>("当前关卡冷却中！");
             return;
         }
         PlayerDataModule.Instance.data.playTrialCurrencyType = Module.Data.CurrencyType.LingJing;

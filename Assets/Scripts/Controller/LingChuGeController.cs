@@ -331,6 +331,10 @@ namespace Controller
             {
                 return;
             }
+            if (!IsEventTargetCurrentLingChuGe(args, 1))
+            {
+                return;
+            }
             if (characterController == null || characterController.receiveTransform == null)
             {
                 return;
@@ -430,6 +434,10 @@ namespace Controller
 
         public void HandleLingChuGeStopDelivery(params object[] args)
         {
+            if (!IsEventTargetCurrentLingChuGe(args, 0))
+            {
+                return;
+            }
             if (!isDelivering) return;
 
             isDelivering = false;
@@ -459,6 +467,26 @@ namespace Controller
             deliveringDrops.Clear();
             RefreshCurrentCapacityByStorage();
             RequestLingChuGeInfoRefresh();
+        }
+
+        private bool IsEventTargetCurrentLingChuGe(object[] args, int targetArgIndex)
+        {
+            if (args == null || args.Length <= targetArgIndex)
+            {
+                return true;
+            }
+
+            if (args[targetArgIndex] is LingChuGeController targetController)
+            {
+                return targetController == this;
+            }
+
+            if (args[targetArgIndex] is WarehouseCategoryType targetCategory)
+            {
+                return targetCategory == categoryType;
+            }
+
+            return true;
         }
 
 

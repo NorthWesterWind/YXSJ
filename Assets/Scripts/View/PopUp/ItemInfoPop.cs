@@ -201,7 +201,7 @@ namespace View.PopUp
         {
             int safeTarget = Mathf.Max(1, targetValue);
             fill.fillAmount = Mathf.Clamp01(currentValue * 1f / safeTarget);
-            filltxt.text = "(" + currentValue + "/" + safeTarget + ")";
+            filltxt.text = "（" + currentValue + "/" + safeTarget + "）";
 
             if (currentValue >= targetValue)
             {
@@ -275,7 +275,7 @@ namespace View.PopUp
                 }
                 else
                 {
-                    UIController.Instance.Show<TipView>("灵晶不足！");
+                    UIController.Instance.Show<TipView>("灵晶数量不足！");
                 }
             });
         }

@@ -48,7 +48,7 @@ namespace View.LingChuGe
 
         private void OnDisable()
         {
-            EventCenter.Instance.TriggerEvent(EventMessages.LingChuGeStopDelivery);
+            EventCenter.Instance.TriggerEvent(EventMessages.LingChuGeStopDelivery, lingChuGeController);
         }
 
 

@@ -179,7 +179,7 @@ namespace PolyNav
             }
 
             //goal is almost the same as the last goal. Nothing happens for performace in case it's called frequently
-            if ( ( goal - primeGoal ).magnitude < Mathf.Epsilon ) {
+            if ( ( goal - primeGoal ).magnitude < Mathf.Epsilon && ( hasPath || pathPending ) ) {
                 return true;
             }
 

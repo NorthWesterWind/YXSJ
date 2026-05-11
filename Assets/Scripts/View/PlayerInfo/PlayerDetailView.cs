@@ -97,13 +97,13 @@ public class PlayerDetailView : BaseView
         string playerName = nameInputField.text.Trim();
         if (string.IsNullOrEmpty(playerName))
         {
-            UIController.Instance.Show<TipView>("昵称不能为空!");
+            UIController.Instance.Show<TipView>("昵称不能为空！");
             return;
         }
 
         if (!Extensions.IsAllChinese(playerName))
         {
-            UIController.Instance.Show<TipView>("昵称只允许输入中文!");
+            UIController.Instance.Show<TipView>("昵称只允许输入中文！");
             return;
         }
 
@@ -117,7 +117,7 @@ public class PlayerDetailView : BaseView
         {
             if (blockedData == null || blockedData.code != 200 || blockedData.data == null)
             {
-                UIController.Instance.Show<TipView>("网络状态异常!");
+                UIController.Instance.Show<TipView>("网络状态异常！");
                 return;
             }
 
@@ -136,7 +136,7 @@ public class PlayerDetailView : BaseView
             PlayerDataModule.Instance.SavePlayerDataAsync();
             PlayerDataModule.Instance.SavePlayerDataToSever();
             EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerInfo);
-            UIController.Instance.Show<TipView>("修改成功!");
+            UIController.Instance.Show<TipView>("修改成功！");
         });
     }
 

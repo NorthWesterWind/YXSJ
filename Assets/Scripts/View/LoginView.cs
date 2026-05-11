@@ -186,12 +186,12 @@ public class LoginView : BaseView
             string password = zhuxiaoPasswordInput.text;
             if (string.IsNullOrEmpty(name))
             {
-                UIController.Instance.Show<TipView>("账号不能为空!");
+                UIController.Instance.Show<TipView>("账号不能为空！");
                 return;
             }
             if (string.IsNullOrEmpty(password))
             {
-                UIController.Instance.Show<TipView>("密码不能为空!");
+                UIController.Instance.Show<TipView>("密码不能为空！");
                 return;
             }
 
@@ -205,7 +205,7 @@ public class LoginView : BaseView
                 }
                 else if (responseclear.state == 2)
                 {
-                    UIController.Instance.Show<TipView>("账号信息不存在!");
+                    UIController.Instance.Show<TipView>("账号信息不存在！");
                 }
             });
 
@@ -256,13 +256,13 @@ public class LoginView : BaseView
     {
         if (string.IsNullOrEmpty(accountInput.text) || string.IsNullOrEmpty(passwordInput.text))
         {
-            UIController.Instance.Show<TipView>("账号或密码不能为空!");
+            UIController.Instance.Show<TipView>("账号或密码不能为空！");
             return;
         }
 
         if (accountInput.text.Length < 4 || accountInput.text.Length > 8)
         {
-            UIController.Instance.Show<TipView>("账号长度应为4到8个字符!");
+            UIController.Instance.Show<TipView>("账号长度应为4到8个字符！");
             return;
         }
 
@@ -270,14 +270,14 @@ public class LoginView : BaseView
         {
             if (data.code != 200)
             {
-                UIController.Instance.Show<TipView>("网络状态异常!");
+                UIController.Instance.Show<TipView>("网络状态异常！");
                 return;
             }
             else
             {
                 if (data.data.has_sensitive)
                 {
-                    UIController.Instance.Show<TipView>("账号包含敏感词!");
+                    UIController.Instance.Show<TipView>("账号包含敏感词！");
                     Debug.LogWarning($"账号 '{accountInput.text}' 包含敏感词 '{data.data.hit_word}'，原因类型: {data.data.reason_type}，具体原因: {data.data.reason}");
                     return;
                 }
@@ -428,18 +428,18 @@ public class LoginView : BaseView
         string str2 = registerPasswordInput.text;
         if (string.IsNullOrEmpty(str1) || string.IsNullOrEmpty(str2))
         {
-            UIController.Instance.Show<TipView>("账号或密码不能为空!");
+            UIController.Instance.Show<TipView>("账号或密码不能为空！");
             return;
         }
 
         if (registerAccountInput.text.Length < 4 || registerPasswordInput.text.Length > 8)
         {
-            UIController.Instance.Show<TipView>("账号长度应为4到8个字符!");
+            UIController.Instance.Show<TipView>("账号长度应为4到8个字符！");
             return;
         }
         if (registerPasswordInput.text.Length < 4)
         {
-            UIController.Instance.Show<TipView>("密码长度不能少于4位!");
+            UIController.Instance.Show<TipView>("密码长度不能少于4位！");
             return;
         }
 
@@ -452,14 +452,14 @@ public class LoginView : BaseView
         {
             if (data.code != 200)
             {
-                UIController.Instance.Show<TipView>("网络状态异常!");
+                UIController.Instance.Show<TipView>("网络状态异常！");
                 return;
             }
             else
             {
                 if (data.data.has_sensitive)
                 {
-                    UIController.Instance.Show<TipView>("账号包含敏感词!");
+                    UIController.Instance.Show<TipView>("账号包含敏感词！");
                     Debug.LogWarning($"注册账号 '{registerAccountInput.text}' 包含敏感词 '{data.data.hit_word}'，原因类型: {data.data.reason_type}，具体原因: {data.data.reason}");
                     return;
                 }
@@ -475,7 +475,7 @@ public class LoginView : BaseView
 
     private void OnRegisterSuccess()
     {
-        UIController.Instance.Show<TipView>("注册成功!");
+        UIController.Instance.Show<TipView>("注册成功！");
         SwitchToLoginPanel();
     }
 
@@ -491,7 +491,7 @@ public class LoginView : BaseView
 
         if (string.IsNullOrEmpty(realName) || string.IsNullOrEmpty(idCard))
         {
-            UIController.Instance.Show<TipView>("姓名或身份证号不能为空!");
+            UIController.Instance.Show<TipView>("姓名或身份证号不能为空！");
             return;
         }
 
@@ -554,7 +554,7 @@ public class LoginView : BaseView
 
         if (string.IsNullOrEmpty(realNameInput.text) || string.IsNullOrEmpty(realAccountInput.text))
         {
-            UIController.Instance.Show<TipView>("姓名或身份证号不能为空!");
+            UIController.Instance.Show<TipView>("姓名或身份证号不能为空！");
             return;
         }
         if (realAccountInput.text.Length < 18 || realAccountInput.text.Length > 18)
@@ -611,7 +611,7 @@ public class LoginView : BaseView
         if (response.error_code != 0)
         {
             Debug.Log($"认证失败: {response.reason}");
-            UIController.Instance.Show<TipView>($"认证失败!");
+            UIController.Instance.Show<TipView>($"认证失败！");
             return;
         }
 
@@ -648,7 +648,7 @@ public class LoginView : BaseView
                        }
                        break;
                    case 3:
-                       UIController.Instance.Show<TipView>("实名失败输入18位身份证号数字！");
+                       UIController.Instance.Show<TipView>("实名失败输入18位身份证号！");
                        break;
                    case 4:
                        UIController.Instance.Show<TipView>("用户不存在！");
@@ -666,13 +666,13 @@ public class LoginView : BaseView
         string name = setNameInput.text;
         if (string.IsNullOrEmpty(name))
         {
-            UIController.Instance.Show<TipView>("昵称不能为空!");
+            UIController.Instance.Show<TipView>("昵称不能为空！");
             return;
         }
 
         if (!Extensions.IsAllChinese(name))
         {
-            UIController.Instance.Show<TipView>("昵称只允许输入中文!");
+            UIController.Instance.Show<TipView>("昵称只允许输入中文！");
             return;
         }
 
@@ -686,7 +686,7 @@ public class LoginView : BaseView
         {
             if (data.code != 200)
             {
-                UIController.Instance.Show<TipView>("网络状态异常!");
+            UIController.Instance.Show<TipView>("网络状态异常！");
                 return;
             }
             else
@@ -942,8 +942,15 @@ public class LoginView : BaseView
     private IEnumerator No18LoadGame()
     {
         //  RealLogin();
-        //  EventCenter.Instance.TriggerEvent(EventMessages.BeginJugmentRemainTime);
-        //     yield break;
+        //   EventCenter.Instance.TriggerEvent(EventMessages.BeginJugmentRemainTime);
+        //     yield break;\
+
+        // UIController.Instance.Show<AttentionView>(
+        //          "\u3000\u3000根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》，本游戏严格控制未成年人使用游戏时段，仅每周五、周六、周日和法定节假日的20时至21时提供1小时网络游戏服务。8周岁以上未满16周岁的未成年人用户，游戏中单次充值金额不得超过50元人民币，每月充值金额累计不得超过200元人民币；16周岁以上未满18周岁的未成年人用户，单次充值金额不得超过100元人民币，每月充值金额累计不得超过400元人民币。",
+        //          "未成年提示", (Action)RealLogin);
+        // EventCenter.Instance.TriggerEvent(EventMessages.BeginJugmentRemainTime);
+        // yield break;
+
         if (PlayerDataModule.Instance.data.age < 8)
         {
             UIController.Instance.Show<ForceQuitView>(
@@ -973,7 +980,7 @@ public class LoginView : BaseView
 
         if (request.result != UnityWebRequest.Result.Success)
         {
-            UIController.Instance.Show<TipView>("网络错误!");
+            UIController.Instance.Show<TipView>("网络错误！");
             yield break;
         }
 
@@ -998,7 +1005,7 @@ public class LoginView : BaseView
 
                 // TODO: 未成年人弹窗提示
                 UIController.Instance.Show<AttentionView>(
-                    "\u3000\u3000根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》，本游戏严格控制未成年人使用游戏时段，仅每周五、周六、周日和法定节假日的20时至21时提供1小时网络游戏服务。8周岁以上未满16周岁的未成年人用户，游戏中单次充值金额不得超过50元人民币，每月充值金额累计不得超过200元人民；16周岁以上未满18周岁的未成年人用户，单次充值金额不得超过100元人民币，每月充值金额累计不得超过400元人民币。",
+                    "\u3000\u3000根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》，本游戏严格控制未成年人使用游戏时段，仅每周五、周六、周日和法定节假日的20时至21时提供1小时网络游戏服务。8周岁以上未满16周岁的未成年人用户，游戏中单次充值金额不得超过50元人民币，每月充值金额累计不得超过200元人民币；16周岁以上未满18周岁的未成年人用户，单次充值金额不得超过100元人民币，每月充值金额累计不得超过400元人民币。",
                     "未成年提示", (Action)RealLogin);
             }
             else
@@ -1010,7 +1017,7 @@ public class LoginView : BaseView
                         : "今天不是允许的游戏日期（需周五、六、日或节假日）";
                 Debug.Log($"限制原因：{reason}");
                 UIController.Instance.Show<ForceQuitView>(
-                    "\u3000\u3000尊敬的玩家，您目前为未成年人账号，已被纳入防沉迷系统。根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》的要求，每周五、周六、周日及法定节假日的20时至21时外为健康保护时段，当前时间段无法游玩，请合理安排时间。", "健康游戏提示");
+                    "\u3000\u3000尊敬的玩家，您目前为未成年人账号，已被纳入防沉迷系统。根据国家新闻出版署下发《关于防止未成年人沉迷网络游戏的通知》及《关于进一步严格管理 切实防止未成年人沉迷网络游戏的通知》，本游戏严格控制未成年人使用游戏时段，仅每周五、周六、周日和法定节假日的20时至21时提供1小时网络游戏服务。", "健康游戏提示");
             }
         }
         catch (Exception ex)

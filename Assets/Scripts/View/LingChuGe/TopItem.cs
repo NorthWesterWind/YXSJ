@@ -58,7 +58,7 @@ namespace View.LingChuGe
             btn.onClick.RemoveAllListeners();
             btn.onClick.AddListener((() =>
             {
-                EventCenter.Instance.TriggerEvent(EventMessages.LingChuGeDelivery, type);
+                EventCenter.Instance.TriggerEvent(EventMessages.LingChuGeDelivery, type, lingChuGeController);
             }));
             clickBound = true;
         }
@@ -72,7 +72,7 @@ namespace View.LingChuGe
         private void OnDisable()
         {
             EventCenter.Instance.RemoveListener(EventMessages.UpdateLingChuGeInfo, HandleUpdateLingChuGeInfo);
-            EventCenter.Instance.TriggerEvent(EventMessages.LingChuGeStopDelivery);
+            EventCenter.Instance.TriggerEvent(EventMessages.LingChuGeStopDelivery, lingChuGeController);
         }
 
         public void HandleUpdateLingChuGeInfo(params object[] args)

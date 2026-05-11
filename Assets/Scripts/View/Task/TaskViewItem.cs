@@ -137,7 +137,7 @@ namespace View.Task
             {
                 isCompleted = true;
 
-                progresstxt.text = "(" + Extensions.FormatNumber((int)data.keyValue) + "/" + Extensions.FormatNumber(data.keyValue) + ")";
+                progresstxt.text = "（" + Extensions.FormatNumber((int)data.keyValue) + "/" + Extensions.FormatNumber(data.keyValue) + "）";
                 btntxt.text = "已完成";
             }
             else if (PlayerDataModule.Instance.data.taskProgressDic.ContainsKey(data.taskId))
@@ -146,19 +146,19 @@ namespace View.Task
                 {
                     canGetReward = true;
                     btntxt.text = "领取";
-                    progresstxt.text = "(" + Extensions.FormatNumber((int)data.keyValue) + "/" + Extensions.FormatNumber(data.keyValue) + ")";
+                    progresstxt.text = "（" + Extensions.FormatNumber((int)data.keyValue) + "/" + Extensions.FormatNumber(data.keyValue) + "）";
                 }
                 else
                 {
                     canGetReward = false;
                     btntxt.text = "进行中";
-                    progresstxt.text = "(" + Extensions.FormatNumber((int)PlayerDataModule.Instance.data.taskProgressDic[data.taskId]) + "/" + Extensions.FormatNumber(data.keyValue) + ")";
+                    progresstxt.text = "（" + Extensions.FormatNumber((int)PlayerDataModule.Instance.data.taskProgressDic[data.taskId]) + "/" + Extensions.FormatNumber(data.keyValue) + "）";
                 }
             }
             else
             {
                 btntxt.text = "进行中";
-                progresstxt.text = "(0/" + Extensions.FormatNumber(data.keyValue) + ")";
+                progresstxt.text = "（0/" + Extensions.FormatNumber(data.keyValue) + "）";
             }
             if (_assetHandle == null)
             {
@@ -240,7 +240,7 @@ namespace View.Task
             {
                 isCompleted = true;
 
-                progresstxt.text = "(" + Extensions.FormatNumber((int)data.keyValue) + "/" + Extensions.FormatNumber(data.keyValue) + ")";
+                progresstxt.text = "（" + Extensions.FormatNumber((int)data.keyValue) + "/" + Extensions.FormatNumber(data.keyValue) + "）";
                 btntxt.text = "已完成";
             }
             else if (PlayerDataModule.Instance.data.taskProgressDic.ContainsKey(data.taskId))
@@ -249,19 +249,19 @@ namespace View.Task
                 {
                     canGetReward = true;
                     btntxt.text = "领取";
-                    progresstxt.text = "(" + Extensions.FormatNumber((int)data.keyValue) + "/" + Extensions.FormatNumber(data.keyValue) + ")";
+                    progresstxt.text = "（" + Extensions.FormatNumber((int)data.keyValue) + "/" + Extensions.FormatNumber(data.keyValue) + "）";
                 }
                 else
                 {
                     canGetReward = false;
                     btntxt.text = "进行中";
-                    progresstxt.text = "(" + Extensions.FormatNumber((int)PlayerDataModule.Instance.data.taskProgressDic[data.taskId]) + "/" + Extensions.FormatNumber(data.keyValue) + ")";
+                    progresstxt.text = "（" + Extensions.FormatNumber((int)PlayerDataModule.Instance.data.taskProgressDic[data.taskId]) + "/" + Extensions.FormatNumber(data.keyValue) + "）";
                 }
             }
             else
             {
                 btntxt.text = "进行中";
-                progresstxt.text = "(0/" + Extensions.FormatNumber((int)data.keyValue) + ")";
+                progresstxt.text = "（0/" + Extensions.FormatNumber((int)data.keyValue) + "）";
             }
         }
     }

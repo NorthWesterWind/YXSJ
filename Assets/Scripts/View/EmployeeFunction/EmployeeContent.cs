@@ -1,6 +1,7 @@
 using Controller;
 using Module;
 using Module.Data;
+using Spine.Unity;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,6 +28,8 @@ public class EmployeeContent : MonoBehaviour
     public UIButton removebtn;
     public Image removeMask;
 
+    public SkeletonGraphic skeletonGraphic;
+
     private void OnEnable()
     {
         EventCenter.Instance.AddListener(EventMessages.UpdateYunDiZheInfo, HandleEmployeeStateChanged);
@@ -44,6 +47,7 @@ public class EmployeeContent : MonoBehaviour
 
     public void Init(EmployeeType employeeType, BuildingType buildingType = BuildingType.None)
     {
+        
         this.employeeType = employeeType;
         this.buildingType = buildingType;
         UpdatePeopleInfo();
@@ -51,6 +55,7 @@ public class EmployeeContent : MonoBehaviour
         PlayerData playerData = PlayerDataModule.Instance.data;
         if (employeeType != EmployeeType.YunDiZhe)
         {
+            skeletonGraphic.Skeleton.SetAttachment("衣服", "6");
             Extensions.ClearChildren(content);
             if (buildingType == BuildingType.LingChuGe_1)
             {
@@ -77,6 +82,7 @@ public class EmployeeContent : MonoBehaviour
 
         if (employeeType == EmployeeType.YunDiZhe)
         {
+            skeletonGraphic.Skeleton.SetAttachment("衣服", "10_2");
             progressTxt.text = playerData.deliverData.workingNum + "/" + playerData.deliverData.totalNum;
            
            if (playerData.deliverData.totalNum > playerData.deliverData.workingNum)

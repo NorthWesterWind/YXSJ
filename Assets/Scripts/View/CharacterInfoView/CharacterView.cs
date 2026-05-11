@@ -87,6 +87,7 @@ namespace View.CharacterInfoView
         {
             skeletonGraphic.initialSkinName = PlayerDataModule.Instance.data.currentClothing.ToString();
             skeletonGraphic.Initialize(true);
+            skeletonGraphic.Skeleton.SetAttachment("衣服", "8_2");
         }
         public override void RemoveEventListener()
         {
@@ -187,7 +188,10 @@ namespace View.CharacterInfoView
             if (level > 80)
             {
                 level = 80;
-                uptalentBtn.interactable = false;
+                uptalentBtn.gameObject.SetActive(false);
+            }else
+            {
+                uptalentBtn.gameObject.SetActive(true);
             }
             talentImg.sprite = _assetHandle.Get<Sprite>(DataController.Instance.talentDataDic[level].resName);
             leveltxt.text = level.ToString();
@@ -249,6 +253,7 @@ namespace View.CharacterInfoView
             hptxt.text = data.addHp + data.hp + "";
             UpdateSoltState();
             UpdateClothInfo();
+            skeletonGraphic.Skeleton.SetAttachment("衣服","8_2");
         }
 
         public void ShowWeapon()

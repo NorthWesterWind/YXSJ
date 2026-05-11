@@ -134,8 +134,8 @@ namespace Module.Data
         public int currentBag = 1;
 
         public int cardLevelMax = 0; //最大升级令等级
-        public int useLingJingTotalValue = 0; //累积使用灵晶数
-        public int useZhuanPanTotalValue = 0; //累积使用转盘次数
+        public int useLingJingTotalValue = 0; //累计使用灵晶数
+        public int useZhuanPanTotalValue = 0; //累计使用转盘次数
 
         public List<CardUpProgress> cardUpProgressesList = new List<CardUpProgress>();
 

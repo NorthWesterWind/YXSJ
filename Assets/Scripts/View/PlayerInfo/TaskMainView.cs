@@ -154,12 +154,12 @@ namespace View.PlayerInfo
                     else
                     {
                         taskProgressTxt.text =
-                            "(" + PlayerDataModule.Instance.data.taskProgressDic[task.taskId] + "/" + task.keyValue + ")";
+                            "（" + PlayerDataModule.Instance.data.taskProgressDic[task.taskId] + "/" + task.keyValue + "）";
                     }
                 }
                 else
                 {
-                    taskProgressTxt.text = "(0/" + task.keyValue + ")";
+                    taskProgressTxt.text = "（0/" + task.keyValue + "）";
                 }
 
                 string str = Extensions.GetTaskInfoResNameByTypeWithId(task.type, task.aimId);

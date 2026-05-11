@@ -75,8 +75,8 @@ namespace View.MapFunction
                         info = "可以生产栀心茶";
                         break;
                     case MonsterFamily.YuHuiHe:
-                        name = "玉穗草";
-                        info = "可以生产玉穗茶";
+                        name = "玉穗禾";
+                        info = "可以生产玉禾茶";
                         break;
                     case MonsterFamily.XingWenGuo:
                         name = "星纹果";
@@ -116,7 +116,7 @@ namespace View.MapFunction
                         break;
                     case MonsterFamily.ZiJingShi:
                         name = "紫晶石";
-                        info = "可以生产紫武剑";
+                        info = "可以生产紫雾剑";
                         break;
                     case MonsterFamily.YueJingShi:
                         name = "月晶石";

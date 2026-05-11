@@ -48,7 +48,7 @@ public class HeadIconChangeView : BaseView
     {
         if (selectedHeadId < 0)
         {
-            UIController.Instance.Show<TipView>("请选择头像!");
+            UIController.Instance.Show<TipView>("请选择头像！");
             return;
         }
 
@@ -64,7 +64,7 @@ public class HeadIconChangeView : BaseView
         EventCenter.Instance.TriggerEvent(EventMessages.UpdateHeadID, selectedHeadId);
         EventCenter.Instance.TriggerEvent(EventMessages.UpdateHeadIcon, selectedHeadId);
         EventCenter.Instance.TriggerEvent(EventMessages.UpdatePlayerInfo);
-        UIController.Instance.Show<TipView>("头像更换成功!");
+        UIController.Instance.Show<TipView>("头像更换成功！");
         Hide();
     }
 }

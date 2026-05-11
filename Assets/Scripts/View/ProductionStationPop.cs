@@ -158,7 +158,7 @@ namespace View
                 }
                 if (PlayerDataModule.Instance.data.tongbi < productStationdata.priceLevel * 1000)
                 {
-                    UIController.Instance.Show<TipView>("铜币不足。");
+                    UIController.Instance.Show<TipView>("铜币数量不足。");
                     return;
                 }
                 UIController.Instance.Show<TipView>("升级成功。");
@@ -184,7 +184,7 @@ namespace View
                 }
                 if (PlayerDataModule.Instance.data.tongbi < productStationdata.timelevel * 1000)
                 {
-                    UIController.Instance.Show<TipView>("铜币不足。");
+                    UIController.Instance.Show<TipView>("铜币数量不足。");
                     return;
                 }
                 UIController.Instance.Show<TipView>("升级成功。");

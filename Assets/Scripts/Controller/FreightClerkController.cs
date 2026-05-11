@@ -743,10 +743,15 @@ namespace Controller
             SetLayer();
 
             Vector2 dir = _agent.movingDirection;
-            if (dir == Vector2.zero) return;
-            if (Mathf.Abs(dir.x) > 0.01f)
+            if (dir.x < 0)
             {
-                skeletonAnimation.skeleton.ScaleX = dir.x < 0 ? -1 : 1;
+                skeletonAnimation.skeleton.SetAttachment("衣服", "10");
+                skeletonAnimation.transform.localScale = new Vector3(-0.6f, 0.6f, 0.6f);
+            }
+            else
+            {
+                skeletonAnimation.skeleton.SetAttachment("衣服", "10_2");
+                skeletonAnimation.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
             }
         }
 

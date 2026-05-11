@@ -47,17 +47,20 @@ public class PlayerController2D : MonoBehaviour
     bool newIsMoving = false;
     void Update()
     {
-
         newIsMoving = _dirValue != Vector2.zero;
-
         if (newIsMoving)
         {
             if (_dirValue.x < 0)
+            {
                 skeletonGraphic.transform.localScale = new Vector3(-0.6f, 0.6f, 0.6f);
+                skeletonGraphic.Skeleton.SetAttachment("衣服", "衣服");
+            }
             else
+            {
                 skeletonGraphic.transform.localScale = new Vector3(0.6f, 0.6f, 0.6f);
+                skeletonGraphic.Skeleton.SetAttachment("衣服", "8_2");
+            }
         }
-
         if (isMoving != newIsMoving)
         {
             isMoving = newIsMoving;
